@@ -22,7 +22,7 @@ export default function ComingSoon() {
         localStorage.getItem("jwt") ||
         "";
 
-      const res = await fetch("/api/movies?status=upcoming", {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/api/movies?status=upcoming", {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
@@ -380,5 +380,6 @@ function ArrowBtn({ dir, onClick, style }) {
     </button>
   );
 }
+
 
 

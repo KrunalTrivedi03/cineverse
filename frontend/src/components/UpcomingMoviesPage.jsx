@@ -8,7 +8,7 @@ import {
   ChevronRight, SlidersHorizontal,
 } from "lucide-react";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 const formatVotes = (votes = 0) => {
   if (votes >= 1_000_000) return (votes / 1_000_000).toFixed(1) + "M";

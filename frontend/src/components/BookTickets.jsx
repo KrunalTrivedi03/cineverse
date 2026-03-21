@@ -8,7 +8,7 @@ import {
   Plus, Minus, RotateCcw, ChevronDown, Clock,
 } from "lucide-react";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 /* ── Local date key ─────────────────────────────────── */
 const localDateKey = (d) => {

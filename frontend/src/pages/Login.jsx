@@ -4,7 +4,7 @@ import { Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import api from "../api/axiosInstance";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 export default function Login() {
   const [form, setForm]         = useState({ email: "", password: "" });

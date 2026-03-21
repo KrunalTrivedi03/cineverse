@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 const isReleased = (dateStr) => {
   if (!dateStr) return null;

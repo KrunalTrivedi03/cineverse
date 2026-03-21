@@ -48,7 +48,7 @@ function useToast() {
   return { toasts, toast: add, remove };
 }
 
-const IMG = (p) => !p ? null : p.startsWith("http") ? p : `http://localhost:5000${p}`;
+const IMG = (p) => !p ? null : p.startsWith("http") ? p : `${import.meta.env.VITE_API_URL}${p}`;
 
 /* ═══════════════════════════════════════════════════════
    SETTINGS PAGE

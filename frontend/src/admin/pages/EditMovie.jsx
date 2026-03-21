@@ -306,18 +306,18 @@ export default function EditMovie() {
             role: c.role || "",
             image: null,
             existingImage: c.image || null,
-            preview: c.image ? `http://localhost:5000${c.image}` : null,
+            preview: c.image ? `${import.meta.env.VITE_API_URL}${c.image}` : null,
           })),
           crew: (movie.crew || []).map((c) => ({
             name: c.name || "",
             position: c.position || "",
             image: null,
             existingImage: c.image || null,
-            preview: c.image ? `http://localhost:5000${c.image}` : null,
+            preview: c.image ? `${import.meta.env.VITE_API_URL}${c.image}` : null,
           })),
         });
 
-        setPosterPreview(movie.poster ? `http://localhost:5000${movie.poster}` : null);
+        setPosterPreview(movie.poster ? `${import.meta.env.VITE_API_URL}${movie.poster}` : null);
       } catch (err) {
         console.error("Failed to load movie", err);
         toast.error("Failed to load movie data");

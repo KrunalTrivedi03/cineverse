@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { CheckCircle2, MapPin, Calendar, Clock, Monitor, Ticket, Home, Film } from "lucide-react";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 const fmt12 = (t) => {
   if (!t) return "";

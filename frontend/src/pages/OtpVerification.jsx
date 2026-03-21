@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Film, ArrowRight, RotateCcw, CheckCircle, ShieldCheck } from "lucide-react";
 import api from "../api/axiosInstance";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 export default function OtpVerification() {
   const navigate = useNavigate();

@@ -9,7 +9,7 @@ import {
   Bookmark, BookmarkCheck, Heart, PlayCircle, CheckCircle, Trash2,
 } from "lucide-react";
 
-const IMG = (path) => `http://localhost:5000${path}`;
+const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";

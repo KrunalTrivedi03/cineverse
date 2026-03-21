@@ -13,7 +13,7 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 
 const IMG = (path) =>
-  path?.startsWith("http") ? path : `http://localhost:5000${path}`;
+  path?.startsWith("http") ? path : `${import.meta.env.VITE_API_URL}${path}`;
 
 const TABS = [
   { id: "all",       label: "All" },

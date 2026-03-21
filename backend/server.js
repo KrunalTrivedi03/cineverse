@@ -27,14 +27,14 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: (process.env.CLIENT_URL || "").replace(/\/$/, ""),
     credentials: true,
     methods:     ["GET", "POST"],
   },
 });
 require("./socket")(io);
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({ origin: (process.env.CLIENT_URL || "").replace(/\/$/, ""), credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -62,3 +62,4 @@ app.get("/", (req, res) => res.send("CineVerse Backend Running..."));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

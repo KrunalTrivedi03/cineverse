@@ -82,7 +82,7 @@ export default function ComingSoon() {
   const getPosterUrl = (poster) => {
     if (!poster) return null;
     if (poster.startsWith("http")) return poster;
-    const base = import.meta.env.VITE_API_URL || "${import.meta.env.VITE_API_URL}";
+    const base = import.meta.env.VITE_API_URL;
     return `${base}${poster}`;
   };
 
@@ -380,4 +380,5 @@ function ArrowBtn({ dir, onClick, style }) {
     </button>
   );
 }
+
 

@@ -280,7 +280,7 @@ export default function ReviewSummary() {
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
 
-  const BASE_URL = "${import.meta.env.VITE_API_URL}";
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const loadMovie = async () => {
@@ -488,3 +488,4 @@ export default function ReviewSummary() {
     </AdminLayout>
   );
 }
+

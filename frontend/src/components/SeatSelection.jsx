@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
-const BASE = import.meta.env.VITE_API_URL || "${import.meta.env.VITE_API_URL}";
+const BASE = import.meta.env.VITE_API_URL;
 const LOCK_SECONDS = 5 * 60;
 const MAX_SEATS = 10;
 
@@ -1941,3 +1941,4 @@ export default function SeatSelection() {
     </div>
   );
 }
+

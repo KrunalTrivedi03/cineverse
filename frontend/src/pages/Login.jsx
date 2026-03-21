@@ -1,0 +1,262 @@
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
+import api from "../api/axiosInstance";
+
+const IMG = (path) => `http://localhost:5000${path}`;
+
+export default function Login() {
+  const [form, setForm]         = useState({ email: "", password: "" });
+  const [loading, setLoading]   = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [posterUrls, setPosterUrls] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get("/movies").then((res) => {
+      const last3 = res.data.slice(-3).map((m) => IMG(m.poster));
+      setPosterUrls([...last3, ...last3, ...last3]);
+    }).catch(() => {});
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const res = await api.post("/auth/login", form);
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+      toast.success("🎬 Welcome! Enjoy your show.");
+      setTimeout(() => navigate("/"), 1000);
+    } catch (err) {
+      const data = err.response?.data;
+      if (data?.requiresOTP) {
+        toast("🔐 Please verify your ticket first.");
+        navigate(`/verify-otp?email=${form.email}`);
+        return;
+      }
+      toast.error(data?.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        @keyframes scrollUp {
+          from { transform: translateY(0); }
+          to   { transform: translateY(-50%); }
+        }
+        @keyframes scrollDown {
+          from { transform: translateY(-50%); }
+          to   { transform: translateY(0); }
+        }
+        .strip-up   { animation: scrollUp   55s linear infinite; }
+        .strip-down { animation: scrollDown 45s linear infinite; }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.55s cubic-bezier(.4,0,.2,1) both; }
+      `}</style>
+
+      {/* ── LEFT: Cinematic poster wall ─────────────────── */}
+      <div
+        className="hidden lg:flex flex-1 relative overflow-hidden"
+        style={{ background: "#0d0d0d" }}
+      >
+        {/* Scrolling poster strips */}
+        <div className="absolute inset-0 flex gap-3 px-3 py-0">
+          {[0, 1, 2].map((col) => (
+            <div key={col} className="flex-1 overflow-hidden">
+              <div className={col % 2 === 0 ? "strip-up" : "strip-down"}>
+                {[...posterUrls, ...posterUrls].map((url, i) => (
+                  <img
+                    key={i}
+                    src={url}
+                    alt=""
+                    className="w-full rounded-xl mb-3 object-cover"
+                    style={{ aspectRatio: "2/3" }}
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Dark gradient overlays — top/bottom fade */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to bottom, #0d0d0d 0%, transparent 18%, transparent 82%, #0d0d0d 100%)",
+          }}
+        />
+        {/* Center vignette for text readability */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(13,13,13,0.55) 0%, transparent 70%)",
+          }}
+        />
+        {/* Right fade into form panel */}
+        <div
+          className="absolute top-0 right-0 bottom-0 w-32 pointer-events-none"
+          style={{ background: "linear-gradient(to right, transparent, #f5f5f5)" }}
+        />
+
+        {/* Branding overlay */}
+        <div className="absolute bottom-10 left-8 right-8 z-10">
+          <div className="flex items-center gap-2 mb-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: "#f0545c" }}
+            >
+              <Film size={18} color="white" />
+            </div>
+            <span className="text-white text-[22px] font-extrabold tracking-tight">
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
+            </span>
+          </div>
+          <p className="text-white/50 text-[14px] leading-relaxed max-w-xs">
+            Your gateway to movies, shows, trailers, and bookings — all in one place.
+          </p>
+        </div>
+      </div>
+
+      {/* ── RIGHT: Login form ────────────────────────────── */}
+      <div
+        className="w-full lg:w-[420px] flex-shrink-0 flex flex-col justify-center px-8 md:px-12 py-12"
+        style={{ background: "#f5f5f5" }}
+      >
+        <div className="fade-up w-full max-w-sm mx-auto">
+
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 mb-10 lg:hidden">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#f0545c" }}>
+              <Film size={16} color="white" />
+            </div>
+            <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
+            </span>
+          </div>
+
+          {/* Heading */}
+          <h1 className="text-[26px] font-bold text-gray-900 leading-tight">
+            Welcome back
+          </h1>
+          <p className="text-[14px] text-gray-400 mt-1 mb-8">
+            Sign in to continue your experience
+          </p>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {/* Email */}
+            <div>
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
+                Email
+              </label>
+              <div
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
+                style={{ borderColor: "#e5e7eb" }}
+              >
+                <Mail size={15} className="text-gray-300 flex-shrink-0" />
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="flex-1 text-[14px] text-gray-900 outline-none bg-transparent placeholder-gray-300"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  className="text-[12px] font-medium hover:underline"
+                  style={{ color: "#f0545c" }}
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <div
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
+                style={{ borderColor: "#e5e7eb" }}
+              >
+                <Lock size={15} className="text-gray-300 flex-shrink-0" />
+                <input
+                  type={showPass ? "text" : "password"}
+                  placeholder="••••••••"
+                  required
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="flex-1 text-[14px] text-gray-900 outline-none bg-transparent placeholder-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass((p) => !p)}
+                  className="text-gray-300 hover:text-gray-500 transition-colors"
+                >
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-white transition-all active:scale-[0.98]"
+              style={{
+                background: loading ? "#ccc" : "#f0545c",
+                cursor: loading ? "not-allowed" : "pointer",
+              }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#d94048"; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#f0545c"; }}
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In <ArrowRight size={15} />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-[12px] text-gray-400 font-medium">or</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+          <p className="text-center text-[14px] text-gray-500">
+            New to CineVerse?{" "}
+            <Link
+              to="/register"
+              className="font-semibold hover:underline"
+              style={{ color: "#f0545c" }}
+            >
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { CheckCircle2, MapPin, Calendar, Clock, Monitor, Ticket, Home, Film } from "lucide-react";
 
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const fmt12 = (t) => {
   if (!t) return "";
@@ -388,3 +388,5 @@ export default function BookingSuccess() {
     </div>
   );
 }
+
+

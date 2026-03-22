@@ -8,7 +8,7 @@ import {
   Plus, Minus, RotateCcw, ChevronDown, Clock,
 } from "lucide-react";
 
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 /* ── Local date key ─────────────────────────────────── */
 const localDateKey = (d) => {
@@ -572,3 +572,5 @@ function EmptyState({ icon, title, sub, action }) {
     </div>
   );
 }
+
+

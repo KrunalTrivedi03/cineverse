@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 /* ─── Helpers ─────────────────────────────────────────── */
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const isReleased = (dateStr) => {
   if (!dateStr) return true;
@@ -390,3 +390,5 @@ function HeroSlide({ item, onPlay }) {
 function Dot() {
   return <span className="text-white/20 text-[10px]">•</span>;
 }
+
+

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Film, ArrowRight, RotateCcw, CheckCircle, ShieldCheck } from "lucide-react";
 import api from "../api/axiosInstance";
 
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 export default function OtpVerification() {
   const navigate = useNavigate();
@@ -309,3 +309,5 @@ export default function OtpVerification() {
     </div>
   );
 }
+
+

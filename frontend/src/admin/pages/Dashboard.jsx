@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const isReleased = (dateStr) => {
   if (!dateStr) return null;
@@ -315,3 +315,5 @@ function EmptyRow({ cols, message }) {
     </tr>
   );
 }
+
+

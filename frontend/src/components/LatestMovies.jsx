@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import { ChevronRight, ChevronLeft, Star, ThumbsUp, MonitorPlay, Tv } from "lucide-react";
 
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const formatVotes = (votes = 0) => {
   if (votes >= 1_000_000) return (votes / 1_000_000).toFixed(1) + "M";
@@ -387,3 +387,5 @@ function ArrowBtn({ dir, onClick, style }) {
     </button>
   );
 }
+
+

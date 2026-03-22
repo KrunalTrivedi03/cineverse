@@ -1232,3 +1232,5 @@ export default function EditMovie() {
     </AdminLayout>
   );
 }
+
+

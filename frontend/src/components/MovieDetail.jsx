@@ -9,7 +9,7 @@ import {
   Bookmark, BookmarkCheck, Heart, PlayCircle, CheckCircle, Trash2,
 } from "lucide-react";
 
-const IMG = (path) => `${import.meta.env.VITE_API_URL}${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
@@ -1283,3 +1283,5 @@ function SimilarMovies({ movies }) {
     </div>
   );
 }
+
+

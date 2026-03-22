@@ -1,18 +1,11 @@
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS
-  }
-});
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
-    from: `"CineVerse 🎬" <${process.env.MAIL_USER}>`,
+  await resend.emails.send({
+    from: "CineVerse <onboarding@resend.dev>",
     to,
     subject,
-    html
+    html,
   });
 };

@@ -1,16 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
   <rect width="80" height="80" rx="18" fill="#111111"/>
-  <rect x="8" y="28" width="64" height="44" rx="6" fill="#222222"/>
-  <rect x="8" y="28" width="64" height="44" rx="6" fill="none" stroke="#f0545c" stroke-width="1.5"/>
-  <rect x="8" y="18" width="64" height="14" rx="4" fill="#f0545c"/>
-  <rect x="16" y="18" width="8" height="14" fill="#111111"/>
-  <rect x="30" y="18" width="8" height="14" fill="#111111"/>
-  <rect x="44" y="18" width="8" height="14" fill="#111111"/>
-  <rect x="58" y="18" width="8" height="14" fill="#111111"/>
-  <line x1="8" y1="14" x2="20" y2="28" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-  <rect x="14" y="40" width="30" height="3" rx="1.5" fill="#444444"/>
-  <rect x="14" y="48" width="22" height="3" rx="1.5" fill="#444444"/>
-  <rect x="14" y="56" width="26" height="3" rx="1.5" fill="#333333"/>
-  <circle cx="58" cy="50" r="10" fill="#f0545c"/>
-  <polygon points="55,46 55,54 63,50" fill="#ffffff"/>
+  <circle cx="40" cy="40" r="32" fill="#f0545c"/>
+  <circle cx="40" cy="40" r="32" fill="none" stroke="#c03040" stroke-width="1"/>
+  <polygon points="33,27 33,53 57,40" fill="#ffffff"/>
+  <rect x="8" y="37" width="12" height="6" rx="3" fill="#111111"/>
+  <rect x="60" y="37" width="12" height="6" rx="3" fill="#111111"/>
+  <rect x="37" y="8" width="6" height="12" rx="3" fill="#111111"/>
+  <rect x="37" y="60" width="6" height="12" rx="3" fill="#111111"/>
 </svg>

@@ -28,6 +28,7 @@ export default function Movies() {
   const [search, setSearch]   = useState("");
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy]   = useState("newest");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetchMovies = async () => {
     try {
@@ -53,16 +54,17 @@ export default function Movies() {
       return 0;
     });
 
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this movie?")) return;
-    try {
-      await axiosAdmin.delete(`/movies/${id}`);
-      fetchMovies();
-    } catch (err) {
-      console.error("Delete failed", err);
-      alert("Failed to delete movie");
-    }
-  };
+  const handleDelete = async () => {
+  if (!deleteTarget) return;
+  try {
+    await axiosAdmin.delete(`/admin/movies/${deleteTarget.id}`); // ✅ fixed path
+    setDeleteTarget(null);
+    fetchMovies();
+  } catch (err) {
+    console.error("Delete failed", err);
+    alert("Failed to delete movie");
+  }
+};
 
   const released  = movies.filter((m) => isReleased(m.releaseDate) === true).length;
   const upcoming  = movies.filter((m) => isReleased(m.releaseDate) === false).length;
@@ -292,7 +294,7 @@ export default function Movies() {
                             <Lock size={15} />
                           </ActionBtn>
                           <ActionBtn
-                            onClick={() => handleDelete(movie._id)}
+                            onClick={() => setDeleteTarget({ id: movie._id, title: movie.title })}
                             color="red"
                             title="Delete"
                           >
@@ -316,6 +318,60 @@ export default function Movies() {
             </div>
           )}
         </div>
+        {deleteTarget && (
+  <div style={{
+    position: "fixed", inset: 0, zIndex: 50,
+    background: "rgba(0,0,0,0.45)",
+    display: "flex", alignItems: "center", justifyContent: "center"
+  }}>
+    <div style={{
+      background: "var(--color-background-primary)",
+      border: "0.5px solid var(--color-border-tertiary)",
+      borderRadius: "var(--border-radius-lg)",
+      padding: "2rem", width: 360, textAlign: "center"
+    }}>
+      <div style={{
+        width: 52, height: 52, borderRadius: "50%",
+        background: "rgba(220,38,38,0.1)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        margin: "0 auto 1.25rem"
+      }}>
+        <Trash2 size={24} color="#dc2626" />
+      </div>
+      <p style={{ fontSize: 16, fontWeight: 500, color: "var(--color-text-primary)", margin: "0 0 0.5rem" }}>
+        Delete movie?
+      </p>
+      <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: "0 0 1.75rem", lineHeight: 1.6 }}>
+        <strong style={{ color: "var(--color-text-primary)" }}>{deleteTarget.title}</strong> will be permanently removed. This cannot be undone.
+      </p>
+      <div style={{ display: "flex", gap: 10 }}>
+        <button
+          onClick={() => setDeleteTarget(null)}
+          style={{
+            flex: 1, padding: "0.6rem",
+            borderRadius: "var(--border-radius-md)",
+            border: "0.5px solid var(--color-border-secondary)",
+            background: "transparent", color: "var(--color-text-secondary)",
+            fontSize: 13, cursor: "pointer"
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleDelete}
+          style={{
+            flex: 1, padding: "0.6rem",
+            borderRadius: "var(--border-radius-md)",
+            border: "none", background: "#dc2626",
+            color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer"
+          }}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </AdminLayout>
   );

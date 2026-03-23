@@ -167,11 +167,13 @@ function useWatchlist(movieId) {
 function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dropUp = true }) {
   return (
     <div
-      className={`absolute ${dropUp ? "bottom-full mb-2" : "top-full mt-2"} left-0 rounded-2xl overflow-hidden z-50 py-1.5`}
+      className={`absolute ${dropUp ? "bottom-full mb-2" : "top-full mt-2"} right-0 rounded-2xl overflow-hidden z-50 py-1.5`}
       style={{
         background: "#1a1a1a",
         border: "1px solid rgba(255,255,255,0.1)",
         minWidth: 178,
+        width: "max-content",
+        maxWidth: "calc(100vw - 32px)",
         boxShadow: "0 16px 40px rgba(0,0,0,0.5)",
       }}
     >
@@ -195,7 +197,8 @@ function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dro
               background: isActive ? opt.activeBg : "transparent",
             }}
             onMouseEnter={(e) => {
-              if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+              if (!isActive)
+                e.currentTarget.style.background = "rgba(255,255,255,0.06)";
             }}
             onMouseLeave={(e) => {
               if (!isActive) e.currentTarget.style.background = "transparent";
@@ -237,8 +240,12 @@ function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dro
             onClick={onRemove}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-left transition-all"
             style={{ color: "rgba(240,84,92,0.75)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.08)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(240,84,92,0.08)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
+            }
           >
             <Trash2 size={13} />
             Remove from list

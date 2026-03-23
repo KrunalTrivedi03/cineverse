@@ -380,7 +380,6 @@ export default function Movies() {
   );
 }
 
-/* ─── Action button ───────────────────────────────────── */
 const COLOR_MAP = {
   sky:   { bg: "#f0f9ff", text: "#0284c7", hover: "#e0f2fe" },
   blue:  { bg: "#eff6ff", text: "#2563eb", hover: "#dbeafe" },

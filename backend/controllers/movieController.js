@@ -7,7 +7,7 @@ exports.createMovie = async (req, res) => {
     const movieData = {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats: formats ? JSON.parse(formats) : [],cities: cities ? JSON.parse(cities) : [],cast: [],crew: [] };
 
     if (req.files?.poster) {
-      movieData.poster = `/uploads/${req.files.poster[0].filename}`;
+      movieData.poster = req.files.poster[0].path;
     }
 
     if (cast) {
@@ -18,8 +18,8 @@ exports.createMovie = async (req, res) => {
           name: member.name,
           role: member.role,
           image: req.files?.castImages?.[index]
-            ? `/uploads/${req.files.castImages[index].filename}`
-            : null
+            ? req.files.castImages[index].path
+            : null,
         });
       });
     }
@@ -32,8 +32,8 @@ exports.createMovie = async (req, res) => {
           name: member.name,
           position: member.position,
           image: req.files?.crewImages?.[index]
-            ? `/uploads/${req.files.crewImages[index].filename}`
-            : null
+            ? req.files.crewImages[index].path
+            : null,
         });
       });
     }

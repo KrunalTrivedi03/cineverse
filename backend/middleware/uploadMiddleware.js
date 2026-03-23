@@ -14,9 +14,7 @@
 
 // module.exports = upload;
 
-const { upload, cloudinary } = require("../config/cloudinary");
-
-const avatarUpload = upload; // single("avatar") is called in the route
+const { upload, avatarUpload, cloudinary } = require("../config/cloudinary");
 
 const handleUploadError = (err, req, res, next) => {
   if (err) return res.status(400).json({ message: err.message });

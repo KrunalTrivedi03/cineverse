@@ -318,7 +318,8 @@ export default function Movies() {
             </div>
           )}
         </div>
-        {deleteTarget && (
+      </div>
+      {deleteTarget && (
   <div style={{
     position: "fixed", inset: 0, zIndex: 50,
     background: "rgba(0,0,0,0.45)",
@@ -372,7 +373,6 @@ export default function Movies() {
     </div>
   </div>
 )}
-      </div>
     </AdminLayout>
   );
 }

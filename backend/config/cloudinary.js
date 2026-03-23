@@ -8,7 +8,15 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+const movieStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          "cineverse/movies",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
+const avatarStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder:          "cineverse/avatars",
@@ -17,9 +25,7 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
-});
+const upload      = multer({ storage: movieStorage, limits: { fileSize: 10 * 1024 * 1024 } });
+const avatarUpload = multer({ storage: avatarStorage, limits: { fileSize: 2 * 1024 * 1024 } });
 
-module.exports = { cloudinary, upload };
+module.exports = { cloudinary, upload, avatarUpload };

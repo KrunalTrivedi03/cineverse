@@ -321,15 +321,18 @@ export default function Movies() {
       </div>
       {deleteTarget && (
   <div style={{
-    position: "fixed", inset: 0, zIndex: 50,
-    background: "rgba(0,0,0,0.45)",
+    position: "fixed", inset: 0, zIndex: 9999,
+    background: "rgba(0,0,0,0.55)",
     display: "flex", alignItems: "center", justifyContent: "center"
   }}>
     <div style={{
-      background: "var(--color-background-primary)",
-      border: "0.5px solid var(--color-border-tertiary)",
-      borderRadius: "var(--border-radius-lg)",
-      padding: "2rem", width: 360, textAlign: "center"
+      background: "#ffffff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "16px",
+      padding: "2rem",
+      width: 360,
+      textAlign: "center",
+      boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
     }}>
       <div style={{
         width: 52, height: 52, borderRadius: "50%",
@@ -339,21 +342,21 @@ export default function Movies() {
       }}>
         <Trash2 size={24} color="#dc2626" />
       </div>
-      <p style={{ fontSize: 16, fontWeight: 500, color: "var(--color-text-primary)", margin: "0 0 0.5rem" }}>
+      <p style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: "0 0 0.5rem" }}>
         Delete movie?
       </p>
-      <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: "0 0 1.75rem", lineHeight: 1.6 }}>
-        <strong style={{ color: "var(--color-text-primary)" }}>{deleteTarget.title}</strong> will be permanently removed. This cannot be undone.
+      <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 1.75rem", lineHeight: 1.6 }}>
+        <strong style={{ color: "#111827" }}>{deleteTarget.title}</strong> will be permanently removed. This cannot be undone.
       </p>
       <div style={{ display: "flex", gap: 10 }}>
         <button
           onClick={() => setDeleteTarget(null)}
           style={{
             flex: 1, padding: "0.6rem",
-            borderRadius: "var(--border-radius-md)",
-            border: "0.5px solid var(--color-border-secondary)",
-            background: "transparent", color: "var(--color-text-secondary)",
-            fontSize: 13, cursor: "pointer"
+            borderRadius: "10px",
+            border: "1px solid #e5e7eb",
+            background: "#f9fafb", color: "#374151",
+            fontSize: 13, cursor: "pointer", fontWeight: 500
           }}
         >
           Cancel
@@ -362,9 +365,9 @@ export default function Movies() {
           onClick={handleDelete}
           style={{
             flex: 1, padding: "0.6rem",
-            borderRadius: "var(--border-radius-md)",
+            borderRadius: "10px",
             border: "none", background: "#dc2626",
-            color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer"
+            color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer"
           }}
         >
           Delete

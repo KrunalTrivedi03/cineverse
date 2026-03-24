@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from "react";
-import { BellPlus, ChevronRight, ChevronLeft, CalendarDays, Globe, Loader2, AlertCircle } from "lucide-react";
+import { BellPlus, ChevronRight, ChevronLeft, CalendarDays, Globe, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function ComingSoon() {
@@ -43,7 +43,7 @@ export default function ComingSoon() {
     fetchUpcoming();
   }, [fetchUpcoming]);
 
-  // ── Scroll arrows ────────────────────────────────────────────────
+  // ── Scroll arrows (desktop only) ─────────────────────────────────
   const check = useCallback(() => {
     const el = sliderRef.current;
     if (!el) return;
@@ -54,7 +54,6 @@ export default function ComingSoon() {
   useEffect(() => {
     const el = sliderRef.current;
     if (!el) return;
-    // Small delay so DOM has rendered the cards
     const timer = setTimeout(check, 100);
     el.addEventListener("scroll", check);
     window.addEventListener("resize", check);
@@ -87,17 +86,18 @@ export default function ComingSoon() {
   };
 
   const SectionWrapper = ({ children, showSeeAll = false }) => (
-    <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
-      <div className="flex items-center justify-between mb-6">
+    <section className="w-full px-4 md:px-14 py-6 md:py-10 bg-[#f5f5f5] border-t border-gray-100">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div>
-          <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">Coming Soon</h2>
-          <p className="text-[13px] text-gray-400 mt-0.5">Upcoming releases worth watching</p>
+          <h2 className="text-[17px] md:text-[20px] font-bold text-gray-900 tracking-tight">Coming Soon</h2>
+          <p className="text-[12px] md:text-[13px] text-gray-400 mt-0.5">Upcoming releases worth watching</p>
         </div>
         {showSeeAll && (
-          <button className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline"
-          onClick={() => navigate("/coming-soon")}
+          <button
+            className="flex items-center gap-0.5 text-[#f0545c] text-[12px] md:text-[13px] font-semibold hover:underline flex-shrink-0"
+            onClick={() => navigate("/coming-soon")}
           >
-            See All <ChevronRight size={15} />
+            See All <ChevronRight size={14} />
           </button>
         )}
       </div>
@@ -105,24 +105,22 @@ export default function ComingSoon() {
     </section>
   );
 
+  // ── Loading skeleton ─────────────────────────────────────────────
   if (loading) {
     return (
       <SectionWrapper>
-        <div className="flex gap-4 overflow-hidden">
+        <div className="flex gap-3 md:gap-4 overflow-hidden">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-[250px] animate-pulse">
-              <div
-                className="rounded-xl bg-gray-200"
-                style={{ aspectRatio: "2/3" }}
-              />
-              <div className="mt-2.5 space-y-2">
-                <div className="h-3.5 bg-gray-200 rounded w-3/4" />
-                <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div key={i} className="flex-shrink-0 w-[160px] md:w-[250px] animate-pulse">
+              <div className="rounded-xl md:rounded-xl bg-gray-200" style={{ aspectRatio: "2/3" }} />
+              <div className="mt-2 md:mt-2.5 space-y-1.5 md:space-y-2">
+                <div className="h-3 md:h-3.5 bg-gray-200 rounded w-3/4" />
+                <div className="h-2.5 md:h-3 bg-gray-200 rounded w-1/2" />
                 <div className="flex gap-1 mt-1">
-                  <div className="h-4 bg-gray-200 rounded-full w-12" />
-                  <div className="h-4 bg-gray-200 rounded-full w-14" />
+                  <div className="h-3.5 md:h-4 bg-gray-200 rounded-full w-10 md:w-12" />
+                  <div className="h-3.5 md:h-4 bg-gray-200 rounded-full w-12 md:w-14" />
                 </div>
-                <div className="h-7 bg-gray-200 rounded-lg mt-2" />
+                <div className="h-6 md:h-7 bg-gray-200 rounded-lg mt-1.5 md:mt-2" />
               </div>
             </div>
           ))}
@@ -135,12 +133,14 @@ export default function ComingSoon() {
   if (error) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center h-40 gap-3">
-          <AlertCircle size={28} className="text-red-300" />
-          <p className="text-[13px] text-gray-500">Something went wrong loading upcoming movies.</p>
+        <div className="flex flex-col items-center justify-center h-36 md:h-40 gap-3">
+          <AlertCircle size={24} className="text-red-300" />
+          <p className="text-[12px] md:text-[13px] text-gray-500 text-center">
+            Something went wrong loading upcoming movies.
+          </p>
           <button
             onClick={fetchUpcoming}
-            className="text-[12px] font-semibold px-4 py-1.5 rounded-lg border transition-all"
+            className="text-[11px] md:text-[12px] font-semibold px-4 py-1.5 rounded-lg border transition-all"
             style={{
               borderColor: "rgba(240,84,92,0.3)",
               color: "#f0545c",
@@ -160,9 +160,11 @@ export default function ComingSoon() {
   if (!movies.length) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center h-40 gap-2">
-          <CalendarDays size={28} className="text-gray-300" />
-          <p className="text-[13px] text-gray-400">No upcoming movies right now. Check back soon!</p>
+        <div className="flex flex-col items-center justify-center h-36 md:h-40 gap-2">
+          <CalendarDays size={24} className="text-gray-300" />
+          <p className="text-[12px] md:text-[13px] text-gray-400 text-center">
+            No upcoming movies right now. Check back soon!
+          </p>
         </div>
       </SectionWrapper>
     );
@@ -172,14 +174,15 @@ export default function ComingSoon() {
   return (
     <SectionWrapper showSeeAll>
       <div className="relative">
+        {/* Arrow buttons — hidden on mobile */}
         {canLeft && (
           <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -16, top: "42%" }} />
         )}
 
         <div
           ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="flex gap-3 md:gap-4 overflow-x-auto pb-1"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
         >
           {movies.map((movie) => (
             <MovieCard
@@ -205,7 +208,6 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
   const [notified, setNotified] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  // genre is stored as a string like " Action , Thriller" — split by comma
   const genres = Array.isArray(movie.genre)
     ? movie.genre.map((g) => g.trim()).filter(Boolean)
     : typeof movie.genre === "string"
@@ -215,7 +217,8 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
   const posterUrl = getPosterUrl(movie.poster);
 
   return (
-    <div className="flex-shrink-0 w-[250px] group">
+    /* Mobile: 160px wide · Desktop: 250px wide */
+    <div className="flex-shrink-0 w-[160px] md:w-[250px] group">
       {/* Poster */}
       <div
         className="relative rounded-xl overflow-hidden bg-gray-200 shadow-sm cursor-pointer"
@@ -230,9 +233,8 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          /* Fallback placeholder */
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-200 to-gray-300 gap-2">
-            <div className="text-gray-400 text-[10px] font-semibold text-center px-4 leading-tight">
+            <div className="text-gray-400 text-[9px] md:text-[10px] font-semibold text-center px-3 leading-tight">
               {movie.title}
             </div>
           </div>
@@ -240,20 +242,19 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
 
         {/* Releasing ribbon */}
         <div
-          className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 px-3 py-2"
-          style={{
-            background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)",
-          }}
+          className="absolute bottom-0 left-0 right-0 flex items-center gap-1 px-2 md:px-3 py-1.5 md:py-2"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
         >
-          <CalendarDays size={11} className="text-orange-400 flex-shrink-0" />
-          <span className="text-white text-[11px] font-semibold">
+          <CalendarDays size={9} className="text-orange-400 flex-shrink-0 md:hidden" />
+          <CalendarDays size={11} className="text-orange-400 flex-shrink-0 hidden md:block" />
+          <span className="text-white text-[10px] md:text-[11px] font-semibold">
             Releasing {formatReleaseDate(movie.releaseDate)}
           </span>
         </div>
 
         {/* Upcoming badge */}
         <div
-          className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+          className="absolute top-1.5 md:top-2 right-1.5 md:right-2 text-[9px] md:text-[10px] font-bold uppercase tracking-wide px-1.5 md:px-2 py-0.5 rounded-full"
           style={{ background: "rgba(234,88,12,0.88)", color: "white" }}
         >
           Upcoming
@@ -262,7 +263,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
         {/* Certificate badge */}
         {movie.certificate && (
           <div
-            className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded"
+            className="absolute top-1.5 md:top-2 left-1.5 md:left-2 text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded"
             style={{ background: "rgba(0,0,0,0.55)", color: "white", letterSpacing: "0.03em" }}
           >
             {movie.certificate}
@@ -271,9 +272,9 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
       </div>
 
       {/* Info */}
-      <div className="mt-2.5 px-0.5">
+      <div className="mt-2 md:mt-2.5 px-0.5">
         <h3
-          className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors cursor-pointer"
+          className="text-[13px] md:text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors cursor-pointer"
           onClick={onView}
           title={movie.title}
         >
@@ -281,28 +282,27 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
         </h3>
 
         {/* Language + Duration */}
-        <div className="flex items-center gap-2 mt-0.5">
-          <p className="flex items-center gap-1 text-[12px] text-gray-400">
-            <Globe size={11} />
+        <div className="flex items-center gap-1.5 md:gap-2 mt-0.5">
+          <p className="flex items-center gap-1 text-[11px] md:text-[12px] text-gray-400">
+            <Globe size={10} className="md:hidden" />
+            <Globe size={11} className="hidden md:block" />
             <span className="line-clamp-1">{movie.language || "—"}</span>
           </p>
+          {movie.duration && <span className="text-[10px] md:text-[11px] text-gray-300">•</span>}
           {movie.duration && (
-            <span className="text-[11px] text-gray-300">•</span>
-          )}
-          {movie.duration && (
-            <span className="text-[12px] text-gray-400">
+            <span className="text-[11px] md:text-[12px] text-gray-400">
               {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
             </span>
           )}
         </div>
 
-        {/* Genre pills */}
+        {/* Genre pills — show fewer on mobile */}
         {genres.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5">
-            {genres.slice(0, 3).map((g, i) => (
+          <div className="flex flex-wrap gap-1 mt-1 md:mt-1.5">
+            {genres.slice(0, 2).map((g, i) => (
               <span
                 key={i}
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                className="text-[9px] md:text-[10px] font-semibold px-1.5 md:px-2 py-0.5 rounded-full"
                 style={{
                   background: "rgba(240,84,92,0.08)",
                   color: "#c0353b",
@@ -312,12 +312,25 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
                 {g}
               </span>
             ))}
+            {/* Show 3rd genre only on desktop */}
+            {genres[2] && (
+              <span
+                className="hidden md:inline text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style={{
+                  background: "rgba(240,84,92,0.08)",
+                  color: "#c0353b",
+                  border: "1px solid rgba(240,84,92,0.2)",
+                }}
+              >
+                {genres[2]}
+              </span>
+            )}
           </div>
         )}
 
-        {/* Formats */}
+        {/* Formats — hide on mobile to save space */}
         {movie.formats?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5">
+          <div className="hidden md:flex flex-wrap gap-1 mt-1.5">
             {movie.formats.map((f, i) => (
               <span
                 key={i}
@@ -335,10 +348,10 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-1.5 md:gap-2 mt-2 md:mt-3">
           <button
             onClick={onView}
-            className="flex-1 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+            className="flex-1 py-1.5 rounded-lg text-[11px] md:text-[12px] font-semibold transition-all border"
             style={{
               borderColor: "rgba(240,84,92,0.3)",
               color: "#f0545c",
@@ -352,7 +365,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
 
           <button
             onClick={() => setNotified((p) => !p)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all border"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all border"
             style={{
               borderColor: notified ? "rgba(240,84,92,0.4)" : "rgba(0,0,0,0.12)",
               background: notified ? "rgba(240,84,92,0.1)" : "white",
@@ -360,7 +373,8 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
             }}
             title={notified ? "Reminder set" : "Remind me"}
           >
-            <BellPlus size={14} />
+            <BellPlus size={12} className="md:hidden" />
+            <BellPlus size={14} className="hidden md:block" />
           </button>
         </div>
       </div>
@@ -373,15 +387,10 @@ function ArrowBtn({ dir, onClick, style }) {
     <button
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
-      className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"
+      className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all hidden md:flex"
       style={{ ...style, transform: "translateY(-50%)" }}
     >
       {dir === "left" ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
     </button>
   );
 }
-
-
-
-
-

@@ -1,19 +1,17 @@
-// utils/sendTicketEmail.js
-const { sendEmail }      = require("../services/emailService");     // same as authController
-const buildEmailTemplate = require("./emailTemplateBuilder"); // same as authController
+const { sendEmail }      = require("../services/emailService");
+const buildEmailTemplate = require("./emailTemplateBuilder");
 
 /**
  * Sends a booking-confirmed ticket email to the user.
  *
  * @param {object} params
- * @param {string} params.toEmail     - Recipient email address
- * @param {string} params.toName      - Recipient display name (username)
- * @param {object} params.booking     - Populated Booking document
- * @param {string} params.movieTitle  - Movie title string
- * @param {string} params.theatreName - Theatre name string
+ * @param {string} params.toEmail
+ * @param {string} params.toName
+ * @param {object} params.booking
+ * @param {string} params.movieTitle
+ * @param {string} params.theatreName
  */
 async function sendTicketEmail({ toEmail, toName, booking, movieTitle, theatreName }) {
-  // ── Format date (e.g. "Saturday, 22 March 2026") ──────
   const showDate = new Date(booking.showDate).toLocaleDateString("en-IN", {
     weekday: "long",
     year:    "numeric",
@@ -21,10 +19,8 @@ async function sendTicketEmail({ toEmail, toName, booking, movieTitle, theatreNa
     day:     "numeric",
   });
 
-  // ── Seat list (e.g. "A1, A2, B3") ─────────────────────
   const seatList = booking.seats.map((s) => s.seatId).join(", ");
 
-  // ── Per-seat breakdown rows — warm palette matching verifyotp.html ──
   const seatRows = booking.seats
     .map(
       (s) => `
@@ -48,7 +44,6 @@ async function sendTicketEmail({ toEmail, toName, booking, movieTitle, theatreNa
     )
     .join("");
 
-  // ── Payment method label ───────────────────────────────
   const paymentLabel =
     booking.paymentMethod === "wallet"   ? "CineVerse Wallet" :
     booking.paymentMethod === "razorpay" ? "Card / UPI (Razorpay)" :

@@ -41,10 +41,24 @@ exports.register = async (req, res) => {
     user.emailOTPExpires = Date.now() + 2 * 60 * 1000;
     await user.save();
 
-    res.status(201).json({
-      message: "OTP sent successfully",
-      email: user.email,
-    });
+    try {
+  await sendEmail({
+    to: email,
+    subject: "Verify your CineVerse Account",
+    html,
+  });
+
+  res.status(201).json({
+    message: "OTP sent successfully",
+    email: user.email,
+  });
+} catch (emailError) {
+  console.error("Email failed:", emailError);
+
+  return res.status(500).json({
+    message: "User created but failed to send OTP email",
+  });
+}
 
     try {
       const buildEmailTemplate = require("../utils/emailTemplateBuilder");

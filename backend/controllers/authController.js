@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Role = require("../models/Role");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const buildEmailTemplate = require("../utils/emailTemplateBuilder");
 
 const {
   generateAccessToken,
@@ -9,6 +10,39 @@ const {
 } = require("../utils/generateTokens");
 const { sendEmail } = require("../services/emailService");
 
+// ─── Helper: build styled OTP HTML ───────────────────────────────────────────
+const buildStyledOTP = (otp) =>
+  otp
+    .split("")
+    .map(
+      (digit) => `
+  <td style="
+    width: 40px;
+    height: 50px;
+    background: #f5f2ec;
+    border: 1px solid #dedad2;
+    border-bottom: 3px solid #181816;
+    border-radius: 5px;
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #181816;
+    padding: 0;
+  ">${digit}</td>
+  <td style="width:6px; font-size:0; line-height:0;">&nbsp;</td>`,
+    )
+    .join("");
+
+// ─── Helper: generate & save OTP to user ─────────────────────────────────────
+const generateOTP = () => {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
+  return { otp, hashedOTP };
+};
+
+// ─── REGISTER ────────────────────────────────────────────────────────────────
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -33,46 +67,18 @@ exports.register = async (req, res) => {
       isOTPVerified: false,
     });
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
-
+    const { otp, hashedOTP } = generateOTP();
     user.emailOTP = hashedOTP;
     user.emailOTPExpires = Date.now() + 2 * 60 * 1000;
     await user.save();
 
+    // Respond immediately, send email after
     res.status(201).json({
       message: "OTP sent successfully",
       email: user.email,
     });
 
     try {
-      const buildEmailTemplate = require("../utils/emailTemplateBuilder");
-
-      const styledOTP = otp
-        .split("")
-        .map(
-          (digit) => `
-  <td style="
-    width: 40px;
-    height: 50px;
-    background: #f5f2ec;
-    border: 1px solid #dedad2;
-    border-bottom: 3px solid #181816;
-    border-radius: 5px;
-    text-align: center;
-    vertical-align: middle;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 22px;
-    font-weight: 700;
-    color: #181816;
-    padding: 0;
-  ">${digit}</td>
-  <td style="width:6px; font-size:0; line-height:0;">&nbsp;</td>
-`,
-        )
-        .join("");
-
       const html = buildEmailTemplate({
         template: "verifyotp.html",
         title: "Verify Your Email",
@@ -80,7 +86,7 @@ exports.register = async (req, res) => {
         heading: "Verify Your E-Mail Address",
         replacements: {
           USERNAME: user.username,
-          OTP: styledOTP,
+          OTP: buildStyledOTP(otp),
         },
       });
 
@@ -98,6 +104,7 @@ exports.register = async (req, res) => {
   }
 };
 
+// ─── RESEND OTP ───────────────────────────────────────────────────────────────
 exports.resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -112,47 +119,16 @@ exports.resendOTP = async (req, res) => {
     if (user.emailOTPExpires && user.emailOTPExpires > Date.now()) {
       const remainingMs = user.emailOTPExpires - Date.now();
       const remainingSeconds = Math.ceil(remainingMs / 1000);
-
       return res.status(429).json({
         message: `Please wait ${remainingSeconds} seconds before requesting a new OTP.`,
         remainingSeconds,
       });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
-
+    const { otp, hashedOTP } = generateOTP();
     user.emailOTP = hashedOTP;
     user.emailOTPExpires = Date.now() + 2 * 60 * 1000;
-
     await user.save();
-
-    const buildEmailTemplate = require("../utils/emailTemplateBuilder");
-
-    const styledOTP = otp
-      .split("")
-      .map(
-        (digit) => `
-  <td style="
-    width: 40px;
-    height: 50px;
-    background: #f5f2ec;
-    border: 1px solid #dedad2;
-    border-bottom: 3px solid #181816;
-    border-radius: 5px;
-    text-align: center;
-    vertical-align: middle;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 22px;
-    font-weight: 700;
-    color: #181816;
-    padding: 0;
-  ">${digit}</td>
-  <td style="width:6px; font-size:0; line-height:0;">&nbsp;</td>
-`,
-      )
-      .join("");
 
     const html = buildEmailTemplate({
       template: "verifyotp.html",
@@ -161,7 +137,7 @@ exports.resendOTP = async (req, res) => {
       heading: "Your New OTP",
       replacements: {
         USERNAME: user.username,
-        OTP: styledOTP,
+        OTP: buildStyledOTP(otp),
       },
     });
 
@@ -173,11 +149,12 @@ exports.resendOTP = async (req, res) => {
 
     res.json({ message: "OTP resent successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Resend OTP Error:", error);
     res.status(500).json({ message: "Resend OTP failed" });
   }
 };
 
+// ─── VERIFY EMAIL OTP ─────────────────────────────────────────────────────────
 exports.verifyEmailOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -204,16 +181,16 @@ exports.verifyEmailOTP = async (req, res) => {
     user.isEmailVerified = true;
     user.emailOTP = null;
     user.emailOTPExpires = null;
-
     await user.save();
 
     res.json({ message: "Email verified successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Verify OTP Error:", error);
     res.status(500).json({ message: "Verification failed" });
   }
 };
 
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -249,7 +226,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Login Error:", error);
     res.status(500).json({ message: "Login failed" });
   }
 };

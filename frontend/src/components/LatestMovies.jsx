@@ -29,8 +29,16 @@ const saveVoted = (set) => {
 
 const STATUS_BADGE = {
   upcoming:  { label: "Upcoming",   bg: "rgba(234,88,12,0.88)",  color: "#fff" },
-  released:  { label: "In Cinemas", bg: "rgba(240,84,92,0.88)",  color: "#fff" },
   streaming: { label: "Streaming",  bg: "rgba(99,102,241,0.88)", color: "#fff" },
+};
+
+const getBadge = (movie) => {
+  if (movie.status === "released") {
+    return movie.isInCinemas
+      ? { label: "In Cinemas", bg: "rgba(240,84,92,0.88)", color: "#fff" }
+      : { label: "Not Showing", bg: "rgba(107,114,128,0.85)", color: "#fff" };
+  }
+  return STATUS_BADGE[movie.status] || STATUS_BADGE.upcoming;
 };
 
 export default function LatestMovies() {
@@ -57,7 +65,7 @@ useEffect(() => {
 useEffect(() => {
   api.get("/movies", { params: { city } })
     .then((res) => {
-      const latest = res.data.filter((m) => m.status !== "upcoming").slice(0, 10);
+      const latest = res.data.filter((m) => m.status === "streaming" || (m.status === "released" && m.isInCinemas)).slice(0, 10);
       setMovies(
         latest.map((m) => ({
           id:          m._id,
@@ -193,7 +201,7 @@ useEffect(() => {
 }
 
 function MovieCard({ movie, isVoted, onVote, onClick }) {
-  const badge = STATUS_BADGE[movie.status] || STATUS_BADGE.upcoming;
+  const badge = getBadge(movie);
 
   return (
     <div

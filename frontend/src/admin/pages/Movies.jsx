@@ -17,9 +17,15 @@ import { useNavigate } from "react-router-dom";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
-const isReleased = (dateStr) => {
-  if (!dateStr) return null;
-  return new Date(dateStr) <= new Date();
+const getMovieStatusDisplay = (movie) => {
+  if (movie.status === "upcoming")
+    return { label: "Upcoming", cls: "bg-orange-50 text-orange-500 border-orange-100" };
+  if (movie.status === "streaming")
+    return { label: "Streaming", cls: "bg-indigo-50 text-indigo-600 border-indigo-100" };
+  // status === "released"
+  return movie.isInCinemas
+    ? { label: "In Cinemas", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" }
+    : { label: "Not Showing", cls: "bg-gray-50 text-gray-500 border-gray-200" };
 };
 
 export default function Movies() {
@@ -66,8 +72,8 @@ export default function Movies() {
   }
 };
 
-  const released  = movies.filter((m) => isReleased(m.releaseDate) === true).length;
-  const upcoming  = movies.filter((m) => isReleased(m.releaseDate) === false).length;
+  const released  = movies.filter((m) => m.status === "released" && m.isInCinemas).length;
+  const upcoming  = movies.filter((m) => m.status === "upcoming").length;
 
   return (
     <AdminLayout>
@@ -197,7 +203,7 @@ export default function Movies() {
                 </tr>
               ) : (
                 filtered.map((movie, index) => {
-                  const rel = isReleased(movie.releaseDate);
+                  const s = getMovieStatusDisplay(movie);
                   return (
                     <tr
                       key={movie._id}
@@ -260,17 +266,9 @@ export default function Movies() {
 
                       {/* Status */}
                       <td className="py-4 px-4">
-                        {rel === null ? (
-                          <span className="text-gray-300 text-[13px]">—</span>
-                        ) : rel ? (
-                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-                            In Cinemas
-                          </span>
-                        ) : (
-                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-orange-50 text-orange-500 border border-orange-100">
-                            Upcoming
-                          </span>
-                        )}
+                        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${s.cls}`}>
+                          {s.label}
+                        </span>
                       </td>
 
                       {/* Actions */}

@@ -5,7 +5,7 @@ import {
   Search, Trash2, Clapperboard, Plus, SlidersHorizontal,
   Loader2, CheckCircle2, AlertCircle, X, MapPin, Monitor,
   Film, Building2, Clock, CalendarDays, IndianRupee,
-  Edit, ChevronDown, ChevronUp,
+  Edit, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────
@@ -46,7 +46,7 @@ function Toast({ toast, onClose }) {
 /* ─────────────────────────────────────────
    Confirm Modal
 ───────────────────────────────────────── */
-function ConfirmModal({ title, description, onConfirm, onCancel }) {
+function ConfirmModal({ title, description, onConfirm, onCancel, busy = false }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -56,12 +56,13 @@ function ConfirmModal({ title, description, onConfirm, onCancel }) {
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">{title}</h3>
         <p className="text-[13px] text-gray-500 mb-5">{description}</p>
         <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">Cancel</button>
-          <button onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all"
+          <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50">Cancel</button>
+          <button onClick={onConfirm} disabled={busy}
+            className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-60"
             style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#e04048")}
+            onMouseEnter={(e) => { if (!busy) e.currentTarget.style.background = "#e04048"; }}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            {busy && <Loader2 size={13} className="animate-spin" />}
             Delete
           </button>
         </div>
@@ -404,6 +405,10 @@ export default function AdminShows() {
   const [expandedId, setExpandedId]     = useState(null);
   const [toast, setToast]               = useState(null);
 
+  const [pageSize, setPageSize]         = useState(20);
+  const [currentPage, setCurrentPage]   = useState(1);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
   const showToast = (msg, type = "success") => setToast({ message: msg, type });
 
   /* ── Fetch ── */
@@ -426,6 +431,7 @@ export default function AdminShows() {
   };
 
   useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { setCurrentPage(1); }, [search, filterMovie, filterCity, sortBy, pageSize]);
 
   /* ── Derived ── */
   const cities = [...new Map(
@@ -453,6 +459,10 @@ export default function AdminShows() {
   const upcoming     = shows.filter((s) => !isPast(s.showDate)).length;
   const past         = shows.filter((s) =>  isPast(s.showDate)).length;
   const totalSlots   = shows.reduce((acc, s) => acc + (s.showTimes?.length || 0), 0);
+
+  const totalPages      = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedShows  = filtered.slice((safeCurrentPage - 1) * pageSize, safeCurrentPage * pageSize);
 
   /* ── Create ── */
   const handleCreate = async (data) => {
@@ -497,6 +507,22 @@ export default function AdminShows() {
       showToast("Failed to delete show", "error");
     } finally {
       setDeletingId(null);
+      setConfirmDelete(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = filtered.map((s) => s._id);
+    if (ids.length === 0) return;
+    try {
+      setBulkDeleting(true);
+      await axiosAdmin.delete("/shows/admin/bulk-delete", { data: { ids } });
+      setShows((prev) => prev.filter((s) => !ids.includes(s._id)));
+      showToast(`${ids.length} show(s) deleted`);
+    } catch (err) {
+      showToast(err.response?.data?.message || "Failed to delete shows", "error");
+    } finally {
+      setBulkDeleting(false);
       setConfirmDelete(null);
     }
   };
@@ -594,6 +620,25 @@ export default function AdminShows() {
               <option value="movie">Movie A → Z</option>
             </select>
           </div>
+
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5">
+            <span className="text-[12px] text-gray-400 flex-shrink-0">Show</span>
+            <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))}
+              className="outline-none bg-transparent text-[13px] text-gray-700 cursor-pointer">
+              {[20, 40, 80, 100].map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <span className="text-[12px] text-gray-400 flex-shrink-0">per page</span>
+          </div>
+
+          <button
+            onClick={() => setConfirmDelete({ type: "bulk" })}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: "#fff1f2", color: "#dc2626" }}
+            onMouseEnter={(e) => { if (filtered.length) e.currentTarget.style.background = "#fee2e2"; }}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#fff1f2")}>
+            <Trash2 size={14} /> Delete All ({filtered.length})
+          </button>
         </div>
 
         {/* ── Table ── */}
@@ -635,12 +680,12 @@ export default function AdminShows() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((show, index) => (
+                paginatedShows.map((show, index) => (
                   <Fragment key={show._id}>
                     <tr className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
 
                       {/* # */}
-                      <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{index + 1}</td>
+                      <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{(safeCurrentPage - 1) * pageSize + index + 1}</td>
 
                       {/* Movie */}
                       <td className="py-3 px-4">
@@ -742,11 +787,30 @@ export default function AdminShows() {
           </table>
 
           {!loading && filtered.length > 0 && (
-            <div className="px-5 py-3 border-t border-gray-50">
+            <div className="px-5 py-3 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3">
               <p className="text-[12px] text-gray-400">
-                Showing <span className="font-semibold text-gray-600">{filtered.length}</span> of{" "}
-                <span className="font-semibold text-gray-600">{shows.length}</span> shows
+                Showing <span className="font-semibold text-gray-600">{(safeCurrentPage - 1) * pageSize + 1}</span>–
+                <span className="font-semibold text-gray-600">{Math.min(safeCurrentPage * pageSize, filtered.length)}</span> of{" "}
+                <span className="font-semibold text-gray-600">{filtered.length}</span> shows
               </p>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safeCurrentPage === 1}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all">
+                  <ChevronLeft size={14} />
+                </button>
+                <span className="text-[12px] font-semibold text-gray-600 px-2">
+                  Page {safeCurrentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safeCurrentPage === totalPages}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all">
+                  <ChevronRight size={14} />
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -771,6 +835,17 @@ export default function AdminShows() {
           description="This will permanently delete all time slots for this show date."
           onConfirm={handleDeleteShow}
           onCancel={() => setConfirmDelete(null)}
+        />
+      )}
+
+      {/* ── Confirm (bulk delete — respects current search/filters) ── */}
+      {confirmDelete?.type === "bulk" && (
+        <ConfirmModal
+          title="Delete All Filtered Shows"
+          description={`This will permanently delete ${filtered.length} show(s) matching your current search/filters. This cannot be undone.`}
+          onConfirm={handleBulkDelete}
+          onCancel={() => setConfirmDelete(null)}
+          busy={bulkDeleting}
         />
       )}
 

@@ -65,6 +65,7 @@ export default function AdminSeatLayout() {
   const [loading,    setLoading]    = useState(true);
   const [saving,     setSaving]     = useState(false);
   const [toast,      setToast]      = useState(null);
+  const [randomizing, setRandomizing] = useState(false);
 
   /* Add row form */
   const [addForm, setAddForm]   = useState({ row: "", seats: "", category: "Classic" });
@@ -171,6 +172,19 @@ export default function AdminSeatLayout() {
     } finally { setDeletingId(null); }
   };
 
+  const handleRandomLayout = async () => {
+    if (!window.confirm("This will replace the current seat layout with a randomly generated one. Continue?")) return;
+    setRandomizing(true);
+    try {
+      const res = await axiosAdmin.post(`/theatres/admin/${theatreId}/screens/${screenId}/layout/random`);
+      setLayout(res.data.layout);
+      setScreenInfo((p) => ({ ...p, totalSeats: res.data.totalSeats }));
+      showToast("Random seat layout generated");
+    } catch (err) {
+      showToast(err.response?.data?.message || "Failed to generate layout", "error");
+    } finally { setRandomizing(false); }
+  };
+
   /* ── Move row up/down (reorder locally, then save full layout) ── */
   const moveRow = async (index, dir) => {
     const newLayout = [...layout];
@@ -240,7 +254,17 @@ export default function AdminSeatLayout() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-[15px] font-bold text-gray-900">Row Configuration</h2>
-              {saving && <Loader2 size={15} className="animate-spin text-gray-400" />}
+              <div className="flex items-center gap-2">
+                {saving && <Loader2 size={15} className="animate-spin text-gray-400" />}
+                <button onClick={handleRandomLayout} disabled={randomizing}
+                  className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                  style={{ color: "#f0545c", background: "rgba(240,84,92,0.08)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.14)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.08)")}>
+                  {randomizing ? <Loader2 size={12} className="animate-spin" /> : <Monitor size={12} />}
+                  Generate Random Layout
+                </button>
+              </div>
             </div>
 
             {/* Loading */}

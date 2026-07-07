@@ -32,6 +32,24 @@ const isReleased = (dateStr) => {
   return new Date(dateStr) <= new Date();
 };
 
+const isLatestMovie = (m) =>
+  m.status === "streaming" || (m.status === "released" && m.isInCinemas);
+
+const getDayOfYear = (date) => {
+  const start = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date - start) / (1000 * 60 * 60 * 24));
+};
+
+const getDailyRotatingSlice = (list, count) => {
+  if (list.length === 0) return [];
+  const startIdx = getDayOfYear(new Date()) % list.length;
+  const result = [];
+  for (let i = 0; i < Math.min(count, list.length); i++) {
+    result.push(list[(startIdx + i) % list.length]);
+  }
+  return result;
+};
+
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString("en-IN", {
@@ -55,22 +73,23 @@ export default function Home() {
   const [loading, setLoading]     = useState(true);
   const swiperRef = useRef(null);
 
-  /* Fetch top 3 (last 3) movies for the hero banner */
+  /* Fetch movies eligible for the Latest Movies rail, then pick 3 that rotate daily */
   useEffect(() => {
     api.get("/movies")
       .then((res) => {
-        const top3 = res.data.slice(-3).reverse();
+        const eligible = res.data.filter(isLatestMovie);
+        const daily = getDailyRotatingSlice(eligible, 3);
         setSlides(
-          top3.map((m) => ({
+          daily.map((m) => ({
             id: m._id,
             title: m.title,
-            tag: isReleased(m.releaseDate) ? "Now Showing" : "Coming Soon",
+            tag: m.status === "streaming" ? "Streaming" : "Now Showing",
             duration: m.runtime || "",
             cert: m.certificate || "",
             date: formatDate(m.releaseDate),
             genres: m.genre || "",
             lang: m.language || "",
-            released: isReleased(m.releaseDate),
+            released: true,
             description: m.description || "",
             poster: IMG(m.poster),
             background: IMG(m.poster),

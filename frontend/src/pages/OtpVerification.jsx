@@ -27,12 +27,34 @@ export default function OtpVerification() {
     return () => clearInterval(id);
   }, [timer]);
 
-  /* Dynamic poster backgrounds */
+  const isLatestMovie = (m) =>
+    m.status === "streaming" || (m.status === "released" && m.isInCinemas);
+
+  const getDayOfYear = (date) => {
+    const start = new Date(date.getFullYear(), 0, 0);
+    return Math.floor((date - start) / (1000 * 60 * 60 * 24));
+  };
+
+  const getDailyRotatingSlice = (list, count) => {
+    if (list.length === 0) return [];
+    const startIdx = getDayOfYear(new Date()) % list.length;
+    const result = [];
+    for (let i = 0; i < Math.min(count, list.length); i++) {
+      result.push(list[(startIdx + i) % list.length]);
+    }
+    return result;
+  };
+
   useEffect(() => {
-    api.get("/movies").then((res) => {
-      const last3 = res.data.slice(-3).map((m) => IMG(m.poster));
-      setPosterUrls([...last3, ...last3, ...last3]);
-    }).catch(() => {});
+    api.get("/movies")
+      .then((res) => {
+        const eligible = res.data.filter(isLatestMovie);
+        const daily = getDailyRotatingSlice(eligible, 3);
+        const formattedPosters = daily.map((m) => IMG(m.poster));
+        
+        setPosterUrls([...formattedPosters, ...formattedPosters, ...formattedPosters]);
+      })
+      .catch(() => {});
   }, []);
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;

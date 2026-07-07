@@ -5,6 +5,9 @@ const showController = require("../controllers/showController");
 router.post("/admin/create", showController.createShow);
 router.put("/admin/update/:id", showController.updateShow);
 router.delete("/admin/delete/:id", showController.deleteShow);
+router.delete("/admin/delete/:id", showController.deleteShow);
+router.delete("/admin/bulk-delete", showController.bulkDeleteShows);
+
 
 router.post("/admin/:id/times", showController.addShowTime);
 router.delete("/admin/:id/times/:showTimeId", showController.removeShowTime);

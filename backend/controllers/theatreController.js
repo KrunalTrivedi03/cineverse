@@ -1,4 +1,5 @@
 const Theatre = require("../models/Theatre");
+const { generateRandomSeatLayout } = require("../utils/seatLayoutGenerator");
 const pop = (q) => q.populate("city");
 
 /* ── Theatre CRUD ─────────────────────────────────────── */
@@ -88,6 +89,17 @@ const getScreenOrFail = async (theatreId, screenId) => {
   const s = t.screens.id(screenId);
   if (!s) throw { status: 404, message: "Screen not found" };
   return { theatre: t, screen: s };
+};
+
+exports.generateLayout = async (req, res) => {
+  try {
+    const { theatre, screen } = await getScreenOrFail(req.params.id, req.params.screenId);
+    const rows = generateRandomSeatLayout();
+    screen.seatLayout = rows;
+    screen.totalSeats = rows.reduce((s, r) => s + r.seats, 0);
+    await theatre.save();
+    res.json({ message: "Random seat layout generated", layout: screen.seatLayout, totalSeats: screen.totalSeats });
+  } catch (e) { res.status(e.status || 500).json({ message: e.message }); }
 };
 
 exports.getLayout = async (req, res) => {

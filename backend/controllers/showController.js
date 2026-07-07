@@ -1,4 +1,5 @@
 const Show = require("../models/Show");
+const { cleanupCompletedShows } = require("../services/showAutomation");
 
 const populate = (q) => q.populate("movie").populate({ path: "theatre", populate: { path: "city" } });
 
@@ -24,6 +25,7 @@ exports.createShow = async (req, res) => {
 
 exports.getShows = async (req, res) => {
   try {
+    await cleanupCompletedShows();
     const shows = await populate(Show.find()).sort({ showDate: 1 });
     res.json(shows);
   } catch (error) {
@@ -43,6 +45,7 @@ exports.getShowById = async (req, res) => {
 
 exports.getShowsByMovie = async (req, res) => {
   try {
+    await cleanupCompletedShows();
     const shows = await populate(
       Show.find({ movie: req.params.movieId })
     ).sort({ showDate: 1 });
@@ -54,6 +57,7 @@ exports.getShowsByMovie = async (req, res) => {
 
 exports.getShowsByCity = async (req, res) => {
   try {
+    await cleanupCompletedShows();
     const { cityId, movieId } = req.params;
 
     const shows = await Show.find({ movie: movieId })
@@ -131,6 +135,19 @@ exports.deleteShow = async (req, res) => {
     const show = await Show.findByIdAndDelete(req.params.id);
     if (!show) return res.status(404).json({ message: "Show not found" });
     res.json({ message: "Show deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.bulkDeleteShows = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "No show IDs provided" });
+    }
+    const result = await Show.deleteMany({ _id: { $in: ids } });
+    res.json({ message: `${result.deletedCount} show(s) deleted successfully`, deletedCount: result.deletedCount });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

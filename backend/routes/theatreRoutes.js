@@ -13,6 +13,7 @@ router.put("/admin/:id/screens/:screenId",        tc.updateScreen);
 router.delete("/admin/:id/screens/:screenId",     tc.deleteScreen);
 
 /* Seat Layout */
+router.post("/admin/:id/screens/:screenId/layout/random",          tc.generateLayout);
 router.get("/admin/:id/screens/:screenId/layout",                  tc.getLayout);
 router.put("/admin/:id/screens/:screenId/layout",                  tc.saveLayout);
 router.post("/admin/:id/screens/:screenId/layout/rows",            tc.addRow);

@@ -1,5 +1,13 @@
 const Movie = require("../models/Movie");
 
+const syncMovieStatuses = async () => {
+  const now = new Date();
+  await Movie.updateMany(
+    { status: "upcoming", releaseDate: { $lte: now } },
+    { $set: { status: "released", isInCinemas: true } }
+  );
+};
+
 exports.createMovie = async (req, res) => {
   try {
     const {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
@@ -141,6 +149,7 @@ exports.deleteMovie = async (req, res) => {
 
 exports.getMovies = async (req, res) => {
   try {
+    await syncMovieStatuses();
     const { city, status } = req.query;
 
     let filter = {};
@@ -156,6 +165,7 @@ exports.getMovies = async (req, res) => {
 
 exports.getMovie = async (req, res) => {
   try {
+    await syncMovieStatuses();
 
     const movie = await Movie.findById(req.params.id);
 

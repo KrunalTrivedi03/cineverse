@@ -6,6 +6,8 @@ const cors         = require("cors");
 const cookieParser = require("cookie-parser");
 const path         = require("path");
 const connectDB    = require("./config/db");
+const cron         = require("node-cron");
+const { runNightlyAutomation, backfillWindow } = require("./services/showAutomation");
 
 const userAuthRoutes    = require("./routes/authRoutes");
 const adminAuthRoutes   = require("./routes/adminAuthRoutes");
@@ -39,6 +41,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 connectDB();
+
+backfillWindow(30).catch((e) => console.error("Initial show backfill failed:", e.message));
+
+// Every night at 2 AM: clean up completed shows, extend the rolling window
+cron.schedule("0 2 * * *", () => {
+  console.log("Running nightly show automation...");
+  runNightlyAutomation().catch((e) => console.error("Nightly show automation failed:", e.message));
+});
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

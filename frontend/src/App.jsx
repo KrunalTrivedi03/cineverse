@@ -16,6 +16,16 @@ import UpcomingMoviesPage from "./components/UpcomingMoviesPage";
 import BookingSuccess from "./components/BookingSuccess";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import ExploreEvents from "./pages/ExploreEvents";
+import EventDetail from "./pages/EventDetail";
+import CategoryEvents from "./pages/CategoryEvents";
+import DistrictEvents from "./pages/DistrictEvents";
+import ArtistDetail from "./pages/ArtistDetail";
+import BookEventTickets from "./pages/BookEventTickets";
+import EventSeatSelection from "./pages/EventSeatSelection";
+import TicketQuantitySelection from "./pages/TicketQuantitySelection";
+import EventBookingSuccess from "./pages/EventBookingSuccess";
+import MyEventBookings from "./pages/MyEventBookings";
 
 export default function App() {
   return (
@@ -37,6 +47,26 @@ export default function App() {
 
         <Route path="/now-showing" element={<NowShowing />} />
         <Route path="/coming-soon" element={<UpcomingMoviesPage />} />
+
+        <Route path="/events" element={<ExploreEvents />} />
+        <Route path="/events/:id" element={<EventDetail />} />
+        <Route path="/events/category/:category" element={<CategoryEvents />} />
+        <Route path="/events/district/:districtId" element={<DistrictEvents />} />
+        <Route path="/artists/:id" element={<ArtistDetail />} />
+
+        <Route path="/events/:id/book" element={<BookEventTickets />} />
+        <Route path="/events/:id/schedule/:scheduleId/slot/:slotId/seats" element={<EventSeatSelection />} />
+        <Route path="/events/:id/schedule/:scheduleId/slot/:slotId/tickets" element={<TicketQuantitySelection />} />
+        <Route path="/booking/event-success" element={<EventBookingSuccess />} />
+
+        <Route
+          path="/my-event-bookings"
+          element={
+            <ProtectedRoute>
+              <MyEventBookings />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/movie/:id/book" element={<BookTickets />} />
 
@@ -68,6 +98,3 @@ export default function App() {
     </>
   );
 }
-
-
-

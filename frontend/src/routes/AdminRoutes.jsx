@@ -14,6 +14,14 @@ import AdminCities from "../admin/pages/AdminCities";
 import AdminTheatres from "../admin/pages/Admintheatres";
 import AdminShows from "../admin/pages/AdminShows";
 import AdminSeatLayout from "../admin/pages/Adminseatlayout ";
+import AdminEvents from "../admin/pages/Adminevents";
+import AdminArtists from "../admin/pages/Adminartists";
+import AdminVenues from "../admin/pages/Adminvenues";
+import AdminVenueSeatLayout from "../admin/pages/Adminvenueseatlayout";
+import AdminDistricts from "../admin/pages/Admindistricts";
+import EditEvent from "../admin/pages/Editevent";
+import AddEvent from "../admin/pages/Addevent";
+import AdminEventSchedules from "../admin/pages/Admineventschedules";
 
 export default function AdminRoutes() {
   return (
@@ -33,9 +41,15 @@ export default function AdminRoutes() {
       <Route path="/admin/movies/edit/:id" element={<EditMovie />} />
       <Route path="/admin/movies/view/:id" element={<ReviewSummary />} />
 
+      <Route path="/admin/events" element={<AdminEvents />} />
+      <Route path="/admin/artists" element={<AdminArtists />} />
+      <Route path="/admin/events/add" element={<AddEvent />} />
+      <Route path="/admin/events/edit/:id" element={<EditEvent />} />
+      <Route path="/admin/venues" element={<AdminVenues />} />
+      <Route path="/admin/venues/:venueId/layout" element={<AdminVenueSeatLayout />}/>
+      <Route path="/admin/districts" element={<AdminDistricts />} />
+      <Route path="admin/schedule-events" element={<AdminEventSchedules />} />
+
     </>
   );
 }
-
-
-

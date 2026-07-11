@@ -1,0 +1,343 @@
+import { useState, useEffect } from "react";
+import axiosAdmin from "../../api/axiosAdmin";
+import AdminLayout from "../layout/AdminLayout";
+import {
+  Search, Trash2, Mic2, Plus, SlidersHorizontal, Loader2,
+  CheckCircle2, AlertCircle, X, Edit, Image as ImageIcon, Star,
+} from "lucide-react";
+
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
+
+function Toast({ toast, onClose }) {
+  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, [onClose]);
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-[13px] font-medium"
+      style={{
+        background: toast.type === "success" ? "#f0fdf4" : "#fff1f2",
+        color:      toast.type === "success" ? "#16a34a" : "#dc2626",
+        border:    `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecdd3"}`,
+        fontFamily: "'Outfit', sans-serif",
+      }}>
+      {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+      {toast.message}
+      <button onClick={onClose} className="ml-1 opacity-60 hover:opacity-100"><X size={14} /></button>
+    </div>
+  );
+}
+
+function ConfirmModal({ artist, onConfirm, onCancel, busy }) {
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
+          <Trash2 size={18} style={{ color: "#f0545c" }} />
+        </div>
+        <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete Artist</h3>
+        <p className="text-[13px] text-gray-500 mb-5">Delete <span className="font-semibold text-gray-800">"{artist.name}"</span>? This cannot be undone.</p>
+        <div className="flex gap-2">
+          <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+            {busy && <Loader2 size={13} className="animate-spin" />} Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArtistFormModal({ mode = "add", initial = null, onSave, onCancel, saving }) {
+  const [form, setForm] = useState(
+    mode === "edit" && initial
+      ? {
+          name: initial.name || "", bio: initial.bio || "",
+          genres: (initial.genres || []).join(", "),
+          isFeatured: !!initial.isFeatured,
+          instagram: initial.socialLinks?.instagram || "",
+          twitter:   initial.socialLinks?.twitter   || "",
+          website:   initial.socialLinks?.website   || "",
+        }
+      : { name: "", bio: "", genres: "", isFeatured: false, instagram: "", twitter: "", website: "" }
+  );
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(initial?.image ? IMG(initial.image) : null);
+  const [errors, setErrors] = useState({});
+
+  const set = (field, val) => { setForm((p) => ({ ...p, [field]: val })); setErrors((p) => ({ ...p, [field]: "" })); };
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = "Artist name is required";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+    const fd = new FormData();
+    fd.append("name", form.name.trim());
+    fd.append("bio", form.bio.trim());
+    fd.append("genres", JSON.stringify(form.genres.split(",").map((g) => g.trim()).filter(Boolean)));
+    fd.append("isFeatured", form.isFeatured);
+    fd.append("socialLinks", JSON.stringify({ instagram: form.instagram, twitter: form.twitter, website: form.website }));
+    if (imageFile) fd.append("image", imageFile);
+    onSave(fd);
+  };
+
+  const inp = "w-full px-4 py-2.5 rounded-xl border text-[13px] text-gray-800 placeholder-gray-300 outline-none transition-all";
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[480px] max-h-[90vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Mic2 size={18} style={{ color: "#f0545c" }} />}
+            </div>
+            <div>
+              <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Artist" : "Add New Artist"}</h3>
+              <p className="text-[12px] text-gray-400">Performers, comedians, bands, DJs…</p>
+            </div>
+          </div>
+          <button onClick={onCancel} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100"><X size={16} className="text-gray-400" /></button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 px-6 py-4 flex flex-col gap-4">
+          {/* Image */}
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200 flex items-center justify-center">
+              {preview ? <img src={preview} alt="" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-gray-300" />}
+            </div>
+            <label className="px-4 py-2 rounded-xl border border-gray-200 text-[12px] font-semibold text-gray-600 cursor-pointer hover:bg-gray-50">
+              Upload Photo
+              <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Name <span style={{ color: "#f0545c" }}>*</span></label>
+            <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Arijit Singh"
+              className={inp} style={{ borderColor: errors.name ? "#f0545c" : "#e5e7eb" }} />
+            {errors.name && <p className="text-[11px] text-red-500 mt-1">{errors.name}</p>}
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Bio</label>
+            <textarea value={form.bio} onChange={(e) => set("bio", e.target.value)} rows={3} placeholder="Short bio…" className={inp} style={{ borderColor: "#e5e7eb", resize: "vertical" }} />
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Genres (comma-separated)</label>
+            <input value={form.genres} onChange={(e) => set("genres", e.target.value)} placeholder="Pop, Playback, Sufi" className={inp} style={{ borderColor: "#e5e7eb" }} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            <input value={form.instagram} onChange={(e) => set("instagram", e.target.value)} placeholder="Instagram URL" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.twitter} onChange={(e) => set("twitter", e.target.value)} placeholder="Twitter/X URL" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.website} onChange={(e) => set("website", e.target.value)} placeholder="Website URL" className={inp} style={{ borderColor: "#e5e7eb" }} />
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+            <span className="text-[13px] font-medium text-gray-700 flex items-center gap-1"><Star size={13} /> Feature this artist on Explore</span>
+          </label>
+        </div>
+
+        <div className="flex gap-2 px-6 py-4 border-t border-gray-100">
+          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
+          <button onClick={handleSubmit} disabled={saving}
+            className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
+            style={{ background: "#f0545c" }}>
+            {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Add Artist"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ActionBtn = ({ onClick, color, title, children, disabled }) => {
+  const COLOR_MAP = { blue: { bg: "#eff6ff", text: "#2563eb" }, red: { bg: "#fff1f2", text: "#dc2626" } };
+  const c = COLOR_MAP[color];
+  return (
+    <button onClick={onClick} title={title} disabled={disabled}
+      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-40"
+      style={{ background: c.bg, color: c.text }}>
+      {children}
+    </button>
+  );
+};
+
+export default function AdminArtists() {
+  const [artists, setArtists]           = useState([]);
+  const [search, setSearch]             = useState("");
+  const [loading, setLoading]           = useState(true);
+  const [saving, setSaving]             = useState(false);
+  const [deletingId, setDeletingId]     = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editArtist, setEditArtist]     = useState(null);
+  const [confirmArtist, setConfirmArtist] = useState(null);
+  const [toast, setToast]               = useState(null);
+
+  const showToast = (message, type = "success") => setToast({ message, type });
+
+  const fetchArtists = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosAdmin.get("/artists");
+      setArtists(res.data);
+    } catch { showToast("Failed to load artists", "error"); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { fetchArtists(); }, []);
+
+  const handleCreate = async (fd) => {
+    setSaving(true);
+    try {
+      await axiosAdmin.post("/artists/admin/create", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      setShowAddModal(false);
+      showToast("Artist added successfully");
+      fetchArtists();
+    } catch (err) { showToast(err.response?.data?.message || "Failed to add artist", "error"); }
+    finally { setSaving(false); }
+  };
+
+  const handleUpdate = async (fd) => {
+    setSaving(true);
+    try {
+      await axiosAdmin.put(`/artists/admin/update/${editArtist._id}`, fd, { headers: { "Content-Type": "multipart/form-data" } });
+      setEditArtist(null);
+      showToast("Artist updated successfully");
+      fetchArtists();
+    } catch (err) { showToast(err.response?.data?.message || "Failed to update artist", "error"); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async () => {
+    if (!confirmArtist) return;
+    setDeletingId(confirmArtist._id);
+    try {
+      await axiosAdmin.delete(`/artists/admin/delete/${confirmArtist._id}`);
+      setConfirmArtist(null);
+      showToast("Artist deleted");
+      fetchArtists();
+    } catch (err) { showToast(err.response?.data?.message || "Failed to delete", "error"); }
+    finally { setDeletingId(null); }
+  };
+
+  const filtered = artists.filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <AdminLayout>
+      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Artists</h1>
+            <p className="text-[13px] text-gray-400 mt-0.5">Manage performers, comedians, bands & DJs</p>
+          </div>
+          <button onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
+            style={{ background: "#f0545c" }}>
+            <Plus size={15} /> Add Artist
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {[
+            { label: "Total Artists", value: artists.length, color: "#6366f1", bg: "rgba(99,102,241,0.08)" },
+            { label: "Featured",      value: artists.filter((a) => a.isFeatured).length, color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
+            { label: "Search Results", value: search ? filtered.length : "—", color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+          ].map((s) => (
+            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
+              <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
+              <p className="text-[26px] font-bold" style={{ color: s.color }}>{s.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 mb-5 max-w-md">
+          <Search size={15} className="text-gray-400 flex-shrink-0" />
+          <input type="text" placeholder="Search artists..." value={search} onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 text-[13px] text-gray-900 outline-none bg-transparent placeholder-gray-400" />
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                {["#", "Artist", "Genres", "Featured", "Actions"].map((h) => (
+                  <th key={h} className="py-3 px-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-gray-50">
+                    <td className="py-4 px-4"><div className="h-4 w-6 bg-gray-100 rounded animate-pulse" /></td>
+                    <td className="py-4 px-4"><div className="flex items-center gap-3"><div className="w-9 h-9 bg-gray-100 rounded-full animate-pulse" /><div className="h-3.5 w-28 bg-gray-100 rounded animate-pulse" /></div></td>
+                    <td className="py-4 px-4"><div className="h-4 w-24 bg-gray-100 rounded animate-pulse" /></td>
+                    <td className="py-4 px-4"><div className="h-4 w-12 bg-gray-100 rounded animate-pulse" /></td>
+                    <td className="py-4 px-4"><div className="h-8 w-16 bg-gray-100 rounded-lg animate-pulse" /></td>
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
+                      <Mic2 size={22} style={{ color: "#f0545c" }} />
+                    </div>
+                    <p className="text-[14px] font-semibold text-gray-400">No artists found</p>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((a, index) => (
+                  <tr key={a._id} className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
+                    <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{index + 1}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-100">
+                          {a.image ? <img src={IMG(a.image)} alt={a.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Mic2 size={14} className="text-gray-300" /></div>}
+                        </div>
+                        <p className="text-[13px] font-semibold text-gray-900">{a.name}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-[12px] text-gray-400 truncate max-w-[200px]">{a.genres?.join(", ") || "—"}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      {a.isFeatured
+                        ? <span className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full w-fit" style={{ background: "rgba(245,158,11,0.08)", color: "#d97706" }}><Star size={10} /> Yes</span>
+                        : <span className="text-gray-300 text-[13px]">—</span>}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-1.5">
+                        <ActionBtn onClick={() => setEditArtist(a)} color="blue" title="Edit"><Edit size={14} /></ActionBtn>
+                        <ActionBtn onClick={() => setConfirmArtist(a)} disabled={deletingId === a._id} color="red" title="Delete">
+                          {deletingId === a._id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        </ActionBtn>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {showAddModal && <ArtistFormModal mode="add" onSave={handleCreate} onCancel={() => setShowAddModal(false)} saving={saving} />}
+      {editArtist && <ArtistFormModal mode="edit" initial={editArtist} onSave={handleUpdate} onCancel={() => setEditArtist(null)} saving={saving} />}
+      {confirmArtist && <ConfirmModal artist={confirmArtist} onConfirm={handleDelete} onCancel={() => setConfirmArtist(null)} busy={!!deletingId} />}
+      {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
+    </AdminLayout>
+  );
+}

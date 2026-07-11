@@ -12,13 +12,16 @@ import {
   Building2,
   Clapperboard,
   Ticket,
+  CalendarDays,
+  Mic2,
+  Landmark
 } from "lucide-react";
 
 const MENU = [
   { name: "Dashboard",   icon: LayoutDashboard, path: "/admin/dashboard"   },
   { name: "Movies",      icon: Film,            path: "/admin/movies"      },
   {
-    name: "Booking Management",
+    name: "Movie Management",
     icon: Ticket,
     children: [
       { name: "Cities",   icon: MapPin,       path: "/admin/cities"   },
@@ -26,6 +29,17 @@ const MENU = [
       { name: "Shows",    icon: Clapperboard, path: "/admin/shows"    },
       // Seat Layout is accessed from Theatres page (requires theatreId + screenId params)
       // navigate(`/admin/theatres/${theatreId}/screens/${screenId}/layout`)
+    ],
+  },
+  {
+    name: "Event Management",
+    icon: CalendarDays,
+    children: [
+      { name: "Events", icon: CalendarDays, path: "/admin/events", },
+      { name: "Artists", icon: Mic2, path: "/admin/artists", },
+      { name: "Venues", icon: Building2, path: "/admin/venues", },
+      { name: "Districts", icon: Landmark, path: "/admin/districts", },
+      { name: "Schedule Events", icon: CalendarDays, path: "/admin/schedule-events", },
     ],
   },
   { name: "Users",       icon: Users,           path: "/admin/users"       },

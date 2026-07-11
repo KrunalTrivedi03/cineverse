@@ -187,8 +187,8 @@ export default function Navbar() {
               <DropItem icon={<Tv size={14} />} label="Web Originals" to="/" />
             </NavDropdown>
             <NavLink to="/watchlist">Watchlist</NavLink>
-            <NavLink to="/">People</NavLink>
-            <NavLink to="/">News</NavLink>
+            <NavLink to="/events">Events</NavLink>
+            <NavLink to="/">Play</NavLink>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
@@ -614,8 +614,8 @@ export default function Navbar() {
                 { label: "Movies", to: "/" },
                 { label: "Shows", to: "/" },
                 { label: "Watchlist", to: "/watchlist" },
-                { label: "People", to: "/" },
-                { label: "News", to: "/" },
+                { label: "Events", to: "/events" },
+                { label: "Play", to: "/" },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -744,6 +744,3 @@ function ProfileLink({ to, children }) {
     </Link>
   );
 }
-
-
-

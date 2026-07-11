@@ -1,6 +1,8 @@
-const SeatLock = require("./models/SeatLock");
+const SeatLock      = require("./models/SeatLock");
+const EventSeatLock = require("./models/EventSeatLock");
 
-const room = (showId, slotId) => `show:${showId}:slot:${slotId}`;
+const room      = (showId, slotId)     => `show:${showId}:slot:${slotId}`;
+const eventRoom = (scheduleId, slotId) => `event:${scheduleId}:slot:${slotId}`;
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
@@ -28,23 +30,58 @@ module.exports = (io) => {
       socket.to(room(showId, slotId)).emit("seats:booked", { seatIds });
     });
 
-    /* On disconnect, release all locks this socket held */
+    /* ── Event seat-selection (seated events only) ── */
+    socket.on("join:event", ({ scheduleId, slotId }) => {
+      socket.join(eventRoom(scheduleId, slotId));
+    });
+
+    socket.on("leave:event", ({ scheduleId, slotId }) => {
+      socket.leave(eventRoom(scheduleId, slotId));
+    });
+
+    socket.on("event-seat:select", ({ scheduleId, slotId, seatId }) => {
+      socket.to(eventRoom(scheduleId, slotId)).emit("event-seat:locked", { seatId, userId });
+    });
+
+    socket.on("event-seat:deselect", ({ scheduleId, slotId, seatId }) => {
+      socket.to(eventRoom(scheduleId, slotId)).emit("event-seat:released", { seatId, userId });
+    });
+
+    socket.on("event-booking:confirmed", ({ scheduleId, slotId, seatIds }) => {
+      socket.to(eventRoom(scheduleId, slotId)).emit("event-seats:booked", { seatIds });
+    });
+
+    /* On disconnect, release all locks (movie + event) this socket held */
     socket.on("disconnect", async () => {
       try {
-        const locks = await SeatLock.find({ userId });
-        if (!locks.length) return;
+        const [locks, eventLocks] = await Promise.all([
+          SeatLock.find({ userId }),
+          EventSeatLock.find({ userId }),
+        ]);
 
-        const grouped = {};
-        locks.forEach((l) => {
-          const key = room(l.showId.toString(), l.slotId);
-          (grouped[key] = grouped[key] || []).push(l.seatId);
-        });
+        if (locks.length) {
+          const grouped = {};
+          locks.forEach((l) => {
+            const key = room(l.showId.toString(), l.slotId);
+            (grouped[key] = grouped[key] || []).push(l.seatId);
+          });
+          await SeatLock.deleteMany({ userId });
+          Object.entries(grouped).forEach(([r, seatIds]) => {
+            io.to(r).emit("seats:released_bulk", { seatIds, userId });
+          });
+        }
 
-        await SeatLock.deleteMany({ userId });
-
-        Object.entries(grouped).forEach(([r, seatIds]) => {
-          io.to(r).emit("seats:released_bulk", { seatIds, userId });
-        });
+        if (eventLocks.length) {
+          const grouped = {};
+          eventLocks.forEach((l) => {
+            const key = eventRoom(l.eventScheduleId.toString(), l.slotId);
+            (grouped[key] = grouped[key] || []).push(l.seatId);
+          });
+          await EventSeatLock.deleteMany({ userId });
+          Object.entries(grouped).forEach(([r, seatIds]) => {
+            io.to(r).emit("event-seats:released_bulk", { seatIds, userId });
+          });
+        }
       } catch (err) {
         console.error("Socket disconnect cleanup:", err.message);
       }

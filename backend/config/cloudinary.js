@@ -25,7 +25,34 @@ const avatarStorage = new CloudinaryStorage({
   },
 });
 
-const upload      = multer({ storage: movieStorage, limits: { fileSize: 10 * 1024 * 1024 } });
-const avatarUpload = multer({ storage: avatarStorage, limits: { fileSize: 2 * 1024 * 1024 } });
+const eventStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          "cineverse/events",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
 
-module.exports = { cloudinary, upload, avatarUpload };
+const artistStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          "cineverse/artists",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
+const venueStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          "cineverse/venues",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
+const upload       = multer({ storage: movieStorage,  limits: { fileSize: 10 * 1024 * 1024 } });
+const avatarUpload = multer({ storage: avatarStorage, limits: { fileSize: 2  * 1024 * 1024 } });
+const eventUpload  = multer({ storage: eventStorage,  limits: { fileSize: 10 * 1024 * 1024 } });
+const artistUpload = multer({ storage: artistStorage, limits: { fileSize: 5  * 1024 * 1024 } });
+const venueUpload  = multer({ storage: venueStorage,  limits: { fileSize: 5  * 1024 * 1024 } });
+
+module.exports = { cloudinary, upload, avatarUpload, eventUpload, artistUpload, venueUpload };

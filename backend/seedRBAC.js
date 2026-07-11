@@ -11,6 +11,10 @@ const permissionsList = [
   "UPDATE_MOVIE",
   "DELETE_MOVIE",
   "VIEW_MOVIES",
+  "CREATE_EVENT",
+  "UPDATE_EVENT",
+  "DELETE_EVENT",
+  "VIEW_EVENTS",
   "MANAGE_ROLES",
   "MANAGE_PERMISSIONS",
   "ADD_TO_WATCHLIST",
@@ -53,6 +57,10 @@ async function seed() {
           perms.UPDATE_MOVIE,
           perms.DELETE_MOVIE,
           perms.VIEW_MOVIES,
+          perms.CREATE_EVENT,
+          perms.UPDATE_EVENT,
+          perms.DELETE_EVENT,
+          perms.VIEW_EVENTS,
           perms.ADD_TO_WATCHLIST,
           perms.REMOVE_FROM_WATCHLIST,
           perms.VIEW_WATCHLIST
@@ -62,6 +70,7 @@ async function seed() {
         name: "user",
         permissions: [
           perms.VIEW_MOVIES,
+          perms.VIEW_EVENTS,
           perms.ADD_TO_WATCHLIST,
           perms.REMOVE_FROM_WATCHLIST,
           perms.VIEW_WATCHLIST

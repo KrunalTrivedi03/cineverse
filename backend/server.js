@@ -8,6 +8,7 @@ const path         = require("path");
 const connectDB    = require("./config/db");
 const cron         = require("node-cron");
 const { runNightlyAutomation, backfillWindow } = require("./services/showAutomation");
+const { runNightlyEventAutomation } = require("./services/eventAutomation");
 
 const userAuthRoutes    = require("./routes/authRoutes");
 const adminAuthRoutes   = require("./routes/adminAuthRoutes");
@@ -23,6 +24,16 @@ const showRoutes        = require("./routes/showRoutes");
 const seatRoutes        = require("./routes/seatRoutes");
 const paymentRoutes     = require("./routes/paymentRoutes");
 const quickPayRoutes    = require("./routes/quickPayRoutes");
+
+/* Event module */
+const districtRoutes       = require("./routes/districtRoutes");
+const artistRoutes         = require("./routes/artistRoutes");
+const venueRoutes          = require("./routes/venueRoutes");
+const eventRoutes          = require("./routes/eventRoutes");
+const publicEventRoutes    = require("./routes/publicEventRoutes");
+const eventScheduleRoutes  = require("./routes/eventScheduleRoutes");
+const eventSeatRoutes      = require("./routes/eventSeatRoutes");
+const eventPaymentRoutes   = require("./routes/eventPaymentRoutes");
 
 const app    = express();
 const server = http.createServer(app);
@@ -50,6 +61,12 @@ cron.schedule("0 2 * * *", () => {
   runNightlyAutomation().catch((e) => console.error("Nightly show automation failed:", e.message));
 });
 
+// Every night at 2:15 AM: clean up completed event schedules, resync event statuses
+cron.schedule("15 2 * * *", () => {
+  console.log("Running nightly event automation...");
+  runNightlyEventAutomation().catch((e) => console.error("Nightly event automation failed:", e.message));
+});
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -68,6 +85,16 @@ app.use("/api/shows",        showRoutes);
 app.use("/api/seats",        seatRoutes);
 app.use("/api/payment",      paymentRoutes);
 app.use("/api/quickpay",     quickPayRoutes); // ← NEW
+
+/* Event module */
+app.use("/api/districts",       districtRoutes);
+app.use("/api/artists",         artistRoutes);
+app.use("/api/venues",          venueRoutes);
+app.use("/api/events",          publicEventRoutes);
+app.use("/api/admin/events",    eventRoutes);
+app.use("/api/event-schedules", eventScheduleRoutes);
+app.use("/api/event-seats",     eventSeatRoutes);
+app.use("/api/event-payment",   eventPaymentRoutes);
 
 app.get("/", (req, res) => res.send("CineVerse Backend Running..."));
 

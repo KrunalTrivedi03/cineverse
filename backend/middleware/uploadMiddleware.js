@@ -14,11 +14,26 @@
 
 // module.exports = upload;
 
-const { upload, avatarUpload, cloudinary } = require("../config/cloudinary");
+const {
+  upload,
+  avatarUpload,
+  eventUpload,
+  artistUpload,
+  venueUpload,
+  cloudinary,
+} = require("../config/cloudinary");
 
 const handleUploadError = (err, req, res, next) => {
   if (err) return res.status(400).json({ message: err.message });
   next();
 };
 
-module.exports = { upload, avatarUpload, handleUploadError, cloudinary };
+module.exports = {
+  upload,
+  avatarUpload,
+  eventUpload,
+  artistUpload,
+  venueUpload,
+  handleUploadError,
+  cloudinary,
+};

@@ -45,7 +45,7 @@ export const getCurrentUser = () => {
 };
 
 export const EVENT_CATEGORIES = [
-  "Music", "Nightlife", "Comedy Shows", "Expos", "Performances", "Workshops", "Sports",
+  "Music", "Nightlife", "Comedy Shows", "Expos", "Performances", "Workshops",
 ];
 
 export const SEAT_CAT = {

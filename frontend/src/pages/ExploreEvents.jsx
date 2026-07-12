@@ -1,17 +1,17 @@
-// src/pages/ExploreEvents.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, X, Music2, Moon, Mic2, Building, Drama, GraduationCap, Trophy } from "lucide-react";
+import { Search, X, Music2, Moon, Mic2, Building, Drama, GraduationCap, Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import EventRow from "../components/EventRow";
 import EventCard from "../components/EventCard";
 import DistrictSelector, { getSelectedDistrict } from "../components/DistrictSelector";
 import { EVENT_CATEGORIES } from "../utils/eventHelpers";
+import { useRef } from "react";
 
 const CATEGORY_ICON = {
   Music: Music2, Nightlife: Moon, "Comedy Shows": Mic2,
-  Expos: Building, Performances: Drama, Workshops: GraduationCap, Sports: Trophy,
+  Expos: Building, Performances: Drama, Workshops: GraduationCap
 };
 
 export default function ExploreEvents() {
@@ -84,6 +84,11 @@ export default function ExploreEvents() {
     }, 350);
     return () => clearTimeout(t);
   }, [searchQuery]);
+
+  const categoryScrollRef = useRef(null);
+const scrollCategories = (dir) => {
+  categoryScrollRef.current?.scrollBy({ left: dir * 260, behavior: "smooth" });
+};
 
   return (
     <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
@@ -164,8 +169,33 @@ export default function ExploreEvents() {
               <>
                 {/* ── Browse by Category — now first ── */}
                 <section style={{ marginBottom: 32 }}>
-                  <h2 style={{ margin: "0 0 12px", fontSize: 17, fontWeight: 800, color: "#111" }}>Browse by Category</h2>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#111" }}>Browse by Category</h2>
+                    <div className="hidden md:flex" style={{ gap: 6 }}>
+                      <button
+                        onClick={() => scrollCategories(-1)}
+                        aria-label="Scroll categories left"
+                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        <ChevronLeft size={15} color="#374151" />
+                      </button>
+                      <button
+                        onClick={() => scrollCategories(1)}
+                        aria-label="Scroll categories right"
+                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        <ChevronRight size={15} color="#374151" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    ref={categoryScrollRef}
+                    style={{
+                      display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
+                      scrollBehavior: "smooth", paddingBottom: 4, scrollbarWidth: "none",
+                    }}
+                  >
                     {EVENT_CATEGORIES.map((cat) => {
                       const Icon = CATEGORY_ICON[cat] || Music2;
                       return (
@@ -173,8 +203,9 @@ export default function ExploreEvents() {
                           key={cat}
                           onClick={() => navigate(`/events/category/${encodeURIComponent(cat)}`)}
                           style={{
+                            flexShrink: 0, scrollSnapAlign: "start", width: 112,
                             display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-                            padding: "20px 10px", borderRadius: 16, background: "#fff",
+                            padding: "18px 8px", borderRadius: 16, background: "#fff",
                             border: "1px solid #eee", cursor: "pointer",
                             transition: "transform 0.15s ease, box-shadow 0.15s ease",
                           }}
@@ -187,8 +218,8 @@ export default function ExploreEvents() {
                             e.currentTarget.style.boxShadow = "none";
                           }}
                         >
-                          <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(240,84,92,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Icon size={18} color="#f0545c" />
+                          <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(240,84,92,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Icon size={17} color="#f0545c" />
                           </div>
                           <span style={{ fontSize: 12, fontWeight: 700, color: "#374151", textAlign: "center" }}>{cat}</span>
                         </div>

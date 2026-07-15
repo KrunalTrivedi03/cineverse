@@ -11,7 +11,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <AdminAuthProvider>
         <App />
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster position="top-right" gap={10} />
       </AdminAuthProvider>
     </BrowserRouter>
   </React.StrictMode>

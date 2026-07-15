@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
@@ -50,16 +50,16 @@ export default function Login() {
       const res = await api.post("/auth/login", form);
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("userInfo", JSON.stringify(res.data.user));
-      toast.success("🎬 Welcome! Enjoy your show.");
+      showToast.success("Welcome! Enjoy your show.");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       const data = err.response?.data;
       if (data?.requiresOTP) {
-        toast("🔐 Please verify your ticket first.");
+        showToast("Please verify your ticket first.");
         navigate(`/verify-otp?email=${form.email}`);
         return;
       }
-      toast.error(data?.message || "Invalid credentials");
+      showToast.error(data?.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }

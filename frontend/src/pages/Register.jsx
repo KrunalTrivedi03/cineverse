@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "../utils/toast";
+
 import api from "../api/axiosInstance";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
@@ -50,11 +51,11 @@ export default function Register() {
       setLoading(true);
       const res = await api.post("/auth/register", form);
       if (res.status === 201) {
-        toast.success("Account created successfully 🎉");
+        showToast.success("Account created successfully");
         setTimeout(() => navigate(`/verify-otp?email=${form.email}`), 1000);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Registration failed. Please try again.");
+      showToast.error(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

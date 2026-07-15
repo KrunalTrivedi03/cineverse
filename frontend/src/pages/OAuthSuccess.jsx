@@ -1,13 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
+import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
 
 export default function OAuthSuccess() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const accessToken = params.get("accessToken");
 
     if (!accessToken) {
@@ -20,7 +24,7 @@ export default function OAuthSuccess() {
     api.get("/users/me")
       .then((res) => {
         localStorage.setItem("userInfo", JSON.stringify(res.data));
-        toast.success("🎬 Welcome! Enjoy your show.");
+        showToast.success("Welcome! Enjoy your show.");
         navigate("/");
       })
       .catch(() => {

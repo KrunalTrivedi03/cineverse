@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, SlidersHorizontal } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
+import { getSelectedDistrict } from "../components/DistrictSelector";
 import EventCard from "../components/EventCard";
 
 const SORT_OPTIONS = [
@@ -23,11 +24,21 @@ export default function CategoryEvents() {
   const [language, setLanguage] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    api.get(`/events/category/${encodeURIComponent(category)}`)
-      .then((r) => setEvents(r.data))
-      .catch(() => setEvents([]))
-      .finally(() => setLoading(false));
+    const fetchEvents = () => {
+      setLoading(true);
+      const params = { city: getSelectedCity().id || undefined, district: getSelectedDistrict().id || undefined };
+      api.get(`/events/category/${encodeURIComponent(category)}`, { params })
+        .then((r) => setEvents(r.data))
+        .catch(() => setEvents([]))
+        .finally(() => setLoading(false));
+    };
+    fetchEvents();
+    window.addEventListener("cityChanged", fetchEvents);
+    window.addEventListener("districtChanged", fetchEvents);
+    return () => {
+      window.removeEventListener("cityChanged", fetchEvents);
+      window.removeEventListener("districtChanged", fetchEvents);
+    };
   }, [category]);
 
   const languages = useMemo(

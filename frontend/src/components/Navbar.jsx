@@ -29,6 +29,13 @@ const GENRES = [
   "Drama",
 ];
 
+export function getSelectedCity() {
+  return {
+    id:   localStorage.getItem("selectedCityId") || "",
+    name: localStorage.getItem("selectedCity")   || "",
+  };
+}
+
 export default function Navbar() {
   const token = localStorage.getItem("accessToken");
   let userInfo = {};

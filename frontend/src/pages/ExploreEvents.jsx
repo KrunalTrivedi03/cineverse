@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import EventRow from "../components/EventRow";
 import EventCard from "../components/EventCard";
 import DistrictSelector, { getSelectedDistrict } from "../components/DistrictSelector";
+import { getSelectedCity } from "../components/Navbar";
 import { EVENT_CATEGORIES } from "../utils/eventHelpers";
 import { useRef } from "react";
 
@@ -25,6 +26,7 @@ export default function ExploreEvents() {
   const [artists,     setArtists]     = useState([]);
 
   const [district, setDistrict] = useState(getSelectedDistrict());
+  const [city,     setCity]     = useState(getSelectedCity());
   const [loading,  setLoading]  = useState(true);
 
   const [searchQuery,  setSearchQuery]  = useState("");
@@ -34,11 +36,12 @@ export default function ExploreEvents() {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
+      const loc = { city: getSelectedCity().id || undefined, district: getSelectedDistrict().id || undefined };
       const [t, p, u, r, a] = await Promise.all([
-        api.get("/events/trending"),
-        api.get("/events/popular"),
-        api.get("/events/upcoming"),
-        api.get("/events/recommended"),
+        api.get("/events/trending",    { params: loc }),
+        api.get("/events/popular",     { params: loc }),
+        api.get("/events/upcoming",    { params: loc }),
+        api.get("/events/recommended", { params: loc }),
         api.get("/artists", { params: { featured: true } }),
       ]);
       setTrending(t.data);
@@ -74,10 +77,16 @@ export default function ExploreEvents() {
   }, []);
 
   useEffect(() => {
+    const handler = () => { setCity(getSelectedCity()); fetchAll(); };
+    window.addEventListener("cityChanged", handler);
+    return () => window.removeEventListener("cityChanged", handler);
+  }, [fetchAll]);
+
+  useEffect(() => {
     if (!searchQuery.trim()) { setSearchResults(null); return; }
     setSearching(true);
     const t = setTimeout(() => {
-      api.get("/events/search", { params: { q: searchQuery } })
+      api.get("/events/search", { params: { q: searchQuery, city: getSelectedCity().id || undefined, district: getSelectedDistrict().id || undefined } })
         .then((r) => setSearchResults(r.data))
         .catch(() => setSearchResults([]))
         .finally(() => setSearching(false));

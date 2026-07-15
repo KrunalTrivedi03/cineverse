@@ -10,6 +10,7 @@ import {
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import api from "../api/axiosInstance";
+import MyEventBookings from "./MyEventBookings";
 
 /* ─────────────────────────────────────────────────────────
    Toast
@@ -94,6 +95,7 @@ export default function Settings() {
     { id: "profile",  icon: User,       label: "Profile"  },
     { id: "quickpay", icon: CreditCard,  label: "QuickPay" },
     { id: "bookings", icon: Clock,       label: "Bookings" },
+    { id: "eventbookings", icon: Ticket,       label: "Event Bookings" },
     { id: "rewards",  icon: Gift,        label: "Rewards"  },
   ];
 
@@ -189,6 +191,7 @@ export default function Settings() {
                 {activeSection === "profile"  && <ProfileSection  profile={profile} setProfile={setProfile} toast={toast} />}
                 {activeSection === "quickpay" && <QuickPaySection  toast={toast} />}
                 {activeSection === "bookings" && <BookingsSection  bookings={bookings} loading={loadingBookings} toast={toast} />}
+                {activeSection === "eventbookings" && <MyEventBookings  bookings={bookings} loading={loadingBookings} toast={toast} />}
                 {activeSection === "rewards"  && <RewardsSection />}
               </>
             )}

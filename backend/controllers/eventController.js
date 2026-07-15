@@ -4,7 +4,7 @@ const { syncEventStatuses } = require("../services/eventAutomation");
 
 const populateEvent = (q) => q.populate("artists", "name image genres");
 
-const attachNextSchedule = async (events) => {
+const attachNextSchedule = async (events, { city, district } = {}) => {
   if (!events.length) return events;
   const eventIds = events.map((e) => e._id);
   const today = new Date();
@@ -14,15 +14,26 @@ const attachNextSchedule = async (events) => {
     .populate({ path: "venue", populate: ["city", "district"] })
     .sort({ eventDate: 1 });
 
-  const map = {};
+  const byEvent = {};
   schedules.forEach((s) => {
     const key = s.event.toString();
-    if (!map[key]) map[key] = s; // first hit per event = earliest, thanks to the sort above
+    if (!byEvent[key]) byEvent[key] = [];
+    byEvent[key].push(s); // already sorted by eventDate above
   });
 
-  return events.map((e) => {
-    const obj    = e.toObject();
-    const sched  = map[e._id.toString()];
+  const cityId     = city     ? city.toString()     : null;
+  const districtId = district ? district.toString() : null;
+
+  const enriched = events.map((e) => {
+    const obj  = e.toObject();
+    const all  = byEvent[e._id.toString()] || [];
+
+    // When a city is selected, only that city's schedules count for this event
+    const candidates = cityId
+      ? all.filter((s) => s.venue?.city?._id?.toString() === cityId)
+      : all;
+
+    const sched = candidates[0]; // earliest matching schedule
     if (sched) {
       const prices = (sched.showTimes || []).flatMap((st) =>
         st.ticketTypes?.length ? st.ticketTypes.map((tt) => tt.price) : (st.price != null ? [st.price] : [])
@@ -34,9 +45,23 @@ const attachNextSchedule = async (events) => {
         venue:         sched.venue,
         startingPrice: prices.length ? Math.min(...prices) : null,
       };
+    } else {
+      obj.nextSchedule = null;
     }
+
+    obj._matchesCity     = cityId ? candidates.length > 0 : true;
+    obj._matchesDistrict = districtId
+      ? candidates.some((s) => s.venue?.district?._id?.toString() === districtId)
+      : false;
+
     return obj;
   });
+
+  let result = enriched;
+  if (cityId) result = result.filter((e) => e._matchesCity);
+  if (districtId) result.sort((a, b) => b._matchesDistrict - a._matchesDistrict);
+
+  return result.map(({ _matchesCity, _matchesDistrict, ...rest }) => rest);
 };
 
 exports.createEvent = async (req, res) => {
@@ -169,10 +194,11 @@ exports.getEvent = async (req, res) => {
 
 exports.getEventsByCategory = async (req, res) => {
   try {
+    const { city, district } = req.query;
     const events = await populateEvent(
       Event.find({ category: req.params.category, status: { $ne: "cancelled" } })
     ).sort({ createdAt: -1 });
-    res.json(await attachNextSchedule(events));
+    res.json(await attachNextSchedule(events, { city, district }));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -180,10 +206,11 @@ exports.getEventsByCategory = async (req, res) => {
 
 exports.getEventsByArtist = async (req, res) => {
   try {
+    const { city, district } = req.query;
     const events = await populateEvent(
       Event.find({ artists: req.params.artistId, status: { $ne: "cancelled" } })
     ).sort({ createdAt: -1 });
-    res.json(await attachNextSchedule(events));
+    res.json(await attachNextSchedule(events, { city, district }));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -210,7 +237,7 @@ exports.getEventsByDistrict = async (req, res) => {
 
 exports.searchEvents = async (req, res) => {
   try {
-    const { q } = req.query;
+    const { q, city, district } = req.query;
     if (!q) return res.json([]);
 
     const events = await populateEvent(
@@ -222,9 +249,9 @@ exports.searchEvents = async (req, res) => {
         ],
         status: { $ne: "cancelled" },
       })
-    ).limit(30);
+    ).limit(city ? 60 : 30);
 
-    res.json(await attachNextSchedule(events));
+    res.json((await attachNextSchedule(events, { city, district })).slice(0, 30));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -232,10 +259,11 @@ exports.searchEvents = async (req, res) => {
 
 exports.getTrendingEvents = async (req, res) => {
   try {
+    const { city, district } = req.query;
     const events = await populateEvent(
       Event.find({ status: { $in: ["upcoming", "live"] } })
-    ).sort({ "ratings.count": -1, createdAt: -1 }).limit(12);
-    res.json(await attachNextSchedule(events));
+    ).sort({ "ratings.count": -1, createdAt: -1 }).limit(city ? 40 : 12);
+    res.json((await attachNextSchedule(events, { city, district })).slice(0, 12));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -243,10 +271,11 @@ exports.getTrendingEvents = async (req, res) => {
 
 exports.getPopularEvents = async (req, res) => {
   try {
+    const { city, district } = req.query;
     const events = await populateEvent(
       Event.find({ status: { $in: ["upcoming", "live"] }, "ratings.count": { $gt: 0 } })
-    ).sort({ "ratings.average": -1 }).limit(12);
-    res.json(await attachNextSchedule(events));
+    ).sort({ "ratings.average": -1 }).limit(city ? 40 : 12);
+    res.json((await attachNextSchedule(events, { city, district })).slice(0, 12));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -255,8 +284,9 @@ exports.getPopularEvents = async (req, res) => {
 exports.getUpcomingEvents = async (req, res) => {
   try {
     await syncEventStatuses();
-    const events = await populateEvent(Event.find({ status: "upcoming" })).sort({ createdAt: -1 }).limit(20);
-    res.json(await attachNextSchedule(events));
+    const { city, district } = req.query;
+    const events = await populateEvent(Event.find({ status: "upcoming" })).sort({ createdAt: -1 }).limit(city ? 60 : 20);
+    res.json((await attachNextSchedule(events, { city, district })).slice(0, 20));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -265,10 +295,11 @@ exports.getUpcomingEvents = async (req, res) => {
 exports.getRecommendedEvents = async (req, res) => {
   try {
     // MVP heuristic — admin-curated featured events. Swap for personalized logic later.
+    const { city, district } = req.query;
     const events = await populateEvent(
       Event.find({ isFeatured: true, status: { $in: ["upcoming", "live"] } })
-    ).sort({ createdAt: -1 }).limit(12);
-    res.json(await attachNextSchedule(events));
+    ).sort({ createdAt: -1 }).limit(city ? 40 : 12);
+    res.json((await attachNextSchedule(events, { city, district })).slice(0, 12));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

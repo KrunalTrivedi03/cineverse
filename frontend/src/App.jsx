@@ -26,6 +26,7 @@ import EventSeatSelection from "./pages/EventSeatSelection";
 import TicketQuantitySelection from "./pages/TicketQuantitySelection";
 import EventBookingSuccess from "./pages/EventBookingSuccess";
 import MyEventBookings from "./pages/MyEventBookings";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
 
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 

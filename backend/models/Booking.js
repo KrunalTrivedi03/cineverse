@@ -4,6 +4,8 @@ const BookingSchema = new mongoose.Schema({
   user:    { type: mongoose.Schema.Types.ObjectId, ref: "User",    required: true },
   show:    { type: mongoose.Schema.Types.ObjectId, ref: "Show",    required: true },
   slotId:  { type: String, required: true },
+  movieTitle:  { type: String, default: "" },
+  moviePoster: { type: String, default: null },
   theatre: { type: mongoose.Schema.Types.ObjectId, ref: "Theatre", required: true },
   screen:  { type: String, required: true },
   showDate:{ type: Date,   required: true },

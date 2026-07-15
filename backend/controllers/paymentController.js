@@ -125,6 +125,8 @@ exports.createOrder = async (req, res) => {
       grandTotal,
       paymentId: razorpayOrder.id,
       status:  "pending",
+      movieTitle:  show.movie?.title  || "",
+      moviePoster: show.movie?.poster || null,
     });
 
     res.json({
@@ -197,6 +199,8 @@ exports.walletPay = async (req, res) => {
       paymentId: `wallet_${Date.now()}`,
       paymentMethod: "wallet",
       status:  "confirmed",
+      movieTitle:  show.movie?.title  || "",
+      moviePoster: show.movie?.poster || null,
     });
 
     await SeatLock.deleteMany({ showId, slotId, userId });

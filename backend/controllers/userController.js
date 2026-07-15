@@ -215,9 +215,10 @@ exports.getMyBookings = async (req, res) => {
       _id:         b._id,
       bookingRef:  b.bookingRef,
       movie: {
-        title:  b.show?.movie?.title  || "Unknown Movie",
-        poster: b.show?.movie?.poster || null,
+        title:  b.movieTitle  || b.show?.movie?.title  || "Unknown Movie",
+        poster: b.moviePoster || b.show?.movie?.poster || null,
       },
+      
       theatre:     { name: b.theatre?.name || "" },
       screen:      b.screen,
       showDate:    b.showDate,

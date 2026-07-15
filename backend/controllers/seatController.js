@@ -146,7 +146,7 @@ exports.confirmBooking = async (req, res) => {
   try {
     const { showId, slotId, seatIds, userId, paymentId } = req.body;
 
-    const show = await Show.findById(showId);
+    const show = await Show.findById(showId).populate("movie");
     if (!show) return res.status(404).json({ message: "Show not found" });
 
     const slot = show.showTimes?.id
@@ -200,6 +200,8 @@ exports.confirmBooking = async (req, res) => {
       grandTotal,
       paymentId: paymentId || "",
       status:    "confirmed",
+      movieTitle:  show.movie?.title  || "",
+      moviePoster: show.movie?.poster || null,
     });
 
     await SeatLock.deleteMany({ showId, slotId, userId });

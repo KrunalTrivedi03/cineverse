@@ -36,6 +36,7 @@ const eventSeatRoutes      = require("./routes/eventSeatRoutes");
 const eventPaymentRoutes   = require("./routes/eventPaymentRoutes");
 
 const app    = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -50,6 +51,20 @@ require("./socket")(io);
 app.use(cors({ origin: (process.env.CLIENT_URL || "").replace(/\/$/, ""), credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+const session = require("express-session");
+const passport = require("./config/passport");
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 connectDB();
 

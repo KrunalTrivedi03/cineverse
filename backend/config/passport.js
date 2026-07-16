@@ -2,6 +2,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/User");
 const Role = require("../models/Role");
+const sendWelcomeEmail = require("../utils/sendWelcomeEmail");
 
 const makeUniqueUsername = async (base) => {
   let candidate = base;
@@ -52,6 +53,11 @@ passport.use(
           isEmailVerified: true,
           isOTPVerified: true,
         });
+
+        // Fire-and-forget — a welcome email failing must never block login
+        sendWelcomeEmail({ toEmail: email, toName: username }).catch((err) =>
+          console.error("sendWelcomeEmail failed (non-fatal):", err.message)
+        );
 
         return done(null, user);
       } catch (err) {

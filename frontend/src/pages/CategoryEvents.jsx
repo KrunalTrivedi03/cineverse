@@ -1,9 +1,8 @@
-// src/pages/CategoryEvents.jsx
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, SlidersHorizontal } from "lucide-react";
 import api from "../api/axiosInstance";
-import Navbar from "../components/Navbar";
+import Navbar, { getSelectedCity } from "../components/Navbar";
 import { getSelectedDistrict } from "../components/DistrictSelector";
 import EventCard from "../components/EventCard";
 

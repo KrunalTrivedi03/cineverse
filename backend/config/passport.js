@@ -41,7 +41,8 @@ passport.use(
         const role = await Role.findOne({ name: "user" });
         if (!role) return done(new Error("Default role not found"), null);
 
-        const baseUsername = (profile.displayName || email.split("@")[0]).replace(/\s+/g, "");
+        const displayName = profile.displayName || email.split("@")[0];
+        const baseUsername = displayName.replace(/\s+/g, "");
         const username = await makeUniqueUsername(baseUsername);
 
         user = await User.create({
@@ -55,8 +56,8 @@ passport.use(
         });
 
         // Fire-and-forget — a welcome email failing must never block login
-        sendWelcomeEmail({ toEmail: email, toName: username }).catch((err) =>
-          console.error("sendWelcomeEmail failed (non-fatal):", err.message)
+        sendWelcomeEmail({ toEmail: email, toName: displayName }).catch((err) =>
+          console.error("sendWelcomeEmail failed (non-fatal):", err.message),
         );
 
         return done(null, user);

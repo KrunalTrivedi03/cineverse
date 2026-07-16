@@ -27,6 +27,7 @@ import TicketQuantitySelection from "./pages/TicketQuantitySelection";
 import EventBookingSuccess from "./pages/EventBookingSuccess";
 import MyEventBookings from "./pages/MyEventBookings";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import Play from "./pages/Play";
 
 export default function App() {
   return (
@@ -60,6 +61,8 @@ export default function App() {
         <Route path="/events/:id/schedule/:scheduleId/slot/:slotId/seats" element={<EventSeatSelection />} />
         <Route path="/events/:id/schedule/:scheduleId/slot/:slotId/tickets" element={<TicketQuantitySelection />} />
         <Route path="/booking/event-success" element={<EventBookingSuccess />} />
+
+        <Route path="/play" element={<Play />} />
 
         <Route
           path="/my-event-bookings"

@@ -195,7 +195,7 @@ export default function Navbar() {
             </NavDropdown>
             <NavLink to="/watchlist">Watchlist</NavLink>
             <NavLink to="/events">Events</NavLink>
-            <NavLink to="/">Play</NavLink>
+            <NavLink to="/play">Play</NavLink>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
@@ -622,7 +622,7 @@ export default function Navbar() {
                 { label: "Shows", to: "/" },
                 { label: "Watchlist", to: "/watchlist" },
                 { label: "Events", to: "/events" },
-                { label: "Play", to: "/" },
+                { label: "Play", to: "/play" },
               ].map((item) => (
                 <Link
                   key={item.label}

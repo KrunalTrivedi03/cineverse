@@ -156,7 +156,7 @@ export default function EventBookingSuccess() {
             <Home size={15} /> Explore Events
           </button>
           <button
-            onClick={() => navigate("/my-event-bookings")}
+            onClick={() => navigate("/settings")}
             style={{
               flex: 1, padding: "12px 0", cursor: "pointer",
               borderRadius: 14, background: "#fff",

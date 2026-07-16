@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LatestMovies from "../components/LatestMovies";
 import ComingSoon from "../components/ComingSoon";
+import Events from "../components/Events";
 import Footer from "../components/Footer";
 import api from "../api/axiosInstance";
 
@@ -175,6 +176,7 @@ export default function Home() {
       <div className="bg-white">
         <LatestMovies />
         <ComingSoon />
+        <Events />
       </div>
 
       {/* ══ FOOTER ════════════════════════════════════════ */}
@@ -409,5 +411,3 @@ function HeroSlide({ item, onPlay }) {
 function Dot() {
   return <span className="text-white/20 text-[10px]">•</span>;
 }
-
-

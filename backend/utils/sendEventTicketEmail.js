@@ -70,7 +70,7 @@ async function sendEventTicketEmail({ toEmail, toName, booking, eventTitle, venu
   }
 
   const paymentLabel =
-    booking.paymentMethod === "wallet"   ? "CineVerse Wallet" :
+    booking.paymentMethod === "wallet"   ? "Encore Wallet" :
     booking.paymentMethod === "razorpay" ? "Card / UPI (Razorpay)" :
     booking.paymentMethod || "Online";
 

@@ -179,7 +179,7 @@ export default function BookingSuccess() {
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Ticket size={12} color="#f0545c" />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>CineVerse</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>Encore</span>
             </div>
             <span style={{ fontSize: 9, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "monospace" }}>{ref}</span>
           </div>

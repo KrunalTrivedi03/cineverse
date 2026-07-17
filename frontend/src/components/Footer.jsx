@@ -59,7 +59,7 @@ export default function Footer() {
                 color: "#1a1917",
               }}
             >
-              Cin<span style={{ color: "#f0545c" }}>verse</span>
+              En<span style={{ color: "#f0545c" }}>core</span>
             </span>
           </Link>
 
@@ -73,7 +73,7 @@ export default function Footer() {
               margin: 0,
             }}
           >
-            Book tickets, discover showtimes & explore the world of cinema.
+            Book tickets, discover showtimes & explore the world of cinema, events and plays.
           </p>
 
           <div style={{ display: "flex", gap: 7, flexShrink: 0 }}>
@@ -154,7 +154,7 @@ export default function Footer() {
               margin: 0,
             }}
           >
-            © {new Date().getFullYear()} Cinverse. All rights reserved.
+            © {new Date().getFullYear()} Encore. All rights reserved.
           </p>
         </div>
 

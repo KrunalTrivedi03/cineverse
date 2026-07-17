@@ -159,15 +159,9 @@ export default function Navbar() {
     <>
       <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-5 md:px-8 h-[60px] flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "#f0545c" }}
-            >
-              <Film size={17} color="white" />
-            </div>
+          <Link to="/" className="flex items-center gap-0.5 flex-shrink-0">
             <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
+              En<span style={{ color: "#f0545c" }}>core</span>
             </span>
           </Link>
 
@@ -588,15 +582,14 @@ export default function Navbar() {
             }}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: "#f0545c" }}
-                >
-                  <Film size={14} color="white" />
-                </div>
+              <div className="flex items-center gap-0.5">
+                <img
+                  src={encoreLogo}
+                  alt="Encore"
+                  className="h-7 w-7 object-contain flex-shrink-0"
+                />
                 <span className="text-[17px] font-extrabold tracking-tight text-gray-900">
-                  Cine<span style={{ color: "#f0545c" }}>Verse</span>
+                  n<span style={{ color: "#f0545c" }}>core</span>
                 </span>
               </div>
               <button onClick={() => setMobileOpen(false)}>

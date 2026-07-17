@@ -565,7 +565,7 @@ function QuickPaySection({ toast }) {
         <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, borderRadius: "50%", background: "rgba(240,84,92,0.15)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: -20, right: 60, width: 80, height: 80, borderRadius: "50%", background: "rgba(240,84,92,0.08)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 1 }}>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1">CineVerse Wallet</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1">Encore Wallet</p>
           <p className="text-[36px] font-black tracking-tight" style={{ lineHeight: 1 }}>
             ₹{Math.floor(qpData?.walletBalance || 0).toLocaleString("en-IN")}.
             <span className="text-[24px]">{String(((qpData?.walletBalance || 0) % 1).toFixed(2)).slice(2)}</span>
@@ -921,7 +921,7 @@ function RewardsSection() {
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-[16px] font-black text-white">CineVerse Rewards</p>
+              <p className="text-[16px] font-black text-white">Encore Rewards</p>
               <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase" style={{ background: "#f0545c", color: "#fff" }}>Coming Soon</span>
             </div>
             <p className="text-[13px] text-white/50 max-w-sm">Earn points on every booking, unlock exclusive discounts, and get early access to blockbuster premieres.</p>

@@ -90,7 +90,7 @@ export default function AdminSidebar() {
           </div>
           <div>
             <span className="text-[17px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
+              En<span style={{ color: "#f0545c" }}>core</span>
             </span>
             <p className="text-[10px] text-gray-400 font-medium -mt-0.5 tracking-wide">
               ADMIN PANEL
@@ -260,7 +260,7 @@ export default function AdminSidebar() {
         </button>
 
         <p className="text-[10px] text-gray-300 text-center mt-3 font-medium">
-          © CineVerse 2025
+          © Encore 2025
         </p>
       </div>
     </aside>

@@ -85,7 +85,7 @@ function MovieCard({ movie, onRemove, onStatusChange }) {
         />
 
         <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute inset-0 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
           style={{ background: "rgba(0,0,0,0.42)" }}
         />
 
@@ -108,7 +108,7 @@ function MovieCard({ movie, onRemove, onStatusChange }) {
           />
         </div>
 
-        <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
           <button
             className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95"
             style={{ background: "#f0545c" }}
@@ -248,7 +248,7 @@ export default function Watchlist() {
 
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-5 md:px-10 pt-10 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-10 pt-6 sm:pt-10 pb-16">
 
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
@@ -278,8 +278,8 @@ export default function Watchlist() {
         </div>
 
         <div
-          className="flex items-center gap-1 p-1 rounded-2xl mb-8 w-fit bg-white"
-          style={{ border: "1px solid #e5e7eb" }}
+          className="flex items-center gap-1 p-1 rounded-2xl mb-8 w-fit bg-white overflow-x-auto max-w-full"
+          style={{ border: "1px solid #e5e7eb", scrollbarWidth: "none" }}
         >
           {TABS.map(({ id, label }) => {
             const isActive = activeTab === id;
@@ -287,7 +287,7 @@ export default function Watchlist() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
                 style={
                   isActive
                     ? { background: "#f0545c", color: "#fff" }
@@ -364,7 +364,7 @@ export default function Watchlist() {
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {filtered.map((movie) => (
               <MovieCard
                 key={movie.id}

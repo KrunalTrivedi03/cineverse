@@ -231,7 +231,7 @@ export default function TicketQuantitySelection() {
                     disabled={wallet.walletBalance < orderData.grandTotal}
                     className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
                     style={{ borderColor: payMethod === "wallet" ? "#f0545c" : "#e5e7eb", background: payMethod === "wallet" ? "rgba(240,84,92,0.05)" : "#fff", opacity: wallet.walletBalance < orderData.grandTotal ? 0.5 : 1 }}>
-                    <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><Wallet size={15} /> CineVerse Wallet</span>
+                    <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><Wallet size={15} /> Encore Wallet</span>
                     <span className="text-[12px] text-gray-400">₹{wallet.walletBalance}</span>
                   </button>
                 )}

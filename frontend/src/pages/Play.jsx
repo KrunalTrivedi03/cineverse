@@ -19,7 +19,7 @@ const FEATURES = [
   {
     icon: Clapperboard,
     title: "Originals & Exclusives",
-    desc: "Stream CineVerse-original series and films you won't find anywhere else.",
+    desc: "Stream Encore-original series and films you won't find anywhere else.",
   },
   {
     icon: Radio,
@@ -128,7 +128,7 @@ export default function Play() {
           >
             <Sparkles size={13} color="#f0545c" />
             <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: "#f0545c" }}>
-              CineVerse Play &middot; In the works
+              Encore Play &middot; In the works
             </span>
           </div>
 
@@ -152,7 +152,7 @@ export default function Play() {
             className="text-white/55 leading-relaxed mx-auto mb-9"
             style={{ maxWidth: 480, fontSize: 15 }}
           >
-            We're building a streaming experience for CineVerse — originals, exclusives,
+            We're building a streaming experience for Encore — originals, exclusives,
             and live watch parties — right alongside your movie and event bookings.
           </p>
 
@@ -330,7 +330,7 @@ export default function Play() {
           Nothing to book here — yet.
         </h2>
         <p className="text-[13.5px] text-gray-500 max-w-md mx-auto leading-relaxed">
-          While Play is in the oven, keep exploring live movies and events already on CineVerse.
+          While Play is in the oven, keep exploring live movies and events already on Encore.
         </p>
       </section>
 

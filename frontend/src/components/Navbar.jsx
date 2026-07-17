@@ -583,13 +583,8 @@ export default function Navbar() {
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div className="flex items-center gap-0.5">
-                <img
-                  src={encoreLogo}
-                  alt="Encore"
-                  className="h-7 w-7 object-contain flex-shrink-0"
-                />
                 <span className="text-[17px] font-extrabold tracking-tight text-gray-900">
-                  n<span style={{ color: "#f0545c" }}>core</span>
+                  En<span style={{ color: "#f0545c" }}>core</span>
                 </span>
               </div>
               <button onClick={() => setMobileOpen(false)}>

@@ -37,20 +37,6 @@ export default function Footer() {
           style={{ padding: "40px 0 28px", borderBottom: "1px solid #e8e5e1" }}
         >
           <Link to="/" className="flex items-center gap-2.5" style={{ textDecoration: "none" }}>
-            <div
-              style={{
-                width: 35,
-                height: 35,
-                borderRadius: 10,
-                background: "#f0545c",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Film size={17} color="#fff" />
-            </div>
             <span
               style={{
                 fontSize: 20,

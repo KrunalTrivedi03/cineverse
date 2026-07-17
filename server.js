@@ -6,6 +6,9 @@ const cors         = require("cors");
 const cookieParser = require("cookie-parser");
 const path         = require("path");
 const connectDB    = require("./config/db");
+const cron         = require("node-cron");
+const { runNightlyAutomation, backfillWindow } = require("./services/showAutomation");
+const { runNightlyEventAutomation } = require("./services/eventAutomation");
 
 const userAuthRoutes    = require("./routes/authRoutes");
 const adminAuthRoutes   = require("./routes/adminAuthRoutes");
@@ -22,23 +25,63 @@ const seatRoutes        = require("./routes/seatRoutes");
 const paymentRoutes     = require("./routes/paymentRoutes");
 const quickPayRoutes    = require("./routes/quickPayRoutes");
 
+/* Event module */
+const districtRoutes       = require("./routes/districtRoutes");
+const artistRoutes         = require("./routes/artistRoutes");
+const venueRoutes          = require("./routes/venueRoutes");
+const eventRoutes          = require("./routes/eventRoutes");
+const publicEventRoutes    = require("./routes/publicEventRoutes");
+const eventScheduleRoutes  = require("./routes/eventScheduleRoutes");
+const eventSeatRoutes      = require("./routes/eventSeatRoutes");
+const eventPaymentRoutes   = require("./routes/eventPaymentRoutes");
+
 const app    = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin:      "http://localhost:5173",
+    origin: (process.env.CLIENT_URL || "").replace(/\/$/, ""),
     credentials: true,
     methods:     ["GET", "POST"],
   },
 });
 require("./socket")(io);
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: (process.env.CLIENT_URL || "").replace(/\/$/, ""), credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+const session = require("express-session");
+const passport = require("./config/passport");
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 connectDB();
+
+backfillWindow(30).catch((e) => console.error("Initial show backfill failed:", e.message));
+
+// Every night at 2 AM: clean up completed shows, extend the rolling window
+cron.schedule("0 2 * * *", () => {
+  console.log("Running nightly show automation...");
+  runNightlyAutomation().catch((e) => console.error("Nightly show automation failed:", e.message));
+});
+
+// Every night at 2:15 AM: clean up completed event schedules, resync event statuses
+cron.schedule("15 2 * * *", () => {
+  console.log("Running nightly event automation...");
+  runNightlyEventAutomation().catch((e) => console.error("Nightly event automation failed:", e.message));
+});
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -58,7 +101,18 @@ app.use("/api/seats",        seatRoutes);
 app.use("/api/payment",      paymentRoutes);
 app.use("/api/quickpay",     quickPayRoutes); // ← NEW
 
-app.get("/", (req, res) => res.send("CineVerse Backend Running..."));
+/* Event module */
+app.use("/api/districts",       districtRoutes);
+app.use("/api/artists",         artistRoutes);
+app.use("/api/venues",          venueRoutes);
+app.use("/api/events",          publicEventRoutes);
+app.use("/api/admin/events",    eventRoutes);
+app.use("/api/event-schedules", eventScheduleRoutes);
+app.use("/api/event-seats",     eventSeatRoutes);
+app.use("/api/event-payment",   eventPaymentRoutes);
+
+app.get("/", (req, res) => res.send("Encore Backend Running..."));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

@@ -111,7 +111,7 @@ app.use("/api/event-schedules", eventScheduleRoutes);
 app.use("/api/event-seats",     eventSeatRoutes);
 app.use("/api/event-payment",   eventPaymentRoutes);
 
-app.get("/", (req, res) => res.send("CineVerse Backend Running..."));
+app.get("/", (req, res) => res.send("Encore Backend Running..."));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -17,6 +17,10 @@ export default function EventDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [event,     setEvent]     = useState(null);
   const [schedules, setSchedules] = useState([]);
   const [similar,   setSimilar]   = useState([]);
@@ -123,7 +127,7 @@ export default function EventDetail() {
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6 md:gap-8">
 
         {/* ── Left: details ── */}
-        <div>
+        <div className="pb-15 md:pb-0">
           {/* Quick facts */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px,1fr))", gap: 12, marginBottom: 24 }}>
             {nearestSchedule && (

@@ -478,6 +478,9 @@ export default function MovieDetailWrapper() {
 }
 
 function MovieDetail({ movie }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [showTrailer, setShowTrailer] = useState(false);
   const [showAgeGate, setShowAgeGate] = useState(false);  
   const [votes, setVotes] = useState(movie.votes || 0);

@@ -41,7 +41,7 @@ export function useEventRazorpay() {
         key:         keyId,
         amount,
         currency:    currency || "INR",
-        name:        "Encore Events",
+        name:        "CineVerse Events",
         description: event && venue ? `${event} — ${venue}` : "Event Ticket Booking",
         order_id:    orderId,
 

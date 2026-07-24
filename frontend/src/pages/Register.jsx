@@ -151,7 +151,7 @@ export default function Register() {
               <Film size={16} color="white" />
             </div>
             <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              En<span style={{ color: "#f0545c" }}>core</span>
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
             </span>
           </div>
 
@@ -160,7 +160,7 @@ export default function Register() {
             Create account
           </h1>
           <p className="text-[14px] text-gray-400 mt-1 mb-8">
-            Start your cinema journey with Encore
+            Start your cinema journey with CineVerse
           </p>
 
           {/* Form */}

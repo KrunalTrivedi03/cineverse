@@ -145,7 +145,7 @@ export default function Login() {
               <Film size={18} color="white" />
             </div>
             <span className="text-white text-[22px] font-extrabold tracking-tight">
-              En<span style={{ color: "#f0545c" }}>core</span>
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
             </span>
           </div>
           <p className="text-white/50 text-[14px] leading-relaxed max-w-xs">
@@ -167,7 +167,7 @@ export default function Login() {
               <Film size={16} color="white" />
             </div>
             <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              En<span style={{ color: "#f0545c" }}>core</span>
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
             </span>
           </div>
 
@@ -285,7 +285,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-[14px] text-gray-500 mt-4">
-            New to Encore?{" "}
+            New to CineVerse?{" "}
             <Link
               to="/register"
               className="font-semibold hover:underline"

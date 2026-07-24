@@ -185,7 +185,7 @@ export default function OtpVerification() {
               <Film size={18} color="white" />
             </div>
             <span className="text-white text-[22px] font-extrabold tracking-tight">
-              En<span style={{ color: "#f0545c" }}>core</span>
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
             </span>
           </div>
           <p className="text-white/40 text-[13px] max-w-xs leading-relaxed">
@@ -207,7 +207,7 @@ export default function OtpVerification() {
               <Film size={16} color="white" />
             </div>
             <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              En<span style={{ color: "#f0545c" }}>core</span>
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
             </span>
           </div>
 

@@ -136,7 +136,7 @@ export default function EventBookingSuccess() {
           <div style={{ borderTop: "1px solid #f3f4f6", padding: "9px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fafafa" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Ticket size={12} color="#f0545c" />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>Encore Events</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>CineVerse Events</span>
             </div>
             <span style={{ fontSize: 9, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "monospace" }}>{ref}</span>
           </div>

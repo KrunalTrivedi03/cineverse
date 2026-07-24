@@ -2,17 +2,17 @@ import { Film, Twitter, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const NAV = [
-  { label: "Movies",  to: "/movies"  },
+  { label: "Movies", to: "/movies" },
   { label: "Cinemas", to: "/cinemas" },
-  { label: "Offers",  to: "/offers"  },
-  { label: "About",   to: "/about"   },
+  { label: "Offers", to: "/offers" },
+  { label: "About", to: "/about" },
   { label: "Contact", to: "/contact" },
 ];
 
 const SOCIALS = [
-  { Icon: Twitter,   href: "#", label: "Twitter"  },
+  { Icon: Twitter, href: "#", label: "Twitter" },
   { Icon: Instagram, href: "#", label: "Instagram" },
-  { Icon: Youtube,   href: "#", label: "YouTube"   },
+  { Icon: Youtube, href: "#", label: "YouTube" },
 ];
 
 export default function Footer() {
@@ -26,17 +26,22 @@ export default function Footer() {
       <div
         style={{
           height: 2,
-          background: "linear-gradient(90deg, transparent, #f0545c 25%, #f0545c 75%, transparent)",
+          background:
+            "linear-gradient(90deg, transparent, #f0545c 25%, #f0545c 75%, transparent)",
         }}
       />
 
       <div className="mx-auto px-6 md:px-16" style={{ maxWidth: 1200 }}>
-
         <div
           className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
           style={{ padding: "40px 0 28px", borderBottom: "1px solid #e8e5e1" }}
         >
-          <Link to="/" className="flex items-center gap-2.5" style={{ textDecoration: "none" }}>
+          <Link
+            to="/"
+            className="flex items-center gap-2.5"
+            style={{ textDecoration: "none" }}
+          >
+            <CineVerseLogo size={26} />
             <span
               style={{
                 fontSize: 20,
@@ -45,7 +50,7 @@ export default function Footer() {
                 color: "#1a1917",
               }}
             >
-              En<span style={{ color: "#f0545c" }}>core</span>
+              Cine<span style={{ color: "#f0545c" }}>Verse</span>
             </span>
           </Link>
 
@@ -59,7 +64,8 @@ export default function Footer() {
               margin: 0,
             }}
           >
-            Book tickets, discover showtimes & explore the world of cinema, events and plays.
+            Book tickets, discover showtimes & explore the world of cinema,
+            events and plays.
           </p>
 
           <div style={{ display: "flex", gap: 7, flexShrink: 0 }}>
@@ -102,9 +108,14 @@ export default function Footer() {
           className="flex flex-col sm:flex-row items-center justify-between gap-3"
           style={{ padding: "18px 0 22px" }}
         >
-          <nav style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+          <nav
+            style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+          >
             {NAV.map(({ label, to }, i) => (
-              <span key={label} style={{ display: "flex", alignItems: "center" }}>
+              <span
+                key={label}
+                style={{ display: "flex", alignItems: "center" }}
+              >
                 <Link
                   to={to}
                   style={{
@@ -117,13 +128,23 @@ export default function Footer() {
                     transition: "color 0.15s ease",
                     letterSpacing: "0.01em",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#1a1917")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#9c9890")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "#1a1917")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "#9c9890")
+                  }
                 >
                   {label}
                 </Link>
                 {i < NAV.length - 1 && (
-                  <span style={{ color: "#d4d0cb", fontSize: 10, userSelect: "none" }}>
+                  <span
+                    style={{
+                      color: "#d4d0cb",
+                      fontSize: 10,
+                      userSelect: "none",
+                    }}
+                  >
                     /
                   </span>
                 )}
@@ -140,13 +161,68 @@ export default function Footer() {
               margin: 0,
             }}
           >
-            © {new Date().getFullYear()} Encore. All rights reserved.
+            © {new Date().getFullYear()} CineVerse. All rights reserved.
           </p>
         </div>
-
       </div>
     </footer>
   );
 }
 
-
+function CineVerseLogo({ size = 24 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 80 80"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="40" cy="40" r="32" fill="#f0545c" />
+      <circle
+        cx="40"
+        cy="40"
+        r="32"
+        fill="none"
+        stroke="#c03040"
+        strokeWidth="1"
+      />
+      <polygon points="33,27 33,53 57,40" fill="#ffffff" />
+      <rect
+        x="8"
+        y="37"
+        width="12"
+        height="6"
+        rx="3"
+        fill="#ffffff"
+        opacity="0.15"
+      />
+      <rect
+        x="60"
+        y="37"
+        width="12"
+        height="6"
+        rx="3"
+        fill="#ffffff"
+        opacity="0.15"
+      />
+      <rect
+        x="37"
+        y="8"
+        width="6"
+        height="12"
+        rx="3"
+        fill="#ffffff"
+        opacity="0.15"
+      />
+      <rect
+        x="37"
+        y="60"
+        width="6"
+        height="12"
+        rx="3"
+        fill="#ffffff"
+        opacity="0.15"
+      />
+    </svg>
+  );
+}

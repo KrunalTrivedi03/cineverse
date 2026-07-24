@@ -145,7 +145,7 @@ export default function AdminLogin() {
             >
               <Film size={26} style={{ color: "#f0545c" }} />
             </div>
-            <h1 className="text-[22px] font-bold text-white tracking-tight">Encore</h1>
+            <h1 className="text-[22px] font-bold text-white tracking-tight">CineVerse</h1>
             <p className="text-[12px] text-gray-500 mt-1 font-medium tracking-widest uppercase">
               Admin Portal
             </p>

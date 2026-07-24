@@ -11,7 +11,7 @@ const buildEmailTemplate = require("./emailTemplateBuilder");
 async function sendWelcomeEmail({ toEmail, toName }) {
   const html = buildEmailTemplate({
     template: "welcomeGoogle.html",
-    title:    "Welcome to Encore",
+    title:    "Welcome to CineVerse",
     subtitle: "ACCOUNT CREATED",
     heading:  `Hey ${toName}, you're in!`,
     replacements: {
@@ -23,7 +23,7 @@ async function sendWelcomeEmail({ toEmail, toName }) {
 
   await sendEmail({
     to:      toEmail,
-    subject: "🎬 Welcome to Encore!",
+    subject: "🎬 Welcome to CineVerse!",
     html,
   });
 }

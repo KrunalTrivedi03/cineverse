@@ -45,7 +45,7 @@ async function sendTicketEmail({ toEmail, toName, booking, movieTitle, theatreNa
     .join("");
 
   const paymentLabel =
-    booking.paymentMethod === "wallet"   ? "Encore Wallet" :
+    booking.paymentMethod === "wallet"   ? "CineVerse Wallet" :
     booking.paymentMethod === "razorpay" ? "Card / UPI (Razorpay)" :
     booking.paymentMethod || "Online";
 

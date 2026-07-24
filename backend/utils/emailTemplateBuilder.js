@@ -20,7 +20,7 @@ module.exports = function buildEmailTemplate(options) {
     );
   } catch (err) {
     console.warn("Logo not found, using fallback text");
-    logo = "<h2 style='color:white;'>Encore</h2>";
+    logo = "<h2 style='color:white;'>CineVerse</h2>";
   }
 
   let finalContent = content;

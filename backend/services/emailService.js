@@ -14,7 +14,7 @@
 //   console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "loaded ✓" : "MISSING ✗");
 
 //   const info = await transporter.sendMail({
-//     from: `"Encore" <${process.env.EMAIL_USER}>`,
+//     from: `"CineVerse" <${process.env.EMAIL_USER}>`,
 //     to,
 //     subject,
 //     html,
@@ -34,7 +34,7 @@ const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 exports.sendEmail = async ({ to, subject, html }) => {
   try {
     const result = await emailApi.sendTransacEmail({
-      sender: { email: process.env.EMAIL_USER, name: "Encore" },
+      sender: { email: process.env.EMAIL_USER, name: "CineVerse" },
       to: [{ email: to }],
       subject,
       htmlContent: html,

@@ -92,7 +92,7 @@ exports.register = async (req, res) => {
 
       await sendEmail({
         to: email,
-        subject: "Verify your Encore Account",
+        subject: "Verify your CineVerse Account",
         html,
       });
     } catch (emailError) {
@@ -143,7 +143,7 @@ exports.resendOTP = async (req, res) => {
 
     await sendEmail({
       to: email,
-      subject: "Resend OTP - Encore",
+      subject: "Resend OTP - CineVerse",
       html,
     });
 

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { CheckCircle2, MapPin, Calendar, Clock, Home, Ticket } from "lucide-react";
 import { IMG, fmtDate, fmt12, SEAT_CAT } from "../utils/eventHelpers";
+import BottomNav from "../components/BottomNav";
 
 export default function EventBookingSuccess() {
   const { state }  = useLocation();
@@ -29,6 +30,8 @@ export default function EventBookingSuccess() {
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
+
+      <BottomNav />
 
       <div style={{ maxWidth: 420, margin: "0 auto", padding: "16px 16px 32px" }}>
 

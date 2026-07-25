@@ -12,6 +12,7 @@ import {
   CalendarDays, Users, Monitor, Info,
 } from "lucide-react";
 import { IMG, fmt12, fmtDate, fmtCountdown, getSocketUserId, getCurrentUser, SEAT_CAT } from "../utils/eventHelpers";
+import BottomNav from "../components/BottomNav";
 
 const BASE = import.meta.env.VITE_API_URL;
 const LOCK_SECONDS = 5 * 60;
@@ -354,6 +355,8 @@ export default function EventSeatSelection() {
         .es-countdown-urgent { animation: es-pulse-urgent 1s ease-in-out infinite; }
       `}</style>
       <Navbar />
+
+      <BottomNav />
 
       {/* ── Header ── */}
       <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">

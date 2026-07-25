@@ -7,6 +7,7 @@ import {
   Building2, Monitor, Loader2, IndianRupee, ExternalLink,
   Plus, Minus, RotateCcw, ChevronDown, Clock,
 } from "lucide-react";
+import BottomNav from "./BottomNav";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -198,6 +199,8 @@ export default function BookTickets() {
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
       `}</style>
       <Navbar />
+
+      <BottomNav />
 
       {/* ── Movie info bar ── */}
       <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">

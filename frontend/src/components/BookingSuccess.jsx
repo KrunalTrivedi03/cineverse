@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { CheckCircle2, MapPin, Calendar, Clock, Home, Ticket } from "lucide-react";
+import BottomNav from "./BottomNav";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -47,6 +48,7 @@ export default function BookingSuccess() {
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
+      <BottomNav />
 
       <div style={{ maxWidth: 420, margin: "0 auto", padding: "16px 16px 32px" }}>
 

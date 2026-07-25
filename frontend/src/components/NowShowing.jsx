@@ -6,6 +6,7 @@ import {
   Star, ThumbsUp, Tv, X, Check,
   ChevronDown, ChevronUp, MapPin, ChevronRight, SlidersHorizontal,
 } from "lucide-react";
+import BottomNav from "./BottomNav";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -355,6 +356,8 @@ export default function NowShowingPage() {
     <div className="min-h-screen bg-[#f2f2f2]" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
+
+      <BottomNav />
 
       <div className="max-w-[1300px] mx-auto px-4 md:px-8 py-6 md:py-8 flex gap-6 items-start">
 

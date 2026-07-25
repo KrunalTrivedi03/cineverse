@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { User, Film, ListTodo } from "lucide-react";
+import BottomNav from "../components/BottomNav";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,8 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      
+      <BottomNav />
 
       <div className="max-w-4xl mx-auto mt-16 px-6">
         <h1 className="text-4xl font-bold text-gray-800 flex items-center gap-2">

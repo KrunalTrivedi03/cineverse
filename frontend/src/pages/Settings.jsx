@@ -11,6 +11,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import api from "../api/axiosInstance";
 import MyEventBookings from "./MyEventBookings";
+import BottomNav from "../components/BottomNav";
 
 /* ─────────────────────────────────────────────────────────
    Toast
@@ -121,6 +122,7 @@ export default function Settings() {
       `}</style>
 
       <Navbar />
+      <BottomNav />
       <Toast toasts={toasts} remove={remove} />
 
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-8">

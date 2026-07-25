@@ -6,6 +6,7 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import EventCard from "../components/EventCard";
 import { IMG } from "../utils/eventHelpers";
+import BottomNav from "../components/BottomNav";
 
 const SOCIAL_ICON = { instagram: Instagram, twitter: Twitter, facebook: Facebook, youtube: Youtube, website: Globe };
 
@@ -44,6 +45,8 @@ export default function ArtistDetail() {
     <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
+
+      <BottomNav />
 
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 md:px-8 py-3">

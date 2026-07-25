@@ -23,6 +23,7 @@ import {
   CheckCircle,
   IndianRupee,
 } from "lucide-react";
+import BottomNav from "./BottomNav";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 const BASE = import.meta.env.VITE_API_URL;
@@ -767,6 +768,8 @@ export default function SeatSelection() {
       `}</style>
 
       <Navbar />
+
+      <BottomNav />
 
       {/* ── Seat Count Selector — shown after layout loads, before seats are picked ── */}
       {!loading && layoutData && targetCount === null && (

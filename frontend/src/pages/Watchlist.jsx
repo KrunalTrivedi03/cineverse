@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
+import BottomNav from "../components/BottomNav";
 
 const IMG = (path) =>
   path?.startsWith("http") ? path : `${import.meta.env.VITE_API_URL}${path}`;
@@ -247,6 +248,7 @@ export default function Watchlist() {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
       <Navbar />
+      <BottomNav />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-10 pt-6 sm:pt-10 pb-16">
 

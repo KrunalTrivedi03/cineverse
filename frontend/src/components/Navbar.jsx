@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
-  Menu,
   User,
   LogOut,
   ChevronDown,
@@ -50,12 +49,14 @@ export default function Navbar() {
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userInfo");
+    setProfileOpen(false);
+    setMobileProfileOpen(false);
     navigate("/login");
   };
 
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [cityModal, setCityModal] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
   const [cities, setCities] = useState([]);
@@ -72,6 +73,7 @@ export default function Navbar() {
 
   const searchInputRef = useRef(null);
   const profileRef = useRef(null);
+  const mobileProfileRef = useRef(null);
   const cityInputRef = useRef(null);
 
   useEffect(() => {
@@ -98,6 +100,8 @@ export default function Navbar() {
     const fn = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target))
         setProfileOpen(false);
+      if (mobileProfileRef.current && !mobileProfileRef.current.contains(e.target))
+        setMobileProfileOpen(false);
     };
     document.addEventListener("mousedown", fn);
     return () => document.removeEventListener("mousedown", fn);
@@ -108,7 +112,7 @@ export default function Navbar() {
       if (e.key === "Escape") {
         setSearchOpen(false);
         setCityModal(false);
-        setMobileOpen(false);
+        setMobileProfileOpen(false);
       }
     };
     window.addEventListener("keydown", fn);
@@ -215,12 +219,77 @@ export default function Navbar() {
               <ChevronDown size={13} />
             </button>
 
+            {/* Mobile utilities: search, city, and profile/sign-in all live
+                here now — the bottom nav is content-browsing only. */}
             <button
               onClick={() => setSearchOpen(true)}
               className="md:hidden p-2 text-gray-700 hover:text-[#f0545c] transition-colors"
+              aria-label="Search"
             >
               <Search size={20} />
             </button>
+
+            <button
+              onClick={() => setCityModal(true)}
+              className="md:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg text-gray-700 hover:text-[#f0545c] hover:bg-gray-50 transition-colors"
+              aria-label="Select city"
+            >
+              <MapPin
+                size={18}
+                style={{ color: selectedCity ? "#f0545c" : undefined }}
+              />
+            </button>
+
+            {!token ? (
+              <Link
+                to="/login"
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded-full text-white flex-shrink-0"
+                style={{ background: "#f0545c" }}
+                aria-label="Sign in"
+              >
+                <User size={16} />
+              </Link>
+            ) : (
+              <div className="md:hidden relative" ref={mobileProfileRef}>
+                <button
+                  onClick={() => setMobileProfileOpen((p) => !p)}
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] font-bold flex-shrink-0"
+                  style={{ background: "#f0545c" }}
+                  aria-label="Account"
+                >
+                  {(userInfo.username?.[0] || "U").toUpperCase()}
+                </button>
+
+                {mobileProfileOpen && (
+                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white border border-gray-200 rounded-2xl shadow-xl w-52 overflow-hidden z-50">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                      <p className="text-[13px] font-bold text-gray-900 capitalize truncate">
+                        {userInfo.username || "User"}
+                      </p>
+                      <p className="text-[11px] text-gray-400 truncate">
+                        {userInfo.email || ""}
+                      </p>
+                    </div>
+                    <div className="py-1.5 px-1">
+                      <ProfileLink to="/watchlist" onClick={() => setMobileProfileOpen(false)}>
+                        My Watchlist
+                      </ProfileLink>
+                      <ProfileLink to="/settings" onClick={() => setMobileProfileOpen(false)}>
+                        Profile & Settings
+                      </ProfileLink>
+                    </div>
+                    <div className="border-t border-gray-100 px-1 pb-1.5 pt-1">
+                      <button
+                        onClick={logout}
+                        className="w-full flex items-center gap-2 text-[13px] font-medium text-red-500 hover:bg-red-50 transition-colors px-3 py-2 rounded-lg"
+                      >
+                        <LogOut size={14} /> Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {!token ? (
               <Link
@@ -266,8 +335,7 @@ export default function Navbar() {
                     </div>
                     <div className="py-1.5 px-1">
                       <ProfileLink to="/watchlist">My Watchlist</ProfileLink>
-                      <ProfileLink to="/profile">Profile</ProfileLink>
-                      <ProfileLink to="/settings">Settings</ProfileLink>
+                      <ProfileLink to="/settings">Profile & Settings</ProfileLink>
                     </div>
                     <div className="border-t border-gray-100 px-1 pb-1.5 pt-1">
                       <button
@@ -281,13 +349,6 @@ export default function Navbar() {
                 )}
               </div>
             )}
-
-            <button
-              className="lg:hidden p-2 text-gray-700"
-              onClick={() => setMobileOpen(true)}
-            >
-              <Menu size={22} />
-            </button>
           </div>
         </div>
       </nav>
@@ -568,129 +629,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-[999]"
-          style={{ background: "rgba(0,0,0,0.3)" }}
-          onClick={() => setMobileOpen(false)}
-        >
-          <div
-            className="absolute top-0 right-0 h-full w-72 bg-white shadow-2xl flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              animation: "slideInRight 0.22s cubic-bezier(.4,0,.2,1) both",
-            }}
-          >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <CineVerseLogo size={22} />
-                <span className="text-[17px] font-extrabold tracking-tight text-gray-900">
-                  Cine<span style={{ color: "#f0545c" }}>Verse</span>
-                </span>
-              </div>
-              <button onClick={() => setMobileOpen(false)}>
-                <X size={20} className="text-gray-500" />
-              </button>
-            </div>
-
-            <button
-              onClick={() => {
-                setMobileOpen(false);
-                setCityModal(true);
-              }}
-              className="flex items-center gap-2 px-5 py-3 border-b border-gray-100 text-[13px] font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              <MapPin size={14} className="text-[#f0545c]" />
-              {selectedCity || "Select City"}
-              <ChevronDown size={13} className="ml-auto text-gray-400" />
-            </button>
-
-            <div className="flex-1 overflow-y-auto py-2">
-              {[
-                { label: "Movies", to: "/" },
-                { label: "Shows", to: "/" },
-                { label: "Watchlist", to: "/watchlist" },
-                { label: "Events", to: "/events" },
-                { label: "Play", to: "/play" },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className="flex items-center px-5 py-3 text-[14px] font-medium text-gray-700 hover:bg-gray-50 hover:text-[#f0545c] transition-colors"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              {token && (
-                <>
-                  <div className="mx-5 my-2 border-t border-gray-100" />
-                  <Link
-                    to="/profile"
-                    className="flex items-center px-5 py-3 text-[14px] font-medium text-gray-700 hover:bg-gray-50 hover:text-[#f0545c] transition-colors"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Profile
-                  </Link>
-                  <Link
-                    to="/settings"
-                    className="flex items-center px-5 py-3 text-[14px] font-medium text-gray-700 hover:bg-gray-50 hover:text-[#f0545c] transition-colors"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Settings
-                  </Link>
-                </>
-              )}
-            </div>
-
-            <div className="border-t border-gray-100 px-5 py-4">
-              {!token ? (
-                <Link
-                  to="/login"
-                  className="block w-full text-center text-white font-semibold py-3 rounded-xl text-[14px] transition-colors"
-                  style={{ background: "#f0545c" }}
-                >
-                  Sign In
-                </Link>
-              ) : (
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-[14px]"
-                      style={{ background: "#f0545c" }}
-                    >
-                      {(userInfo.username?.[0] || "U").toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-bold text-gray-900 capitalize">
-                        {userInfo.username || "User"}
-                      </p>
-                      <p className="text-[11px] text-gray-400 truncate">
-                        {userInfo.email || ""}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={logout}
-                    className="flex items-center gap-2 text-[13px] font-medium text-red-500 hover:text-red-600 transition-colors"
-                  >
-                    <LogOut size={15} /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100%); }
-          to   { transform: translateX(0); }
-        }
-      `}</style>
     </>
   );
 }
@@ -731,10 +669,11 @@ function DropItem({ icon, label, to }) {
   );
 }
 
-function ProfileLink({ to, children }) {
+function ProfileLink({ to, children, onClick }) {
   return (
     <Link
       to={to}
+      onClick={onClick}
       className="flex items-center px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50 hover:text-[#f0545c] rounded-lg transition-colors"
     >
       {children}

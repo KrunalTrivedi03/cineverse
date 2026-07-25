@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   Wrench,
 } from "lucide-react";
+import BottomNav from "../components/BottomNav";
 
 /* ─── Config ──────────────────────────────────────────── */
 const FEATURES = [
@@ -99,6 +100,7 @@ export default function Play() {
       `}</style>
 
       <Navbar />
+      <BottomNav />
 
       {/* ══ HERO ══════════════════════════════════════════ */}
       <div className="relative overflow-hidden" style={{ background: "#111" }}>

@@ -9,6 +9,7 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import EventRow from "../components/EventRow";
 import { IMG, fmtDateLong, fmt12 } from "../utils/eventHelpers";
+import BottomNav from "../components/BottomNav";
 
 const RULES_COLLAPSED_COUNT = 5;
 const DESC_COLLAPSED_LINES = 4;
@@ -78,6 +79,8 @@ export default function EventDetail() {
         .desc-clamp { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
       `}</style>
       <Navbar />
+
+      <BottomNav />
 
       {/* ── Banner ── */}
       <div className="relative w-full overflow-hidden" style={{ height: 260, background: "#111" }}>

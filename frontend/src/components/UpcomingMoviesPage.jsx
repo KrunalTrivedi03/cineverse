@@ -7,6 +7,7 @@ import {
   ChevronDown, ChevronUp, MapPin, Clock,
   ChevronRight, SlidersHorizontal,
 } from "lucide-react";
+import BottomNav from "./BottomNav";
 
 const IMG = (path) =>
   !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
@@ -316,6 +317,8 @@ export default function UpcomingMoviesPage() {
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
       `}</style>
       <Navbar />
+
+      <BottomNav />
 
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 py-5 md:py-7 pb-16 flex gap-5 md:gap-6 items-start">
 

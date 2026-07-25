@@ -5,6 +5,7 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import { ChevronLeft, MapPin, Clock, IndianRupee } from "lucide-react";
 import { IMG, fmt12, localDateKey } from "../utils/eventHelpers";
+import BottomNav from "../components/BottomNav";
 
 const getDates = (scheduleDates) => {
   // Build the picker strictly from dates that actually have a schedule
@@ -90,6 +91,8 @@ export default function BookEventTickets() {
     <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
+
+      <BottomNav />
 
       {/* ── Event info bar ── */}
       <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">

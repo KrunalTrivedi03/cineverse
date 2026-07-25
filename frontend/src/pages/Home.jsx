@@ -24,6 +24,8 @@ import {
   ShieldCheck,
   Ticket,
 } from "lucide-react";
+import OffersBanner from "../components/OffersBanner";
+import BottomNav from "../components/BottomNav";
 
 /* ─── Helpers ─────────────────────────────────────────── */
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
@@ -116,6 +118,7 @@ export default function Home() {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
       <Navbar />
+      <BottomNav />
 
       <div className="relative" style={{ background: "#111" }}>
         {loading ? (
@@ -174,6 +177,7 @@ export default function Home() {
 
       {/* ══ LIGHT CONTENT ═════════════════════════════════ */}
       <div className="bg-white">
+        <OffersBanner />
         <LatestMovies />
         <ComingSoon />
         <Events />

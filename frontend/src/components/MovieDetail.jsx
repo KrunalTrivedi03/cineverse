@@ -8,6 +8,7 @@ import {
   ThumbsUp, Star, Clock, Shield, Globe,
   Bookmark, BookmarkCheck, Heart, PlayCircle, CheckCircle, Trash2,
 } from "lucide-react";
+import BottomNav from "./BottomNav";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -514,6 +515,7 @@ function MovieDetail({ movie }) {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
       <Navbar />
+      <BottomNav />
 
       {/* ── Hero Banner ── */}
       <div className="relative overflow-hidden" style={{ background: "#1c1c1c" }}>

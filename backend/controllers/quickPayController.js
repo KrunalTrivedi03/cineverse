@@ -260,3 +260,19 @@ exports.getTransactions = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.deleteTransaction = async (req, res) => {
+  try {
+    const tx = await Transaction.findOne({ _id: req.params.id, user: req.user.id });
+    if (!tx) return res.status(404).json({ message: "Transaction not found" });
+
+    // Deleting a transaction only removes it from the user's history log —
+    // it never touches the underlying booking, refund or wallet balance.
+    await Transaction.deleteOne({ _id: tx._id });
+
+    res.json({ message: "Transaction removed from history", id: tx._id });
+  } catch (err) {
+    console.error("deleteTransaction error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+};

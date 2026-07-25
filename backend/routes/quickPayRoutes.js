@@ -11,6 +11,7 @@ const {
   addUPI,
   removeUPI,
   getTransactions,
+  deleteTransaction,
 } = require("../controllers/quickPayController");
 
 router.get ("/",           verifyToken, getQuickPay);
@@ -23,6 +24,7 @@ router.delete("/cards/:cardId",         verifyToken, removeCard);
 router.post  ("/upi", verifyToken, addUPI);
 router.delete("/upi/:upiDocId", verifyToken, removeUPI);
 
-router.get("/transactions", verifyToken, getTransactions);
+router.get   ("/transactions",     verifyToken, getTransactions);
+router.delete("/transactions/:id", verifyToken, deleteTransaction);
 
 module.exports = router;

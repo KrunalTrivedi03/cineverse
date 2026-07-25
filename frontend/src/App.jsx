@@ -28,6 +28,7 @@ import EventBookingSuccess from "./pages/EventBookingSuccess";
 import MyEventBookings from "./pages/MyEventBookings";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Play from "./pages/Play";
+import TransactionHistory from "./pages/TransactionHistory";
 
 export default function App() {
   return (
@@ -69,6 +70,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <MyEventBookings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute>
+              <TransactionHistory />
             </ProtectedRoute>
           }
         />

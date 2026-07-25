@@ -180,15 +180,74 @@ exports.getTransactions = async (req, res) => {
     const skip  = (page - 1) * limit;
 
     const filter = { user: req.user.id };
-    if (req.query.type) filter.type = req.query.type;
+    if (req.query.type)        filter.type        = req.query.type;        // credit | debit
+    if (req.query.status)      filter.status       = req.query.status;      // success | pending | failed
+    if (req.query.bookingType) filter.bookingType  = req.query.bookingType; // movie | event
 
     const [transactions, total] = await Promise.all([
-      Transaction.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Transaction.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "booking",
+          select: "movieTitle moviePoster showDate showTime bookingRef theatre",
+          populate: { path: "theatre", select: "name" },
+        })
+        .populate({
+          path: "eventBooking",
+          select: "eventDate eventTime bookingRef event venue",
+          populate: [
+            { path: "event", select: "title poster category" },
+            { path: "venue", select: "name" },
+          ],
+        }),
       Transaction.countDocuments(filter),
     ]);
 
+    const result = transactions.map((t) => {
+      const base = {
+        _id:         t._id,
+        type:        t.type,
+        amount:      t.amount,
+        description: t.description,
+        source:      t.source,
+        bookingType: t.bookingType,
+        status:      t.status,
+        gatewayRef:  t.gatewayRef,
+        createdAt:   t.createdAt,
+      };
+
+      if (t.bookingType === "event" && t.eventBooking) {
+        return {
+          ...base,
+          bookingRef: t.eventBooking.bookingRef,
+          title:      t.eventBooking.event?.title || "Event",
+          poster:     t.eventBooking.event?.poster || null,
+          subtitle:   t.eventBooking.venue?.name || "",
+          date:       t.eventBooking.eventDate,
+          time:       t.eventBooking.eventTime,
+        };
+      }
+
+      if (t.bookingType === "movie" && t.booking) {
+        return {
+          ...base,
+          bookingRef: t.booking.bookingRef,
+          title:      t.booking.movieTitle || "Movie",
+          poster:     t.booking.moviePoster || null,
+          subtitle:   t.booking.theatre?.name || "",
+          date:       t.booking.showDate,
+          time:       t.booking.showTime,
+        };
+      }
+
+      // Wallet top-ups, rewards, or transactions with no linked booking
+      return { ...base, bookingRef: null, title: t.description || "Wallet transaction", poster: null, subtitle: "", date: null, time: null };
+    });
+
     res.json({
-      transactions,
+      transactions: result,
       pagination: {
         total,
         page,

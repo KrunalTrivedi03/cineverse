@@ -211,6 +211,7 @@ exports.walletPay = async (req, res) => {
       amount:      grandTotal,
       description: `Ticket booking — ${show.movie?.title || "Movie"}`,
       source:      "wallet",
+      bookingType: "movie",
       booking:     booking._id,
       status:      "success",
     });
@@ -262,7 +263,20 @@ exports.verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      await Booking.findByIdAndUpdate(bookingId, { status: "cancelled" });
+      const failedBooking = await Booking.findByIdAndUpdate(bookingId, { status: "cancelled" });
+      if (failedBooking) {
+        await Transaction.create({
+          user:        userId,
+          type:        "debit",
+          amount:      failedBooking.grandTotal,
+          description: `Ticket booking (Razorpay) — signature mismatch`,
+          source:      "card",
+          bookingType: "movie",
+          booking:     failedBooking._id,
+          gatewayRef:  razorpay_payment_id,
+          status:      "failed",
+        });
+      }
       return res.status(400).json({ message: "Payment verification failed. Signature mismatch." });
     }
 
@@ -286,6 +300,7 @@ exports.verifyPayment = async (req, res) => {
       amount:      booking.grandTotal,
       description: `Ticket booking (Razorpay)`,
       source:      "card",
+      bookingType: "movie",
       booking:     booking._id,
       gatewayRef:  razorpay_payment_id,
       status:      "success",
@@ -350,9 +365,27 @@ exports.handleWebhook = async (req, res) => {
         break;
       }
       case "payment.failed": {
-        const orderId = payload?.payment?.entity?.order_id;
-        if (orderId)
-          await Booking.findOneAndUpdate({ paymentId: orderId, status: "pending" }, { status: "cancelled" });
+        const payment = payload?.payment?.entity;
+        const orderId = payment?.order_id;
+        if (orderId) {
+          const failedBooking = await Booking.findOneAndUpdate(
+            { paymentId: orderId, status: "pending" },
+            { status: "cancelled" },
+          );
+          if (failedBooking) {
+            await Transaction.create({
+              user:        failedBooking.user,
+              type:        "debit",
+              amount:      failedBooking.grandTotal,
+              description: `Ticket booking (Razorpay) — payment failed`,
+              source:      "card",
+              bookingType: "movie",
+              booking:     failedBooking._id,
+              gatewayRef:  payment?.id || "",
+              status:      "failed",
+            });
+          }
+        }
         break;
       }
       case "order.paid": {
@@ -420,6 +453,7 @@ exports.refundPayment = async (req, res) => {
         amount:      booking.grandTotal,
         description: `Refund — ${booking.bookingRef}`,
         source:      "refund",
+        bookingType: "movie",
         booking:     booking._id,
         status:      "success",
       });
@@ -452,6 +486,7 @@ exports.refundPayment = async (req, res) => {
       amount:      booking.grandTotal,
       description: `Razorpay refund — ${booking.bookingRef}`,
       source:      "refund",
+      bookingType: "movie",
       booking:     booking._id,
       gatewayRef:  refund.id,
       status:      "success",

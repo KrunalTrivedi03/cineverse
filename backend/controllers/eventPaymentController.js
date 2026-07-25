@@ -300,13 +300,14 @@ exports.walletPay = async (req, res) => {
     }
 
     await Transaction.create({
-      user:        userId,
-      type:        "debit",
-      amount:      grandTotal,
-      description: `Event ticket — ${schedule.event.title}`,
-      source:      "wallet",
-      booking:     booking._id,
-      status:      "success",
+      user:         userId,
+      type:         "debit",
+      amount:       grandTotal,
+      description:  `Event ticket — ${schedule.event.title}`,
+      source:       "wallet",
+      bookingType:  "event",
+      eventBooking: booking._id,
+      status:       "success",
     });
 
     const populated = await EventBooking.findById(booking._id)
@@ -350,7 +351,20 @@ exports.verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      await EventBooking.findByIdAndUpdate(bookingId, { status: "cancelled" });
+      const failedBooking = await EventBooking.findByIdAndUpdate(bookingId, { status: "cancelled" });
+      if (failedBooking) {
+        await Transaction.create({
+          user:         userId,
+          type:         "debit",
+          amount:       failedBooking.grandTotal,
+          description:  `Event ticket (Razorpay) — signature mismatch`,
+          source:       "card",
+          bookingType:  "event",
+          eventBooking: failedBooking._id,
+          gatewayRef:   razorpay_payment_id,
+          status:       "failed",
+        });
+      }
       return res.status(400).json({ message: "Payment verification failed. Signature mismatch." });
     }
 
@@ -374,14 +388,15 @@ exports.verifyPayment = async (req, res) => {
     }
 
     await Transaction.create({
-      user:        userId,
-      type:        "debit",
-      amount:      booking.grandTotal,
-      description: `Event ticket (Razorpay)`,
-      source:      "card",
-      booking:     booking._id,
-      gatewayRef:  razorpay_payment_id,
-      status:      "success",
+      user:         userId,
+      type:         "debit",
+      amount:       booking.grandTotal,
+      description:  `Event ticket (Razorpay)`,
+      source:       "card",
+      bookingType:  "event",
+      eventBooking: booking._id,
+      gatewayRef:   razorpay_payment_id,
+      status:       "success",
     });
 
     const populated = await EventBooking.findById(booking._id)
@@ -449,9 +464,27 @@ exports.handleWebhook = async (req, res) => {
         break;
       }
       case "payment.failed": {
-        const orderId = payload?.payment?.entity?.order_id;
-        if (orderId)
-          await EventBooking.findOneAndUpdate({ paymentId: orderId, status: "pending" }, { status: "cancelled" });
+        const payment = payload?.payment?.entity;
+        const orderId = payment?.order_id;
+        if (orderId) {
+          const failedBooking = await EventBooking.findOneAndUpdate(
+            { paymentId: orderId, status: "pending" },
+            { status: "cancelled" },
+          );
+          if (failedBooking) {
+            await Transaction.create({
+              user:         failedBooking.user,
+              type:         "debit",
+              amount:       failedBooking.grandTotal,
+              description:  `Event ticket (Razorpay) — payment failed`,
+              source:       "card",
+              bookingType:  "event",
+              eventBooking: failedBooking._id,
+              gatewayRef:   payment?.id || "",
+              status:       "failed",
+            });
+          }
+        }
         break;
       }
       case "order.paid": {
@@ -527,13 +560,14 @@ exports.refundPayment = async (req, res) => {
       await releaseInventory();
 
       await Transaction.create({
-        user:        userId,
-        type:        "credit",
-        amount:      booking.grandTotal,
-        description: `Refund — ${booking.bookingRef}`,
-        source:      "refund",
-        booking:     booking._id,
-        status:      "success",
+        user:         userId,
+        type:         "credit",
+        amount:       booking.grandTotal,
+        description:  `Refund — ${booking.bookingRef}`,
+        source:       "refund",
+        bookingType:  "event",
+        eventBooking: booking._id,
+        status:       "success",
       });
 
       return res.json({
@@ -561,14 +595,15 @@ exports.refundPayment = async (req, res) => {
     await releaseInventory();
 
     await Transaction.create({
-      user:        userId,
-      type:        "credit",
-      amount:      booking.grandTotal,
-      description: `Razorpay refund — ${booking.bookingRef}`,
-      source:      "refund",
-      booking:     booking._id,
-      gatewayRef:  refund.id,
-      status:      "success",
+      user:         userId,
+      type:         "credit",
+      amount:       booking.grandTotal,
+      description:  `Razorpay refund — ${booking.bookingRef}`,
+      source:       "refund",
+      bookingType:  "event",
+      eventBooking: booking._id,
+      gatewayRef:   refund.id,
+      status:       "success",
     });
 
     res.json({

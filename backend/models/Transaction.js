@@ -26,10 +26,22 @@ const transactionSchema = new mongoose.Schema(
       enum:    ["wallet", "card", "upi", "refund", "booking", "reward"],
       default: "wallet",
     },
-    // Reference to a booking if applicable
+    // Which module this transaction belongs to
+    bookingType: {
+      type:    String,
+      enum:    ["movie", "event"],
+      default: "movie",
+    },
+    // Reference to a movie booking, if applicable
     booking: {
       type:    mongoose.Schema.Types.ObjectId,
       ref:     "Booking",
+      default: null,
+    },
+    // Reference to an event booking, if applicable
+    eventBooking: {
+      type:    mongoose.Schema.Types.ObjectId,
+      ref:     "EventBooking",
       default: null,
     },
     status: {

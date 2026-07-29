@@ -9,7 +9,7 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import EventRow from "../components/EventRow";
 import { IMG, fmtDateLong, fmt12 } from "../utils/eventHelpers";
-import BottomNav from "../components/BottomNav";
+import OfferBadge from "../components/OfferBadge";
 
 const RULES_COLLAPSED_COUNT = 5;
 const DESC_COLLAPSED_LINES = 4;
@@ -80,8 +80,6 @@ export default function EventDetail() {
       `}</style>
       <Navbar />
 
-      <BottomNav />
-
       {/* ── Banner ── */}
       <div className="relative w-full overflow-hidden" style={{ height: 260, background: "#111" }}>
         {event.poster && (
@@ -107,8 +105,9 @@ export default function EventDetail() {
               <span style={{ fontSize: 10, fontWeight: 700, color: "#f0545c", textTransform: "uppercase", letterSpacing: ".08em" }}>
                 {event.category}{event.genre ? ` · ${event.genre}` : ""}
               </span>
-              <h1 className="text-[20px] sm:text-[26px]" style={{ margin: "4px 0 6px", fontWeight: 800, color: "#fff", letterSpacing: "-.5px", lineHeight: 1.15 }}>
+              <h1 className="text-[20px] sm:text-[26px] flex items-center gap-2.5 flex-wrap" style={{ margin: "4px 0 6px", fontWeight: 800, color: "#fff", letterSpacing: "-.5px", lineHeight: 1.15 }}>
                 {event.title}
+                <OfferBadge type="events" id={event._id} genre={event.category} size="md" />
               </h1>
               <div className="flex items-center gap-3 flex-wrap">
                 {event.ratings?.count > 0 && (

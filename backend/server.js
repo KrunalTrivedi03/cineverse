@@ -34,6 +34,8 @@ const publicEventRoutes    = require("./routes/publicEventRoutes");
 const eventScheduleRoutes  = require("./routes/eventScheduleRoutes");
 const eventSeatRoutes      = require("./routes/eventSeatRoutes");
 const eventPaymentRoutes   = require("./routes/eventPaymentRoutes");
+const offerRoutes          = require("./routes/offerRoutes");
+const contactRoutes        = require("./routes/contactRoutes");
 
 const app    = express();
 app.set("trust proxy", 1);
@@ -111,8 +113,11 @@ app.use("/api/event-schedules", eventScheduleRoutes);
 app.use("/api/event-seats",     eventSeatRoutes);
 app.use("/api/event-payment",   eventPaymentRoutes);
 
+/* Offers & Contact */
+app.use("/api/offers",  offerRoutes);
+app.use("/api/contact", contactRoutes);
+
 app.get("/", (req, res) => res.send("CineVerse Backend Running..."));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
@@ -6,11 +6,12 @@ import "swiper/css";
 import "swiper/css/pagination";
 import {
   Wallet, Ticket, Sparkles, Percent, Gift, Users, ArrowRight,
-  ChevronLeft, ChevronRight, Zap, Flame,
+  ChevronLeft, ChevronRight, Zap, Flame, Tag,
 } from "lucide-react";
+import { fetchBannerOffers, IMG, themeGradient, formatDiscountLabel } from "../utils/offers";
 
-/* Curated promo slides — purely presentational, no backend dependency. */
-const OFFERS = [
+/* Curated fallback slides — shown only until the Admin Panel has live banner offers. */
+const FALLBACK_OFFERS = [
   {
     id: "wallet",
     icon: Wallet,
@@ -72,9 +73,48 @@ const PERKS = [
   { icon: Wallet, label: "Secure QuickPay wallet" },
 ];
 
+/* Normalize a backend Offer document into the same shape FALLBACK_OFFERS use,
+   so the render logic below never has to branch on data source. */
+function normalizeBackendOffer(offer) {
+  return {
+    id: offer._id,
+    icon: Tag,
+    badge: formatDiscountLabel(offer),
+    badgeIcon: Zap,
+    eyebrow: offer.subtitle || "Offer",
+    title: offer.title,
+    desc: offer.description || "",
+    cta: offer.ctaText || "Explore now",
+    to: offer.ctaLink || "/offers",
+    bg: themeGradient(offer.theme),
+    accent: "#7a1c22",
+    image: offer.image ? IMG(offer.image) : null,
+  };
+}
+
 export default function OffersBanner() {
   const swiperRef = useRef(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [offers, setOffers] = useState(FALLBACK_OFFERS);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchBannerOffers()
+      .then((data) => {
+        if (cancelled) return;
+        if (data && data.length > 0) {
+          setOffers(data.map(normalizeBackendOffer));
+        }
+      })
+      .catch(() => {
+        /* keep fallback slides on failure */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const OFFERS = offers;
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-8 pt-10 md:pt-14">
@@ -132,6 +172,13 @@ export default function OffersBanner() {
                   className="relative overflow-hidden"
                   style={{ background: offer.bg, minHeight: 200 }}
                 >
+                  {offer.image && (
+                    <img
+                      src={offer.image}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay pointer-events-none"
+                    />
+                  )}
                   {/* Decorative pattern layer */}
                   <svg
                     className="absolute inset-0 w-full h-full opacity-[0.10] pointer-events-none"

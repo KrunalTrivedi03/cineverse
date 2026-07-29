@@ -29,6 +29,9 @@ import MyEventBookings from "./pages/MyEventBookings";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Play from "./pages/Play";
 import TransactionHistory from "./pages/TransactionHistory";
+import Aboutus from "./pages/Aboutus";
+import ContactUs from "./pages/Contactus";
+import Offers from "./pages/Offers";
 
 export default function App() {
   return (
@@ -51,6 +54,10 @@ export default function App() {
 
         <Route path="/now-showing" element={<NowShowing />} />
         <Route path="/coming-soon" element={<UpcomingMoviesPage />} />
+
+        <Route path="/about" element={<Aboutus />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/offers" element={<Offers />} />
 
         <Route path="/events" element={<ExploreEvents />} />
         <Route path="/events/:id" element={<EventDetail />} />

@@ -13,7 +13,7 @@ const ITEMS = [
 // Height + bottom offset the floating pill occupies on mobile — used to
 // reserve space at the bottom of every page (see the injected <style> below)
 // so content never sits behind it, without editing each page individually.
-const NAV_CLEARANCE_PX = 92;
+const NAV_CLEARANCE_PX = 80;
 
 function isPathActive(pathname, matchList) {
   return matchList.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
@@ -42,16 +42,25 @@ export default function BottomNav() {
         }
       `}</style>
 
+      {/* White fade scrim: masks whatever section color/background is
+          scrolling underneath, so nothing shows through around the pill. */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-30 lg:hidden pointer-events-none"
+        style={{
+          height: 130,
+          background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.85) 45%, #ffffff 75%)",
+        }}
+      />
+
       <nav
         className="fixed left-0 right-0 z-40 lg:hidden flex justify-center"
         style={{ bottom: "calc(14px + env(safe-area-inset-bottom))" }}
       >
         <div
-          className="flex items-stretch gap-0.5 bg-white/90 rounded-full border border-gray-100 px-2 py-1.5"
+          className="flex items-center gap-1 rounded-full border border-gray-100 px-5 py-1"
           style={{
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            boxShadow: "0 12px 32px -8px rgba(17,17,17,0.18), 0 2px 8px rgba(17,17,17,0.06)",
+            background: "#ffffff",
+            boxShadow: "0 10px 28px -6px rgba(17,17,17,0.16), 0 2px 6px rgba(17,17,17,0.05)",
           }}
         >
           {ITEMS.map((item) => {
@@ -62,19 +71,19 @@ export default function BottomNav() {
                 key={item.key}
                 onClick={() => navigate(item.to)}
                 aria-current={active ? "page" : undefined}
-                className="flex flex-col items-center justify-center gap-0.5 px-3.5 py-1.5 rounded-full group"
+                className="flex flex-col items-center justify-center gap-0.5 px-4 py-1.5 rounded-full group"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <span
                   className="relative flex items-center justify-center rounded-full transition-all duration-200 ease-out group-active:scale-90"
                   style={{
-                    width: 36,
-                    height: 28,
+                    width: 32,
+                    height: 24,
                     background: active ? "rgba(240,84,92,0.12)" : "transparent",
                   }}
                 >
                   <item.icon
-                    size={18}
+                    size={17}
                     strokeWidth={active ? 2.3 : 1.8}
                     style={{ color: active ? ACCENT : "#9ca3af" }}
                     className="transition-colors duration-200"
@@ -82,7 +91,7 @@ export default function BottomNav() {
                 </span>
 
                 <span
-                  className="text-[10px] font-semibold leading-none transition-colors duration-200 whitespace-nowrap"
+                  className="text-[9.5px] font-semibold leading-none transition-colors duration-200 whitespace-nowrap"
                   style={{ color: active ? ACCENT : "#9ca3af" }}
                 >
                   {item.label}

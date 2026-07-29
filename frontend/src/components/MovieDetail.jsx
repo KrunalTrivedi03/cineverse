@@ -9,6 +9,7 @@ import {
   Bookmark, BookmarkCheck, Heart, PlayCircle, CheckCircle, Trash2,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
+import OfferBadge from "./OfferBadge";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -605,6 +606,7 @@ function MovieDetail({ movie }) {
               <h1 className="text-white text-[20px] font-bold tracking-tight leading-snug">
                 {movie.title}
               </h1>
+              <OfferBadge type="movies" id={movie._id} genre={movie.genre} />
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                 {movie.duration && (
                   <span className="text-white/50 text-[11px] flex items-center gap-0.5">
@@ -761,9 +763,12 @@ function MovieDetail({ movie }) {
 
           {/* info col */}
           <div className="flex-1 min-w-0 flex flex-col justify-center gap-3 pt-2">
-            <h1 className="text-white text-[28px] font-bold tracking-tight leading-tight">
-              {movie.title}
-            </h1>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-white text-[28px] font-bold tracking-tight leading-tight">
+                {movie.title}
+              </h1>
+              <OfferBadge type="movies" id={movie._id} genre={movie.genre} size="md" />
+            </div>
             <p className="text-white/45 text-[13px] flex flex-wrap items-center gap-x-2 gap-y-0.5">
               {movie.duration && (
                 <span className="flex items-center gap-1">
@@ -1295,5 +1300,3 @@ function SimilarMovies({ movies }) {
     </div>
   );
 }
-
-

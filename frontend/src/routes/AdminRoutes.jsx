@@ -22,6 +22,7 @@ import AdminDistricts from "../admin/pages/Admindistricts";
 import EditEvent from "../admin/pages/Editevent";
 import AddEvent from "../admin/pages/Addevent";
 import AdminEventSchedules from "../admin/pages/Admineventschedules";
+import AdminOffers from "../admin/pages/AdminOffers";
 
 export default function AdminRoutes() {
   return (
@@ -49,6 +50,7 @@ export default function AdminRoutes() {
       <Route path="/admin/venues/:venueId/layout" element={<AdminVenueSeatLayout />}/>
       <Route path="/admin/districts" element={<AdminDistricts />} />
       <Route path="admin/schedule-events" element={<AdminEventSchedules />} />
+      <Route path="/admin/offers" element={<AdminOffers />} />
 
     </>
   );

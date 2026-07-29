@@ -14,7 +14,8 @@ import {
   Ticket,
   CalendarDays,
   Mic2,
-  Landmark
+  Landmark,
+  Tag,
 } from "lucide-react";
 
 const MENU = [
@@ -42,6 +43,7 @@ const MENU = [
       { name: "Schedule Events", icon: CalendarDays, path: "/admin/schedule-events", },
     ],
   },
+  { name: "Offers",      icon: Tag,             path: "/admin/offers"      },
   { name: "Users",       icon: Users,           path: "/admin/users"       },
   { name: "Roles",       icon: ShieldCheck,     path: "/admin/roles"       },
   { name: "Permissions", icon: KeyRound,        path: "/admin/permissions" },
@@ -266,5 +268,3 @@ export default function AdminSidebar() {
     </aside>
   );
 }
-
-

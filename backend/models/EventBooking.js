@@ -36,6 +36,13 @@ const EventBookingSchema = new mongoose.Schema({
   convenienceFee: { type: Number, default: 0 },
   grandTotal:     { type: Number, required: true },
 
+  appliedOffer: {
+    offer:          { type: mongoose.Schema.Types.ObjectId, ref: "Offer", default: null },
+    code:           { type: String,  default: "" },
+    title:          { type: String,  default: "" },
+    discountAmount: { type: Number,  default: 0 },
+  },
+
   status:    { type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending" },
   paymentId: { type: String, default: "" },
 

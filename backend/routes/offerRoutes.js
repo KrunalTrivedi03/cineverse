@@ -24,6 +24,7 @@ router.get("/admin/:id", offerController.getOfferByIdAdmin);
 /* Public reads — specific routes before the wildcard :id */
 router.get("/banners", offerController.getBannerOffers);
 router.get("/applicable", offerController.getApplicableOffers);
+router.post("/validate", offerController.validateOffer);
 router.get("/", offerController.getActiveOffers);
 router.get("/:id", offerController.getOfferById);
 

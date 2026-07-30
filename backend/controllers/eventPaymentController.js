@@ -9,6 +9,7 @@ const QuickPay       = require("../models/QuickPay");
 const Transaction    = require("../models/Transaction");
 const User           = require("../models/User");
 const sendEventTicketEmail = require("../utils/sendEventTicketEmail");
+const { resolveOfferDiscount } = require("../utils/resolveOfferDiscount");
 
 const EVENT_CATEGORY_PRICE_ADD = { VIP: 500, Premium: 200, General: 0 };
 const HOLD_MINUTES = 15; // payment window for a pending booking
@@ -143,7 +144,7 @@ const dispatchTicketEmail = async (booking, userId, eventTitle, venueName, categ
 ───────────────────────────────────────────────────────── */
 exports.createOrder = async (req, res) => {
   try {
-    const { scheduleId, slotId, seatIds, ticketTypeName, quantity } = req.body;
+    const { scheduleId, slotId, seatIds, ticketTypeName, quantity, offerId } = req.body;
     const userId = req.user.id.toString();
 
     if (!scheduleId || !slotId) {
@@ -166,7 +167,16 @@ exports.createOrder = async (req, res) => {
       pricing = await calcGeneralPricing(scheduleId, slotId, ticketTypeName, quantity);
     }
 
-    const { slot, venue, grandTotal, totalAmount, convenienceFee } = pricing;
+    const { slot, venue, totalAmount } = pricing;
+
+    const { appliedOffer, discountAmount } = await resolveOfferDiscount(
+      offerId,
+      { type: "events", id: schedule.event._id, genre: schedule.event.category },
+      totalAmount
+    );
+    const discountedSubtotal = totalAmount - discountAmount;
+    const convenienceFee     = Math.round(discountedSubtotal * 0.02);
+    const grandTotal         = discountedSubtotal + convenienceFee;
 
     const qp = await QuickPay.findOne({ user: userId });
     const walletBalance  = qp?.walletBalance  || 0;
@@ -189,6 +199,7 @@ exports.createOrder = async (req, res) => {
       eventTime:     slot.time,
       bookingType,
       totalAmount, convenienceFee, grandTotal,
+      appliedOffer,
       paymentId:     razorpayOrder.id,
       status:        "pending",
       holdExpiresAt: new Date(Date.now() + HOLD_MINUTES * 60 * 1000),
@@ -211,6 +222,8 @@ exports.createOrder = async (req, res) => {
       bookingId:  booking._id,
       bookingRef: booking.bookingRef,
       grandTotal, convenienceFee, totalAmount,
+      discountAmount,
+      appliedOffer,
       bookingType,
       seats:      bookingType === "seated" ? pricing.seatDocs   : undefined,
       ticketType: bookingType === "general" ? pricing.ticketType : undefined,
@@ -232,7 +245,7 @@ exports.createOrder = async (req, res) => {
 ───────────────────────────────────────────────────────── */
 exports.walletPay = async (req, res) => {
   try {
-    const { scheduleId, slotId, seatIds, ticketTypeName, quantity } = req.body;
+    const { scheduleId, slotId, seatIds, ticketTypeName, quantity, offerId } = req.body;
     const userId = req.user.id.toString();
 
     if (!scheduleId || !slotId) {
@@ -255,7 +268,16 @@ exports.walletPay = async (req, res) => {
       pricing = await calcGeneralPricing(scheduleId, slotId, ticketTypeName, quantity);
     }
 
-    const { slot, venue, grandTotal, totalAmount, convenienceFee } = pricing;
+    const { slot, venue, totalAmount } = pricing;
+
+    const { appliedOffer, discountAmount } = await resolveOfferDiscount(
+      offerId,
+      { type: "events", id: schedule.event._id, genre: schedule.event.category },
+      totalAmount
+    );
+    const discountedSubtotal = totalAmount - discountAmount;
+    const convenienceFee     = Math.round(discountedSubtotal * 0.02);
+    const grandTotal         = discountedSubtotal + convenienceFee;
 
     const qp = await QuickPay.findOne({ user: userId });
     if (!qp || qp.walletBalance < grandTotal) {
@@ -279,6 +301,7 @@ exports.walletPay = async (req, res) => {
       eventTime:     slot.time,
       bookingType,
       totalAmount, convenienceFee, grandTotal,
+      appliedOffer,
       paymentId:     `wallet_${Date.now()}`,
       paymentMethod: "wallet",
       status:        "confirmed",
@@ -321,6 +344,8 @@ exports.walletPay = async (req, res) => {
       bookingRef:    booking.bookingRef,
       booking:       populated,
       walletBalance: qp.walletBalance,
+      discountAmount,
+      appliedOffer,
     });
   } catch (e) {
     console.error("walletPay error:", e.message);

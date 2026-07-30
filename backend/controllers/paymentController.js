@@ -9,6 +9,7 @@ const QuickPay    = require("../models/QuickPay");
 const Transaction = require("../models/Transaction");
 const User        = require("../models/User");
 const sendTicketEmail = require("../utils/sendTicketEmail"); // ← NEW
+const { resolveOfferDiscount } = require("../utils/resolveOfferDiscount");
 
 const CATEGORY_PRICE_ADD = { Recliner: 200, Premium: 100, Classic: 0 };
 
@@ -89,7 +90,7 @@ const dispatchTicketEmail = async (booking, userId, movieTitle, theatreName) => 
 ───────────────────────────────────────────────────────── */
 exports.createOrder = async (req, res) => {
   try {
-    const { showId, slotId, seatIds } = req.body;
+    const { showId, slotId, seatIds, offerId } = req.body;
     const userId = req.user.id.toString();
 
     if (!showId || !slotId || !seatIds?.length)
@@ -97,8 +98,16 @@ exports.createOrder = async (req, res) => {
 
     await validateLocks(showId, slotId, seatIds, userId);
 
-    const { show, slot, theatre, seatDocs, totalAmount, convenienceFee, grandTotal } =
-      await calcPricing(showId, slotId, seatIds);
+    const { show, slot, theatre, seatDocs, totalAmount } = await calcPricing(showId, slotId, seatIds);
+
+    const { appliedOffer, discountAmount } = await resolveOfferDiscount(
+      offerId,
+      { type: "movies", id: show.movie?._id, genre: show.movie?.genre },
+      totalAmount
+    );
+    const discountedSubtotal = totalAmount - discountAmount;
+    const convenienceFee     = Math.round(discountedSubtotal * 0.02);
+    const grandTotal         = discountedSubtotal + convenienceFee;
 
     const qp = await QuickPay.findOne({ user: userId });
     const walletBalance  = qp?.walletBalance  || 0;
@@ -123,6 +132,7 @@ exports.createOrder = async (req, res) => {
       totalAmount,
       convenienceFee,
       grandTotal,
+      appliedOffer,
       paymentId: razorpayOrder.id,
       status:  "pending",
       movieTitle:  show.movie?.title  || "",
@@ -139,6 +149,8 @@ exports.createOrder = async (req, res) => {
       grandTotal,
       convenienceFee,
       totalAmount,
+      discountAmount,
+      appliedOffer,
       seats:          seatDocs,
       movie:          show.movie?.title,
       showDate:       show.showDate,
@@ -161,7 +173,7 @@ exports.createOrder = async (req, res) => {
 ───────────────────────────────────────────────────────── */
 exports.walletPay = async (req, res) => {
   try {
-    const { showId, slotId, seatIds } = req.body;
+    const { showId, slotId, seatIds, offerId } = req.body;
     const userId = req.user.id.toString();
 
     if (!showId || !slotId || !seatIds?.length)
@@ -169,8 +181,16 @@ exports.walletPay = async (req, res) => {
 
     await validateLocks(showId, slotId, seatIds, userId);
 
-    const { show, slot, theatre, seatDocs, totalAmount, convenienceFee, grandTotal } =
-      await calcPricing(showId, slotId, seatIds);
+    const { show, slot, theatre, seatDocs, totalAmount } = await calcPricing(showId, slotId, seatIds);
+
+    const { appliedOffer, discountAmount } = await resolveOfferDiscount(
+      offerId,
+      { type: "movies", id: show.movie?._id, genre: show.movie?.genre },
+      totalAmount
+    );
+    const discountedSubtotal = totalAmount - discountAmount;
+    const convenienceFee     = Math.round(discountedSubtotal * 0.02);
+    const grandTotal         = discountedSubtotal + convenienceFee;
 
     const qp = await QuickPay.findOne({ user: userId });
     if (!qp || qp.walletBalance < grandTotal) {
@@ -196,6 +216,7 @@ exports.walletPay = async (req, res) => {
       totalAmount,
       convenienceFee,
       grandTotal,
+      appliedOffer,
       paymentId: `wallet_${Date.now()}`,
       paymentMethod: "wallet",
       status:  "confirmed",
@@ -233,6 +254,8 @@ exports.walletPay = async (req, res) => {
       bookingRef:    booking.bookingRef,
       booking:       populated,
       walletBalance: qp.walletBalance,
+      discountAmount,
+      appliedOffer,
     });
   } catch (e) {
     console.error("walletPay error:", e.message);

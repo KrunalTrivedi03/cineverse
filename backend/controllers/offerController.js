@@ -231,5 +231,40 @@ exports.getOfferById = async (req, res) => {
   }
 };
 
+// POST /api/offers/validate — body: { code?, offerId?, type, id, genre, amount }
+// Used by the checkout coupon box to validate a code/offer before submitting an order.
+exports.validateOffer = async (req, res) => {
+  try {
+    const { code, offerId, type, id, genre, amount } = req.body;
+
+    let offer = null;
+    if (offerId) offer = await Offer.findById(offerId);
+    else if (code) offer = await Offer.findOne({ code: String(code).trim().toUpperCase() });
+
+    if (!offer) return res.status(404).json({ valid: false, message: "Invalid coupon code" });
+    if (!offer.isLive()) return res.status(400).json({ valid: false, message: "This offer has expired or is not active" });
+    if (!offerAppliesTo(offer, { type, id, genre })) {
+      return res.status(400).json({ valid: false, message: "This offer isn't applicable to your selection" });
+    }
+
+    const numericAmount = Number(amount) || 0;
+    if (numericAmount < (offer.minPurchaseAmount || 0)) {
+      return res.status(400).json({
+        valid: false,
+        message: `Minimum purchase of ₹${offer.minPurchaseAmount} required for this offer`,
+      });
+    }
+
+    const { discountAmount, finalPrice } = computeDiscount(offer, numericAmount);
+    if (discountAmount <= 0) {
+      return res.status(400).json({ valid: false, message: "This offer doesn't apply to your current order" });
+    }
+
+    res.json({ valid: true, offer, discountAmount, finalPrice });
+  } catch (error) {
+    res.status(500).json({ valid: false, message: error.message });
+  }
+};
+
 exports.computeDiscount = computeDiscount;
 exports.offerAppliesTo = offerAppliesTo;

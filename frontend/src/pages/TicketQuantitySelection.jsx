@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { fmt12, fmtDate, getCurrentUser } from "../utils/eventHelpers";
 import BottomNav from "../components/BottomNav";
+import OfferCouponBox from "../components/OfferCouponBox";
 
 export default function TicketQuantitySelection() {
   const { scheduleId, slotId } = useParams();
@@ -31,6 +32,7 @@ export default function TicketQuantitySelection() {
   const [wallet, setWallet]           = useState(null);
   const [toast, setToast]             = useState(null);
   const [selectedType, setSelectedType] = useState(null);
+  const [appliedOffer, setAppliedOffer] = useState(null);
 
   const { initiatePayment } = useEventRazorpay();
 
@@ -59,6 +61,14 @@ export default function TicketQuantitySelection() {
   const totalQty  = Object.values(qty).reduce((a, b) => a + b, 0);
   const subtotal  = (availability?.ticketTypes || []).reduce((s, t) => s + (qty[t.name] || 0) * t.price, 0);
 
+  const openCheckout = () => {
+    if (!totalQty) return;
+    const user = getCurrentUser();
+    if (!user?.id) { showToast("Please log in to book tickets", "error"); navigate("/login"); return; }
+    setOrderData(null);
+    setShowSummary(true);
+  };
+
   const handleProceed = async () => {
     const chosenType = Object.entries(qty).find(([, c]) => c > 0);
     if (!chosenType) return;
@@ -70,7 +80,7 @@ export default function TicketQuantitySelection() {
     setLoadingOrder(true);
     try {
       const { data } = await api.post("/event-payment/create-order", {
-        scheduleId, slotId, ticketTypeName, quantity,
+        scheduleId, slotId, ticketTypeName, quantity, offerId: appliedOffer?.offerId,
       });
       setOrderData(data);
       setPayMethod(data.wallet?.eligible ? "wallet" : "razorpay");
@@ -102,7 +112,7 @@ export default function TicketQuantitySelection() {
       try {
         const chosenType = Object.entries(qty).find(([, c]) => c > 0);
         const [ticketTypeName, quantity] = chosenType;
-        const { data } = await api.post("/event-payment/wallet-pay", { scheduleId, slotId, ticketTypeName, quantity });
+        const { data } = await api.post("/event-payment/wallet-pay", { scheduleId, slotId, ticketTypeName, quantity, offerId: appliedOffer?.offerId });
         onBookingConfirmed(data.booking);
       } catch (err) {
         showToast(err.response?.data?.message || "Wallet payment failed. Try another method.", "error");
@@ -201,56 +211,115 @@ export default function TicketQuantitySelection() {
               <p className="text-[11px] text-gray-400">{totalQty} ticket{totalQty !== 1 ? "s" : ""}</p>
               <p className="text-[17px] font-extrabold text-gray-900">₹{subtotal.toLocaleString("en-IN")}</p>
             </div>
-            <button onClick={handleProceed} disabled={loadingOrder}
-              className="px-6 py-2.5 rounded-xl font-bold text-[13px] text-white flex items-center gap-2"
+            <button onClick={openCheckout} disabled={!totalQty}
+              className="px-6 py-2.5 rounded-xl font-bold text-[13px] text-white flex items-center gap-2 disabled:opacity-50"
               style={{ background: "#f0545c" }}>
-              {loadingOrder ? <Loader2 size={14} className="animate-spin" /> : null}
-              {loadingOrder ? "Please wait…" : "Proceed"}
+              Proceed
             </button>
           </div>
         )}
       </div>
 
       {/* ── Checkout drawer ── */}
-      {showSummary && orderData && (
+      {showSummary && (
         <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center" style={{ background: "rgba(0,0,0,0.45)" }}>
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <p className="text-[15px] font-bold text-gray-900">Confirm & Pay</p>
+              <p className="text-[15px] font-bold text-gray-900">{orderData ? "Confirm & Pay" : "Review Order"}</p>
               <button onClick={() => setShowSummary(false)}><X size={18} className="text-gray-400" /></button>
             </div>
 
             <div className="px-5 py-4">
-              <div className="flex justify-between text-[12px] text-gray-500 mb-1"><span>{orderData.ticketType?.name} × {orderData.quantity}</span><span>₹{orderData.totalAmount}</span></div>
-              <div className="flex justify-between text-[12px] text-gray-500 mb-3"><span>Convenience fee</span><span>₹{orderData.convenienceFee}</span></div>
-              <div className="flex justify-between text-[15px] font-extrabold text-gray-900 pt-2 border-t border-gray-100">
-                <span>Total</span><span>₹{orderData.grandTotal}</span>
-              </div>
+              {!orderData ? (
+                <>
+                  {/* ── Phase 1: apply offer, review estimate ── */}
+                  {Object.entries(qty).filter(([, c]) => c > 0).map(([name, count]) => {
+                    const t = (availability?.ticketTypes || []).find((x) => x.name === name);
+                    return (
+                      <div key={name} className="flex justify-between text-[12px] text-gray-500 mb-1">
+                        <span>{name} × {count}</span>
+                        <span>₹{(t?.price || 0) * count}</span>
+                      </div>
+                    );
+                  })}
 
-              <div className="mt-4 space-y-2">
-                {wallet && (
-                  <button onClick={() => setPayMethod("wallet")}
-                    disabled={wallet.walletBalance < orderData.grandTotal}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
-                    style={{ borderColor: payMethod === "wallet" ? "#f0545c" : "#e5e7eb", background: payMethod === "wallet" ? "rgba(240,84,92,0.05)" : "#fff", opacity: wallet.walletBalance < orderData.grandTotal ? 0.5 : 1 }}>
-                    <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><Wallet size={15} /> CineVerse Wallet</span>
-                    <span className="text-[12px] text-gray-400">₹{wallet.walletBalance}</span>
+                  <div className="my-3">
+                    <OfferCouponBox
+                      type="events"
+                      id={event?._id}
+                      genre={event?.category}
+                      amount={subtotal}
+                      appliedOffer={appliedOffer}
+                      onApply={setAppliedOffer}
+                      onRemove={() => setAppliedOffer(null)}
+                    />
+                  </div>
+
+                  {appliedOffer && (
+                    <div className="flex justify-between text-[12px] font-semibold mb-1.5" style={{ color: "#16a34a" }}>
+                      <span>Offer discount</span><span>−₹{appliedOffer.discountAmount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-[12px] text-gray-500 mb-3">
+                    <span>Convenience fee (est.)</span>
+                    <span>₹{Math.round(Math.max(subtotal - (appliedOffer?.discountAmount || 0), 0) * 0.02)}</span>
+                  </div>
+                  <div className="flex justify-between text-[15px] font-extrabold text-gray-900 pt-2 border-t border-gray-100">
+                    <span>Estimated Total</span>
+                    <span>
+                      ₹{Math.max(subtotal - (appliedOffer?.discountAmount || 0), 0) +
+                        Math.round(Math.max(subtotal - (appliedOffer?.discountAmount || 0), 0) * 0.02)}
+                    </span>
+                  </div>
+
+                  <button onClick={handleProceed} disabled={loadingOrder}
+                    className="w-full mt-4 py-3 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2 disabled:opacity-60"
+                    style={{ background: "#f0545c" }}>
+                    {loadingOrder ? <Loader2 size={15} className="animate-spin" /> : null}
+                    {loadingOrder ? "Preparing…" : "Continue to Payment"}
                   </button>
-                )}
-                <button onClick={() => setPayMethod("razorpay")}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
-                  style={{ borderColor: payMethod === "razorpay" ? "#f0545c" : "#e5e7eb", background: payMethod === "razorpay" ? "rgba(240,84,92,0.05)" : "#fff" }}>
-                  <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><CreditCard size={15} /> Card / UPI / NetBanking</span>
-                  <CheckCircle2 size={16} className={payMethod === "razorpay" ? "text-[#f0545c]" : "text-gray-200"} />
-                </button>
-              </div>
+                </>
+              ) : (
+                <>
+                  {/* ── Phase 2: payment method + pay ── */}
+                  <div className="flex justify-between text-[12px] text-gray-500 mb-1"><span>{orderData.ticketType?.name} × {orderData.quantity}</span><span>₹{orderData.totalAmount}</span></div>
+                  {orderData.discountAmount > 0 && (
+                    <div className="flex justify-between text-[12px] font-semibold mb-1.5" style={{ color: "#16a34a" }}>
+                      <span>Offer discount{orderData.appliedOffer?.title ? ` · ${orderData.appliedOffer.title}` : ""}</span>
+                      <span>−₹{orderData.discountAmount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-[12px] text-gray-500 mb-3"><span>Convenience fee</span><span>₹{orderData.convenienceFee}</span></div>
+                  <div className="flex justify-between text-[15px] font-extrabold text-gray-900 pt-2 border-t border-gray-100">
+                    <span>Total</span><span>₹{orderData.grandTotal}</span>
+                  </div>
 
-              <button onClick={handleConfirm} disabled={paying}
-                className="w-full mt-4 py-3 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2"
-                style={{ background: "#f0545c" }}>
-                {paying ? <Loader2 size={15} className="animate-spin" /> : <IndianRupee size={15} />}
-                {paying ? "Processing…" : `Pay ₹${orderData.grandTotal}`}
-              </button>
+                  <div className="mt-4 space-y-2">
+                    {wallet && (
+                      <button onClick={() => setPayMethod("wallet")}
+                        disabled={wallet.walletBalance < orderData.grandTotal}
+                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
+                        style={{ borderColor: payMethod === "wallet" ? "#f0545c" : "#e5e7eb", background: payMethod === "wallet" ? "rgba(240,84,92,0.05)" : "#fff", opacity: wallet.walletBalance < orderData.grandTotal ? 0.5 : 1 }}>
+                        <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><Wallet size={15} /> CineVerse Wallet</span>
+                        <span className="text-[12px] text-gray-400">₹{wallet.walletBalance}</span>
+                      </button>
+                    )}
+                    <button onClick={() => setPayMethod("razorpay")}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
+                      style={{ borderColor: payMethod === "razorpay" ? "#f0545c" : "#e5e7eb", background: payMethod === "razorpay" ? "rgba(240,84,92,0.05)" : "#fff" }}>
+                      <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><CreditCard size={15} /> Card / UPI / NetBanking</span>
+                      <CheckCircle2 size={16} className={payMethod === "razorpay" ? "text-[#f0545c]" : "text-gray-200"} />
+                    </button>
+                  </div>
+
+                  <button onClick={handleConfirm} disabled={paying}
+                    className="w-full mt-4 py-3 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2"
+                    style={{ background: "#f0545c" }}>
+                    {paying ? <Loader2 size={15} className="animate-spin" /> : <IndianRupee size={15} />}
+                    {paying ? "Processing…" : `Pay ₹${orderData.grandTotal}`}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -24,6 +24,16 @@ export async function fetchApplicableOffers({ type, id, genre, price } = {}) {
   return res.data || { offers: [], bestOffer: null };
 }
 
+/**
+ * Validates a coupon code / offer id against a specific movie or event before
+ * checkout. Source of truth is always the backend — this is for instant
+ * feedback in the coupon box, the payment endpoints re-validate independently.
+ */
+export async function validateOffer({ code, offerId, type, id, genre, amount }) {
+  const res = await api.post("/offers/validate", { code, offerId, type, id, genre, amount });
+  return res.data;
+}
+
 /** Client-side discount calculation, mirrors the backend logic for instant UI feedback. */
 export function computeDiscount(offer, price = 0) {
   if (!offer || typeof price !== "number") return { discountAmount: 0, finalPrice: price };

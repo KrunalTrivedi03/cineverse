@@ -24,6 +24,7 @@ import {
   IndianRupee,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
+import OfferCouponBox from "./OfferCouponBox";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 const BASE = import.meta.env.VITE_API_URL;
@@ -386,6 +387,7 @@ export default function SeatSelection() {
   const [paying, setPaying] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [quickPayData, setQuickPayData] = useState(null);
+  const [appliedOffer, setAppliedOffer] = useState(null);
 
   const { initiatePayment, loading: paymentLoading } = useRazorpay();
   const socketRef = useRef(null);
@@ -556,7 +558,7 @@ export default function SeatSelection() {
     }
   };
 
-  const handleProceed = async () => {
+  const openSummary = () => {
     if (!selected.length) return;
     const user = getCurrentUser();
     if (!user?.id) {
@@ -564,6 +566,12 @@ export default function SeatSelection() {
       navigate("/login");
       return;
     }
+    setSummaryStep(1);
+    setShowSummary(true);
+  };
+
+  const handleProceed = async () => {
+    if (!selected.length) return;
     setLocking(true);
     try {
       await api.post("/seats/lock", {
@@ -578,11 +586,11 @@ export default function SeatSelection() {
         showId,
         slotId,
         seatIds: selected,
+        offerId: appliedOffer?.offerId,
       });
       setOrderData(data);
       setPayMethod(data.wallet?.eligible ? "wallet" : "razorpay");
-      setSummaryStep(1); // ✅ always reset to step 1 when opening
-      setShowSummary(true);
+      setSummaryStep(2);
     } catch (err) {
       const conflict =
         err.response?.data?.unavailableSeats ||
@@ -601,6 +609,7 @@ export default function SeatSelection() {
           });
           return n;
         });
+        setShowSummary(false);
       } else {
         showToast(err.response?.data?.message || "Failed to proceed", "error");
       }
@@ -625,6 +634,7 @@ export default function SeatSelection() {
           showId,
           slotId,
           seatIds: selected,
+          offerId: appliedOffer?.offerId,
         });
         socketRef.current?.emit("booking:confirmed", {
           showId,
@@ -737,8 +747,20 @@ export default function SeatSelection() {
     })
     .filter(Boolean);
   const totalAmount = selectedSeats.reduce((s, x) => s + x.price, 0);
-  const convFee = selected.length ? Math.round(totalAmount * 0.02) : 0;
-  const grandTotal = totalAmount + convFee;
+  const discountAmount = appliedOffer?.discountAmount || 0;
+  const discountedSubtotal = Math.max(totalAmount - discountAmount, 0);
+  const convFee = selected.length ? Math.round(discountedSubtotal * 0.02) : 0;
+  const grandTotal = discountedSubtotal + convFee;
+
+  // Discount amount was computed against a specific subtotal — if the seat
+  // selection changes afterwards, ask the user to re-apply so it stays accurate.
+  const prevTotalRef = useRef(totalAmount);
+  useEffect(() => {
+    if (appliedOffer && prevTotalRef.current !== totalAmount) {
+      setAppliedOffer(null);
+    }
+    prevTotalRef.current = totalAmount;
+  }, [totalAmount]); // eslint-disable-line react-hooks/exhaustive-deps
   const layoutByCategory = (layoutData?.layout || []).reduce((acc, row) => {
     (acc[row.category] = acc[row.category] || []).push(row);
     return acc;
@@ -1337,12 +1359,8 @@ export default function SeatSelection() {
 
                 {/* Pay button */}
                 <button
-                  onClick={handleProceed}
-                  disabled={
-                    locking ||
-                    loadingOrder ||
-                    (targetCount !== null && selected.length < targetCount)
-                  }
+                  onClick={openSummary}
+                  disabled={targetCount !== null && selected.length < targetCount}
                   className="flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl text-[13px] sm:text-[14px] font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
                   style={{
                     background: "#f0545c",
@@ -1356,19 +1374,11 @@ export default function SeatSelection() {
                     (e.currentTarget.style.background = "#f0545c")
                   }
                 >
-                  {locking || loadingOrder ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    <Ticket size={15} />
-                  )}
+                  <Ticket size={15} />
                   <span>
                     {targetCount && selected.length < targetCount
                       ? `${targetCount - selected.length} more`
-                      : locking
-                        ? "Locking…"
-                        : loadingOrder
-                          ? "Loading…"
-                          : `Pay ₹${grandTotal.toLocaleString("en-IN")}`}
+                      : `Pay ₹${grandTotal.toLocaleString("en-IN")}`}
                   </span>
                 </button>
               </div>
@@ -1535,6 +1545,19 @@ export default function SeatSelection() {
                     </div>
                   </div>
 
+                  {/* Offer / coupon */}
+                  <div className="px-5 pt-3.5">
+                    <OfferCouponBox
+                      type="movies"
+                      id={movie?._id}
+                      genre={movie?.genre}
+                      amount={totalAmount}
+                      appliedOffer={appliedOffer}
+                      onApply={setAppliedOffer}
+                      onRemove={() => setAppliedOffer(null)}
+                    />
+                  </div>
+
                   {/* Price breakdown */}
                   <div className="px-5 py-3.5 space-y-2">
                     {["Recliner", "Premium", "Classic"].map((cat) => {
@@ -1563,6 +1586,16 @@ export default function SeatSelection() {
                         </div>
                       );
                     })}
+                    {discountAmount > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[12px] font-semibold" style={{ color: "#16a34a" }}>
+                          Offer discount
+                        </span>
+                        <span className="text-[12px] font-semibold" style={{ color: "#16a34a" }}>
+                          −₹{discountAmount.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-[12px] text-gray-400">
                         Convenience Fee (2%)
@@ -1588,18 +1621,29 @@ export default function SeatSelection() {
                 {/* Step 1 CTA */}
                 <div className="px-5 py-4 border-t border-gray-100 flex-shrink-0">
                   <button
-                    onClick={() => setSummaryStep(2)}
-                    className="w-full py-3.5 rounded-xl text-[15px] font-black text-white transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                    onClick={handleProceed}
+                    disabled={locking || loadingOrder}
+                    className="w-full py-3.5 rounded-xl text-[15px] font-black text-white transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60"
                     style={{ background: "#f0545c" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#d94048")
-                    }
+                    onMouseEnter={(e) => {
+                      if (!e.currentTarget.disabled)
+                        e.currentTarget.style.background = "#d94048";
+                    }}
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.background = "#f0545c")
                     }
                   >
-                    <Ticket size={16} /> Continue to Payment · ₹
-                    {grandTotal.toLocaleString("en-IN")}
+                    {locking || loadingOrder ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        {locking ? "Locking seats…" : "Preparing payment…"}
+                      </>
+                    ) : (
+                      <>
+                        <Ticket size={16} /> Continue to Payment · ₹
+                        {grandTotal.toLocaleString("en-IN")}
+                      </>
+                    )}
                   </button>
                 </div>
               </>
@@ -1944,6 +1988,3 @@ export default function SeatSelection() {
     </div>
   );
 }
-
-
-

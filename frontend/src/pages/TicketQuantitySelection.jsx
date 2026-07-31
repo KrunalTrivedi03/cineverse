@@ -1,5 +1,5 @@
 // src/pages/TicketQuantitySelection.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
@@ -10,15 +10,31 @@ import {
 } from "lucide-react";
 import { fmt12, fmtDate, getCurrentUser } from "../utils/eventHelpers";
 import BottomNav from "../components/BottomNav";
-import OfferCouponBox from "../components/OfferCouponBox";
+import {
+  savePendingBooking,
+  getPendingBooking,
+  clearPendingBooking,
+  saveBookingDraft,
+} from "../utils/authSession";
 
 export default function TicketQuantitySelection() {
   const { scheduleId, slotId } = useParams();
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
   const navigate  = useNavigate();
 
-  const event = state?.event;
-  const venue = state?.venue;
+  // If the user was bounced to /login mid-selection (unauthenticated
+  // "Proceed"), the event/venue context and chosen quantities were stashed
+  // in sessionStorage — restore them so we don't lose the page on return.
+  const pendingRef = useRef(getPendingBooking());
+  const pending = pendingRef.current;
+  const restored =
+    pending?.type === "event" && pending?.scheduleId === scheduleId && pending?.slotId === slotId
+      ? pending.pageState
+      : null;
+
+  const event = restored?.event || state?.event;
+  const venue = restored?.venue || state?.venue;
 
   const [availability, setAvailability] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +61,17 @@ export default function TicketQuantitySelection() {
       .finally(() => setLoading(false));
   }, [scheduleId, slotId]);
 
+  // Restore previously-chosen quantities once availability has loaded, and
+  // pick straight back up where the user left off before logging in.
+  useEffect(() => {
+    if (!pending?.resumeQty || !availability) return;
+    setQty(pending.resumeQty);
+    clearPendingBooking();
+    pendingRef.current = null;
+    setTimeout(() => proceedToReview(pending.resumeQty), 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availability]);
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
@@ -64,32 +91,46 @@ export default function TicketQuantitySelection() {
   const openCheckout = () => {
     if (!totalQty) return;
     const user = getCurrentUser();
-    if (!user?.id) { showToast("Please log in to book tickets", "error"); navigate("/login"); return; }
-    setOrderData(null);
-    setShowSummary(true);
+    if (!user?.id) {
+      savePendingBooking({
+        type: "event",
+        scheduleId,
+        slotId,
+        resumeQty: qty,
+        pageState: { event, venue },
+      });
+      showToast("Please log in to continue booking", "error");
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+    proceedToReview(qty);
   };
 
-  const handleProceed = async () => {
-    const chosenType = Object.entries(qty).find(([, c]) => c > 0);
+  // Hands off to the shared BookingReview page — order creation + payment
+  // now live there, shared with Movies.
+  const proceedToReview = (qtyMap) => {
+    const chosenType = Object.entries(qtyMap).find(([, c]) => c > 0);
     if (!chosenType) return;
     const [ticketTypeName, quantity] = chosenType;
+    const ticketType = (availability?.ticketTypes || []).find((t) => t.name === ticketTypeName);
 
-    const user = getCurrentUser();
-    if (!user?.id) { showToast("Please log in to book tickets", "error"); navigate("/login"); return; }
-
-    setLoadingOrder(true);
-    try {
-      const { data } = await api.post("/event-payment/create-order", {
-        scheduleId, slotId, ticketTypeName, quantity, offerId: appliedOffer?.offerId,
-      });
-      setOrderData(data);
-      setPayMethod(data.wallet?.eligible ? "wallet" : "razorpay");
-      setShowSummary(true);
-    } catch (err) {
-      showToast(err.response?.data?.message || "Failed to proceed", "error");
-    } finally {
-      setLoadingOrder(false);
-    }
+    const draft = {
+      type: "event",
+      itemId: event?._id,
+      itemTitle: event?.title,
+      itemPoster: event?.poster,
+      genre: event?.category,
+      venueName: venue?.name,
+      date: availability?.eventDate,
+      time: availability?.eventTime,
+      scheduleId,
+      slotId,
+      ticketTypeName,
+      quantity,
+      unitPrice: ticketType?.price || 0,
+    };
+    saveBookingDraft(draft);
+    navigate("/booking/review", { state: { draft } });
   };
 
   useEffect(() => {
@@ -220,110 +261,6 @@ export default function TicketQuantitySelection() {
         )}
       </div>
 
-      {/* ── Checkout drawer ── */}
-      {showSummary && (
-        <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center" style={{ background: "rgba(0,0,0,0.45)" }}>
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <p className="text-[15px] font-bold text-gray-900">{orderData ? "Confirm & Pay" : "Review Order"}</p>
-              <button onClick={() => setShowSummary(false)}><X size={18} className="text-gray-400" /></button>
-            </div>
-
-            <div className="px-5 py-4">
-              {!orderData ? (
-                <>
-                  {/* ── Phase 1: apply offer, review estimate ── */}
-                  {Object.entries(qty).filter(([, c]) => c > 0).map(([name, count]) => {
-                    const t = (availability?.ticketTypes || []).find((x) => x.name === name);
-                    return (
-                      <div key={name} className="flex justify-between text-[12px] text-gray-500 mb-1">
-                        <span>{name} × {count}</span>
-                        <span>₹{(t?.price || 0) * count}</span>
-                      </div>
-                    );
-                  })}
-
-                  <div className="my-3">
-                    <OfferCouponBox
-                      type="events"
-                      id={event?._id}
-                      genre={event?.category}
-                      amount={subtotal}
-                      appliedOffer={appliedOffer}
-                      onApply={setAppliedOffer}
-                      onRemove={() => setAppliedOffer(null)}
-                    />
-                  </div>
-
-                  {appliedOffer && (
-                    <div className="flex justify-between text-[12px] font-semibold mb-1.5" style={{ color: "#16a34a" }}>
-                      <span>Offer discount</span><span>−₹{appliedOffer.discountAmount}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-[12px] text-gray-500 mb-3">
-                    <span>Convenience fee (est.)</span>
-                    <span>₹{Math.round(Math.max(subtotal - (appliedOffer?.discountAmount || 0), 0) * 0.02)}</span>
-                  </div>
-                  <div className="flex justify-between text-[15px] font-extrabold text-gray-900 pt-2 border-t border-gray-100">
-                    <span>Estimated Total</span>
-                    <span>
-                      ₹{Math.max(subtotal - (appliedOffer?.discountAmount || 0), 0) +
-                        Math.round(Math.max(subtotal - (appliedOffer?.discountAmount || 0), 0) * 0.02)}
-                    </span>
-                  </div>
-
-                  <button onClick={handleProceed} disabled={loadingOrder}
-                    className="w-full mt-4 py-3 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2 disabled:opacity-60"
-                    style={{ background: "#f0545c" }}>
-                    {loadingOrder ? <Loader2 size={15} className="animate-spin" /> : null}
-                    {loadingOrder ? "Preparing…" : "Continue to Payment"}
-                  </button>
-                </>
-              ) : (
-                <>
-                  {/* ── Phase 2: payment method + pay ── */}
-                  <div className="flex justify-between text-[12px] text-gray-500 mb-1"><span>{orderData.ticketType?.name} × {orderData.quantity}</span><span>₹{orderData.totalAmount}</span></div>
-                  {orderData.discountAmount > 0 && (
-                    <div className="flex justify-between text-[12px] font-semibold mb-1.5" style={{ color: "#16a34a" }}>
-                      <span>Offer discount{orderData.appliedOffer?.title ? ` · ${orderData.appliedOffer.title}` : ""}</span>
-                      <span>−₹{orderData.discountAmount}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-[12px] text-gray-500 mb-3"><span>Convenience fee</span><span>₹{orderData.convenienceFee}</span></div>
-                  <div className="flex justify-between text-[15px] font-extrabold text-gray-900 pt-2 border-t border-gray-100">
-                    <span>Total</span><span>₹{orderData.grandTotal}</span>
-                  </div>
-
-                  <div className="mt-4 space-y-2">
-                    {wallet && (
-                      <button onClick={() => setPayMethod("wallet")}
-                        disabled={wallet.walletBalance < orderData.grandTotal}
-                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
-                        style={{ borderColor: payMethod === "wallet" ? "#f0545c" : "#e5e7eb", background: payMethod === "wallet" ? "rgba(240,84,92,0.05)" : "#fff", opacity: wallet.walletBalance < orderData.grandTotal ? 0.5 : 1 }}>
-                        <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><Wallet size={15} /> CineVerse Wallet</span>
-                        <span className="text-[12px] text-gray-400">₹{wallet.walletBalance}</span>
-                      </button>
-                    )}
-                    <button onClick={() => setPayMethod("razorpay")}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left"
-                      style={{ borderColor: payMethod === "razorpay" ? "#f0545c" : "#e5e7eb", background: payMethod === "razorpay" ? "rgba(240,84,92,0.05)" : "#fff" }}>
-                      <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><CreditCard size={15} /> Card / UPI / NetBanking</span>
-                      <CheckCircle2 size={16} className={payMethod === "razorpay" ? "text-[#f0545c]" : "text-gray-200"} />
-                    </button>
-                  </div>
-
-                  <button onClick={handleConfirm} disabled={paying}
-                    className="w-full mt-4 py-3 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2"
-                    style={{ background: "#f0545c" }}>
-                    {paying ? <Loader2 size={15} className="animate-spin" /> : <IndianRupee size={15} />}
-                    {paying ? "Processing…" : `Pay ₹${orderData.grandTotal}`}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

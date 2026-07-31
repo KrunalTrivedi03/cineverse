@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearClientAuthState, saveSessionExpiredRedirect } from "../utils/authSession";
 
 const BASE_URL = import.meta.env.VITE_API_URL + "/api";
 
@@ -76,9 +77,13 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("userInfo");
-        window.location.href = "/login";
+        // Refresh token missing/expired/revoked (e.g. 7 days idle, or backend
+        // rejected it) — treat this the same as an inactivity logout so the
+        // user is prompted to pick their city again on next login.
+        clearClientAuthState({ reason: "inactivity" });
+        window.dispatchEvent(new Event("cv-auth-changed"));
+        saveSessionExpiredRedirect(window.location.pathname + window.location.search);
+        window.location.href = "/login?sessionExpired=1";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -90,5 +95,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-

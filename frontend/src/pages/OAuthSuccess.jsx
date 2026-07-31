@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check, X, Clapperboard } from "lucide-react";
 import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
+import { useAuth } from "../context/AuthContext";
+import { consumeOAuthRedirect } from "../utils/authSession";
 
 const REDIRECT_MS = 1800;
 const ACCENT = "#f0545c";
@@ -11,6 +13,7 @@ const ACCENT = "#f0545c";
 export default function OAuthSuccess() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { login } = useAuth();
   const hasRun = useRef(false);
 
   const [phase, setPhase] = useState("verifying");
@@ -35,11 +38,12 @@ export default function OAuthSuccess() {
     api
       .get("/users/me")
       .then((res) => {
-        localStorage.setItem("userInfo", JSON.stringify(res.data));
+        login(accessToken, res.data);
         setUsername(res.data?.username || res.data?.name || "");
         setPhase("success");
         showToast.success("Welcome! Enjoy your show.");
-        setTimeout(() => exitTo("/"), REDIRECT_MS);
+        const target = consumeOAuthRedirect();
+        setTimeout(() => exitTo(target), REDIRECT_MS);
       })
       .catch(() => {
         localStorage.removeItem("accessToken");

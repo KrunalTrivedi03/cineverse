@@ -1,0 +1,727 @@
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { io } from "socket.io-client";
+import api from "../api/axiosInstance";
+import Navbar from "../components/Navbar";
+import BottomNav from "../components/BottomNav";
+import OffersDrawer from "../components/OffersDrawer";
+import { useRazorpay } from "../hooks/useRazorpay";
+import { useEventRazorpay } from "../hooks/useEventRazorpay";
+import {
+  ChevronLeft, ChevronDown, MapPin, Calendar, Clock, Ticket, Timer, Info, Wallet,
+  CreditCard, CheckCircle, Loader2, AlertCircle, CheckCircle2,
+  ShieldCheck, User, QrCode, X,
+} from "lucide-react";
+import {
+  isAuthenticated,
+  getCurrentUser,
+  saveBookingDraft,
+  getBookingDraft,
+  clearBookingDraft,
+  savePendingBooking,
+} from "../utils/authSession";
+
+const IMG = (path) => (!path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`);
+const BASE = import.meta.env.VITE_API_URL;
+const ACCENT = "#f0545c";
+
+const fmt12 = (t) => {
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  return `${(h % 12 || 12).toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${ampm}`;
+};
+const fmtDate = (d) => {
+  if (!d) return "";
+  return new Date(d).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+};
+const fmtCountdown = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+/**
+ * Shared review + payment page for both Movie and Event bookings.
+ *
+ * Reads a normalized "booking draft" from location.state (or sessionStorage,
+ * so it survives refreshes and login redirects). Layout is a single page —
+ * no stepper, no popup — with a left column (item details + offers) and a
+ * right column (summary / user details / payment / T&Cs), stacking on
+ * mobile. The same structure is designed to accommodate future booking
+ * types: anything that can produce a draft in this shape can reuse this page.
+ */
+export default function BookingReview() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [draft] = useState(() => location.state?.draft || getBookingDraft());
+  const [orderData, setOrderData] = useState(null);
+  const [loadingOrder, setLoadingOrder] = useState(true);
+  const [payMethod, setPayMethod] = useState("razorpay");
+  const [paying, setPaying] = useState(false);
+  const [quickPay, setQuickPay] = useState(null);
+  const [appliedOffer, setAppliedOffer] = useState(null);
+  const [countdown, setCountdown] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [orderError, setOrderError] = useState("");
+  const [orderAmountOpen, setOrderAmountOpen] = useState(false);
+  const [bookingChargeOpen, setBookingChargeOpen] = useState(false);
+  const [tncOpen, setTncOpen] = useState(false);
+  const [paymentPopupOpen, setPaymentPopupOpen] = useState(false);
+
+  const socketRef = useRef(null);
+  const timerRef = useRef(null);
+  const { initiatePayment: initiateMoviePayment } = useRazorpay();
+  const { initiatePayment: initiateEventPayment } = useEventRazorpay();
+  const user = getCurrentUser();
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // Persist whatever draft we ended up with so a refresh / login redirect
+  // can rehydrate this page exactly where the user left off.
+  useEffect(() => {
+    if (!draft) {
+      navigate("/", { replace: true });
+      return;
+    }
+    saveBookingDraft(draft);
+  }, [draft, navigate]);
+
+  const isMovie = draft?.type === "movie";
+  const isEvent = draft?.type === "event";
+
+  /* ── Movie-only: live seat lock + countdown, socket reconnect ────────── */
+  useEffect(() => {
+    if (!isMovie || !draft) return;
+    const socket = io(BASE, { query: { userId: draft.userId }, transports: ["websocket"] });
+    socketRef.current = socket;
+    socket.emit("join:show", { showId: draft.showId, slotId: draft.slotId });
+    return () => {
+      socket.emit("leave:show", { showId: draft.showId, slotId: draft.slotId });
+      socket.disconnect();
+    };
+  }, [isMovie, draft]);
+
+  const releaseMovieLock = useCallback(async () => {
+    if (!isMovie || !draft) return;
+    await api
+      .delete("/seats/lock", {
+        data: { showId: draft.showId, slotId: draft.slotId, seatIds: draft.seats.map((s) => s.id), userId: draft.userId },
+      })
+      .catch(() => {});
+  }, [isMovie, draft]);
+
+  useEffect(() => {
+    if (!isMovie || !draft?.lockExpiresAt) return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.round((draft.lockExpiresAt - Date.now()) / 1000));
+      setCountdown(remaining);
+      if (remaining <= 0) {
+        clearInterval(timerRef.current);
+        showToast("Seat reservation expired. Redirecting to Home…", "error");
+        releaseMovieLock();
+        clearBookingDraft();
+        setTimeout(() => navigate("/", { replace: true }), 1400);
+      }
+    };
+    tick();
+    timerRef.current = setInterval(tick, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [isMovie, draft, navigate, releaseMovieLock]);
+
+  /* ── Create / recreate the order whenever the applied offer changes ──── */
+  const createOrder = useCallback(async () => {
+    if (!draft || !isAuthenticated()) return;
+    setLoadingOrder(true);
+    setOrderError("");
+    try {
+      if (isMovie) {
+        const { data } = await api.post("/payment/create-order", {
+          showId: draft.showId,
+          slotId: draft.slotId,
+          seatIds: draft.seats.map((s) => s.id),
+          offerId: appliedOffer?.offerId,
+          language: draft.language,
+        });
+        setOrderData(data);
+        setPayMethod(data.wallet?.eligible ? "wallet" : "razorpay");
+      } else if (isEvent) {
+        const { data } = await api.post("/event-payment/create-order", {
+          scheduleId: draft.scheduleId,
+          slotId: draft.slotId,
+          ticketTypeName: draft.ticketTypeName,
+          quantity: draft.quantity,
+          offerId: appliedOffer?.offerId,
+        });
+        setOrderData(data);
+        setPayMethod(data.wallet?.eligible ? "wallet" : "razorpay");
+      }
+    } catch (err) {
+      setOrderError(err.response?.data?.message || "Couldn't prepare this order");
+    } finally {
+      setLoadingOrder(false);
+    }
+  }, [draft, isMovie, isEvent, appliedOffer]);
+
+  useEffect(() => {
+    createOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appliedOffer?.offerId]);
+
+  useEffect(() => {
+    if (!isAuthenticated()) return;
+    api.get("/quickpay").then((r) => setQuickPay(r.data)).catch(() => setQuickPay(null));
+  }, []);
+
+  /* ── Auth guard on the actual "pay" action ────────────────────────────
+   * Browsing/reviewing this page never requires auth by itself (in
+   * practice we only reach here after an authenticated seat lock / ticket
+   * pick, but a session can lapse — e.g. the 3h inactivity timeout — while
+   * the user is still reviewing). If that happens, preserve the draft and
+   * bounce through login, landing right back here afterwards. */
+  const requireAuthOrRedirect = () => {
+    if (isAuthenticated()) return true;
+    savePendingBooking({ resumeTo: location.pathname });
+    saveBookingDraft(draft);
+    navigate("/login", { state: { from: location.pathname } });
+    return false;
+  };
+
+  const bookingConfirmed = (booking) => {
+    clearBookingDraft();
+    if (isMovie) {
+      socketRef.current?.emit("booking:confirmed", {
+        showId: draft.showId,
+        slotId: draft.slotId,
+        seatIds: draft.seats.map((s) => s.id),
+      });
+      navigate("/booking/success", { state: { booking, movie: { title: draft.itemTitle, poster: draft.itemPoster, language: draft.language }, theatre: { name: draft.venueName } } });
+    } else {
+      navigate("/booking/event-success", { state: { booking, event: { title: draft.itemTitle, poster: draft.itemPoster }, venue: { name: draft.venueName } } });
+    }
+  };
+
+  const handleConfirm = async () => {
+    setPaymentPopupOpen(false);
+    if (!requireAuthOrRedirect()) return;
+    if (!orderData) return;
+
+    if (payMethod === "wallet") {
+      setPaying(true);
+      try {
+        if (isMovie) {
+          const { data } = await api.post("/payment/wallet-pay", {
+            showId: draft.showId,
+            slotId: draft.slotId,
+            seatIds: draft.seats.map((s) => s.id),
+            offerId: appliedOffer?.offerId,
+            language: draft.language,
+          });
+          bookingConfirmed(data.booking);
+        } else {
+          const { data } = await api.post("/event-payment/wallet-pay", {
+            scheduleId: draft.scheduleId,
+            slotId: draft.slotId,
+            ticketTypeName: draft.ticketTypeName,
+            quantity: draft.quantity,
+            offerId: appliedOffer?.offerId,
+          });
+          bookingConfirmed(data.booking);
+        }
+      } catch (err) {
+        showToast(err.response?.data?.message || "Wallet payment failed. Try another method.", "error");
+        setPayMethod("razorpay");
+      } finally {
+        setPaying(false);
+      }
+      return;
+    }
+
+    const userDetails = { name: user?.username || "", email: user?.email || "", contact: user?.phone || "" };
+    const onFailure = (reason) => showToast(reason || "Payment failed. Please try again.", "error");
+
+    if (isMovie) {
+      initiateMoviePayment({
+        showId: draft.showId,
+        slotId: draft.slotId,
+        seatIds: draft.seats.map((s) => s.id),
+        existingOrder: {
+          orderId: orderData.orderId, amount: orderData.amount, currency: orderData.currency,
+          keyId: orderData.keyId, bookingId: orderData.bookingId,
+        },
+        userDetails,
+        onSuccess: (_ref, booking) => bookingConfirmed(booking),
+        onFailure,
+      });
+    } else {
+      initiateEventPayment({
+        existingOrder: orderData,
+        userDetails,
+        onSuccess: (_ref, booking) => bookingConfirmed(booking),
+        onFailure,
+      });
+    }
+  };
+
+  /* ── Derived pricing (used before the order comes back, and as fallback) */
+  const subtotal = useMemo(() => {
+    if (!draft) return 0;
+    if (isMovie) return draft.seats.reduce((s, x) => s + x.price, 0);
+    return (draft.unitPrice || 0) * (draft.quantity || 0);
+  }, [draft, isMovie]);
+
+  if (!draft) return null;
+
+  const discount = orderData?.discountAmount ?? appliedOffer?.discountAmount ?? 0;
+  const convFee = orderData?.convenienceFee ?? Math.round(Math.max(subtotal - discount, 0) * 0.02);
+  const total = orderData ? (orderData.grandTotal ?? Math.max(subtotal - discount, 0) + convFee) : Math.max(subtotal - discount, 0) + convFee;
+
+  return (
+    <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <Navbar />
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-[60px] z-30">
+        <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
+            <ChevronLeft size={16} />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-[15px] font-bold text-gray-900 truncate">Review your booking</h1>
+          </div>
+          {isMovie && countdown !== null && (
+            <span
+              className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-lg flex-shrink-0"
+              style={{
+                background: countdown <= 60 ? "#fff1f2" : "rgba(240,84,92,0.07)",
+                border: `1px solid ${countdown <= 60 ? "#fecdd3" : "rgba(240,84,92,0.2)"}`,
+                color: countdown <= 60 ? "#dc2626" : ACCENT,
+                fontFamily: "'DM Mono', monospace",
+              }}
+            >
+              <Timer size={11} /> {fmtCountdown(countdown)}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Body: left = details/offers, right = summary/payment. Grid collapses to a single
+          stacked column on mobile — same page, same order, no separate mobile flow. */}
+      <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] lg:items-start gap-6 pb-32 lg:pb-10">
+        {/* ── LEFT: item details + offers ──
+            Ordered after the summary on mobile (order-2) so the summary is
+            the first thing visible under the header; back to its normal
+            left position on desktop (lg:order-1). */}
+        <div className="order-2 lg:order-1 space-y-4 min-w-0">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5 flex gap-4">
+            {draft.itemPoster && (
+              <img src={IMG(draft.itemPoster)} alt={draft.itemTitle} className="w-20 h-28 object-cover rounded-xl flex-shrink-0" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-[17px] font-extrabold text-gray-900" style={{ letterSpacing: "-0.2px" }}>
+                {draft.itemTitle}
+                {isMovie && draft.language && (
+                  <span className="text-gray-400 font-semibold"> ({draft.language})</span>
+                )}
+              </p>
+
+              {isMovie && (draft.certificate || draft.language || (draft.formats && draft.formats.length > 0)) && (
+                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                  {draft.certificate && (
+                    <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md border border-gray-200 text-gray-500">
+                      {draft.certificate}
+                    </span>
+                  )}
+                  {draft.formats?.map((f) => (
+                    <span key={f} className="text-[10.5px] font-bold px-2 py-0.5 rounded-md" style={{ background: "rgba(240,84,92,0.06)", color: ACCENT }}>
+                      {f}
+                    </span>
+                  ))}
+                  {draft.language && (
+                    <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md border border-gray-200 text-gray-500">
+                      {draft.language}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1.5 mt-2.5">
+                <p className="text-[12.5px] text-gray-500 flex items-center gap-1.5">
+                  <MapPin size={12} style={{ color: ACCENT, flexShrink: 0 }} />
+                  <span className="truncate">{draft.venueName}</span>
+                </p>
+                <p className="text-[12.5px] text-gray-500 flex items-center gap-1.5">
+                  <Calendar size={12} style={{ flexShrink: 0 }} /> {fmtDate(draft.date)}
+                </p>
+                <p className="text-[12.5px] text-gray-500 flex items-center gap-1.5">
+                  <Clock size={12} style={{ flexShrink: 0 }} /> {fmt12(draft.time)}
+                  {draft.venueSub && <span className="text-gray-400">· {draft.venueSub}</span>}
+                </p>
+              </div>
+
+              {isMovie ? (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {draft.seats.map((s) => (
+                    <span key={s.id} className="text-[11px] font-bold px-2.5 py-1 rounded-lg" style={{ background: "rgba(240,84,92,0.07)", color: ACCENT }}>
+                      {s.id} · {s.category}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-3">
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg" style={{ background: "rgba(240,84,92,0.07)", color: ACCENT }}>
+                    {draft.ticketTypeName} × {draft.quantity}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <OffersDrawer
+            type={isMovie ? "movies" : "events"}
+            id={draft.itemId}
+            genre={draft.genre}
+            amount={subtotal}
+            appliedOffer={appliedOffer}
+            onApply={setAppliedOffer}
+            onRemove={() => setAppliedOffer(null)}
+          />
+        </div>
+
+        {/* ── RIGHT: summary, user details, payment, T&Cs ──
+            order-1 puts this first in the DOM on mobile, right under the
+            sticky header, so the summary never needs scrolling to find.
+            On desktop it sits in its usual right column and stays pinned
+            in view (lg:sticky) while the left column scrolls underneath. */}
+        <div className="order-1 lg:order-2 min-w-0 lg:sticky lg:top-[112px] lg:flex lg:flex-col lg:max-h-[calc(100vh-128px)]">
+        <div className="space-y-4 min-w-0 lg:overflow-y-auto lg:pr-0.5" style={{ scrollbarWidth: "thin" }}>
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5">
+            <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-3">Payment summary</p>
+
+            {/* Order amount — collapsible: tap the chevron to see the
+                per-seat / per-ticket-type breakdown and any offer discount. */}
+            <button
+              type="button"
+              onClick={() => setOrderAmountOpen((p) => !p)}
+              className="w-full flex items-center justify-between py-2"
+            >
+              <span className="text-[13.5px] font-semibold text-gray-700 flex items-center gap-1.5">
+                Order amount
+                <ChevronDown
+                  size={13}
+                  className="text-gray-400 transition-transform"
+                  style={{ transform: orderAmountOpen ? "rotate(180deg)" : "none" }}
+                />
+              </span>
+              <span className="text-[13.5px] font-bold text-gray-900">₹{subtotal.toLocaleString("en-IN")}</span>
+            </button>
+            {orderAmountOpen && (
+              <div className="pb-2 pl-0.5">
+                {isMovie ? (
+                  ["Recliner", "Premium", "Classic"].map((cat) => {
+                    const cs = draft.seats.filter((s) => s.category === cat);
+                    if (!cs.length) return null;
+                    return (
+                      <div key={cat} className="flex items-center justify-between mb-2">
+                        <span className="text-[13px] text-gray-500">{cat} × {cs.length}</span>
+                        <span className="text-[13px] font-semibold text-gray-700">₹{cs.reduce((s, x) => s + x.price, 0)}</span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[13px] text-gray-500">{draft.ticketTypeName} × {draft.quantity}</span>
+                    <span className="text-[13px] font-semibold text-gray-700">₹{subtotal}</span>
+                  </div>
+                )}
+                {discount > 0 && (
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[12px] font-semibold" style={{ color: "#16a34a" }}>Offer discount</span>
+                    <span className="text-[12px] font-semibold" style={{ color: "#16a34a" }}>−₹{discount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="border-t border-gray-100" />
+
+            {/* Booking charge — collapsible: tap the chevron to see what it covers. */}
+            <button
+              type="button"
+              onClick={() => setBookingChargeOpen((p) => !p)}
+              className="w-full flex items-center justify-between py-2"
+            >
+              <span className="text-[13.5px] font-semibold text-gray-700 flex items-center gap-1.5">
+                Booking charge (incl. of GST)
+                <ChevronDown
+                  size={13}
+                  className="text-gray-400 transition-transform"
+                  style={{ transform: bookingChargeOpen ? "rotate(180deg)" : "none" }}
+                />
+              </span>
+              <span className="text-[13.5px] font-bold text-gray-900">₹{convFee.toLocaleString("en-IN")}</span>
+            </button>
+            {bookingChargeOpen && (
+              <div className="pb-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[12px] text-gray-400">Convenience fee (2%)</span>
+                  <span className="text-[12px] text-gray-400">₹{convFee.toLocaleString("en-IN")}</span>
+                </div>
+                <p className="text-[11px] text-gray-300">Covers payment gateway and platform charges.</p>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
+              <span className="text-[14px] font-bold text-gray-900">To be paid</span>
+              <span className="text-[22px] font-black" style={{ color: ACCENT, letterSpacing: "-0.5px" }}>
+                ₹{total.toLocaleString("en-IN")}
+              </span>
+            </div>
+
+            {orderError && (
+              <p className="text-[11.5px] font-medium mt-2 flex items-center gap-1.5" style={{ color: ACCENT }}>
+                <AlertCircle size={12} /> {orderError}
+              </p>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest">Your details</p>
+              <button
+                onClick={() => navigate("/settings")}
+                className="text-[11.5px] font-bold underline-offset-2 hover:underline"
+                style={{ color: ACCENT }}
+              >
+                Edit
+              </button>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
+                <User size={15} style={{ color: ACCENT }} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold text-gray-900 truncate">{user?.username || "Guest"}</p>
+                {user?.phone && <p className="text-[11.5px] text-gray-400 truncate">{user.phone}</p>}
+                <p className="text-[11.5px] text-gray-400 truncate">{user?.email || ""}</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-gray-300 mt-2.5">Tickets will be sent to this email address.</p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5">
+            <button
+              type="button"
+              onClick={() => setTncOpen((p) => !p)}
+              className="w-full flex items-center justify-between gap-1.5"
+            >
+              <span className="text-[11px] font-bold text-gray-300 uppercase tracking-widest flex items-center gap-1.5">
+                <ShieldCheck size={12} /> Terms &amp; Conditions
+              </span>
+              <ChevronDown
+                size={13}
+                className="text-gray-300 transition-transform"
+                style={{ transform: tncOpen ? "rotate(180deg)" : "none" }}
+              />
+            </button>
+            {tncOpen && (
+              <ul className="text-[11.5px] text-gray-400 space-y-1 list-disc pl-4 mt-2.5">
+                <li>Tickets once booked cannot be exchanged or refunded.</li>
+                <li>Please carry a valid ID proof to the venue.</li>
+                <li>Convenience fee is non-refundable.</li>
+              </ul>
+            )}
+          </div>
+        </div>
+
+          {/* Desktop CTA — pinned outside the scrollable summary column so
+              it's always visible without scrolling. Mobile gets a fixed
+              sticky bar below instead. */}
+          <div className="hidden lg:flex items-center justify-between rounded-2xl px-5 py-3.5 mt-3 flex-shrink-0" style={{ background: ACCENT }}>
+            <div>
+              <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total</p>
+              <p className="text-[19px] font-black text-white">₹{total.toLocaleString("en-IN")}</p>
+            </div>
+            <button
+              onClick={() => setPaymentPopupOpen(true)}
+              disabled={loadingOrder || paying || !orderData}
+              className="px-6 py-3 rounded-xl text-[14px] font-black flex items-center gap-2 disabled:opacity-60 bg-white"
+              style={{ color: ACCENT }}
+            >
+              {loadingOrder ? (
+                <><Loader2 size={15} className="animate-spin" /> Preparing…</>
+              ) : paying ? (
+                <><Loader2 size={15} className="animate-spin" /> Processing…</>
+              ) : (
+                <><Ticket size={15} /> Pay now</>
+              )}
+            </button>
+          </div>
+          <p className="hidden lg:flex items-center justify-center gap-1 text-[11px] text-gray-300 mt-2 flex-shrink-0">
+            <Info size={9} /> Secured by Razorpay · 100% safe &amp; encrypted
+          </p>
+        </div>
+      </div>
+
+      {/* Mobile sticky CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 z-40 lg:hidden" style={{ boxShadow: "0 -4px 16px rgba(0,0,0,0.06)" }}>
+        <div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total</p>
+          <p className="text-[18px] font-extrabold text-gray-900">₹{total.toLocaleString("en-IN")}</p>
+        </div>
+        <button
+          onClick={() => setPaymentPopupOpen(true)}
+          disabled={loadingOrder || paying || !orderData}
+          className="px-6 py-3 rounded-xl font-black text-[13px] text-white flex items-center gap-2 disabled:opacity-60"
+          style={{ background: ACCENT }}
+        >
+          {loadingOrder || paying ? <Loader2 size={15} className="animate-spin" /> : <Ticket size={15} />}
+          {loadingOrder ? "Preparing…" : paying ? "Processing…" : "Pay now"}
+        </button>
+      </div>
+
+      {paymentPopupOpen && (
+        <PaymentMethodPopup
+          orderData={orderData}
+          quickPay={quickPay}
+          payMethod={payMethod}
+          setPayMethod={setPayMethod}
+          total={total}
+          paying={paying}
+          onClose={() => setPaymentPopupOpen(false)}
+          onConfirm={handleConfirm}
+        />
+      )}
+
+      {toast && (
+        <div
+          className="fixed bottom-28 lg:bottom-8 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-5 py-3 rounded-xl text-[13px] font-semibold whitespace-nowrap shadow-lg"
+          style={{
+            background: toast.type === "error" ? "#fff1f2" : "#f0fdf4",
+            color: toast.type === "error" ? "#dc2626" : "#16a34a",
+            border: `1px solid ${toast.type === "error" ? "#fecdd3" : "#bbf7d0"}`,
+          }}
+        >
+          {toast.type === "error" ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
+          {toast.message}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Payment method popup — opened by the "Pay now" CTA instead of showing
+ * payment options inline on the summary page. Methods are grouped by
+ * category (Razorpay checkout, CineVerse Wallet, Scan & Pay via UPI apps).
+ * "Scan QR" and "Card / UPI / Net Banking" both route through the same
+ * Razorpay order — Razorpay's own checkout surfaces a UPI QR code there —
+ * this popup just gives the user a direct, familiar shortcut to it.
+ */
+function PaymentMethodPopup({ orderData, quickPay, payMethod, setPayMethod, total, paying, onClose, onConfirm }) {
+  const walletBalance  = orderData?.wallet?.balance ?? quickPay?.walletBalance ?? 0;
+  const walletEligible = !!orderData?.wallet?.eligible;
+
+  const Option = ({ active, disabled, icon, title, sub, onClick }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all disabled:cursor-not-allowed"
+      style={{
+        borderColor: active ? ACCENT : "#e5e7eb",
+        background:  active ? "rgba(240,84,92,0.04)" : "#fafafa",
+        opacity:     disabled ? 0.45 : 1,
+      }}
+    >
+      <div
+        className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+        style={{ background: active ? "rgba(240,84,92,0.1)" : "#f3f4f6" }}
+      >
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] font-bold text-gray-900">{title}</p>
+        {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
+      </div>
+      {active && <CheckCircle size={16} style={{ color: ACCENT, flexShrink: 0 }} />}
+    </button>
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center"
+      style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(3px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full sm:max-w-[440px] rounded-t-[24px] sm:rounded-[24px] max-h-[88vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+          <div>
+            <p className="text-[15px] font-extrabold text-gray-900">Choose payment method</p>
+            <p className="text-[11.5px] text-gray-400 mt-0.5">To be paid: ₹{total.toLocaleString("en-IN")}</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-50 flex-shrink-0">
+            <X size={16} className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-5" style={{ scrollbarWidth: "thin" }}>
+          {/* Razorpay */}
+          <div>
+            <p className="text-[10.5px] font-bold text-gray-300 uppercase tracking-widest mb-2">Razorpay</p>
+            <Option
+              active={payMethod === "razorpay"}
+              icon={<CreditCard size={16} style={{ color: payMethod === "razorpay" ? ACCENT : "#9ca3af" }} />}
+              title="Card / UPI / Net Banking"
+              sub="Powered by Razorpay · Secure checkout"
+              onClick={() => setPayMethod("razorpay")}
+            />
+          </div>
+
+          {/* CineVerse Wallet */}
+          <div>
+            <p className="text-[10.5px] font-bold text-gray-300 uppercase tracking-widest mb-2">CineVerse Wallet</p>
+            <Option
+              active={payMethod === "wallet"}
+              disabled={!walletEligible}
+              icon={<Wallet size={16} style={{ color: payMethod === "wallet" ? ACCENT : "#9ca3af" }} />}
+              title="CineVerse Wallet"
+              sub={
+                walletEligible
+                  ? `Balance: ₹${walletBalance.toLocaleString("en-IN")}`
+                  : `Balance: ₹${walletBalance.toLocaleString("en-IN")} · Insufficient balance`
+              }
+              onClick={() => walletEligible && setPayMethod("wallet")}
+            />
+          </div>
+
+          {/* Scan & Pay */}
+          <div>
+            <p className="text-[10.5px] font-bold text-gray-300 uppercase tracking-widest mb-2">Scan &amp; Pay</p>
+            <Option
+              active={payMethod === "qr"}
+              icon={<QrCode size={16} style={{ color: payMethod === "qr" ? ACCENT : "#9ca3af" }} />}
+              title="Scan QR — GPay, PhonePe, Paytm"
+              sub="Scan with any UPI app from the Razorpay checkout"
+              onClick={() => setPayMethod("qr")}
+            />
+          </div>
+        </div>
+
+        <div className="px-5 py-4 border-t border-gray-100 flex-shrink-0">
+          <button
+            onClick={() => onConfirm()}
+            disabled={paying || (payMethod === "wallet" && !walletEligible)}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-[14px] font-black text-white disabled:opacity-60"
+            style={{ background: ACCENT }}
+          >
+            {paying ? <Loader2 size={15} className="animate-spin" /> : <Ticket size={15} />}
+            {paying ? "Processing…" : `Pay ₹${total.toLocaleString("en-IN")}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

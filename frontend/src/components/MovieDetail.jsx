@@ -265,6 +265,10 @@ function WatchlistButton({ movieId, mobile }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
+  // Watchlist is an authenticated-only feature — signed-out visitors should
+  // never see the button at all, not even a disabled/prompt version of it.
+  if (!localStorage.getItem("accessToken")) return null;
+
   useEffect(() => {
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);

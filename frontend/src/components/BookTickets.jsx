@@ -88,6 +88,7 @@ export default function BookTickets() {
   const [filterTime,   setFilterTime]   = useState("");
   const [filterPrice,  setFilterPrice]  = useState("");
   const [searchCinema, setSearchCinema] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
 
   /* ── Live clock: re-render every minute so "past" state stays accurate ── */
   const [, setTick] = useState(0);
@@ -134,9 +135,39 @@ export default function BookTickets() {
     return () => window.removeEventListener("cityChanged", h);
   }, []);
 
+  /* ── Available languages for this movie, derived from real show data.
+     Falls back to the movie's own language list if shows don't carry one
+     (older data / not yet tagged per-print). ── */
+  const availableLanguages = useMemo(() => {
+    const fromShows = [...new Set(shows.map((s) => s.language).filter(Boolean))];
+    if (fromShows.length) return fromShows;
+    if (movie?.languages?.length) return movie.languages;
+    if (movie?.language) return [movie.language];
+    return [];
+  }, [shows, movie]);
+
+  const needsLanguagePick = availableLanguages.length > 1;
+
+  /* Auto-pick the single available language, or reset when the movie/list
+     changes so a stale selection from a previous movie doesn't linger. */
+  useEffect(() => {
+    if (!availableLanguages.length) { setSelectedLanguage(""); return; }
+    if (availableLanguages.length === 1) { setSelectedLanguage(availableLanguages[0]); return; }
+    if (!availableLanguages.includes(selectedLanguage)) setSelectedLanguage("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableLanguages]);
+
   /* ── Group shows → theatreGroups ── */
   const theatreGroups = useMemo(() => {
-    const dateShows = shows.filter((s) => localDateKey(new Date(s.showDate)) === selectedDate);
+    const dateShows = shows.filter((s) => {
+      if (localDateKey(new Date(s.showDate)) !== selectedDate) return false;
+      // Only apply the language filter once shows actually carry a language
+      // and the movie has more than one, and a language has been chosen.
+      if (needsLanguagePick && selectedLanguage && s.language) {
+        return s.language === selectedLanguage;
+      }
+      return true;
+    });
     const map = new Map();
     dateShows.forEach((show) => {
       const tId = show.theatre?._id;
@@ -155,12 +186,13 @@ export default function BookTickets() {
       times.forEach((slot) => map.get(tId).slots.push({
         showId: show._id, screen: show.screen,
         time: slot.time, price: slot.price, slotId: slot._id,
+        language: show.language || "",
       }));
     });
     const groups = [...map.values()];
     groups.forEach((g) => g.slots.sort((a, b) => a.time.localeCompare(b.time)));
     return groups;
-  }, [shows, selectedDate]);
+  }, [shows, selectedDate, needsLanguagePick, selectedLanguage]);
 
   /* ── Apply filters + past-show removal ── */
   const filteredGroups = useMemo(() => {
@@ -214,7 +246,9 @@ export default function BookTickets() {
               className="w-9 h-[52px] object-cover rounded-lg flex-shrink-0" />
           )}
           <div className="flex-1 min-w-0">
-            <h1 className="text-[15px] font-bold text-gray-900 truncate">{movie.title}</h1>
+            <h1 className="text-[15px] font-bold text-gray-900 truncate">
+              {movie.title}{selectedLanguage && <span className="text-gray-400 font-semibold"> ({selectedLanguage})</span>}
+            </h1>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {movie.rating && <>
                 <Star size={11} fill="#f0545c" className="text-[#f0545c]" />
@@ -259,6 +293,48 @@ export default function BookTickets() {
           })}
         </div>
 
+        {/* ── Language picker: shown before show timings when the movie
+             has more than one language and none has been chosen yet ── */}
+        {needsLanguagePick && !selectedLanguage && (
+          <div className="bg-white rounded-xl border border-gray-200 px-5 py-6 mb-5 text-center">
+            <p className="text-[15px] font-bold text-gray-900 mb-1">Choose your language</p>
+            <p className="text-[12.5px] text-gray-400 mb-4">This movie is playing in multiple languages</p>
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              {availableLanguages.map((lang) => (
+                <button key={lang} onClick={() => setSelectedLanguage(lang)}
+                  className="px-4 py-2 rounded-lg border text-[13px] font-semibold transition-all"
+                  style={{ borderColor: "#e5e7eb", color: "#374151", background: "#fff" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#f0545c"; e.currentTarget.style.color = "#f0545c"; e.currentTarget.style.background = "rgba(240,84,92,0.04)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#fff"; }}>
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Language switcher: small persistent chip row once a language
+             is chosen, so the user can still change it without losing their
+             place ── */}
+        {needsLanguagePick && selectedLanguage && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Language:</span>
+            {availableLanguages.map((lang) => {
+              const active = lang === selectedLanguage;
+              return (
+                <button key={lang} onClick={() => setSelectedLanguage(lang)}
+                  className="px-3 py-1 rounded-full border text-[12px] font-semibold transition-all"
+                  style={active
+                    ? { borderColor: "#f0545c", color: "#f0545c", background: "rgba(240,84,92,0.06)" }
+                    : { borderColor: "#e5e7eb", color: "#6b7280", background: "#fff" }}>
+                  {lang}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {(!needsLanguagePick || selectedLanguage) && <>
         {/* ── Filter toolbar ── */}
         <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-4">
           <div className="flex items-center gap-3 flex-wrap">
@@ -334,11 +410,13 @@ export default function BookTickets() {
                   group={group}
                   movie={movie}
                   selectedDate={selectedDate}
+                  selectedLanguage={selectedLanguage}
                 />
               ))}
             </div>
           )
         )}
+        </>}
       </div>
     </div>
   );
@@ -377,7 +455,7 @@ function LegendDot({ color, bg, label }) {
   );
 }
 
-function TheatreCard({ group, movie, selectedDate }) {
+function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
   const navigate   = useNavigate();
   const [expanded, setExpanded] = useState(true);
 
@@ -403,6 +481,7 @@ function TheatreCard({ group, movie, selectedDate }) {
         price:   slot.price,
         theatre: { id: group.theatreId, name: group.name, address: group.address },
         date:    selectedDate,
+        language: slot.language || selectedLanguage || movie?.language || "",
       },
     });
   };
@@ -575,5 +654,3 @@ function EmptyState({ icon, title, sub, action }) {
     </div>
   );
 }
-
-

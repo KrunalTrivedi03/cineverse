@@ -32,6 +32,8 @@ function isPathActive(pathname, matchList) {
 export default function BottomNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem("accessToken");
+  const items = ITEMS.filter((item) => item.key !== "watchlist" || isAuthenticated);
 
   return (
     <>
@@ -63,7 +65,7 @@ export default function BottomNav() {
             boxShadow: "0 10px 28px -6px rgba(17,17,17,0.16), 0 2px 6px rgba(17,17,17,0.05)",
           }}
         >
-          {ITEMS.map((item) => {
+          {items.map((item) => {
             const active = isPathActive(pathname, item.match);
 
             return (

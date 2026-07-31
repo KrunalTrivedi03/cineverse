@@ -82,9 +82,10 @@ function ShowFormModal({ mode = "add", initial = null, movies, theatres, onSave,
           movie:    initial.movie?._id   || "",
           theatre:  initial.theatre?._id || "",
           screen:   initial.screen       || "",
+          language: initial.language     || "",
           showDate: initial.showDate ? initial.showDate.slice(0, 10) : "",
         }
-      : { movie: "", theatre: "", screen: "", showDate: "" }
+      : { movie: "", theatre: "", screen: "", language: "", showDate: "" }
   );
 
   const [times, setTimes] = useState(
@@ -218,6 +219,26 @@ function ShowFormModal({ mode = "add", initial = null, movies, theatres, onSave,
               </select>
             </div>
             {errors.screen && <p className="text-[11px] text-red-500 mt-1">{errors.screen}</p>}
+          </div>
+
+          {/* Language */}
+          <div>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Language
+            </label>
+            <div className="relative">
+              <select value={form.language} onChange={(e) => set("language", e.target.value)}
+                className="w-full pl-4 pr-9 py-2.5 rounded-xl border border-gray-200 text-[13px] text-gray-800 outline-none appearance-none cursor-pointer transition-all"
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = "#e5e7eb")}>
+                <option value="">Not specified</option>
+                {["Hindi","English","Tamil","Telugu","Malayalam","Kannada","Gujarati","Punjabi","Bengali"].map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+              <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
+            </div>
+            <p className="text-[11px] text-gray-400 mt-1">Which language this print/screening is in. Add separate shows for other languages.</p>
           </div>
 
           {/* Date */}
@@ -696,6 +717,7 @@ export default function AdminShows() {
                           <div className="min-w-0">
                             <p className="text-[13px] font-semibold text-gray-900 truncate max-w-[140px]">
                               {show.movie?.title || "—"}
+                              {show.language && <span className="text-gray-400 font-medium"> ({show.language})</span>}
                             </p>
                             {show.theatre?.city?.name && (
                               <p className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
@@ -863,5 +885,3 @@ export default function AdminShows() {
     </AdminLayout>
   );
 }
-
-

@@ -262,7 +262,7 @@ export default function AdminSidebar() {
         </button>
 
         <p className="text-[10px] text-gray-300 text-center mt-3 font-medium">
-          © CineVerse 2025
+          © CineVerse 2026
         </p>
       </div>
     </aside>

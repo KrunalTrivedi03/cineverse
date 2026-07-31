@@ -32,6 +32,7 @@ import TransactionHistory from "./pages/TransactionHistory";
 import Aboutus from "./pages/Aboutus";
 import ContactUs from "./pages/Contactus";
 import Offers from "./pages/Offers";
+import BookingReview from "./pages/BookingReview";
 
 export default function App() {
   return (
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/movie/:id/book" element={<BookTickets />} />
 
         <Route path="/movie/:id/seats" element={<SeatSelection />} />
+        <Route path="/booking/review" element={<BookingReview />} />
         <Route path="/booking/success" element={<BookingSuccess />} />
 
         <Route path="/settings" element={<Settings />} />

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
+import { useAuth } from "../context/AuthContext";
+import { saveOAuthRedirect, consumeSessionExpiredRedirect } from "../utils/authSession";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -12,6 +14,24 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [posterUrls, setPosterUrls] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
+  // Where to send the user after a successful sign-in — set by
+  // ProtectedRoute / AuthContext's in-SPA logout (location.state?.from),
+  // or — when the logout instead happened via a hard `window.location.href`
+  // redirect (axios refresh-token failure, which can't carry React Router
+  // state) — the path stashed just before that redirect. Read once so the
+  // one-time sessionStorage consume below doesn't repeat on every render.
+  const [redirectTo] = useState(() => location.state?.from || consumeSessionExpiredRedirect() || "/");
+  const sessionExpiredViaQuery = new URLSearchParams(location.search).get("sessionExpired") === "1";
+
+  useEffect(() => {
+    if (location.state?.sessionExpired || sessionExpiredViaQuery) {
+      showToast.info("You were signed out due to inactivity. Please log in again.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isLatestMovie = (m) =>
     m.status === "streaming" || (m.status === "released" && m.isInCinemas);
@@ -48,14 +68,13 @@ export default function Login() {
     try {
       setLoading(true);
       const res = await api.post("/auth/login", form);
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+      login(res.data.accessToken, res.data.user);
       showToast.success("Welcome! Enjoy your show.");
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate(redirectTo, { replace: true }), 1000);
     } catch (err) {
       const data = err.response?.data;
       if (data?.requiresOTP) {
-        showToast("Please verify your ticket first.");
+        showToast.info("Please verify your ticket first.");
         navigate(`/verify-otp?email=${form.email}`);
         return;
       }
@@ -271,7 +290,10 @@ export default function Login() {
 
           <button
             type="button"
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
+            onClick={() => {
+              saveOAuthRedirect(redirectTo);
+              window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
+            }}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-gray-700 bg-white border transition-all active:scale-[0.98] hover:bg-gray-50"
             style={{ borderColor: "#e5e7eb" }}
           >
@@ -299,5 +321,3 @@ export default function Login() {
     </div>
   );
 }
-
-

@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
+import { useAuth } from "../context/AuthContext";
+import { consumeCityPromptFlag } from "../utils/authSession";
 
 const GENRES = [
   "Action",
@@ -46,12 +48,11 @@ export default function Navbar() {
   }
 
   const navigate = useNavigate();
+  const { logout: authLogout } = useAuth();
   const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userInfo");
     setProfileOpen(false);
     setMobileProfileOpen(false);
-    navigate("/login");
+    authLogout();
   };
 
   const [cityModal, setCityModal] = useState(false);
@@ -83,6 +84,16 @@ export default function Navbar() {
       .then((res) => setCities(res.data))
       .catch(() => setCities([]))
       .finally(() => setCitiesLoading(false));
+  }, []);
+
+  // After a session-expiry logout, selectedCity/selectedCityId are cleared
+  // and this flag is set — prompt the user to pick their city again before
+  // they continue using the app.
+  useEffect(() => {
+    if (consumeCityPromptFlag()) {
+      setSelectedCity("");
+      setCityModal(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -192,7 +203,7 @@ export default function Navbar() {
               />
               <DropItem icon={<Tv size={14} />} label="Web Originals" to="/" />
             </NavDropdown>
-            <NavLink to="/watchlist">Watchlist</NavLink>
+            {token && <NavLink to="/watchlist">Watchlist</NavLink>}
             <NavLink to="/events">Events</NavLink>
             <NavLink to="/play">Play</NavLink>
           </div>
@@ -471,33 +482,35 @@ export default function Navbar() {
                           {movie.Year} · {movie.Type}
                         </p>
                       </div>
-                      <button
-                        onClick={() => handleAddToWatchlist(movie)}
-                        className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition-all"
-                        style={
-                          added[movie.imdbID]
-                            ? {
-                                background: "rgba(16,185,129,0.1)",
-                                color: "#0a6e4e",
-                                border: "1px solid rgba(16,185,129,0.25)",
-                              }
-                            : {
-                                background: "rgba(240,84,92,0.08)",
-                                color: "#f0545c",
-                                border: "1px solid rgba(240,84,92,0.2)",
-                              }
-                        }
-                      >
-                        {added[movie.imdbID] ? (
-                          <>
-                            <Check size={13} /> Added
-                          </>
-                        ) : (
-                          <>
-                            <Plus size={13} /> Watchlist
-                          </>
-                        )}
-                      </button>
+                      {token && (
+                        <button
+                          onClick={() => handleAddToWatchlist(movie)}
+                          className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition-all"
+                          style={
+                            added[movie.imdbID]
+                              ? {
+                                  background: "rgba(16,185,129,0.1)",
+                                  color: "#0a6e4e",
+                                  border: "1px solid rgba(16,185,129,0.25)",
+                                }
+                              : {
+                                  background: "rgba(240,84,92,0.08)",
+                                  color: "#f0545c",
+                                  border: "1px solid rgba(240,84,92,0.2)",
+                                }
+                          }
+                        >
+                          {added[movie.imdbID] ? (
+                            <>
+                              <Check size={13} /> Added
+                            </>
+                          ) : (
+                            <>
+                              <Plus size={13} /> Watchlist
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

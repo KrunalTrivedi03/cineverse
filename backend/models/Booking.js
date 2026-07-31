@@ -6,6 +6,7 @@ const BookingSchema = new mongoose.Schema({
   slotId:  { type: String, required: true },
   movieTitle:  { type: String, default: "" },
   moviePoster: { type: String, default: null },
+  language:    { type: String, default: "" },
   theatre: { type: mongoose.Schema.Types.ObjectId, ref: "Theatre", required: true },
   screen:  { type: String, required: true },
   showDate:{ type: Date,   required: true },

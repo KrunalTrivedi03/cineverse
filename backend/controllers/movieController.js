@@ -10,9 +10,9 @@ const syncMovieStatuses = async () => {
 
 exports.createMovie = async (req, res) => {
   try {
-    const {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
+    const {title,description,genre,releaseDate,rating,trailerLink,language,languages,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
 
-    const movieData = {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats: formats ? JSON.parse(formats) : [],cities: cities ? JSON.parse(cities) : [],cast: [],crew: [] };
+    const movieData = {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats: formats ? JSON.parse(formats) : [],languages: languages ? JSON.parse(languages) : (language ? [language] : []),cities: cities ? JSON.parse(cities) : [],cast: [],crew: [] };
 
     if (req.files?.poster) {
       movieData.poster = req.files.poster[0].path;
@@ -67,7 +67,7 @@ exports.updateMovie = async (req, res) => {
     if (!movie)
       return res.status(404).json({ message: "Movie not found" });
 
-    const {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
+    const {title,description,genre,releaseDate,rating,trailerLink,language,languages,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
 
     if (title) movie.title = title;
     if (description) movie.description = description;
@@ -78,6 +78,7 @@ exports.updateMovie = async (req, res) => {
     if (trailerLink) movie.trailerLink = trailerLink;
 
     if (language) movie.language = language;
+    if (languages) movie.languages = JSON.parse(languages);
     if (duration) movie.duration = duration;
     if (certificate) movie.certificate = certificate;
     if (votes !== undefined) movie.votes = votes;

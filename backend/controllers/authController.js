@@ -4,11 +4,27 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const buildEmailTemplate = require("../utils/emailTemplateBuilder");
 
+const jwt = require("jsonwebtoken");
+
 const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../utils/generateTokens");
 const { sendEmail } = require("../services/emailService");
+
+// ─── Helper: refresh-token cookie options ────────────────────────────────────
+// Shared everywhere we set/clear the refresh-token cookie so behaviour never
+// drifts between login / google-oauth / refresh / logout.
+const REFRESH_COOKIE_NAME = "refreshToken";
+const refreshCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/api/auth",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days — mirrors REFRESH_SECRET token expiry
+});
+exports.REFRESH_COOKIE_NAME = REFRESH_COOKIE_NAME;
+exports.refreshCookieOptions = refreshCookieOptions;
 
 // ─── Helper: build styled OTP HTML ───────────────────────────────────────────
 const buildStyledOTP = (otp) =>
@@ -216,6 +232,8 @@ exports.login = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions());
+
     res.json({
       accessToken,
       user: {
@@ -228,5 +246,72 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).json({ message: "Login failed" });
+  }
+};
+
+// ─── POST /api/auth/refresh-token ────────────────────────────────────────────
+// Reads the httpOnly refresh-token cookie, verifies it against REFRESH_SECRET
+// and the value stored on the user document, and issues a fresh access token.
+// This is what keeps a user's session alive while they're active — the
+// frontend calls this whenever an API request comes back 401. Sliding
+// (inactivity-based) logout is enforced separately on the frontend: if no
+// request happens for 3 hours, the client clears its tokens and never calls
+// this endpoint again, so the session simply lapses.
+exports.refreshToken = async (req, res) => {
+  try {
+    const token = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (!token) {
+      return res.status(401).json({ message: "No refresh token" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+    } catch (err) {
+      res.clearCookie(REFRESH_COOKIE_NAME, { path: "/api/auth" });
+      return res.status(401).json({ message: "Invalid or expired refresh token" });
+    }
+
+    const user = await User.findById(decoded.id).populate("role");
+    if (!user || user.refreshToken !== token) {
+      res.clearCookie(REFRESH_COOKIE_NAME, { path: "/api/auth" });
+      return res.status(401).json({ message: "Refresh token revoked" });
+    }
+
+    const accessToken = generateAccessToken(user);
+
+    // Rotate the refresh token so a leaked cookie has a limited lifetime.
+    const newRefreshToken = generateRefreshToken(user);
+    user.refreshToken = newRefreshToken;
+    await user.save();
+    res.cookie(REFRESH_COOKIE_NAME, newRefreshToken, refreshCookieOptions());
+
+    res.json({ accessToken });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    res.status(500).json({ message: "Could not refresh session" });
+  }
+};
+
+// ─── POST /api/auth/logout ────────────────────────────────────────────────
+// Invalidates the refresh token server-side (so a stolen cookie can't be
+// replayed) and clears the cookie. Called on manual logout AND on the
+// frontend's 3-hour-inactivity auto-logout.
+exports.logout = async (req, res) => {
+  try {
+    const token = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+        await User.findByIdAndUpdate(decoded.id, { refreshToken: null }).catch(() => {});
+      } catch {
+        // token already invalid/expired — nothing to revoke
+      }
+    }
+    res.clearCookie(REFRESH_COOKIE_NAME, { path: "/api/auth" });
+    res.json({ message: "Logged out" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Logout failed" });
   }
 };

@@ -20,6 +20,10 @@ const ShowSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  language: {
+    type: String,
+    default: "",
+  },
   showDate: {
     type: Date,
     required: true,

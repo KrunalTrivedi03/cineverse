@@ -90,7 +90,7 @@ const dispatchTicketEmail = async (booking, userId, movieTitle, theatreName) => 
 ───────────────────────────────────────────────────────── */
 exports.createOrder = async (req, res) => {
   try {
-    const { showId, slotId, seatIds, offerId } = req.body;
+    const { showId, slotId, seatIds, offerId, language } = req.body;
     const userId = req.user.id.toString();
 
     if (!showId || !slotId || !seatIds?.length)
@@ -137,6 +137,7 @@ exports.createOrder = async (req, res) => {
       status:  "pending",
       movieTitle:  show.movie?.title  || "",
       moviePoster: show.movie?.poster || null,
+      language:    language || show.language || show.movie?.language || "",
     });
 
     res.json({
@@ -173,7 +174,7 @@ exports.createOrder = async (req, res) => {
 ───────────────────────────────────────────────────────── */
 exports.walletPay = async (req, res) => {
   try {
-    const { showId, slotId, seatIds, offerId } = req.body;
+    const { showId, slotId, seatIds, offerId, language } = req.body;
     const userId = req.user.id.toString();
 
     if (!showId || !slotId || !seatIds?.length)
@@ -222,6 +223,7 @@ exports.walletPay = async (req, res) => {
       status:  "confirmed",
       movieTitle:  show.movie?.title  || "",
       moviePoster: show.movie?.poster || null,
+      language:    language || show.language || show.movie?.language || "",
     });
 
     await SeatLock.deleteMany({ showId, slotId, userId });

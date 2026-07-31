@@ -22,6 +22,7 @@ const MovieSchema = new mongoose.Schema({
   cities: [String],
 
   language: String,
+  languages: [String],
 
   duration: Number,
   certificate: String,

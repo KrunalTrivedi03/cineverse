@@ -5,7 +5,7 @@ const populate = (q) => q.populate("movie").populate({ path: "theatre", populate
 
 exports.createShow = async (req, res) => {
   try {
-    const { movie, theatre, screen, showDate, showTimes } = req.body;
+    const { movie, theatre, screen, showDate, showTimes, language } = req.body;
 
     const existing = await Show.findOne({ movie, theatre, screen, showDate });
     if (existing) {
@@ -14,7 +14,7 @@ exports.createShow = async (req, res) => {
       });
     }
 
-    const show = await Show.create({ movie, theatre, screen, showDate, showTimes });
+    const show = await Show.create({ movie, theatre, screen, showDate, showTimes, language: language || "" });
     const populated = await populate(Show.findById(show._id));
 
     res.json({ message: "Show created successfully", show: populated });

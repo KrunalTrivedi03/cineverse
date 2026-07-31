@@ -51,40 +51,14 @@ module.exports = (io) => {
       socket.to(eventRoom(scheduleId, slotId)).emit("event-seats:booked", { seatIds });
     });
 
-    /* On disconnect, release all locks (movie + event) this socket held */
-    socket.on("disconnect", async () => {
-      try {
-        const [locks, eventLocks] = await Promise.all([
-          SeatLock.find({ userId }),
-          EventSeatLock.find({ userId }),
-        ]);
-
-        if (locks.length) {
-          const grouped = {};
-          locks.forEach((l) => {
-            const key = room(l.showId.toString(), l.slotId);
-            (grouped[key] = grouped[key] || []).push(l.seatId);
-          });
-          await SeatLock.deleteMany({ userId });
-          Object.entries(grouped).forEach(([r, seatIds]) => {
-            io.to(r).emit("seats:released_bulk", { seatIds, userId });
-          });
-        }
-
-        if (eventLocks.length) {
-          const grouped = {};
-          eventLocks.forEach((l) => {
-            const key = eventRoom(l.eventScheduleId.toString(), l.slotId);
-            (grouped[key] = grouped[key] || []).push(l.seatId);
-          });
-          await EventSeatLock.deleteMany({ userId });
-          Object.entries(grouped).forEach(([r, seatIds]) => {
-            io.to(r).emit("event-seats:released_bulk", { seatIds, userId });
-          });
-        }
-      } catch (err) {
-        console.error("Socket disconnect cleanup:", err.message);
-      }
-    });
+    /* NOTE: we intentionally do NOT delete seat locks on socket disconnect.
+     * A disconnect fires on every normal page transition (e.g. leaving
+     * SeatSelection for BookingReview reconnects with a fresh socket), so
+     * treating it as "user abandoned their seats" was wiping out locks the
+     * same user had just created seconds earlier — surfacing as "Some seat
+     * locks have expired" on order creation every time. Locks are already
+     * bounded by their own TTL (expiresAt) and are released explicitly when
+     * the user actually reselects seats or their countdown runs out, so no
+     * disconnect-based cleanup is needed here. */
   });
 };

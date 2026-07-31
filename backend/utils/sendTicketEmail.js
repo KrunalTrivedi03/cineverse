@@ -49,23 +49,45 @@ async function sendTicketEmail({ toEmail, toName, booking, movieTitle, theatreNa
     booking.paymentMethod === "razorpay" ? "Card / UPI (Razorpay)" :
     booking.paymentMethod || "Online";
 
+  const language        = booking.language || "";
+  const languageSuffix  = language ? ` (${language})` : "";
+  const languageRow     = language
+    ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
+         <tr>
+           <td style="vertical-align:top;">
+             <p style="font-family:'Courier New',Courier,monospace;
+                        font-size:8px; letter-spacing:2px;
+                        text-transform:uppercase; color:#b8b0a6;
+                        margin:0 0 4px 0;">Language</p>
+             <p style="font-family:Arial,Helvetica,sans-serif;
+                        font-size:13px; font-weight:600; color:#2e2a25;
+                        margin:0; line-height:1.3;">
+               ${language}
+             </p>
+           </td>
+         </tr>
+       </table>`
+    : "";
+
   const html = buildEmailTemplate({
     template: "ticketConfirmation.html",
-    title:    `Your Tickets — ${movieTitle}`,
+    title:    `Your Tickets — ${movieTitle}${languageSuffix}`,
     subtitle: "BOOKING CONFIRMED",
     heading:  `Enjoy the show, ${toName}!`,
     replacements: {
-      USERNAME:       toName,
-      MOVIE_TITLE:    movieTitle,
-      BOOKING_REF:    booking.bookingRef,
-      THEATRE_NAME:   theatreName,
-      SCREEN:         booking.screen,
-      SHOW_DATE:      showDate,
-      SHOW_TIME:      booking.showTime,
-      SEATS:          seatList,
-      SEAT_ROWS:      seatRows,
-      PAYMENT_METHOD: paymentLabel,
-      GRAND_TOTAL:    booking.grandTotal.toFixed(2),
+      USERNAME:         toName,
+      MOVIE_TITLE:      movieTitle,
+      LANGUAGE_SUFFIX:  languageSuffix,
+      LANGUAGE_ROW:     languageRow,
+      BOOKING_REF:      booking.bookingRef,
+      THEATRE_NAME:     theatreName,
+      SCREEN:           booking.screen,
+      SHOW_DATE:        showDate,
+      SHOW_TIME:        booking.showTime,
+      SEATS:            seatList,
+      SEAT_ROWS:        seatRows,
+      PAYMENT_METHOD:   paymentLabel,
+      GRAND_TOTAL:      booking.grandTotal.toFixed(2),
     },
   });
 

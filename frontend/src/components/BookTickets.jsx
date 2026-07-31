@@ -1,11 +1,10 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import {
   MapPin, ChevronLeft, Star, X, Ticket, Calendar,
-  Building2, Monitor, Loader2, IndianRupee, ExternalLink,
-  Plus, Minus, RotateCcw, ChevronDown, Clock,
+  Monitor, Loader2, Plus, Minus, RotateCcw, ChevronDown, Check, Globe
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 
@@ -44,10 +43,7 @@ const fmt12 = (t) => {
   return `${((h % 12) || 12).toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${ampm}`;
 };
 
-/* ── Is a slot in the past? ──
-   Only applies when selectedDate === today.
-   A show is considered "past" if its start time has already passed.
-   We add a small buffer (0 min) — adjust if you want "no booking within 30 min". */
+/* ── Is a slot in the past? ── */
 const isSlotPast = (timeStr, selectedDate) => {
   if (selectedDate !== TODAY_KEY) return false;
   if (!timeStr) return false;
@@ -88,18 +84,34 @@ export default function BookTickets() {
   const [filterTime,   setFilterTime]   = useState("");
   const [filterPrice,  setFilterPrice]  = useState("");
   const [searchCinema, setSearchCinema] = useState("");
+  
+  /* Language state & modal toggle */
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
 
-  /* ── Live clock: re-render every minute so "past" state stays accurate ── */
+  /* Reset language selection when switching movie params */
+  const prevIdRef = useRef(id);
+  useEffect(() => {
+    if (prevIdRef.current !== id) {
+      prevIdRef.current = id;
+      setSelectedLanguage("");
+      setShowLanguageModal(false);
+    }
+  }, [id]);
+
+  /* ── Live clock tick ── */
   const [, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 60_000);
-    return () => clearInterval(id);
+    const timer = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(timer);
   }, []);
 
-  /* ── Data fetching ── */
-  useEffect(() => { api.get(`/movies/${id}`).then((r) => setMovie(r.data)); }, [id]);
+  /* ── Fetch Movie ── */
+  useEffect(() => { 
+    api.get(`/movies/${id}`).then((r) => setMovie(r.data)).catch(() => {}); 
+  }, [id]);
 
+  /* ── Fetch City Info ── */
   useEffect(() => {
     const sid  = localStorage.getItem("selectedCityId");
     const snam = localStorage.getItem("selectedCity");
@@ -111,6 +123,7 @@ export default function BookTickets() {
     }).catch(() => {});
   }, []);
 
+  /* ── Fetch Shows ── */
   useEffect(() => {
     if (!cityId || !id) return;
     setLoadingShows(true);
@@ -121,7 +134,7 @@ export default function BookTickets() {
   }, [cityId, id]);
 
   useEffect(() => {
-    const h = () => {
+    const handleCityChange = () => {
       const nid  = localStorage.getItem("selectedCityId") || "";
       const nnam = localStorage.getItem("selectedCity")   || "";
       if (!nid && nnam) {
@@ -131,43 +144,59 @@ export default function BookTickets() {
         }).catch(() => {});
       } else { setCityId(nid); setCityName(nnam); }
     };
-    window.addEventListener("cityChanged", h);
-    return () => window.removeEventListener("cityChanged", h);
+    window.addEventListener("cityChanged", handleCityChange);
+    return () => window.removeEventListener("cityChanged", handleCityChange);
   }, []);
 
-  /* ── Available languages for this movie, derived from real show data.
-     Falls back to the movie's own language list if shows don't carry one
-     (older data / not yet tagged per-print). ── */
+  /* ── Direct Frontend Parsing for Languages ── */
   const availableLanguages = useMemo(() => {
-    const fromShows = [...new Set(shows.map((s) => s.language).filter(Boolean))];
-    if (fromShows.length) return fromShows;
-    if (movie?.languages?.length) return movie.languages;
-    if (movie?.language) return [movie.language];
-    return [];
-  }, [shows, movie]);
+    if (!movie) return [];
 
-  const needsLanguagePick = availableLanguages.length > 1;
+    let rawString = "";
 
-  /* Auto-pick the single available language, or reset when the movie/list
-     changes so a stale selection from a previous movie doesn't linger. */
+    if (Array.isArray(movie.languages) && movie.languages.length > 0) {
+      rawString = movie.languages.join(", ");
+    } else if (typeof movie.language === "string") {
+      rawString = movie.language;
+    }
+
+    if (!rawString) {
+      const fallbackShowsLangs = [...new Set(shows.map((s) => s.language).filter(Boolean))];
+      return fallbackShowsLangs.length > 0 ? fallbackShowsLangs : ["Hindi", "English"];
+    }
+
+    return rawString
+      .replace(/\band\b/gi, ",")
+      .split(",")
+      .map((lang) => lang.trim())
+      .filter(Boolean);
+  }, [movie, shows]);
+
+  /* ── Auto-open language picker modal if language is not chosen ── */
   useEffect(() => {
-    if (!availableLanguages.length) { setSelectedLanguage(""); return; }
-    if (availableLanguages.length === 1) { setSelectedLanguage(availableLanguages[0]); return; }
-    if (!availableLanguages.includes(selectedLanguage)) setSelectedLanguage("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableLanguages]);
+    if (!availableLanguages.length) return;
+
+    if (!selectedLanguage || !availableLanguages.includes(selectedLanguage)) {
+      setSelectedLanguage(availableLanguages[0]);
+      setShowLanguageModal(true);
+    }
+  }, [availableLanguages, selectedLanguage]);
+
+  const handlePickLanguage = (lang) => {
+    setSelectedLanguage(lang);
+    setShowLanguageModal(false);
+  };
 
   /* ── Group shows → theatreGroups ── */
   const theatreGroups = useMemo(() => {
     const dateShows = shows.filter((s) => {
       if (localDateKey(new Date(s.showDate)) !== selectedDate) return false;
-      // Only apply the language filter once shows actually carry a language
-      // and the movie has more than one, and a language has been chosen.
-      if (needsLanguagePick && selectedLanguage && s.language) {
-        return s.language === selectedLanguage;
+      if (selectedLanguage && s.language) {
+        return s.language.toLowerCase() === selectedLanguage.toLowerCase();
       }
       return true;
     });
+
     const map = new Map();
     dateShows.forEach((show) => {
       const tId = show.theatre?._id;
@@ -192,16 +221,15 @@ export default function BookTickets() {
     const groups = [...map.values()];
     groups.forEach((g) => g.slots.sort((a, b) => a.time.localeCompare(b.time)));
     return groups;
-  }, [shows, selectedDate, needsLanguagePick, selectedLanguage]);
+  }, [shows, selectedDate, selectedLanguage]);
 
-  /* ── Apply filters + past-show removal ── */
+  /* ── Apply filters & remove past showtimes ── */
   const filteredGroups = useMemo(() => {
     return theatreGroups
       .filter((g) => !searchCinema || g.name.toLowerCase().includes(searchCinema.toLowerCase()))
       .map((g) => ({
         ...g,
         slots: g.slots.filter((sl) => {
-          // Remove (not just disable) past slots entirely
           if (isSlotPast(sl.time, selectedDate)) return false;
           const timeOk  = !filterTime  || timeBucket(sl.time) === filterTime;
           const priceOk = !filterPrice || (PRICE_RANGES.find((r) => r.label === filterPrice)?.fn(sl.price) ?? true);
@@ -231,11 +259,21 @@ export default function BookTickets() {
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
       `}</style>
       <Navbar />
-
       <BottomNav />
 
-      {/* ── Movie info bar ── */}
-      <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">
+      {/* ── Language Pick Modal ── */}
+      {showLanguageModal && (
+        <LanguageModal
+          movie={movie}
+          languages={availableLanguages}
+          selectedLanguage={selectedLanguage}
+          onPick={handlePickLanguage}
+          onClose={() => setShowLanguageModal(false)}
+        />
+      )}
+
+      {/* ── Movie Info Bar ── */}
+      <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
           <button onClick={() => navigate(-1)}
             className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all flex-shrink-0">
@@ -247,7 +285,7 @@ export default function BookTickets() {
           )}
           <div className="flex-1 min-w-0">
             <h1 className="text-[15px] font-bold text-gray-900 truncate">
-              {movie.title}{selectedLanguage && <span className="text-gray-400 font-semibold"> ({selectedLanguage})</span>}
+              {movie.title}
             </h1>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {movie.rating && <>
@@ -274,7 +312,7 @@ export default function BookTickets() {
 
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-5">
 
-        {/* ── Date strip ── */}
+        {/* ── Dates Horizontal Bar ── */}
         <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           <Calendar size={15} className="text-gray-400 flex-shrink-0" />
           {DATES.map((d) => {
@@ -293,52 +331,10 @@ export default function BookTickets() {
           })}
         </div>
 
-        {/* ── Language picker: shown before show timings when the movie
-             has more than one language and none has been chosen yet ── */}
-        {needsLanguagePick && !selectedLanguage && (
-          <div className="bg-white rounded-xl border border-gray-200 px-5 py-6 mb-5 text-center">
-            <p className="text-[15px] font-bold text-gray-900 mb-1">Choose your language</p>
-            <p className="text-[12.5px] text-gray-400 mb-4">This movie is playing in multiple languages</p>
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              {availableLanguages.map((lang) => (
-                <button key={lang} onClick={() => setSelectedLanguage(lang)}
-                  className="px-4 py-2 rounded-lg border text-[13px] font-semibold transition-all"
-                  style={{ borderColor: "#e5e7eb", color: "#374151", background: "#fff" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#f0545c"; e.currentTarget.style.color = "#f0545c"; e.currentTarget.style.background = "rgba(240,84,92,0.04)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#fff"; }}>
-                  {lang}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Language switcher: small persistent chip row once a language
-             is chosen, so the user can still change it without losing their
-             place ── */}
-        {needsLanguagePick && selectedLanguage && (
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Language:</span>
-            {availableLanguages.map((lang) => {
-              const active = lang === selectedLanguage;
-              return (
-                <button key={lang} onClick={() => setSelectedLanguage(lang)}
-                  className="px-3 py-1 rounded-full border text-[12px] font-semibold transition-all"
-                  style={active
-                    ? { borderColor: "#f0545c", color: "#f0545c", background: "rgba(240,84,92,0.06)" }
-                    : { borderColor: "#e5e7eb", color: "#6b7280", background: "#fff" }}>
-                  {lang}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {(!needsLanguagePick || selectedLanguage) && <>
-        {/* ── Filter toolbar ── */}
-        <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-4">
+        {/* ── Filter Toolbar ── */}
+        <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-4 shadow-sm">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 flex-1 min-w-[160px] max-w-[260px]">
+            <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 flex-1 min-w-[160px] max-w-[240px]">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
@@ -348,13 +344,27 @@ export default function BookTickets() {
               {searchCinema && <button onClick={() => setSearchCinema("")}><X size={12} className="text-gray-400" /></button>}
             </div>
 
+            {/* Language Filter Button (Styled with your brand color) */}
+            <button
+              onClick={() => setShowLanguageModal(true)}
+              className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold rounded-lg border transition-all active:scale-[0.98]"
+              style={{
+                borderColor: selectedLanguage ? "#f0545c" : "#e5e7eb",
+                background: selectedLanguage ? "rgba(240, 84, 92, 0.08)" : "#ffffff",
+                color: selectedLanguage ? "#f0545c" : "#374151",
+              }}>
+              <Globe size={13} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
+              <span>{selectedLanguage || "Language"}</span>
+              <ChevronDown size={14} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
+            </button>
+
             <FilterDropdown label="Show Timing" value={filterTime}
               options={["Morning", "Afternoon", "Evening", "Night"]} onChange={setFilterTime} />
 
             <FilterDropdown label="Price Range" value={filterPrice}
               options={PRICE_RANGES.map((r) => r.label)} onChange={setFilterPrice} />
 
-            {/* Legend */}
+            {/* Availability Legend */}
             <div className="hidden md:flex items-center gap-4 ml-auto text-[11px] font-semibold">
               <LegendDot color="#16a34a" bg="#f0fdf4" label="Available" />
               <LegendDot color="#d97706" bg="#fffbeb" label="Filling Fast" />
@@ -363,20 +373,18 @@ export default function BookTickets() {
 
             {hasActiveFilters && (
               <button onClick={resetFilters}
-                className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-red-500 transition-all ml-auto md:ml-0">
+                className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#f0545c] transition-all ml-auto md:ml-0">
                 <RotateCcw size={12} /> Reset
               </button>
             )}
           </div>
         </div>
 
-        {/* ── No city ── */}
         {!cityId && (
           <EmptyState icon={<MapPin size={26} style={{ color: "#f0545c", opacity: 0.5 }} />}
             title="Select a city" sub="Choose your city from the top bar to see available shows" />
         )}
 
-        {/* ── Loading ── */}
         {cityId && loadingShows && (
           <div className="flex items-center justify-center py-20 gap-3 text-gray-400">
             <Loader2 size={20} className="animate-spin" style={{ color: "#f0545c" }} />
@@ -384,7 +392,6 @@ export default function BookTickets() {
           </div>
         )}
 
-        {/* ── Results ── */}
         {cityId && !loadingShows && (
           filteredGroups.length === 0 ? (
             <EmptyState icon={<Ticket size={26} style={{ color: "#f0545c", opacity: 0.4 }} />}
@@ -392,11 +399,11 @@ export default function BookTickets() {
               sub={hasActiveFilters
                 ? "Try adjusting your filters"
                 : selectedDate === TODAY_KEY
-                  ? `All shows for today have ended in ${cityName}`
-                  : `No shows scheduled for this date in ${cityName}`}
+                  ? `All ${selectedLanguage || ""} shows for today have ended in ${cityName}`
+                  : `No ${selectedLanguage || ""} shows scheduled for this date in ${cityName}`}
               action={hasActiveFilters && (
                 <button onClick={resetFilters}
-                  className="mt-4 px-5 py-2 rounded-lg text-[13px] font-semibold text-white"
+                  className="mt-4 px-5 py-2 rounded-lg text-[13px] font-semibold text-white transition-transform active:scale-95"
                   style={{ background: "#f0545c" }}>
                   Reset Filters
                 </button>
@@ -416,7 +423,92 @@ export default function BookTickets() {
             </div>
           )
         )}
-        </>}
+      </div>
+    </div>
+  );
+}
+
+/* ── Modal for language preference selection (Styled to match your theme & brand button) ── */
+function LanguageModal({ movie, languages, selectedLanguage, onPick, onClose }) {
+  const [selected, setSelected] = useState(selectedLanguage || languages[0] || "");
+
+  return (
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+      style={{ background: "rgba(0, 0, 0, 0.45)", backdropFilter: "blur(4px)" }}
+    >
+      <div className="bg-white rounded-2xl w-full max-w-[420px] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+        {selectedLanguage && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+          >
+            <X size={15} />
+          </button>
+        )}
+
+        <div className="px-6 pt-6 pb-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#f0545c] bg-red-50 px-2.5 py-1 rounded-md">
+            Language Choice
+          </span>
+          <h2 className="text-[18px] font-extrabold text-gray-900 leading-tight mt-2">
+            {movie?.title || "Select Language"}
+          </h2>
+          <p className="text-[13px] text-gray-500 mt-0.5">Choose your preferred audio format</p>
+        </div>
+
+        <div className="px-6 py-3">
+          <div className="rounded-xl border border-gray-100 bg-gray-50/50 overflow-hidden divide-y divide-gray-100 max-h-[280px] overflow-y-auto">
+            {languages.map((lang, index) => {
+              const active = selected === lang;
+              return (
+                <button
+                  key={lang}
+                  onClick={() => setSelected(lang)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all hover:bg-gray-50"
+                  style={{
+                    background: active ? "rgba(240, 84, 92, 0.03)" : "transparent"
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Number Circle Badge */}
+                    <span 
+                      className="w-6 h-6 rounded-full font-bold text-[12px] flex items-center justify-center flex-shrink-0 transition-all"
+                      style={{
+                        background: active ? "#f0545c" : "#e5e7eb",
+                        color: active ? "#ffffff" : "#4b5563"
+                      }}
+                    >
+                      {index + 1}
+                    </span>
+                    <span className="text-[14px] font-bold text-gray-800">{lang}</span>
+                  </div>
+
+                  {/* Radio Indicator */}
+                  <span
+                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0"
+                    style={{ borderColor: active ? "#f0545c" : "#d1d5db" }}
+                  >
+                    {active && (
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#f0545c" }} />
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="px-6 pb-6 pt-2">
+          <button
+            onClick={() => selected && onPick(selected)}
+            disabled={!selected}
+            className="w-full py-3 rounded-xl text-[14px] font-bold text-white shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+            style={{ background: "#f0545c" }}
+          >
+            Apply Choice
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -456,7 +548,7 @@ function LegendDot({ color, bg, label }) {
 }
 
 function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(true);
 
   const byScreen = useMemo(() => {
@@ -481,14 +573,13 @@ function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
         price:   slot.price,
         theatre: { id: group.theatreId, name: group.name, address: group.address },
         date:    selectedDate,
-        language: slot.language || selectedLanguage || movie?.language || "",
+        language: slot.language || selectedLanguage || "",
       },
     });
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      {/* Header */}
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -513,7 +604,6 @@ function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
         </button>
       </div>
 
-      {/* Slots */}
       {expanded && (
         <div className="border-t border-gray-100 px-5 py-4 space-y-5">
           {byScreen.map(([screenName, slots]) => (
@@ -529,7 +619,6 @@ function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
                   <SlotButton
                     key={slot.slotId}
                     slot={slot}
-                    selectedDate={selectedDate}
                     onClick={() => handleSlotClick(slot)}
                   />
                 ))}
@@ -542,7 +631,7 @@ function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
   );
 }
 
-function SlotButton({ slot, selectedDate, onClick }) {
+function SlotButton({ slot, onClick }) {
   const [hov, setHov] = useState(false);
 
   const availability = "available";
@@ -602,7 +691,6 @@ function SlotButton({ slot, selectedDate, onClick }) {
         gap:             3,
       }}
     >
-      {/* Time + AM/PM inline */}
       <span style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
         <span style={{
           fontSize:      15,
@@ -624,7 +712,6 @@ function SlotButton({ slot, selectedDate, onClick }) {
         </span>
       </span>
 
-      {/* Screen / status */}
       <span style={{
         fontSize:      9,
         fontWeight:    600,

@@ -7,7 +7,14 @@ const cookieParser = require("cookie-parser");
 const path         = require("path");
 const connectDB    = require("./config/db");
 const cron         = require("node-cron");
-const { runNightlyAutomation, backfillWindow } = require("./services/showAutomation");
+
+// Destructure fixMissingLanguages along with other automation functions
+const { 
+  runNightlyAutomation, 
+  backfillWindow, 
+  fixMissingLanguages 
+} = require("./services/showAutomation");
+
 const { runNightlyEventAutomation } = require("./services/eventAutomation");
 
 const userAuthRoutes    = require("./routes/authRoutes");
@@ -23,7 +30,7 @@ const theatreRoutes     = require("./routes/theatreRoutes");
 const showRoutes        = require("./routes/showRoutes");
 const seatRoutes        = require("./routes/seatRoutes");
 const paymentRoutes     = require("./routes/paymentRoutes");
-const quickPayRoutes    = require("./routes/quickPayRoutes");
+const quickPayRoutes     = require("./routes/quickPayRoutes");
 
 /* Event module */
 const districtRoutes       = require("./routes/districtRoutes");
@@ -68,11 +75,21 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-connectDB();
+// Connect DB and then run the startup tasks asynchronously
+connectDB().then(async () => {
+  try {
+    // 1. Instantly fix any existing shows in the database missing a language on server restart
+    await fixMissingLanguages();
+    console.log("Existing show languages verified & updated.");
 
-backfillWindow(30).catch((e) => console.error("Initial show backfill failed:", e.message));
+    // 2. Perform regular window backfill
+    await backfillWindow(30);
+  } catch (e) {
+    console.error("Startup show initialization failed:", e.message);
+  }
+});
 
-// Every night at 2 AM: clean up completed shows, extend the rolling window
+// Every night at 2 AM: clean up completed shows, fix missing languages, extend the rolling window
 cron.schedule("0 2 * * *", () => {
   console.log("Running nightly show automation...");
   runNightlyAutomation().catch((e) => console.error("Nightly show automation failed:", e.message));
@@ -83,7 +100,6 @@ cron.schedule("15 2 * * *", () => {
   console.log("Running nightly event automation...");
   runNightlyEventAutomation().catch((e) => console.error("Nightly event automation failed:", e.message));
 });
-
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -101,7 +117,7 @@ app.use("/api/theatres",     theatreRoutes);
 app.use("/api/shows",        showRoutes);
 app.use("/api/seats",        seatRoutes);
 app.use("/api/payment",      paymentRoutes);
-app.use("/api/quickpay",     quickPayRoutes); // ← NEW
+app.use("/api/quickpay",     quickPayRoutes);
 
 /* Event module */
 app.use("/api/districts",       districtRoutes);

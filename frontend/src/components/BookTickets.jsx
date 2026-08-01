@@ -85,8 +85,14 @@ export default function BookTickets() {
   const [filterPrice,  setFilterPrice]  = useState("");
   const [searchCinema, setSearchCinema] = useState("");
   
-  /* Language state & modal toggle */
+  /* Language state & modal toggle.
+   * `languageConfirmed` is tracked separately from `selectedLanguage` so we
+   * can tell "user hasn't chosen yet" apart from "a language is set" —
+   * needed because the very first prompt for a multi-language movie must
+   * be answered explicitly (no silent default, no dismiss button) while
+   * later re-opens (via the Language filter pill) are freely dismissible. */
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [languageConfirmed, setLanguageConfirmed] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   /* Reset language selection when switching movie params */
@@ -95,6 +101,7 @@ export default function BookTickets() {
     if (prevIdRef.current !== id) {
       prevIdRef.current = id;
       setSelectedLanguage("");
+      setLanguageConfirmed(false);
       setShowLanguageModal(false);
     }
   }, [id]);
@@ -161,8 +168,11 @@ export default function BookTickets() {
     }
 
     if (!rawString) {
-      const fallbackShowsLangs = [...new Set(shows.map((s) => s.language).filter(Boolean))];
-      return fallbackShowsLangs.length > 0 ? fallbackShowsLangs : ["Hindi", "English"];
+      // The movie itself has no language metadata — fall back to whatever
+      // languages the scheduled shows actually carry, rather than guessing
+      // a default (e.g. "Hindi, English") that may not be accurate for
+      // this movie.
+      return [...new Set(shows.map((s) => s.language).filter(Boolean))];
     }
 
     return rawString
@@ -172,18 +182,29 @@ export default function BookTickets() {
       .filter(Boolean);
   }, [movie, shows]);
 
-  /* ── Auto-open language picker modal if language is not chosen ── */
+  /* ── Auto-open language picker modal if language is not chosen ──
+   * Two refinements over a naive "always prompt" flow:
+   *  1. If the movie only has one language, there's nothing to actually
+   *     choose — apply it directly and skip the interruption.
+   *  2. Otherwise the prompt is mandatory: we don't pre-assign a default
+   *     language behind the scenes, so the modal can't be dismissed
+   *     without the user actually picking one. */
   useEffect(() => {
     if (!availableLanguages.length) return;
+    if (languageConfirmed && availableLanguages.includes(selectedLanguage)) return;
 
-    if (!selectedLanguage || !availableLanguages.includes(selectedLanguage)) {
+    if (availableLanguages.length === 1) {
       setSelectedLanguage(availableLanguages[0]);
-      setShowLanguageModal(true);
+      setLanguageConfirmed(true);
+      setShowLanguageModal(false);
+      return;
     }
-  }, [availableLanguages, selectedLanguage]);
+    setShowLanguageModal(true);
+  }, [availableLanguages, languageConfirmed, selectedLanguage]);
 
   const handlePickLanguage = (lang) => {
     setSelectedLanguage(lang);
+    setLanguageConfirmed(true);
     setShowLanguageModal(false);
   };
 
@@ -267,6 +288,7 @@ export default function BookTickets() {
           movie={movie}
           languages={availableLanguages}
           selectedLanguage={selectedLanguage}
+          dismissible={languageConfirmed}
           onPick={handlePickLanguage}
           onClose={() => setShowLanguageModal(false)}
         />
@@ -399,8 +421,8 @@ export default function BookTickets() {
               sub={hasActiveFilters
                 ? "Try adjusting your filters"
                 : selectedDate === TODAY_KEY
-                  ? `All ${selectedLanguage || ""} shows for today have ended in ${cityName}`
-                  : `No ${selectedLanguage || ""} shows scheduled for this date in ${cityName}`}
+                  ? `All${selectedLanguage ? ` ${selectedLanguage}` : ""} shows for today have ended in ${cityName}`
+                  : `No${selectedLanguage ? ` ${selectedLanguage}` : ""} shows scheduled for this date in ${cityName}`}
               action={hasActiveFilters && (
                 <button onClick={resetFilters}
                   className="mt-4 px-5 py-2 rounded-lg text-[13px] font-semibold text-white transition-transform active:scale-95"
@@ -429,7 +451,7 @@ export default function BookTickets() {
 }
 
 /* ── Modal for language preference selection (Styled to match your theme & brand button) ── */
-function LanguageModal({ movie, languages, selectedLanguage, onPick, onClose }) {
+function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick, onClose }) {
   const [selected, setSelected] = useState(selectedLanguage || languages[0] || "");
 
   return (
@@ -438,7 +460,7 @@ function LanguageModal({ movie, languages, selectedLanguage, onPick, onClose }) 
       style={{ background: "rgba(0, 0, 0, 0.45)", backdropFilter: "blur(4px)" }}
     >
       <div className="bg-white rounded-2xl w-full max-w-[420px] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
-        {selectedLanguage && (
+        {dismissible && (
           <button
             onClick={onClose}
             className="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
@@ -508,6 +530,11 @@ function LanguageModal({ movie, languages, selectedLanguage, onPick, onClose }) 
           >
             Apply Choice
           </button>
+          {!dismissible && (
+            <p className="text-[11px] text-gray-400 text-center mt-2.5">
+              You can change this anytime from the Language filter.
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -309,10 +309,10 @@ export default function BookingReview() {
           stacked column on mobile — same page, same order, no separate mobile flow. */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] lg:items-start gap-6 pb-32 lg:pb-10">
         {/* ── LEFT: item details + offers ──
-            Ordered after the summary on mobile (order-2) so the summary is
-            the first thing visible under the header; back to its normal
-            left position on desktop (lg:order-1). */}
-        <div className="order-2 lg:order-1 space-y-4 min-w-0">
+            Mobile order: Movie Details → Offers → Payment Summary → Your
+            Details → T&Cs, so this stays first in DOM order on every
+            breakpoint (order-1). Desktop keeps its normal left position. */}
+        <div className="order-1 space-y-4 min-w-0">
           <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5 flex gap-4">
             {draft.itemPoster && (
               <img src={IMG(draft.itemPoster)} alt={draft.itemTitle} className="w-20 h-28 object-cover rounded-xl flex-shrink-0" />
@@ -388,12 +388,13 @@ export default function BookingReview() {
           />
         </div>
 
-        {/* ── RIGHT: summary, user details, payment, T&Cs ──
-            order-1 puts this first in the DOM on mobile, right under the
-            sticky header, so the summary never needs scrolling to find.
-            On desktop it sits in its usual right column and stays pinned
-            in view (lg:sticky) while the left column scrolls underneath. */}
-        <div className="order-1 lg:order-2 min-w-0 lg:sticky lg:top-[112px] lg:flex lg:flex-col lg:max-h-[calc(100vh-128px)]">
+        {/* ── RIGHT: payment summary, user details, T&Cs ──
+            order-2 keeps this after the movie details + offers on every
+            breakpoint (mobile now matches the requested Movie Details →
+            Offers → Payment Summary → Your Details → T&Cs order). On
+            desktop it sits in its usual right column and stays pinned in
+            view (lg:sticky) while the left column scrolls underneath. */}
+        <div className="order-2 min-w-0 lg:sticky lg:top-[112px] lg:flex lg:flex-col lg:max-h-[calc(100vh-128px)]">
         <div className="space-y-4 min-w-0 lg:overflow-y-auto lg:pr-0.5" style={{ scrollbarWidth: "thin" }}>
           <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5">
             <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-3">Payment summary</p>

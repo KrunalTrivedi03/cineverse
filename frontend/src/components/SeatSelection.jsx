@@ -998,22 +998,22 @@ export default function SeatSelection() {
 
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 pb-40 fade-in">
         {loading && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
+          <div className="flex flex-col items-center justify-center py-20 sm:py-28 md:py-32 gap-3 sm:gap-4">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center relative"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center"
               style={{
                 background: "rgba(240,84,92,0.07)",
                 border: "1.5px solid rgba(240,84,92,0.15)",
               }}
             >
               <Film size={24} style={{ color: "#f0545c" }} />
-              <Loader2
-                size={13}
-                className="animate-spin absolute -bottom-1 -right-1"
-                style={{ color: "#f0545c" }}
-              />
             </div>
-            <p className="text-[14px] text-gray-400 font-medium">
+            <Loader2
+              size={18}
+              className="animate-spin"
+              style={{ color: "#f0545c" }}
+            />
+            <p className="text-[13px] sm:text-[14px] text-gray-400 font-medium">
               Loading seats…
             </p>
           </div>

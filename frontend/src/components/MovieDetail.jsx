@@ -3,12 +3,11 @@ import { useState, useRef, useEffect } from "react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import {
-  Play, ChevronLeft, ChevronRight, Ticket, X,
-  CalendarDays, Share2, MapPin, MonitorPlay, Tv,
-  ThumbsUp, Star, Clock, Shield, Globe,
+  Play, ChevronLeft, ChevronRight, Ticket, X, ArrowLeft,
+  CalendarDays, Share2, MonitorPlay,
+  ThumbsUp, Star,
   Bookmark, BookmarkCheck, Heart, PlayCircle, CheckCircle, Trash2,
 } from "lucide-react";
-import BottomNav from "./BottomNav";
 import OfferBadge from "./OfferBadge";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
@@ -52,6 +51,34 @@ const groupCrew = (crew = []) => {
   return Object.values(map);
 };
 
+// ─── Meta-line helpers (certificate | language +N more | duration) ─────────
+const getGenreList = (movie) => {
+  if (Array.isArray(movie.genres) && movie.genres.length) return movie.genres;
+  if (movie.genre) return movie.genre.split(/[,/]/).map((g) => g.trim()).filter(Boolean);
+  return [];
+};
+
+const getLanguageLabel = (movie) => {
+  if (Array.isArray(movie.languages) && movie.languages.length) {
+    const [first, ...rest] = movie.languages;
+    return rest.length ? `${first} +${rest.length} more` : first;
+  }
+  return movie.language || "";
+};
+
+const getReleaseLine = (movie, status) => {
+  if (status === "released") {
+    return movie.releaseDate ? `Released ${formatDate(movie.releaseDate)}` : "Now in cinemas";
+  }
+  if (status === "upcoming") {
+    return movie.releaseDate ? `Releasing ${formatDate(movie.releaseDate)}` : "Releasing soon";
+  }
+  if (status === "streaming") {
+    return movie.ottPlatform ? `Streaming on ${movie.ottPlatform}` : "Now streaming";
+  }
+  return "";
+};
+
 const STORAGE_KEY = "voted_movies";
 const getVoted = () => {
   try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); }
@@ -59,12 +86,6 @@ const getVoted = () => {
 };
 const saveVoted = (set) =>
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
-
-const STATUS_CONFIG = {
-  upcoming:  { bg: "bg-orange-400/20", text: "text-orange-300", border: "border-orange-400/25" },
-  released:  { bg: "bg-black/65",      text: "text-white/90",   border: "border-white/10" },
-  streaming: { bg: "bg-indigo-500/20", text: "text-indigo-300", border: "border-indigo-400/25" },
-};
 
 // ─── Watchlist status options ────────────────────────────────────────────────
 const WL_OPTIONS = [
@@ -97,13 +118,13 @@ function useWatchlist(movieId) {
     status:      null,
     loading:     false, // false by default so guests see no spinner
   });
- 
+
   const isLoggedIn = () => !!localStorage.getItem("accessToken");
- 
+
   useEffect(() => {
     if (!movieId) return;
     if (!isLoggedIn()) return;
- 
+
     setWlState((s) => ({ ...s, loading: true }));
     api
       .get(`/watchlist/check/${movieId}`)
@@ -118,7 +139,7 @@ function useWatchlist(movieId) {
         setWlState({ inWatchlist: false, status: null, loading: false })
       );
   }, [movieId]);
- 
+
   const requireAuth = () => {
     if (!isLoggedIn()) {
       window.location.href = "/login";
@@ -126,7 +147,7 @@ function useWatchlist(movieId) {
     }
     return true;
   };
- 
+
   const add = async (status = "watching") => {
     if (!requireAuth()) return;
     setWlState((s) => ({ ...s, loading: true }));
@@ -137,7 +158,7 @@ function useWatchlist(movieId) {
       setWlState((s) => ({ ...s, loading: false }));
     }
   };
- 
+
   const remove = async () => {
     if (!requireAuth()) return;
     setWlState((s) => ({ ...s, loading: true }));
@@ -148,7 +169,7 @@ function useWatchlist(movieId) {
       setWlState((s) => ({ ...s, loading: false }));
     }
   };
- 
+
   const updateStatus = async (status) => {
     if (!requireAuth()) return;
     setWlState((s) => ({ ...s, loading: true }));
@@ -159,10 +180,9 @@ function useWatchlist(movieId) {
       setWlState((s) => ({ ...s, loading: false }));
     }
   };
- 
+
   return { ...wlState, add, remove, updateStatus };
 }
-
 
 // ─── StatusPickerDropdown ─────────────────────────────────────────────────────
 // Shown both when adding (initial pick) and when changing status of saved movie
@@ -259,7 +279,11 @@ function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dro
 }
 
 // ─── WatchlistButton ─────────────────────────────────────────────────────────
-function WatchlistButton({ movieId, mobile }) {
+// `light` renders the trigger for use on a white/light background (mobile
+// info panel); default renders for use on the dark hero (desktop).
+// `pill` renders a fully-rounded, icon-only trigger for the floating mobile
+// action bar (matches the Book Tickets pill in the same bar).
+function WatchlistButton({ movieId, mobile, light = false, pill = false }) {
   const { inWatchlist, status, loading, add, remove, updateStatus } =
     useWatchlist(movieId);
   const [open, setOpen] = useState(false);
@@ -278,7 +302,6 @@ function WatchlistButton({ movieId, mobile }) {
   }, []);
 
   const current = WL_OPTIONS.find((o) => o.value === status);
-  const CurrentIcon = current?.icon || Bookmark;
 
   const handlePick = async (val) => {
     setOpen(false);
@@ -294,21 +317,39 @@ function WatchlistButton({ movieId, mobile }) {
     await remove();
   };
 
+  const shape = pill ? "rounded-full" : "rounded-xl";
+  const sizing = pill ? "w-11 h-11 flex-shrink-0" : "";
+
+  const idleStyle = light
+    ? {
+        borderColor: "#e5e5e5",
+        color: "#525252",
+        background: "#fff",
+      }
+    : {
+        borderColor: "rgba(255,255,255,0.2)",
+        color: "rgba(255,255,255,0.65)",
+        background: "rgba(255,255,255,0.07)",
+      };
+  const idleHover = light
+    ? { borderColor: "#c9c9c9", color: "#171717", background: "#fafafa" }
+    : { borderColor: "rgba(255,255,255,0.38)", color: "#fff", background: "rgba(255,255,255,0.12)" };
+
   // ── Loading skeleton ──
   if (loading) {
     return (
       <button
         disabled
-        className="flex items-center justify-center gap-1.5 rounded-xl border font-semibold text-[13px] opacity-40 cursor-not-allowed"
+        className={`flex items-center justify-center gap-1.5 border font-semibold text-[13px] opacity-40 cursor-not-allowed ${shape} ${sizing}`}
         style={{
-          borderColor: "rgba(255,255,255,0.2)",
-          color: "rgba(255,255,255,0.5)",
-          background: "rgba(255,255,255,0.06)",
-          padding: mobile ? "10px 12px" : "10px 20px",
+          ...idleStyle,
+          padding: pill ? 0 : mobile ? "10px 12px" : "10px 20px",
+          boxShadow: pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
+          border: pill ? "none" : undefined,
         }}
       >
         <Bookmark size={14} />
-        {!mobile && <span>Watchlist</span>}
+        {!mobile && !pill && <span>Watchlist</span>}
       </button>
     );
   }
@@ -319,12 +360,14 @@ function WatchlistButton({ movieId, mobile }) {
       <div ref={ref} className="relative">
         <button
           onClick={() => setOpen((o) => !o)}
-          className="flex items-center gap-1.5 rounded-xl border font-semibold text-[13px] transition-all"
+          className={`flex items-center justify-center gap-1.5 border font-semibold text-[13px] transition-all ${shape} ${sizing}`}
           style={{
             borderColor: `${current.color}55`,
             color: current.color,
             background: `${current.color}1a`,
-            padding: mobile ? "10px 12px" : "10px 20px",
+            padding: pill ? 0 : mobile ? "10px 12px" : "10px 20px",
+            boxShadow: pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
+            border: pill ? "none" : undefined,
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = `${current.color}2e`;
@@ -337,7 +380,7 @@ function WatchlistButton({ movieId, mobile }) {
             size={14}
             style={{ color: current.color }}
           />
-          {!mobile && (
+          {!mobile && !pill && (
             <>
               <span>{current.label}</span>
               <svg
@@ -380,26 +423,18 @@ function WatchlistButton({ movieId, mobile }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 rounded-xl border font-semibold text-[13px] transition-all active:scale-95"
+        className={`flex items-center justify-center gap-1.5 border font-semibold text-[13px] transition-all active:scale-95 ${shape} ${sizing}`}
         style={{
-          borderColor: "rgba(255,255,255,0.2)",
-          color: "rgba(255,255,255,0.65)",
-          background: "rgba(255,255,255,0.07)",
-          padding: mobile ? "10px 12px" : "10px 20px",
+          ...idleStyle,
+          padding: pill ? 0 : mobile ? "10px 12px" : "10px 20px",
+          boxShadow: pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
+          border: pill ? "none" : undefined,
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.38)";
-          e.currentTarget.style.color = "#fff";
-          e.currentTarget.style.background = "rgba(255,255,255,0.12)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-          e.currentTarget.style.color = "rgba(255,255,255,0.65)";
-          e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-        }}
+        onMouseEnter={(e) => Object.assign(e.currentTarget.style, idleHover)}
+        onMouseLeave={(e) => Object.assign(e.currentTarget.style, idleStyle)}
       >
         <Bookmark size={14} />
-        {!mobile && <span>Watchlist</span>}
+        {!mobile && !pill && <span>Watchlist</span>}
       </button>
 
       {open && (
@@ -488,12 +523,14 @@ function MovieDetail({ movie }) {
     window.scrollTo(0, 0);
   }, []);
   const [showTrailer, setShowTrailer] = useState(false);
-  const [showAgeGate, setShowAgeGate] = useState(false);  
+  const [showAgeGate, setShowAgeGate] = useState(false);
   const [votes, setVotes] = useState(movie.votes || 0);
   const [voted, setVoted] = useState(() => getVoted().has(movie._id));
 
-  const status = movie.status || "upcoming";
-  const cfg    = STATUS_CONFIG[status] || STATUS_CONFIG.upcoming;
+  const status   = movie.status || "upcoming";
+  const genres   = getGenreList(movie);
+  const langLbl  = getLanguageLabel(movie);
+  const releaseLine = getReleaseLine(movie, status);
 
   const handleVote = async () => {
     if (voted) return;
@@ -515,287 +552,259 @@ function MovieDetail({ movie }) {
 
   const navigate = useNavigate();
 
+  const goToBooking = () =>
+    movie.certificate === "A" ? setShowAgeGate(true) : navigate(`/movie/${movie._id}/book`);
+
+  // ── Primary CTA (Book Tickets / Releasing on.. / Watch on OTT) ──
+  // `wide` renders the pill-shaped, flex-1 primary used in the floating
+  // mobile action bar, so it visually anchors as the main call to action.
+  const PrimaryCta = ({ mobile, wide }) => {
+    const wideShadow = wide ? { boxShadow: "0 8px 24px rgba(0,0,0,0.16)" } : undefined;
+
+    if (status === "released") {
+      return (
+        <button
+          onClick={goToBooking}
+          className={`flex items-center justify-center gap-1.5 bg-[#f0545c] hover:bg-[#d94048] text-white font-semibold transition-colors ${
+            wide
+              ? "flex-1 py-3 rounded-full text-[14px]"
+              : mobile
+              ? "flex-1 py-2.5 rounded-xl text-[13px] shadow-lg shadow-red-900/20"
+              : "px-10 py-2.5 rounded-xl text-sm shadow-lg shadow-red-900/20"
+          }`}
+          style={wideShadow}
+        >
+          <Ticket size={wide ? 16 : mobile ? 14 : 15} /> Book Tickets
+        </button>
+      );
+    }
+    if (status === "streaming" && movie.ottPlatform) {
+      return (
+        <button
+          className={`flex items-center justify-center gap-1.5 font-semibold transition-all border border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/20 ${
+            wide
+              ? "flex-1 py-3 rounded-full text-[14px]"
+              : mobile
+              ? "flex-1 py-2.5 rounded-xl text-[13px]"
+              : "px-8 py-2.5 rounded-xl text-sm"
+          }`}
+          style={{ background: wide ? "#fff" : "rgba(99,102,241,0.12)", ...wideShadow }}
+        >
+          <MonitorPlay size={wide ? 16 : mobile ? 14 : 15} /> Watch on {movie.ottPlatform}
+        </button>
+      );
+    }
+    // upcoming: no bookable action yet — surface the release date as the
+    // wide pill so the floating bar always has a primary element
+    if (wide) {
+      return (
+        <div
+          className="flex-1 flex items-center gap-2 bg-white rounded-full px-4 py-2.5"
+          style={wideShadow}
+        >
+          <CalendarDays size={15} className="text-orange-500 flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-gray-400 text-[9px] uppercase tracking-widest font-semibold leading-none">Releasing On</p>
+            <p className="text-gray-800 font-bold text-[12px] mt-0.5 truncate">{formatDateShort(movie.releaseDate)}</p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="min-h-screen bg-[#f5f5f5]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
       <Navbar />
-      <BottomNav />
 
-      {/* ── Hero Banner ── */}
-      <div className="relative overflow-hidden" style={{ background: "#1c1c1c" }}>
+      {/* ══════════════════════════ MOBILE ══════════════════════════ */}
+      <div className="md:hidden">
+        {/* Backdrop banner */}
+        <div className="relative w-full overflow-hidden" style={{ aspectRatio: "4/3", background: "#1c1c1c" }}>
+          <img
+            src={IMG(movie.poster)}
+            alt={movie.title}
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.55) 100%)" }}
+          />
 
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center text-white"
+            style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(6px)" }}
+          >
+            <ArrowLeft size={16} />
+          </button>
+
+          <button className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-white"
+            style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(6px)" }}>
+            <Share2 size={14} />
+          </button>
+
+          {movie.trailerLink && (
+            <button
+              onClick={() => setShowTrailer(true)}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-2 rounded-full whitespace-nowrap"
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.35)", backdropFilter: "blur(6px)" }}
+            >
+              <Play size={11} fill="white" className="text-white" />
+              <span className="text-[12px] font-semibold text-white">Watch Trailer</span>
+            </button>
+          )}
+        </div>
+
+        {/* Info panel */}
+        <div className="bg-white px-4 pt-5 pb-5">
+          <div className="flex items-start gap-2 flex-wrap">
+            <h1 className="text-[22px] font-bold tracking-tight text-gray-900 leading-tight flex-1 min-w-0">
+              {movie.title}
+            </h1>
+            <OfferBadge type="movies" id={movie._id} genre={movie.genre} />
+          </div>
+
+          <p className="mt-2 text-gray-500 text-[13px] flex flex-wrap items-center gap-x-1.5">
+            {movie.certificate && (
+              <span className="font-semibold text-gray-700">{movie.certificate}</span>
+            )}
+            {movie.certificate && langLbl && <span className="text-gray-300">|</span>}
+            {langLbl && <span>{langLbl}</span>}
+            {(movie.certificate || langLbl) && movie.duration && <span className="text-gray-300">|</span>}
+            {movie.duration && (
+              <span>{Math.floor(movie.duration / 60)}h {movie.duration % 60}m</span>
+            )}
+          </p>
+
+          {genres.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {genres.map((g) => (
+                <span
+                  key={g}
+                  className="text-[11px] font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200"
+                >
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-3 flex items-center gap-3 flex-wrap">
+            {releaseLine && <p className="text-gray-400 text-[13px]">{releaseLine}</p>}
+            <span className="flex items-center gap-1 text-gray-400 text-[13px]">
+              <Star size={12} fill="#f0545c" className="text-[#f0545c]" />
+              <span className="font-bold text-gray-800">{movie.rating ?? "—"}/10</span>
+              <span>· {formatVotes(votes)} votes</span>
+            </span>
+          </div>
+
+          {movie.formats?.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {movie.formats.map((f) => (
+                <span
+                  key={f}
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded border border-gray-200 text-gray-500 bg-gray-50"
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ══════════════════════════ DESKTOP ══════════════════════════ */}
+      <div className="relative overflow-hidden hidden md:block" style={{ background: "#1c1c1c" }}>
         <div
           className="absolute inset-0"
           style={{
             backgroundImage: `url(${IMG(movie.poster)})`,
             backgroundSize: "cover",
             backgroundPosition: "center 15%",
-            filter: "blur(0px) brightness(0.2) saturate(1.4)",
+            filter: "brightness(0.22) saturate(1.4)",
             transform: "scale(1.06)",
           }}
         />
         <div
           className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(160deg, rgba(15,15,15,0.97) 0%, rgba(15,15,15,0.7) 55%, rgba(15,15,15,0.3) 100%)",
-          }}
+          style={{ background: "linear-gradient(100deg, rgba(15,15,15,0.97) 0%, rgba(15,15,15,0.88) 45%, rgba(15,15,15,0.55) 100%)" }}
         />
         <div
-          className="absolute bottom-0 left-0 right-0 h-10 md:h-14"
-          style={{ background: "linear-gradient(to bottom, transparent, #f5f5f5)" }}
+          className="absolute bottom-0 left-0 right-0 h-14"
+          style={{ background: "linear-gradient(to bottom, transparent, #ffffff)" }}
         />
 
-        <button className="absolute top-4 right-4 md:right-6 flex items-center gap-1.5 text-white/60 hover:text-white text-[13px] transition-colors z-10 font-medium">
-          <Share2 size={14} /> <span className="hidden sm:inline">Share</span>
+        <button className="absolute top-6 right-16 flex items-center gap-1.5 text-white/60 hover:text-white text-[13px] transition-colors z-10 font-medium">
+          <Share2 size={14} /> Share
         </button>
 
-        {/* ── Mobile Layout ── */}
-        <div className="relative z-10 flex flex-col md:hidden px-4 pt-6 pb-2">
-          <div className="flex gap-4 items-start">
-            {/* poster */}
-            <div className="flex-shrink-0" style={{ width: 110 }}>
+        <div className="relative z-10 flex items-center gap-12 px-16 py-14 max-w-6xl mx-auto">
+          {/* poster column — now on the left */}
+          <div className="flex-shrink-0 hidden lg:block" style={{ width: 230 }}>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10" style={{ aspectRatio: "2/3" }}>
+              <img src={IMG(movie.poster)} alt={movie.title} className="w-full h-full object-cover" />
               <div
-                className="relative rounded-xl overflow-hidden shadow-2xl"
-                style={{ aspectRatio: "2/3" }}
-              >
-                <img
-                  src={IMG(movie.poster)}
-                  alt={movie.title}
-                  className="w-full h-full object-cover"
-                />
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-12 rounded-b-xl pointer-events-none"
-                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }}
-                />
-                {movie.trailerLink && (
-                  <button
-                    onClick={() => setShowTrailer(true)}
-                    className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full whitespace-nowrap"
-                    style={{
-                      background: "rgba(255,255,255,0.15)",
-                      border: "1px solid rgba(255,255,255,0.3)",
-                      backdropFilter: "blur(6px)",
-                    }}
-                  >
-                    <Play size={9} fill="white" className="text-white" />
-                    <span className="text-[10px] font-semibold text-white">Trailer</span>
-                  </button>
-                )}
-              </div>
-              <div
-                className={`mt-2 w-full text-center text-[10px] font-semibold py-1 rounded-lg border ${cfg.bg} ${cfg.text} ${cfg.border}`}
-              >
-                {status === "released" && (
-                  <span className="flex items-center justify-center gap-1">
-                    <MapPin size={9} /> {movie.isInCinemas ? "In Cinemas" : "Released"}
-                  </span>
-                )}
-                {status === "upcoming" && (
-                  <span className="flex items-center justify-center gap-1">
-                    <CalendarDays size={9} /> Releasing Soon
-                  </span>
-                )}
-                {status === "streaming" && (
-                  <span className="flex items-center justify-center gap-1">
-                    <MonitorPlay size={9} /> {movie.ottPlatform || "Streaming"}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* meta */}
-            <div className="flex-1 min-w-0 pt-1 flex flex-col gap-2">
-              <h1 className="text-white text-[20px] font-bold tracking-tight leading-snug">
-                {movie.title}
-              </h1>
-              <OfferBadge type="movies" id={movie._id} genre={movie.genre} />
-              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                {movie.duration && (
-                  <span className="text-white/50 text-[11px] flex items-center gap-0.5">
-                    <Clock size={10} /> {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
-                  </span>
-                )}
-                {movie.duration && movie.genre && (
-                  <span className="text-white/25 text-[10px]">•</span>
-                )}
-                {movie.genre && (
-                  <span className="text-white/50 text-[11px]">{movie.genre}</span>
-                )}
-                {movie.certificate && (
-                  <span className="text-white/25 text-[10px]">•</span>
-                )}
-                {movie.certificate && (
-                  <span className="text-white/50 text-[11px] flex items-center gap-0.5">
-                    <Shield size={10} /> {movie.certificate}
-                  </span>
-                )}
-                {movie.language && (
-                  <span className="text-white/25 text-[10px]">•</span>
-                )}
-                {movie.language && (
-                  <span className="text-white/50 text-[11px] flex items-center gap-0.5">
-                    <Globe size={10} /> {movie.language}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Star size={12} fill="#f0545c" className="text-[#f0545c]" />
-                <span className="text-white font-bold text-[13px]">
-                  {movie.rating ?? "—"}/10
-                </span>
-                <span className="text-white/40 text-[11px]">{formatVotes(votes)} Votes</span>
-              </div>
-              {movie.formats?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {movie.formats.map((f) => (
-                    <span
-                      key={f}
-                      className="text-[10px] font-semibold px-2 py-0.5 rounded border border-white/20 text-white/50"
-                    >
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2 pb-2 flex-wrap">
-            {status === "released" && (
-              <>
-                <button
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-[#f0545c] hover:bg-[#d94048] text-white font-semibold py-2.5 rounded-xl text-[13px] transition-colors"
-                  onClick={() => movie.certificate === "A" ? setShowAgeGate(true) : navigate(`/movie/${movie._id}/book`)}                
-                  >
-                  <Ticket size={14} /> Book Tickets
-                </button>
-                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} mobile />
-                <WatchlistButton movieId={movie._id} mobile />
-              </>
-            )}
-            {status === "upcoming" && (
-              <>
-                <div
-                  className="flex-1 flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2"
-                >
-                  <CalendarDays size={14} className="text-orange-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-white/35 text-[9px] uppercase tracking-widest font-semibold">
-                      Releasing On
-                    </p>
-                    <p className="text-white font-semibold text-[12px]">
-                      {formatDateShort(movie.releaseDate)}
-                    </p>
-                  </div>
-                </div>
-                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} mobile />
-                <WatchlistButton movieId={movie._id} mobile />
-              </>
-            )}
-            {status === "streaming" && (
-              <>
-                {movie.ottPlatform && (
-                  <button
-                    className="flex-1 flex items-center justify-center gap-1.5 font-semibold py-2.5 rounded-xl text-[13px] transition-all border border-indigo-400/40 text-indigo-300"
-                    style={{ background: "rgba(99,102,241,0.12)" }}
-                  >
-                    <MonitorPlay size={14} /> {movie.ottPlatform}
-                  </button>
-                )}
-                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} mobile />
-                <WatchlistButton movieId={movie._id} mobile />
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* ── Desktop Layout ── */}
-        <div className="relative z-10 hidden md:flex items-start gap-10 px-16 py-8 max-w-6xl mx-auto">
-          {/* poster col */}
-          <div className="flex-shrink-0 flex flex-col items-center gap-2">
-            <div className="relative group" style={{ width: 150 }}>
-              <img
-                src={IMG(movie.poster)}
-                alt={movie.title}
-                className="rounded-xl object-cover shadow-2xl w-full"
-                style={{ aspectRatio: "2/3" }}
-              />
-              <div
-                className="absolute bottom-0 left-0 right-0 h-16 rounded-b-xl pointer-events-none"
-                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75), transparent)" }}
+                className="absolute inset-0"
+                style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.35) 100%)" }}
               />
               {movie.trailerLink && (
                 <button
                   onClick={() => setShowTrailer(true)}
-                  className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap transition-all hover:scale-105 active:scale-95"
-                  style={{
-                    background: "rgba(255,255,255,0.15)",
-                    border: "1px solid rgba(255,255,255,0.35)",
-                    backdropFilter: "blur(6px)",
-                  }}
+                  className="absolute inset-0 flex items-center justify-center group"
                 >
-                  <Play size={11} fill="white" className="text-white flex-shrink-0" />
-                  <span className="text-[11px] font-semibold text-white tracking-wide">
-                    Trailer
+                  <span
+                    className="w-16 h-16 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                    style={{ background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.5)", backdropFilter: "blur(6px)" }}
+                  >
+                    <Play size={22} fill="white" className="text-white ml-1" />
                   </span>
                 </button>
               )}
             </div>
-            <div
-              className={`w-full text-center text-[11px] font-semibold py-1.5 rounded-lg border ${cfg.bg} ${cfg.text} ${cfg.border}`}
-              style={{ width: 150 }}
-            >
-              {status === "released" && (
-                <span className="flex items-center justify-center gap-1.5">
-                  <MapPin size={11} /> {movie.isInCinemas ? "In Cinemas" : "Released"}
-                </span>
-              )}
-              {status === "upcoming" && (
-                <span className="flex items-center justify-center gap-1.5">
-                  <CalendarDays size={11} /> Releasing Soon
-                </span>
-              )}
-              {status === "streaming" && (
-                <span className="flex items-center justify-center gap-1.5">
-                  <MonitorPlay size={11} /> {movie.ottPlatform || "Streaming"}
-                </span>
-              )}
-            </div>
           </div>
 
-          {/* info col */}
-          <div className="flex-1 min-w-0 flex flex-col justify-center gap-3 pt-2">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-white text-[28px] font-bold tracking-tight leading-tight">
+          {/* text column — now on the right */}
+          <div className="flex-1 min-w-0 flex flex-col gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-white text-[34px] font-bold tracking-tight leading-tight">
                 {movie.title}
               </h1>
               <OfferBadge type="movies" id={movie._id} genre={movie.genre} size="md" />
             </div>
-            <p className="text-white/45 text-[13px] flex flex-wrap items-center gap-x-2 gap-y-0.5">
-              {movie.duration && (
-                <span className="flex items-center gap-1">
-                  <Clock size={11} /> {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
-                </span>
-              )}
-              {movie.duration && <span>•</span>}
-              {movie.genre && <span>{movie.genre}</span>}
-              {movie.genre && movie.language && <span>•</span>}
-              {movie.language && (
-                <span className="flex items-center gap-1">
-                  <Globe size={11} /> {movie.language}
-                </span>
-              )}
-              {movie.certificate && <span>•</span>}
-              {movie.certificate && (
-                <span className="flex items-center gap-1">
-                  <Shield size={11} /> {movie.certificate}
-                </span>
-              )}
-              {movie.releaseDate && <span>•</span>}
-              {movie.releaseDate && <span>{formatDate(movie.releaseDate)}</span>}
+
+            <p className="text-white/55 text-[13px] flex flex-wrap items-center gap-x-2">
+              {movie.certificate && <span className="text-white/75 font-semibold">{movie.certificate}</span>}
+              {movie.certificate && langLbl && <span>|</span>}
+              {langLbl && <span>{langLbl}</span>}
+              {(movie.certificate || langLbl) && movie.duration && <span>|</span>}
+              {movie.duration && <span>{Math.floor(movie.duration / 60)}h {movie.duration % 60}m</span>}
             </p>
+
+            {genres.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {genres.map((g) => (
+                  <span
+                    key={g}
+                    className="text-[11px] font-semibold px-3 py-1 rounded-full text-white/70 border border-white/15"
+                    style={{ background: "rgba(255,255,255,0.08)" }}
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 flex-wrap mt-1">
+              {releaseLine && <span className="text-white/45 text-[13px]">{releaseLine}</span>}
+              <span className="flex items-center gap-1.5 text-[13px]">
+                <Star size={13} fill="#f0545c" className="text-[#f0545c]" />
+                <span className="text-white font-bold">{movie.rating ?? "—"}/10</span>
+                <span className="text-white/40">{formatVotes(votes)} Votes</span>
+              </span>
+            </div>
 
             {movie.formats?.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -810,58 +819,20 @@ function MovieDetail({ movie }) {
               </div>
             )}
 
-            <div className="flex items-center gap-2">
-              <Star size={14} fill="#f0545c" className="text-[#f0545c]" />
-              <span className="text-white font-bold text-[14px]">
-                {movie.rating ?? "—"}/10
-              </span>
-              <span className="text-white/40 text-[12px]">{formatVotes(votes)} Votes</span>
-            </div>
-
-            {/* ── Desktop CTA rows — all 3 status variants ── */}
-            {status === "released" && (
-              <div className="flex items-center gap-3 mt-1 flex-wrap">
-                <button
-                  className="flex items-center gap-2 bg-[#f0545c] hover:bg-[#d94048] text-white font-semibold px-10 py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-red-900/25"
-                  onClick={() => movie.certificate === "A" ? setShowAgeGate(true) : navigate(`/movie/${movie._id}/book`)}
-                >
-                  <Ticket size={15} /> Book Tickets
-                </button>
-                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} />
-                <WatchlistButton movieId={movie._id} />
-              </div>
-            )}
-            {status === "upcoming" && (
-              <div className="flex items-center gap-3 mt-1 flex-wrap">
+            <div className="flex items-center gap-3 mt-2 flex-wrap">
+              <PrimaryCta />
+              {status === "upcoming" && (
                 <div className="inline-flex items-center gap-3 bg-white/5 border border-white/12 rounded-xl px-4 py-2.5">
                   <CalendarDays size={16} className="text-orange-400 flex-shrink-0" />
                   <div>
-                    <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
-                      Releasing On
-                    </p>
-                    <p className="text-white font-semibold text-[13px] mt-0.5">
-                      {formatDate(movie.releaseDate)}
-                    </p>
+                    <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">Releasing On</p>
+                    <p className="text-white font-semibold text-[13px] mt-0.5">{formatDate(movie.releaseDate)}</p>
                   </div>
                 </div>
-                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} />
-                <WatchlistButton movieId={movie._id} />
-              </div>
-            )}
-            {status === "streaming" && (
-              <div className="flex items-center gap-3 mt-1 flex-wrap">
-                {movie.ottPlatform && (
-                  <button
-                    className="flex items-center gap-2 font-semibold px-8 py-2.5 rounded-xl text-sm border border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/20 transition-all"
-                    style={{ background: "rgba(99,102,241,0.12)" }}
-                  >
-                    <MonitorPlay size={15} /> Watch on {movie.ottPlatform}
-                  </button>
-                )}
-                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} />
-                <WatchlistButton movieId={movie._id} />
-              </div>
-            )}
+              )}
+              <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} />
+              <WatchlistButton movieId={movie._id} />
+            </div>
           </div>
         </div>
       </div>
@@ -874,64 +845,6 @@ function MovieDetail({ movie }) {
             {movie.description}
           </p>
         </div>
-
-        {(movie.language ||
-          movie.duration ||
-          movie.certificate ||
-          movie.isInCinemas ||
-          movie.ottPlatform ||
-          movie.formats?.length > 0) && (
-          <div className="px-4 md:px-16 py-5 md:py-6 border-b border-gray-100 max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-x-6 md:gap-x-8 gap-y-4">
-              {movie.language && (
-                <InfoStat icon={Globe} label="Language" value={movie.language} />
-              )}
-              {movie.duration && (
-                <InfoStat
-                  icon={Clock}
-                  label="Duration"
-                  value={`${Math.floor(movie.duration / 60)}h ${movie.duration % 60}m`}
-                />
-              )}
-              {movie.certificate && (
-                <InfoStat icon={Shield} label="Certificate" value={movie.certificate} />
-              )}
-              {movie.isInCinemas && (
-                <InfoStat
-                  icon={Tv}
-                  label="Cinemas"
-                  value="Now Showing"
-                  valueClass="text-green-600"
-                />
-              )}
-              {movie.status === "streaming" && movie.ottPlatform && (
-                <InfoStat
-                  icon={MonitorPlay}
-                  label="Streaming On"
-                  value={movie.ottPlatform}
-                  valueClass="text-indigo-600"
-                />
-              )}
-              {movie.formats?.length > 0 && (
-                <div className="col-span-2 sm:col-span-3 md:col-span-1">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
-                    <Star size={9} /> Formats
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {movie.formats.map((f) => (
-                      <span
-                        key={f}
-                        className="text-[11px] font-semibold px-2 py-0.5 rounded border border-gray-200 text-gray-600 bg-gray-50"
-                      >
-                        {f}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {movie.cast?.length > 0 && (
           <div className="px-4 md:px-16 py-6 md:py-8 border-b border-gray-100 max-w-6xl mx-auto">
@@ -959,6 +872,9 @@ function MovieDetail({ movie }) {
           </div>
         )}
       </div>
+
+      {/* Reserves room above the floating mobile action bar */}
+      <div className="md:hidden" style={{ height: "calc(88px + env(safe-area-inset-bottom, 0px))" }} />
 
       {showAgeGate && (
         <AgeGatePopup
@@ -989,51 +905,64 @@ function MovieDetail({ movie }) {
           </div>
         </div>
       )}
+
+      {/* ── Floating action bar — mobile only ── */}
+      {/* Each control carries its own background/shadow — no shared white
+          card behind the row, so they read as distinct floating pills. */}
+      <div
+        className="md:hidden fixed left-4 right-4 z-40 flex items-center gap-2.5"
+        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
+      >
+        {/* Primary CTA — wider, stands out */}
+        <PrimaryCta wide />
+
+        {/* Secondary actions — smaller, pill-shaped, alongside the primary */}
+        <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} mobile light pill />
+        <WatchlistButton movieId={movie._id} mobile light pill />
+      </div>
     </div>
   );
 }
 
 // ─── Sub-components (unchanged from original) ─────────────────────────────────
 
-function VoteButton({ voted, votes, status, onVote, mobile }) {
+function VoteButton({ voted, votes, status, onVote, mobile, light = false, pill = false }) {
   const isUpcoming  = status === "upcoming";
   const activeColor = isUpcoming ? "rgba(234,88,12,0.85)" : "rgba(240,84,92,0.85)";
   const activeBorder= isUpcoming ? "rgba(234,88,12,0.5)"  : "rgba(240,84,92,0.5)";
+
+  const idle = light
+    ? { borderColor: "#e5e5e5", color: "#525252", background: "#fff" }
+    : { borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.65)", background: "rgba(255,255,255,0.07)" };
+
+  const shape = pill ? "rounded-full" : "rounded-xl";
 
   return (
     <button
       onClick={onVote}
       disabled={voted}
-      className={`flex items-center justify-center gap-1.5 font-semibold rounded-xl text-[13px] transition-all border ${mobile ? "px-3 py-2.5" : "px-5 py-2.5"}`}
+      className={`flex items-center justify-center gap-1.5 font-semibold text-[13px] transition-all border flex-shrink-0 ${shape} ${
+        pill ? "w-11 h-11" : mobile ? "px-3 py-2.5" : "px-5 py-2.5"
+      }`}
       style={{
-        borderColor: voted ? activeBorder            : "rgba(255,255,255,0.2)",
-        color:       voted ? "#fff"                  : "rgba(255,255,255,0.65)",
-        background:  voted ? activeColor             : "rgba(255,255,255,0.07)",
+        borderColor: voted ? activeBorder            : idle.borderColor,
+        color:       voted ? "#fff"                  : idle.color,
+        background:  voted ? activeColor             : idle.background,
         cursor:      voted ? "default"               : "pointer",
-        minWidth:    mobile ? 44 : undefined,
+        minWidth:    pill ? undefined : mobile ? 44 : undefined,
+        boxShadow:   pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
+        border:      pill ? "none" : undefined,
       }}
     >
       <ThumbsUp size={13} fill={voted ? "#fff" : "none"} />
-      {!mobile && (
+      {!mobile && !pill && (
         <span>
           {isUpcoming
             ? voted ? `Notified · ${formatVotes(votes)}` : "Notify Me"
             : voted ? `Interested · ${formatVotes(votes)}` : "Interested"}
         </span>
       )}
-      {mobile && voted && <span className="text-[11px]">{formatVotes(votes)}</span>}
     </button>
-  );
-}
-
-function InfoStat({ icon: Icon, label, value, valueClass = "text-gray-900" }) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1 mb-1">
-        <Icon size={9} /> {label}
-      </p>
-      <p className={`text-[13px] font-semibold ${valueClass}`}>{value}</p>
-    </div>
   );
 }
 

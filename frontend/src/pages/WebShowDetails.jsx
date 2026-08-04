@@ -1,12 +1,127 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Star, Play, ArrowLeft, Calendar, Tv, Film, Layers, AlertCircle } from "lucide-react";
+import {
+  Star,
+  Play,
+  ArrowLeft,
+  Calendar,
+  Tv,
+  Film,
+  Layers,
+  AlertCircle,
+  X,
+  Users,
+} from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
 
 const ACCENT = "#f0545c";
+
+/** Turns a YouTube/Vimeo watch link into an embeddable iframe URL.
+ *  Returns null for anything else (e.g. direct .mp4 files), which the
+ *  player falls back to rendering with a native <video> tag instead. */
+function getEmbedUrl(url) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "");
+
+    if (host === "youtu.be") {
+      const id = u.pathname.slice(1);
+      return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      if (u.pathname.startsWith("/embed/")) {
+        return `https://www.youtube.com${u.pathname}?autoplay=1&rel=0`;
+      }
+      const id = u.searchParams.get("v");
+      return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
+    }
+    if (host === "vimeo.com") {
+      const id = u.pathname.split("/").filter(Boolean).pop();
+      return id ? `https://player.vimeo.com/video/${id}?autoplay=1` : null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function isDirectVideoFile(url) {
+  return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url || "");
+}
+
+function TrailerModal({ url, title, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  const embedUrl = getEmbedUrl(url);
+  const playableDirectly = !embedUrl && isDirectVideoFile(url);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-3 sm:p-6"
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        aria-label="Close trailer"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors"
+      >
+        <X size={18} />
+      </button>
+
+      <div
+        className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden bg-black shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {embedUrl ? (
+          <iframe
+            src={embedUrl}
+            title={`${title} trailer`}
+            className="w-full h-full"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : playableDirectly ? (
+          <video
+            src={url}
+            controls
+            autoPlay
+            className="w-full h-full"
+            title={`${title} trailer`}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-center px-6">
+            <Film size={32} className="text-gray-500" />
+            <p className="text-gray-300 text-sm">
+              This trailer can't be played inline.
+            </p>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold px-4 py-2 rounded-full text-white"
+              style={{ backgroundColor: ACCENT }}
+            >
+              Open trailer link
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function DetailsSkeleton() {
   return (
@@ -28,13 +143,38 @@ function DetailsSkeleton() {
   );
 }
 
+function SimilarShowCard({ show, onOpen }) {
+  return (
+    <div
+      className="group flex-shrink-0 w-[130px] sm:w-[170px] cursor-pointer"
+      onClick={() => onOpen(show._id)}
+    >
+      <div className="relative aspect-[2/3] w-full rounded-lg overflow-hidden bg-gray-900">
+        <img
+          src={show.poster}
+          alt={show.title}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+        <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-1.5 py-0.5">
+          <Star size={9} fill={ACCENT} stroke={ACCENT} />
+          <span className="text-[10px] font-semibold text-white">{show.rating}</span>
+        </div>
+      </div>
+      <p className="text-[12px] font-semibold text-gray-800 mt-1.5 truncate">{show.title}</p>
+    </div>
+  );
+}
+
 export default function WebShowDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [show, setShow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [posterLoaded, setPosterLoaded] = useState(false);
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const [trailerOpen, setTrailerOpen] = useState(false);
+  const [similar, setSimilar] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +182,7 @@ export default function WebShowDetails() {
     const fetchShow = async () => {
       setLoading(true);
       setError(null);
+      setBgLoaded(false);
       try {
         const res = await api.get(`/web-shows/${id}`);
         if (!cancelled) setShow(res.data);
@@ -54,10 +195,36 @@ export default function WebShowDetails() {
     };
 
     fetchShow();
+    window.scrollTo({ top: 0 });
     return () => {
       cancelled = true;
     };
   }, [id]);
+
+  // Pull a few more titles from the same category to round out the page.
+  useEffect(() => {
+    if (!show?.category) return;
+    let cancelled = false;
+    api
+      .get(`/web-shows?category=${show.category}`)
+      .then((res) => {
+        if (!cancelled) setSimilar(res.data.filter((s) => s._id !== show._id).slice(0, 8));
+      })
+      .catch(() => !cancelled && setSimilar([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [show?.category, show?._id]);
+
+  const handleOpenSimilar = useCallback(
+    (showId) => {
+      setSimilar([]);
+      navigate(`/web-shows/${showId}`);
+    },
+    [navigate]
+  );
+
+  const backdropSrc = show?.banner || show?.poster;
 
   if (loading) return <DetailsSkeleton />;
 
@@ -89,24 +256,35 @@ export default function WebShowDetails() {
       <Navbar />
       <BottomNav />
 
-      {/* ══ BACKDROP ════════════════════════════════════ */}
-      <div className="relative w-full h-[40vh] sm:h-[52vh] overflow-hidden bg-gray-900">
+      {/* ══ BACKDROP ════════════════════════════════════
+          Show posters are portrait (2:3) but this banner is a wide strip,
+          so a plain object-cover crops in tight on faces. Instead we layer
+          a blurred, fully-covering copy behind a sharp, uncropped
+          object-contain copy — the same "letterboxed hero" pattern
+          streaming apps use when only a poster (not a wide banner) is
+          available. Real 16:9 banners still render edge-to-edge on top. */}
+      <div className="relative w-full h-[38vh] sm:h-[52vh] overflow-hidden bg-[#111]">
         <img
-          src={show.banner || show.poster}
+          src={backdropSrc}
           alt=""
-          className={`w-full h-full object-cover transition-opacity duration-700 ${
-            posterLoaded ? "opacity-60" : "opacity-0"
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+        />
+        <img
+          src={backdropSrc}
+          alt={show.title}
+          onLoad={() => setBgLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-contain object-center transition-opacity duration-700 ${
+            bgLoaded ? "opacity-100" : "opacity-0"
           }`}
-          onLoad={() => setPosterLoaded(true)}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 35%, rgba(255,255,255,0.55) 78%, #fff 100%)",
+              "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 30%, rgba(255,255,255,0.6) 80%, #fff 100%)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
 
         <button
           onClick={() => navigate(-1)}
@@ -137,9 +315,13 @@ export default function WebShowDetails() {
             </h1>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[13px] text-gray-600">
-              <span className="flex items-center gap-1 font-semibold text-gray-800">
-                <Star size={14} fill={ACCENT} stroke={ACCENT} />
+              <span
+                className="flex items-center gap-1 font-bold px-2 py-0.5 rounded-md"
+                style={{ backgroundColor: "rgba(240,84,92,0.1)", color: ACCENT }}
+              >
+                <Star size={13} fill={ACCENT} stroke={ACCENT} />
                 {show.rating}
+                <span className="font-medium opacity-60">/10</span>
               </span>
               {show.releaseYear && (
                 <span className="flex items-center gap-1">
@@ -150,6 +332,12 @@ export default function WebShowDetails() {
                 <span className="flex items-center gap-1">
                   <Layers size={14} className="text-gray-400" /> {show.seasons.length} Season
                   {show.seasons.length > 1 ? "s" : ""}
+                </span>
+              )}
+              {show.seasons?.length > 0 && (
+                <span className="flex items-center gap-1">
+                  <Tv size={14} className="text-gray-400" />
+                  {show.seasons.reduce((sum, s) => sum + (s.episodeCount || 0), 0)} Episodes
                 </span>
               )}
             </div>
@@ -181,31 +369,39 @@ export default function WebShowDetails() {
                 </a>
               )}
               {show.trailerUrl && (
-                <a
-                  href={show.trailerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => setTrailerOpen(true)}
                   className="flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
                 >
-                  <Film size={16} /> Trailer
-                </a>
+                  <Film size={16} /> Watch Trailer
+                </button>
               )}
             </div>
 
             {show.description && (
-              <p className="text-gray-700 text-[13.5px] leading-relaxed mt-5">
-                {show.description}
-              </p>
+              <div className="mt-6">
+                <h2 className="text-[11px] font-bold tracking-wide uppercase text-gray-400 mb-1.5">
+                  Overview
+                </h2>
+                <p className="text-gray-700 text-[13.5px] leading-relaxed">{show.description}</p>
+              </div>
             )}
 
             {show.cast?.length > 0 && (
-              <div className="mt-4">
-                <p className="text-[11px] font-bold tracking-wide uppercase text-gray-400 mb-1.5">
-                  Cast
-                </p>
-                <p className="text-[13px] text-gray-600 leading-relaxed">
-                  {show.cast.join(", ")}
-                </p>
+              <div className="mt-5">
+                <h2 className="text-[11px] font-bold tracking-wide uppercase text-gray-400 mb-2 flex items-center gap-1.5">
+                  <Users size={12} /> Cast
+                </h2>
+                <div className="flex flex-wrap gap-1.5">
+                  {show.cast.map((actor) => (
+                    <span
+                      key={actor}
+                      className="text-[12px] font-medium px-2.5 py-1 rounded-full border border-gray-200 text-gray-700"
+                    >
+                      {actor}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -213,7 +409,7 @@ export default function WebShowDetails() {
 
         {/* ══ SEASONS ═══════════════════════════════════ */}
         {show.seasons?.length > 0 && (
-          <div className="mt-10 mb-16">
+          <div className="mt-10">
             <h2 className="font-extrabold tracking-tight text-gray-900 text-lg sm:text-xl mb-4">
               Seasons
             </h2>
@@ -245,7 +441,25 @@ export default function WebShowDetails() {
         )}
       </div>
 
+      {/* ══ MORE LIKE THIS ══════════════════════════════ */}
+      {similar.length > 0 && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-12 mb-16">
+          <h2 className="font-extrabold tracking-tight text-gray-900 text-lg sm:text-xl mb-4">
+            More Like This
+          </h2>
+          <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {similar.map((s) => (
+              <SimilarShowCard key={s._id} show={s} onOpen={handleOpenSimilar} />
+            ))}
+          </div>
+        </div>
+      )}
+
       <Footer />
+
+      {trailerOpen && (
+        <TrailerModal url={show.trailerUrl} title={show.title} onClose={() => setTrailerOpen(false)} />
+      )}
     </div>
   );
 }

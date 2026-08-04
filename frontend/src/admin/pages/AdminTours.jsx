@@ -250,6 +250,7 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
 /* Manage which Events (city legs) belong to this tour */
 function LegsModal({ tour, onClose, onChanged, showToast }) {
   const [allEvents, setAllEvents] = useState([]);
+  const [schedulesByEvent, setSchedulesByEvent] = useState({});
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
   const [search, setSearch] = useState("");
@@ -257,8 +258,22 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
   const loadEvents = async () => {
     setLoading(true);
     try {
-      const res = await axiosAdmin.get("/admin/events");
-      setAllEvents(res.data || []);
+      const [eventsRes, schedulesRes] = await Promise.all([
+        axiosAdmin.get("/admin/events"),
+        axiosAdmin.get("/event-schedules"),
+      ]);
+      setAllEvents(eventsRes.data || []);
+
+      // Group schedules by event id so each candidate can show every city
+      // it's been scheduled in, not just a single one.
+      const grouped = {};
+      (schedulesRes.data || []).forEach((s) => {
+        const eventId = s.event?._id || s.event;
+        if (!eventId) return;
+        if (!grouped[eventId]) grouped[eventId] = [];
+        grouped[eventId].push(s);
+      });
+      setSchedulesByEvent(grouped);
     } catch {
       showToast("Failed to load events", "error");
     } finally {
@@ -269,6 +284,11 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
 
   const linkedIds = new Set((tour.legs || []).map((l) => l.event._id));
   const candidates = allEvents.filter((e) => !linkedIds.has(e._id) && e.title.toLowerCase().includes(search.toLowerCase()));
+
+  const citiesFor = (eventId) => {
+    const schedules = schedulesByEvent[eventId] || [];
+    return [...new Set(schedules.map((s) => s.venue?.city?.name).filter(Boolean))];
+  };
 
   const handleLink = async (eventId) => {
     setBusyId(eventId);
@@ -327,12 +347,20 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
                   <div key={leg.event._id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/60">
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-semibold text-gray-900 truncate">{leg.event.title}</p>
-                      <p className="text-[11px] text-gray-400 flex items-center gap-1 flex-wrap">
-                        <MapPin size={11} />
-                        {leg.venue ? `${leg.venue.name}, ${leg.city?.name || ""}` : "No schedule yet"}
-                        {leg.city?.country && <span className="text-gray-300">• {leg.city.country}</span>}
-                        <Calendar size={11} className="ml-1" /> {fmtDate(leg.eventDate)}
-                      </p>
+                      {leg.schedules?.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {leg.schedules.map((s) => (
+                            <span key={s.scheduleId} className="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-lg bg-white border border-gray-200 text-gray-600">
+                              <MapPin size={10} className="text-gray-400" />
+                              {s.venue ? `${s.city?.name || s.venue.name}` : "TBA"}
+                              <span className="text-gray-300">•</span>
+                              <Calendar size={10} className="text-gray-400" /> {fmtDate(s.eventDate)}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-gray-400 mt-1">No schedule yet</p>
+                      )}
                     </div>
                     <button onClick={() => handleUnlink(leg.event._id)} disabled={busyId === leg.event._id}
                       title="Remove from tour"
@@ -359,19 +387,30 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
               <p className="text-[13px] text-gray-400 py-3">No unlinked events match. Create one in Events, then link it here.</p>
             ) : (
               <div className="max-h-52 overflow-y-auto flex flex-col gap-2">
-                {candidates.map((e) => (
-                  <div key={e._id} className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:bg-gray-50">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-gray-900 truncate">{e.title}</p>
-                      <p className="text-[11px] text-gray-400">{e.category}{e.tour ? " • already on another tour" : ""}</p>
+                {candidates.map((e) => {
+                  const cities = citiesFor(e._id);
+                  return (
+                    <div key={e._id} className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:bg-gray-50">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-gray-900 truncate">{e.title}</p>
+                        <p className="text-[11px] text-gray-400 flex items-center gap-1 flex-wrap">
+                          <span>{e.category}</span>
+                          {e.tour && <span>• already on another tour</span>}
+                          {cities.length > 0 && (
+                            <span className="flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: "rgba(14,165,233,0.08)", color: "#0284c7" }}>
+                              <MapPin size={10} /> {cities.length > 1 ? `${cities.length} cities: ${cities.join(", ")}` : cities[0]}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <button onClick={() => handleLink(e._id)} disabled={busyId === e._id}
+                        className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-40"
+                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}>
+                        {busyId === e._id ? <Loader2 size={12} className="animate-spin" /> : <Link2 size={12} />} Add
+                      </button>
                     </div>
-                    <button onClick={() => handleLink(e._id)} disabled={busyId === e._id}
-                      className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-40"
-                      style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}>
-                      {busyId === e._id ? <Loader2 size={12} className="animate-spin" /> : <Link2 size={12} />} Add
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

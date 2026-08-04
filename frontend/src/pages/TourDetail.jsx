@@ -41,8 +41,16 @@ export default function TourDetail() {
   if (!tour) return null;
 
   const legs = tour.legs || [];
-  const upcomingLegs = legs.filter((l) => !l.isPast);
-  const pastLegs = legs.filter((l) => l.isPast);
+  // Each leg (Event) can have multiple city schedules — flatten those into
+  // individual itinerary stops so a multi-city event shows every city it's
+  // playing, not just its nearest one.
+  const stops = legs.flatMap((leg) =>
+    (leg.schedules?.length ? leg.schedules : [{
+      scheduleId: null, city: leg.city, venue: leg.venue, eventDate: leg.eventDate, isPast: leg.isPast,
+    }]).map((s) => ({ ...s, event: leg.event }))
+  );
+  const upcomingLegs = stops.filter((s) => !s.isPast);
+  const pastLegs = stops.filter((s) => s.isPast);
 
   return (
     <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
@@ -65,7 +73,7 @@ export default function TourDetail() {
 
         <div className="max-w-5xl mx-auto px-4 md:px-8 absolute left-0 right-0" style={{ bottom: 16 }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: "#f0545c", textTransform: "uppercase", letterSpacing: ".08em" }}>
-            {tour.category || "Tour"} · {legs.length} {legs.length === 1 ? "stop" : "stops"}
+            {tour.category || "Tour"} · {stops.length} {stops.length === 1 ? "stop" : "stops"}
           </span>
           <h1 className="text-[22px] sm:text-[28px]" style={{ margin: "4px 0 6px", fontWeight: 800, color: "#fff", letterSpacing: "-.5px", lineHeight: 1.15 }}>
             {tour.title}
@@ -116,14 +124,14 @@ export default function TourDetail() {
             Tour Itinerary
           </h2>
 
-          {legs.length === 0 ? (
+          {stops.length === 0 ? (
             <p style={{ fontSize: 13, color: "#9ca3af" }}>No city stops have been announced yet — check back soon.</p>
           ) : (
             <div style={{ position: "relative", paddingLeft: 22 }}>
               <div style={{ position: "absolute", left: 5, top: 6, bottom: 6, width: 2, background: "rgba(240,84,92,0.15)" }} />
 
-              {[...upcomingLegs, ...pastLegs].map((leg, i) => (
-                <div key={leg.event._id} style={{ position: "relative", marginBottom: 18 }}>
+              {[...upcomingLegs, ...pastLegs].map((leg) => (
+                <div key={`${leg.event._id}-${leg.scheduleId || "na"}`} style={{ position: "relative", marginBottom: 18 }}>
                   <div style={{
                     position: "absolute", left: -22, top: 4, width: 12, height: 12, borderRadius: "50%",
                     background: leg.isPast ? "#d1d5db" : "#f0545c", border: "2px solid #f7f7f8",
@@ -173,7 +181,7 @@ export default function TourDetail() {
             </p>
             <div className="flex flex-col gap-3">
               <SnapshotRow icon={<Globe2 size={14} color="#f0545c" />} label="Cities" value={tour.cities?.length || 0} />
-              <SnapshotRow icon={<MapPin size={14} color="#f0545c" />} label="Total Stops" value={legs.length} />
+              <SnapshotRow icon={<MapPin size={14} color="#f0545c" />} label="Total Stops" value={stops.length} />
               <SnapshotRow icon={<Calendar size={14} color="#f0545c" />} label="Status" value={tour.status} />
             </div>
 

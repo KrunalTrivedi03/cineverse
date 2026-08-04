@@ -206,7 +206,6 @@ export default function Navbar() {
                 label="Web Originals"
                 to="/web-shows/web-originals"
               />
-              <DropItem icon={<Tv size={14} />} label="Web Originals" to="/" />
             </NavDropdown>
             {token && <NavLink to="/watchlist">Watchlist</NavLink>}
             <NavLink to="/events">Events</NavLink>

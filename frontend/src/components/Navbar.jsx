@@ -198,6 +198,11 @@ export default function Navbar() {
             <NavDropdown label="Shows">
               <DropItem
                 icon={<Tv size={14} />}
+                label="All Shows"
+                to="/web-shows"
+              />
+              <DropItem
+                icon={<Tv size={14} />}
                 label="Trending Series"
                 to="/web-shows/trending"
               />

@@ -1,10 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Film, Bookmark, CalendarDays, PlayCircle } from "lucide-react";
+import { Film, Bookmark, CalendarDays, PlayCircle, Tv } from "lucide-react";
 
 const ACCENT = "#f0545c";
 
 const ITEMS = [
   { key: "movies", label: "Movies", icon: Film, to: "/", match: ["/", "/now-showing", "/coming-soon", "/movie"] },
+  { key: "shows", label: "Shows", icon: Tv, to: "/web-shows", match: ["/web-shows"] },
   { key: "watchlist", label: "Watchlist", icon: Bookmark, to: "/watchlist", match: ["/watchlist"] },
   { key: "events", label: "Events", icon: CalendarDays, to: "/events", match: ["/events", "/event"] },
   { key: "play", label: "Play", icon: PlayCircle, to: "/play", match: ["/play"] },
@@ -20,7 +21,7 @@ function isPathActive(pathname, matchList) {
 }
 
 /**
- * Floating bottom navigation — 4 primary destinations only. Profile/account
+ * Floating bottom navigation — 5 primary destinations only. Profile/account
  * access lives in the top Navbar on mobile (see Navbar.jsx), so this bar
  * stays focused on content browsing. Render once, near the root layout
  * (e.g. alongside <Navbar />). Hidden at the `lg` breakpoint and above.
@@ -59,7 +60,7 @@ export default function BottomNav() {
         style={{ bottom: "calc(14px + env(safe-area-inset-bottom))" }}
       >
         <div
-          className="flex items-center gap-1 rounded-full border border-gray-100 px-5 py-1"
+          className="flex items-center gap-0.5 rounded-full border border-gray-100 px-3 py-1"
           style={{
             background: "#ffffff",
             boxShadow: "0 10px 28px -6px rgba(17,17,17,0.16), 0 2px 6px rgba(17,17,17,0.05)",
@@ -73,7 +74,7 @@ export default function BottomNav() {
                 key={item.key}
                 onClick={() => navigate(item.to)}
                 aria-current={active ? "page" : undefined}
-                className="flex flex-col items-center justify-center gap-0.5 px-4 py-1.5 rounded-full group"
+                className="flex flex-col items-center justify-center gap-0.5 px-2.5 py-1.5 rounded-full group"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <span

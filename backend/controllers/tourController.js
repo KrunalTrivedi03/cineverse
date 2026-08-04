@@ -42,6 +42,8 @@ const attachLegs = async (tours) => {
 
     legsByTour[key].push({
       event: leg,
+      // Primary/display city — nearest upcoming schedule, kept for
+      // backwards-compatible single-line summaries.
       city: upcoming?.venue?.city || null,
       district: upcoming?.venue?.district || null,
       venue: upcoming?.venue || null,
@@ -49,6 +51,16 @@ const attachLegs = async (tours) => {
       scheduleId: upcoming?._id || null,
       isPast: upcoming ? upcoming.eventDate < today : false,
       totalSchedules: legSchedules.length,
+      // Full breakdown — one entry per EventSchedule, so an event that's
+      // been scheduled in several cities shows all of them, not just one.
+      schedules: legSchedules.map((s) => ({
+        scheduleId: s._id,
+        city: s.venue?.city || null,
+        district: s.venue?.district || null,
+        venue: s.venue || null,
+        eventDate: s.eventDate,
+        isPast: s.eventDate < today,
+      })),
     });
   });
 
@@ -67,8 +79,16 @@ const attachLegs = async (tours) => {
     const tourLegs = legsByTour[t._id.toString()] || [];
     obj.legs = tourLegs;
     obj.legCount = tourLegs.length;
-    obj.cities = [...new Set(tourLegs.filter((l) => l.city).map((l) => l.city.name))];
-    obj.countries = [...new Set(tourLegs.filter((l) => l.city).map((l) => l.city.country || "India"))];
+    obj.cities = [...new Set(
+      tourLegs.flatMap((l) => (l.schedules?.length ? l.schedules : [l]))
+        .filter((s) => s.city)
+        .map((s) => s.city.name)
+    )];
+    obj.countries = [...new Set(
+      tourLegs.flatMap((l) => (l.schedules?.length ? l.schedules : [l]))
+        .filter((s) => s.city)
+        .map((s) => s.city.country || "India")
+    )];
     obj.nextLeg = tourLegs.find((l) => !l.isPast) || null;
     return obj;
   });

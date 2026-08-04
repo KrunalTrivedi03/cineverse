@@ -21,6 +21,7 @@ const {
   artistUpload,
   venueUpload,
   offerUpload,
+  tourUpload,
   cloudinary,
 } = require("../config/cloudinary");
 
@@ -36,6 +37,7 @@ module.exports = {
   artistUpload,
   venueUpload,
   offerUpload,
+  tourUpload,
   handleUploadError,
   cloudinary,
 };

@@ -2,7 +2,7 @@ const Event         = require("../models/Event");
 const EventSchedule = require("../models/EventSchedule");
 const { syncEventStatuses } = require("../services/eventAutomation");
 
-const populateEvent = (q) => q.populate("artists", "name image genres");
+const populateEvent = (q) => q.populate("artists", "name image genres").populate("tour", "title poster status");
 
 const attachNextSchedule = async (events, { city, district } = {}) => {
   if (!events.length) return events;
@@ -69,7 +69,7 @@ exports.createEvent = async (req, res) => {
     const {
       title, description, category, genre, artists, languages, duration,
       ageRestriction, eventRules, trailerLink, bookingType, organizer,
-      tags, status, isFeatured,
+      tags, status, isFeatured, tour,
     } = req.body;
 
     const eventData = {
@@ -84,6 +84,7 @@ exports.createEvent = async (req, res) => {
       eventRules: eventRules ? JSON.parse(eventRules) : [],
       organizer:  organizer  ? JSON.parse(organizer)  : {},
       tags:       tags       ? JSON.parse(tags)       : [],
+      tour:       tour || null,
       gallery: [],
     };
 
@@ -106,7 +107,7 @@ exports.updateEvent = async (req, res) => {
     const {
       title, description, category, genre, artists, languages, duration,
       ageRestriction, eventRules, trailerLink, bookingType, organizer,
-      tags, status, isFeatured,
+      tags, status, isFeatured, tour,
     } = req.body;
 
     if (title)         event.title         = title;
@@ -120,6 +121,8 @@ exports.updateEvent = async (req, res) => {
     if (status)          event.status         = status;
     if (trailerLink)    event.trailerLink   = trailerLink;
     if (typeof isFeatured !== "undefined") event.isFeatured = isFeatured === "true" || isFeatured === true;
+    // Explicit empty string / "null" clears the tour link; omitted field leaves it untouched
+    if (typeof tour !== "undefined") event.tour = tour || null;
 
     if (artists)    event.artists    = JSON.parse(artists);
     if (eventRules) event.eventRules = JSON.parse(eventRules);
@@ -154,10 +157,12 @@ exports.getEvents = async (req, res) => {
   try {
     await syncEventStatuses();
 
-    const { category, status, district, city } = req.query;
+    const { category, status, district, city, tour, unlinked } = req.query;
     let filter = {};
     if (category) filter.category = category;
     if (status)   filter.status   = status;
+    if (tour)     filter.tour     = tour;
+    if (unlinked === "true") filter.tour = null;
 
     if (district || city) {
       const scheduleFilter = {};
@@ -211,6 +216,17 @@ exports.getEventsByArtist = async (req, res) => {
       Event.find({ artists: req.params.artistId, status: { $ne: "cancelled" } })
     ).sort({ createdAt: -1 });
     res.json(await attachNextSchedule(events, { city, district }));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getEventsByTour = async (req, res) => {
+  try {
+    const events = await populateEvent(
+      Event.find({ tour: req.params.tourId })
+    ).sort({ createdAt: 1 });
+    res.json(await attachNextSchedule(events));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

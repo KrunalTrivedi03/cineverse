@@ -32,6 +32,15 @@ const EventSchema = new mongoose.Schema({
     ref: "Artist",
   }],
 
+  /* Optional — set when this Event is one city/venue leg of a larger Tour.
+     Multiple Events (each in its own city/country, with its own EventSchedule)
+     can point at the same Tour to be grouped together as one touring production. */
+  tour: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tour",
+    default: null,
+  },
+
   languages: [
   {
     type: String,

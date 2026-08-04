@@ -15,6 +15,10 @@ const permissionsList = [
   "UPDATE_EVENT",
   "DELETE_EVENT",
   "VIEW_EVENTS",
+  "CREATE_TOUR",
+  "UPDATE_TOUR",
+  "DELETE_TOUR",
+  "VIEW_TOURS",
   "MANAGE_ROLES",
   "MANAGE_PERMISSIONS",
   "ADD_TO_WATCHLIST",
@@ -61,6 +65,10 @@ async function seed() {
           perms.UPDATE_EVENT,
           perms.DELETE_EVENT,
           perms.VIEW_EVENTS,
+          perms.CREATE_TOUR,
+          perms.UPDATE_TOUR,
+          perms.DELETE_TOUR,
+          perms.VIEW_TOURS,
           perms.ADD_TO_WATCHLIST,
           perms.REMOVE_FROM_WATCHLIST,
           perms.VIEW_WATCHLIST
@@ -71,6 +79,7 @@ async function seed() {
         permissions: [
           perms.VIEW_MOVIES,
           perms.VIEW_EVENTS,
+          perms.VIEW_TOURS,
           perms.ADD_TO_WATCHLIST,
           perms.REMOVE_FROM_WATCHLIST,
           perms.VIEW_WATCHLIST

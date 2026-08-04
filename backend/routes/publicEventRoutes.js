@@ -10,6 +10,7 @@ router.get("/recommended",        eventController.getRecommendedEvents);
 router.get("/search",             eventController.searchEvents);
 router.get("/category/:category", eventController.getEventsByCategory);
 router.get("/artist/:artistId",   eventController.getEventsByArtist);
+router.get("/tour/:tourId",       eventController.getEventsByTour);
 router.get("/district/:districtId", eventController.getEventsByDistrict);
 router.get("/:id/similar",        eventController.getSimilarEvents);
 

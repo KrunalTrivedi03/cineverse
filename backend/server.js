@@ -43,6 +43,7 @@ const eventScheduleRoutes  = require("./routes/eventScheduleRoutes");
 const eventSeatRoutes      = require("./routes/eventSeatRoutes");
 const eventPaymentRoutes   = require("./routes/eventPaymentRoutes");
 const offerRoutes          = require("./routes/offerRoutes");
+const webShowRoutes        = require("./routes/WebShowRoutes");
 const contactRoutes        = require("./routes/contactRoutes");
 
 const app    = express();
@@ -130,6 +131,7 @@ app.use("/api/tours",           tourRoutes);
 app.use("/api/event-schedules", eventScheduleRoutes);
 app.use("/api/event-seats",     eventSeatRoutes);
 app.use("/api/event-payment",   eventPaymentRoutes);
+app.use("/api/web-shows", webShowRoutes);
 
 /* Offers & Contact */
 app.use("/api/offers",  offerRoutes);

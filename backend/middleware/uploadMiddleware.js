@@ -22,6 +22,7 @@ const {
   venueUpload,
   offerUpload,
   tourUpload,
+  webShowUpload,
   cloudinary,
 } = require("../config/cloudinary");
 
@@ -38,6 +39,7 @@ module.exports = {
   venueUpload,
   offerUpload,
   tourUpload,
+  webShowUpload,
   handleUploadError,
   cloudinary,
 };

@@ -65,6 +65,14 @@ const tourStorage = new CloudinaryStorage({
   },
 });
 
+const webShowStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          "cineverse/webshows",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
 const upload       = multer({ storage: movieStorage,  limits: { fileSize: 10 * 1024 * 1024 } });
 const avatarUpload = multer({ storage: avatarStorage, limits: { fileSize: 2  * 1024 * 1024 } });
 const eventUpload  = multer({ storage: eventStorage,  limits: { fileSize: 10 * 1024 * 1024 } });
@@ -72,5 +80,6 @@ const artistUpload = multer({ storage: artistStorage, limits: { fileSize: 5  * 1
 const venueUpload  = multer({ storage: venueStorage,  limits: { fileSize: 5  * 1024 * 1024 } });
 const offerUpload  = multer({ storage: offerStorage,  limits: { fileSize: 5  * 1024 * 1024 } });
 const tourUpload   = multer({ storage: tourStorage,   limits: { fileSize: 10 * 1024 * 1024 } });
+const webShowUpload = multer({ storage: webShowStorage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-module.exports = { cloudinary, upload, avatarUpload, eventUpload, artistUpload, venueUpload, offerUpload, tourUpload };
+module.exports = { cloudinary, upload, avatarUpload, eventUpload, artistUpload, venueUpload, offerUpload, tourUpload, webShowUpload };

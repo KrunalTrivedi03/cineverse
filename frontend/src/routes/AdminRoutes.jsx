@@ -24,6 +24,7 @@ import AddEvent from "../admin/pages/Addevent";
 import AdminEventSchedules from "../admin/pages/Admineventschedules";
 import AdminOffers from "../admin/pages/AdminOffers";
 import AdminTours from "../admin/pages/AdminTours";
+import WebAdminShows from "../admin/pages/WebAdminShows";
 
 export default function AdminRoutes() {
   return (
@@ -53,6 +54,7 @@ export default function AdminRoutes() {
       <Route path="/admin/districts" element={<AdminDistricts />} />
       <Route path="admin/schedule-events" element={<AdminEventSchedules />} />
       <Route path="/admin/offers" element={<AdminOffers />} />
+      <Route path="/admin/web-shows" element={<WebAdminShows />} />
 
     </>
   );

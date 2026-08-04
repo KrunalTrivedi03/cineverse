@@ -199,7 +199,12 @@ export default function Navbar() {
               <DropItem
                 icon={<Tv size={14} />}
                 label="Trending Series"
-                to="/"
+                to="/web-shows/trending"
+              />
+              <DropItem
+                icon={<Tv size={14} />}
+                label="Web Originals"
+                to="/web-shows/web-originals"
               />
               <DropItem icon={<Tv size={14} />} label="Web Originals" to="/" />
             </NavDropdown>

@@ -17,6 +17,7 @@ import {
   Landmark,
   Tag,
   Route as RouteIcon,
+  Tv,
 } from "lucide-react";
 
 const MENU = [
@@ -46,6 +47,7 @@ const MENU = [
     ],
   },
   { name: "Offers",      icon: Tag,             path: "/admin/offers"      },
+  { name: "Shows",       icon: Tv,              path: "/admin/web-shows"   },
   { name: "Users",       icon: Users,           path: "/admin/users"       },
   { name: "Roles",       icon: ShieldCheck,     path: "/admin/roles"       },
   { name: "Permissions", icon: KeyRound,        path: "/admin/permissions" },

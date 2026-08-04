@@ -16,6 +16,7 @@ import {
   Mic2,
   Landmark,
   Tag,
+  Route as RouteIcon,
 } from "lucide-react";
 
 const MENU = [
@@ -38,6 +39,7 @@ const MENU = [
     children: [
       { name: "Events", icon: CalendarDays, path: "/admin/events", },
       { name: "Artists", icon: Mic2, path: "/admin/artists", },
+      { name: "Tours", icon: RouteIcon, path: "/admin/tours", },
       { name: "Venues", icon: Building2, path: "/admin/venues", },
       { name: "Districts", icon: Landmark, path: "/admin/districts", },
       { name: "Schedule Events", icon: CalendarDays, path: "/admin/schedule-events", },

@@ -144,6 +144,32 @@ export default function EventDetail() {
             <FactCard icon={<ShieldAlert size={14} color="#f0545c" />} label="Age Limit" value={event.ageRestriction} />
           </div>
 
+          {/* Tour banner — shown when this event is one leg of a multi-city/country tour */}
+          {event.tour && (
+            <div
+              onClick={() => navigate(`/tours/${event.tour._id}`)}
+              className="flex items-center gap-3 mb-6 cursor-pointer"
+              style={{
+                background: "rgba(240,84,92,0.06)",
+                border: "1px solid rgba(240,84,92,0.2)",
+                borderRadius: 14,
+                padding: "12px 14px",
+              }}
+            >
+              {event.tour.poster && (
+                <img src={IMG(event.tour.poster)} alt={event.tour.title}
+                  style={{ width: 44, height: 32, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} />
+              )}
+              <div className="min-w-0 flex-1">
+                <p style={{ fontSize: 10, fontWeight: 700, color: "#f0545c", textTransform: "uppercase", letterSpacing: ".06em" }}>
+                  Part of a tour
+                </p>
+                <p className="truncate" style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{event.tour.title}</p>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#f0545c", flexShrink: 0 }}>See all stops →</span>
+            </div>
+          )}
+
           {/* Description — collapsible on both mobile and desktop */}
           {event.description && (
             <Section title="About this event">

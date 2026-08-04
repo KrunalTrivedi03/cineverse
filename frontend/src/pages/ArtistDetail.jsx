@@ -1,7 +1,7 @@
 // src/pages/ArtistDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, Instagram, Twitter, Facebook, Youtube, Globe } from "lucide-react";
+import { ChevronLeft, Instagram, Twitter, Facebook, Youtube, Globe, Route } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import EventCard from "../components/EventCard";
@@ -16,6 +16,7 @@ export default function ArtistDetail() {
 
   const [artist, setArtist] = useState(null);
   const [events, setEvents] = useState([]);
+  const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,8 +24,9 @@ export default function ArtistDetail() {
     Promise.all([
       api.get(`/artists/${id}`),
       api.get(`/events/artist/${id}`),
+      api.get(`/tours/artist/${id}`),
     ])
-      .then(([a, e]) => { setArtist(a.data); setEvents(e.data); })
+      .then(([a, e, t]) => { setArtist(a.data); setEvents(e.data); setTours(t.data || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
@@ -99,6 +101,39 @@ export default function ArtistDetail() {
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-6">
         {artist.bio && (
           <p style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.7, marginBottom: 28 }}>{artist.bio}</p>
+        )}
+
+        {tours.length > 0 && (
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "#111" }}>
+              On Tour
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {tours.map((t) => (
+                <div key={t._id} onClick={() => navigate(`/tours/${t._id}`)}
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12, background: "#fff",
+                    border: "1px solid #eee", borderRadius: 14, padding: "12px 14px",
+                  }}>
+                  {t.poster ? (
+                    <img src={IMG(t.poster)} alt={t.title} style={{ width: 52, height: 38, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} />
+                  ) : (
+                    <div style={{ width: 52, height: 38, borderRadius: 8, background: "rgba(240,84,92,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Route size={16} color="#f0545c" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate" style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{t.title}</p>
+                    <p className="truncate" style={{ fontSize: 11, color: "#9ca3af" }}>
+                      {(t.cities || []).slice(0, 3).join(" · ") || "Cities announced soon"}
+                    </p>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#f0545c", flexShrink: 0 }}>{t.legCount || 0} stops</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         <h2 style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 800, color: "#111" }}>

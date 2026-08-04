@@ -31,6 +31,7 @@ import {
   Phone,
   Sparkles,
   Images,
+  Route,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -197,6 +198,7 @@ export default function AddEvent() {
   const [showTrailer, setShowTrailer] = useState(false);
   const [artistOptions, setArtistOptions] = useState([]);
   const [artistSearch, setArtistSearch] = useState("");
+  const [tourOptions, setTourOptions] = useState([]);
 
   const [form, setForm] = useState({
     // Step 1 — core details
@@ -216,6 +218,7 @@ export default function AddEvent() {
     trailerLink: "",
     // Step 3 — artists & rules
     artists: [],
+    tour: "",
     eventRules: [],
     // Step 4 — organizer & gallery
     organizer: { name: "", email: "", phone: "" },
@@ -238,7 +241,16 @@ export default function AddEvent() {
         console.error("Failed to load artists", err);
       }
     };
+    const loadTours = async () => {
+      try {
+        const res = await axiosAdmin.get("/tours");
+        setTourOptions(res.data || []);
+      } catch (err) {
+        console.error("Failed to load tours", err);
+      }
+    };
     loadArtists();
+    loadTours();
   }, []);
 
   const toggleArtist = (id) =>
@@ -294,6 +306,7 @@ export default function AddEvent() {
       data.append("isFeatured",     form.isFeatured);
       data.append("trailerLink",    form.trailerLink);
       data.append("artists",        JSON.stringify(form.artists));
+      if (form.tour) data.append("tour", form.tour);
       data.append("eventRules",     JSON.stringify(form.eventRules));
       data.append("organizer",      JSON.stringify(form.organizer));
       if (form.poster) data.append("poster", form.poster);
@@ -765,6 +778,19 @@ export default function AddEvent() {
                     })
                   )}
                 </div>
+              </InputField>
+
+              <InputField icon={Route} label="Part of a Tour? (optional)">
+                <StyledSelect value={form.tour} onChange={(e) => set("tour", e.target.value)}>
+                  <option value="">Standalone event — not part of a tour</option>
+                  {tourOptions.map((t) => (
+                    <option key={t._id} value={t._id}>{t.title}</option>
+                  ))}
+                </StyledSelect>
+                <p className="text-[11px] text-gray-400 mt-1.5">
+                  Pick this if this show is one city leg of a multi-city/country tour (e.g. "Forever Tour 2026").
+                  Create tours first from Event Management → Tours.
+                </p>
               </InputField>
 
               <InputField icon={ListChecks} label="Event Rules">

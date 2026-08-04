@@ -23,6 +23,7 @@ import EditEvent from "../admin/pages/Editevent";
 import AddEvent from "../admin/pages/Addevent";
 import AdminEventSchedules from "../admin/pages/Admineventschedules";
 import AdminOffers from "../admin/pages/AdminOffers";
+import AdminTours from "../admin/pages/AdminTours";
 
 export default function AdminRoutes() {
   return (
@@ -44,6 +45,7 @@ export default function AdminRoutes() {
 
       <Route path="/admin/events" element={<AdminEvents />} />
       <Route path="/admin/artists" element={<AdminArtists />} />
+      <Route path="/admin/tours" element={<AdminTours />} />
       <Route path="/admin/events/add" element={<AddEvent />} />
       <Route path="/admin/events/edit/:id" element={<EditEvent />} />
       <Route path="/admin/venues" element={<AdminVenues />} />

@@ -21,6 +21,7 @@ import EventDetail from "./pages/EventDetail";
 import CategoryEvents from "./pages/CategoryEvents";
 import DistrictEvents from "./pages/DistrictEvents";
 import ArtistDetail from "./pages/ArtistDetail";
+import TourDetail from "./pages/TourDetail";
 import BookEventTickets from "./pages/BookEventTickets";
 import EventSeatSelection from "./pages/EventSeatSelection";
 import TicketQuantitySelection from "./pages/TicketQuantitySelection";
@@ -65,6 +66,7 @@ export default function App() {
         <Route path="/events/category/:category" element={<CategoryEvents />} />
         <Route path="/events/district/:districtId" element={<DistrictEvents />} />
         <Route path="/artists/:id" element={<ArtistDetail />} />
+        <Route path="/tours/:id" element={<TourDetail />} />
 
         <Route path="/events/:id/book" element={<BookEventTickets />} />
         <Route path="/events/:id/schedule/:scheduleId/slot/:slotId/seats" element={<EventSeatSelection />} />

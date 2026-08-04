@@ -33,6 +33,7 @@ import {
   Phone,
   Sparkles,
   Images,
+  Route,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -201,6 +202,7 @@ export default function EditEvent() {
   const [loading, setLoading] = useState(true);
   const [artistOptions, setArtistOptions] = useState([]);
   const [artistSearch, setArtistSearch] = useState("");
+  const [tourOptions, setTourOptions] = useState([]);
 
   const [form, setForm] = useState({
     // Step 1 — core details
@@ -220,6 +222,7 @@ export default function EditEvent() {
     trailerLink: "",
     // Step 3 — artists & rules
     artists: [],
+    tour: "",
     eventRules: [],
     // Step 4 — organizer & gallery
     organizer: { name: "", email: "", phone: "" },
@@ -243,7 +246,16 @@ export default function EditEvent() {
         console.error("Failed to load artists", err);
       }
     };
+    const loadTours = async () => {
+      try {
+        const res = await axiosAdmin.get("/tours");
+        setTourOptions(res.data || []);
+      } catch (err) {
+        console.error("Failed to load tours", err);
+      }
+    };
     loadArtists();
+    loadTours();
   }, []);
 
   /* ── Load existing event data ── */
@@ -269,6 +281,7 @@ export default function EditEvent() {
           isFeatured:     event.isFeatured       ?? false,
           trailerLink:    event.trailerLink      || "",
           artists:        (event.artists || []).map((a) => (typeof a === "string" ? a : a._id)),
+          tour:           event.tour ? (typeof event.tour === "string" ? event.tour : event.tour._id) : "",
           eventRules:     event.eventRules       || [],
           organizer: {
             name:  event.organizer?.name  || "",
@@ -345,6 +358,7 @@ export default function EditEvent() {
       data.append("isFeatured",     form.isFeatured);
       data.append("trailerLink",    form.trailerLink);
       data.append("artists",        JSON.stringify(form.artists));
+      data.append("tour",           form.tour || "");
       data.append("eventRules",     JSON.stringify(form.eventRules));
       data.append("organizer",      JSON.stringify(form.organizer));
       if (form.poster) data.append("poster", form.poster);
@@ -731,6 +745,18 @@ export default function EditEvent() {
                     })
                   )}
                 </div>
+              </InputField>
+
+              <InputField icon={Route} label="Part of a Tour? (optional)">
+                <StyledSelect value={form.tour} onChange={(e) => set("tour", e.target.value)}>
+                  <option value="">Standalone event — not part of a tour</option>
+                  {tourOptions.map((t) => (
+                    <option key={t._id} value={t._id}>{t.title}</option>
+                  ))}
+                </StyledSelect>
+                <p className="text-[11px] text-gray-400 mt-1.5">
+                  Pick this if this show is one city leg of a multi-city/country tour.
+                </p>
               </InputField>
 
               <InputField icon={ListChecks} label="Event Rules">

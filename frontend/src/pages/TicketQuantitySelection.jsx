@@ -183,7 +183,6 @@ export default function TicketQuantitySelection() {
     <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
-      <BottomNav />
 
       <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">
         <div className="max-w-2xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">

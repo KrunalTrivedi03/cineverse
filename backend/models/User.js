@@ -80,6 +80,46 @@ const UserSchema = new mongoose.Schema(
       type:    String,
       default: null,
     },
+
+    // ─── Admin login security (2FA + lockout) ──────────────────────────
+    adminOTP: {
+      type:    String,
+      default: null,
+    },
+    adminOTPExpires: {
+      type:    Date,
+      default: null,
+    },
+    adminOTPAttempts: {
+      type:    Number,
+      default: 0,
+    },
+    failedLoginAttempts: {
+      type:    Number,
+      default: 0,
+    },
+    lockUntil: {
+      type:    Date,
+      default: null,
+    },
+    adminRefreshToken: {
+      type:    String,
+      default: null,
+    },
+    // Separate from adminOTP above so a password-reset request can't
+    // collide with (or be used to bypass) an in-progress login 2FA step.
+    adminResetOTP: {
+      type:    String,
+      default: null,
+    },
+    adminResetOTPExpires: {
+      type:    Date,
+      default: null,
+    },
+    adminResetOTPAttempts: {
+      type:    Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );

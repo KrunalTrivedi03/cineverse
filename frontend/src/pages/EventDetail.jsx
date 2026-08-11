@@ -6,7 +6,7 @@ import {
   ShieldAlert, Building2, Mail, Phone, Star, Ticket, InfoIcon,
 } from "lucide-react";
 import api from "../api/axiosInstance";
-import Navbar from "../components/Navbar";
+import Navbar, { getSelectedCity } from "../components/Navbar";
 import EventRow from "../components/EventRow";
 import { IMG, fmtDateLong, fmt12 } from "../utils/eventHelpers";
 import OfferBadge from "../components/OfferBadge";
@@ -30,6 +30,13 @@ export default function EventDetail() {
 
   const [descExpanded, setDescExpanded]   = useState(false);
   const [rulesExpanded, setRulesExpanded] = useState(false);
+
+  const [selectedCityId, setSelectedCityId] = useState(() => getSelectedCity().id);
+  useEffect(() => {
+    const onCityChange = () => setSelectedCityId(getSelectedCity().id);
+    window.addEventListener("cityChanged", onCityChange);
+    return () => window.removeEventListener("cityChanged", onCityChange);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -59,7 +66,8 @@ export default function EventDetail() {
 
   if (!event) return null;
 
-  const nearestSchedule = schedules[0];
+  const nearestSchedule =
+    schedules.find((s) => s.venue?.city?._id === selectedCityId) || schedules[0];
   const venue = nearestSchedule?.venue;
 
   const allPrices = schedules.flatMap((s) =>

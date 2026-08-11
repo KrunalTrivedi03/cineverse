@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AdminAuthContext } from "../../context/AdminAuthContext";
 import {
   LayoutDashboard,
   Film,
@@ -16,8 +17,7 @@ import {
   Mic2,
   Landmark,
   Tag,
-  Route as RouteIcon,
-  Tv,
+  Lock,
 } from "lucide-react";
 
 const MENU = [
@@ -40,14 +40,12 @@ const MENU = [
     children: [
       { name: "Events", icon: CalendarDays, path: "/admin/events", },
       { name: "Artists", icon: Mic2, path: "/admin/artists", },
-      { name: "Tours", icon: RouteIcon, path: "/admin/tours", },
       { name: "Venues", icon: Building2, path: "/admin/venues", },
       { name: "Districts", icon: Landmark, path: "/admin/districts", },
       { name: "Schedule Events", icon: CalendarDays, path: "/admin/schedule-events", },
     ],
   },
   { name: "Offers",      icon: Tag,             path: "/admin/offers"      },
-  { name: "Shows",       icon: Tv,              path: "/admin/web-shows"   },
   { name: "Users",       icon: Users,           path: "/admin/users"       },
   { name: "Roles",       icon: ShieldCheck,     path: "/admin/roles"       },
   { name: "Permissions", icon: KeyRound,        path: "/admin/permissions" },
@@ -56,6 +54,7 @@ const MENU = [
 export default function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useContext(AdminAuthContext);
 
   let userInfo = {};
   try {
@@ -75,8 +74,7 @@ export default function AdminSidebar() {
     );
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminInfo");
+    logout(); // clears adminAccessToken + adminInfo and revokes the server-side session
     navigate("/admin/login");
   };
 
@@ -249,6 +247,24 @@ export default function AdminSidebar() {
       </nav>
 
       <div className="px-3 py-4 border-t border-gray-100">
+        <Link
+          to="/admin/change-password"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 mb-0.5"
+          style={{
+            background: location.pathname.startsWith("/admin/change-password") ? "rgba(240,84,92,0.08)" : "transparent",
+            color: location.pathname.startsWith("/admin/change-password") ? "#f0545c" : "#4b5563",
+          }}
+          onMouseEnter={(e) => {
+            if (!location.pathname.startsWith("/admin/change-password")) e.currentTarget.style.background = "#f9fafb";
+          }}
+          onMouseLeave={(e) => {
+            if (!location.pathname.startsWith("/admin/change-password")) e.currentTarget.style.background = "transparent";
+          }}
+        >
+          <Lock size={16} className="flex-shrink-0" style={{ color: location.pathname.startsWith("/admin/change-password") ? "#f0545c" : "#9ca3af" }} />
+          Change Password
+        </Link>
+
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-gray-500 transition-all"

@@ -141,7 +141,7 @@ function TransactionRow({ t, onRequestDelete }) {
   const st = STATUS_STYLE[t.status] || STATUS_STYLE.success;
   const StatusIcon = st.icon;
   const isCredit = t.type === "credit";
-  const isBooking = t.bookingType === "movie" || t.bookingType === "event";
+  const isBooking = t.bookingType === "movie" || t.bookingType === "event" || t.bookingType === "play";
 
   return (
     <div className="bg-white border border-gray-100 hover:border-gray-200 hover:shadow-[0_2px_16px_-6px_rgba(17,17,17,0.08)] transition-all rounded-2xl">

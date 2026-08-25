@@ -21,7 +21,6 @@ import EventDetail from "./pages/EventDetail";
 import CategoryEvents from "./pages/CategoryEvents";
 import DistrictEvents from "./pages/DistrictEvents";
 import ArtistDetail from "./pages/ArtistDetail";
-import TourDetail from "./pages/TourDetail";
 import BookEventTickets from "./pages/BookEventTickets";
 import EventSeatSelection from "./pages/EventSeatSelection";
 import TicketQuantitySelection from "./pages/TicketQuantitySelection";
@@ -29,13 +28,16 @@ import EventBookingSuccess from "./pages/EventBookingSuccess";
 import MyEventBookings from "./pages/MyEventBookings";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Play from "./pages/Play";
+import PlayVenues from "./pages/PlayVenues";
+import PlayVenueDetail from "./pages/PlayVenueDetail";
+import PlaySlotSelection from "./pages/PlaySlotSelection";
+import PlayBookingSuccess from "./pages/PlayBookingSuccess";
+import MyPlayBookings from "./pages/MyPlayBookings";
 import TransactionHistory from "./pages/TransactionHistory";
 import Aboutus from "./pages/Aboutus";
 import ContactUs from "./pages/Contactus";
 import Offers from "./pages/Offers";
 import BookingReview from "./pages/BookingReview";
-import WebShowDetails from "./pages/WebShowDetails";
-import WebShowsListing from "./pages/WebShowsListing";
 
 export default function App() {
   return (
@@ -63,17 +65,11 @@ export default function App() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/offers" element={<Offers />} />
 
-        <Route path="/web-shows" element={<WebShowsListing />} />
-        <Route path="/web-shows/trending" element={<WebShowsListing category="trending-series" />} />
-        <Route path="/web-shows/web-originals" element={<WebShowsListing category="web-original" />} />
-        <Route path="/web-shows/:id" element={<WebShowDetails />} />
-
         <Route path="/events" element={<ExploreEvents />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/events/category/:category" element={<CategoryEvents />} />
         <Route path="/events/district/:districtId" element={<DistrictEvents />} />
         <Route path="/artists/:id" element={<ArtistDetail />} />
-        <Route path="/tours/:id" element={<TourDetail />} />
 
         <Route path="/events/:id/book" element={<BookEventTickets />} />
         <Route path="/events/:id/schedule/:scheduleId/slot/:slotId/seats" element={<EventSeatSelection />} />
@@ -81,6 +77,11 @@ export default function App() {
         <Route path="/booking/event-success" element={<EventBookingSuccess />} />
 
         <Route path="/play" element={<Play />} />
+        <Route path="/play/venues" element={<PlayVenues />} />
+        <Route path="/play/venues/:id" element={<PlayVenueDetail />} />
+        <Route path="/play/venues/:id/slots" element={<PlaySlotSelection />} />
+        <Route path="/play/booking-success" element={<PlayBookingSuccess />} />
+        <Route path="/play/my-bookings" element={<MyPlayBookings />} />
 
         <Route
           path="/my-event-bookings"

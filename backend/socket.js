@@ -1,8 +1,10 @@
 const SeatLock      = require("./models/SeatLock");
 const EventSeatLock = require("./models/EventSeatLock");
+const PlaySlotLock  = require("./models/PlaySlotLock");
 
 const room      = (showId, slotId)     => `show:${showId}:slot:${slotId}`;
 const eventRoom = (scheduleId, slotId) => `event:${scheduleId}:slot:${slotId}`;
+const playRoom  = (venueId, date)      => `play:${venueId}:date:${date}`;
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
@@ -49,6 +51,27 @@ module.exports = (io) => {
 
     socket.on("event-booking:confirmed", ({ scheduleId, slotId, seatIds }) => {
       socket.to(eventRoom(scheduleId, slotId)).emit("event-seats:booked", { seatIds });
+    });
+
+    /* ── Play (sports/activity slot booking) ── */
+    socket.on("join:play", ({ venueId, date }) => {
+      socket.join(playRoom(venueId, date));
+    });
+
+    socket.on("leave:play", ({ venueId, date }) => {
+      socket.leave(playRoom(venueId, date));
+    });
+
+    socket.on("play-slot:select", ({ venueId, date, courtId, slotId }) => {
+      socket.to(playRoom(venueId, date)).emit("play-slot:locked", { courtId, slotId, userId });
+    });
+
+    socket.on("play-slot:deselect", ({ venueId, date, courtId, slotId }) => {
+      socket.to(playRoom(venueId, date)).emit("play-slot:released", { courtId, slotId, userId });
+    });
+
+    socket.on("play-booking:confirmed", ({ venueId, date, courtId, slotIds }) => {
+      socket.to(playRoom(venueId, date)).emit("play-slots:booked", { courtId, slotIds });
     });
 
     /* NOTE: we intentionally do NOT delete seat locks on socket disconnect.

@@ -23,9 +23,11 @@ import EditEvent from "../admin/pages/Editevent";
 import AddEvent from "../admin/pages/Addevent";
 import AdminEventSchedules from "../admin/pages/Admineventschedules";
 import AdminOffers from "../admin/pages/AdminOffers";
-import AdminTours from "../admin/pages/AdminTours";
-import WebAdminShows from "../admin/pages/WebAdminShows";
 import AdminChangePassword from "../admin/pages/AdminChangePassword";
+import AdminPlayActivities from "../admin/pages/AdminPlayActivities";
+import AdminPlayVenues from "../admin/pages/AdminPlayVenues";
+import AdminPlayVenueCourts from "../admin/pages/AdminPlayVenueCourts";
+import AdminPlayBookings from "../admin/pages/AdminPlayBookings";
 
 export default function AdminRoutes() {
   return (
@@ -47,7 +49,6 @@ export default function AdminRoutes() {
 
       <Route path="/admin/events" element={<AdminEvents />} />
       <Route path="/admin/artists" element={<AdminArtists />} />
-      <Route path="/admin/tours" element={<AdminTours />} />
       <Route path="/admin/events/add" element={<AddEvent />} />
       <Route path="/admin/events/edit/:id" element={<EditEvent />} />
       <Route path="/admin/venues" element={<AdminVenues />} />
@@ -55,8 +56,11 @@ export default function AdminRoutes() {
       <Route path="/admin/districts" element={<AdminDistricts />} />
       <Route path="admin/schedule-events" element={<AdminEventSchedules />} />
       <Route path="/admin/offers" element={<AdminOffers />} />
-      <Route path="/admin/web-shows" element={<WebAdminShows />} />
       <Route path="/admin/change-password" element={<AdminChangePassword />} />
+      <Route path="/admin/play/activities" element={<AdminPlayActivities />} />
+      <Route path="/admin/play/venues" element={<AdminPlayVenues />} />
+      <Route path="/admin/play/venues/:venueId/courts" element={<AdminPlayVenueCourts />} />
+      <Route path="/admin/play/bookings" element={<AdminPlayBookings />} />
 
     </>
   );

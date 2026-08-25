@@ -16,6 +16,7 @@ const {
 } = require("./services/showAutomation");
 
 const { runNightlyEventAutomation } = require("./services/eventAutomation");
+const { backfillPlayWindow, runNightlyPlayAutomation } = require("./services/playAutomation");
 
 const userAuthRoutes    = require("./routes/authRoutes");
 const adminAuthRoutes   = require("./routes/adminAuthRoutes");
@@ -45,6 +46,12 @@ const eventPaymentRoutes   = require("./routes/eventPaymentRoutes");
 const offerRoutes          = require("./routes/offerRoutes");
 const webShowRoutes        = require("./routes/WebShowRoutes");
 const contactRoutes        = require("./routes/contactRoutes");
+
+/* Play module */
+const playActivityRoutes   = require("./routes/playActivityRoutes");
+const playVenueRoutes      = require("./routes/playVenueRoutes");
+const playSlotRoutes       = require("./routes/playSlotRoutes");
+const playPaymentRoutes    = require("./routes/playPaymentRoutes");
 
 const app    = express();
 app.set("trust proxy", 1);
@@ -86,6 +93,10 @@ connectDB().then(async () => {
 
     // 2. Perform regular window backfill
     await backfillWindow(30);
+
+    // 3. Backfill the Play module's rolling slot window
+    await backfillPlayWindow(14);
+    console.log("Play slot window backfilled.");
   } catch (e) {
     console.error("Startup show initialization failed:", e.message);
   }
@@ -101,6 +112,12 @@ cron.schedule("0 2 * * *", () => {
 cron.schedule("15 2 * * *", () => {
   console.log("Running nightly event automation...");
   runNightlyEventAutomation().catch((e) => console.error("Nightly event automation failed:", e.message));
+});
+
+// Every night at 2:30 AM: clean up completed unbooked Play slots, extend the rolling window
+cron.schedule("30 2 * * *", () => {
+  console.log("Running nightly Play automation...");
+  runNightlyPlayAutomation(14).catch((e) => console.error("Nightly Play automation failed:", e.message));
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -132,6 +149,12 @@ app.use("/api/event-schedules", eventScheduleRoutes);
 app.use("/api/event-seats",     eventSeatRoutes);
 app.use("/api/event-payment",   eventPaymentRoutes);
 app.use("/api/web-shows", webShowRoutes);
+
+/* Play module */
+app.use("/api/play/activities", playActivityRoutes);
+app.use("/api/play/venues",     playVenueRoutes);
+app.use("/api/play-slots",      playSlotRoutes);
+app.use("/api/play-payment",    playPaymentRoutes);
 
 /* Offers & Contact */
 app.use("/api/offers",  offerRoutes);

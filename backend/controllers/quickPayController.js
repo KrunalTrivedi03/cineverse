@@ -182,7 +182,7 @@ exports.getTransactions = async (req, res) => {
     const filter = { user: req.user.id };
     if (req.query.type)        filter.type        = req.query.type;        // credit | debit
     if (req.query.status)      filter.status       = req.query.status;      // success | pending | failed
-    if (req.query.bookingType) filter.bookingType  = req.query.bookingType; // movie | event
+    if (req.query.bookingType) filter.bookingType  = req.query.bookingType; // movie | event | play
 
     const [transactions, total] = await Promise.all([
       Transaction.find(filter)
@@ -201,6 +201,11 @@ exports.getTransactions = async (req, res) => {
             { path: "event", select: "title poster category" },
             { path: "venue", select: "name" },
           ],
+        })
+        .populate({
+          path: "playBooking",
+          select: "date slots venueName courtName activityName bookingRef",
+          populate: { path: "slots", select: "startTime" },
         }),
       Transaction.countDocuments(filter),
     ]);
@@ -239,6 +244,18 @@ exports.getTransactions = async (req, res) => {
           subtitle:   t.booking.theatre?.name || "",
           date:       t.booking.showDate,
           time:       t.booking.showTime,
+        };
+      }
+
+      if (t.bookingType === "play" && t.playBooking) {
+        return {
+          ...base,
+          bookingRef: t.playBooking.bookingRef,
+          title:      t.playBooking.activityName || "Play Booking",
+          poster:     null,
+          subtitle:   `${t.playBooking.venueName || ""} · ${t.playBooking.courtName || ""}`,
+          date:       t.playBooking.date,
+          time:       t.playBooking.slots?.[0]?.startTime || null,
         };
       }
 

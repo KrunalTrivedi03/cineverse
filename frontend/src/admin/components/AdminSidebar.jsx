@@ -18,6 +18,8 @@ import {
   Landmark,
   Tag,
   Lock,
+  Dumbbell,
+  Grid3x3,
 } from "lucide-react";
 
 const MENU = [
@@ -43,6 +45,17 @@ const MENU = [
       { name: "Venues", icon: Building2, path: "/admin/venues", },
       { name: "Districts", icon: Landmark, path: "/admin/districts", },
       { name: "Schedule Events", icon: CalendarDays, path: "/admin/schedule-events", },
+    ],
+  },
+  {
+    name: "Play Management",
+    icon: Dumbbell,
+    children: [
+      { name: "Activities", icon: Dumbbell, path: "/admin/play/activities" },
+      { name: "Venues",     icon: Grid3x3,  path: "/admin/play/venues"     },
+      { name: "Bookings",   icon: Ticket,   path: "/admin/play/bookings"   },
+      // Court management is accessed from the Venues page (requires venueId)
+      // navigate(`/admin/play/venues/${venueId}/courts`)
     ],
   },
   { name: "Offers",      icon: Tag,             path: "/admin/offers"      },

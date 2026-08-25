@@ -110,16 +110,15 @@ exports.getPublicVenues = async (req, res) => {
   try {
     const { district, activity, activities, sort, lat, lng, amenities, minPrice, maxPrice, maxDistanceKm } = req.query;
 
-    if (!district) {
-      return res.status(400).json({ message: "district is required" });
-    }
-
+    // `district` is now an optional filter, not a precondition — "All Sports
+    // Venues" shows every active venue until the user narrows it down.
     // `activity` (single, legacy) or `activities` (comma-separated, from the
     // filter chips) — either narrows results to venues offering those
-    // sport(s). Neither present = "All Sports Venues" (no sport filter).
+    // sport(s). Neither present = no sport filter either.
     const activityIds = activities ? activities.split(",").filter(Boolean) : activity ? [activity] : [];
 
-    const filter = { district, isActive: true };
+    const filter = { isActive: true };
+    if (district) filter.district = district;
     if (activityIds.length) filter.activities = { $in: activityIds };
     if (amenities) {
       const list = amenities.split(",").filter(Boolean);

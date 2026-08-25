@@ -108,13 +108,19 @@ exports.deleteVenue = async (req, res) => {
    on the fly — venues don't store a price themselves. */
 exports.getPublicVenues = async (req, res) => {
   try {
-    const { district, activity, sort, lat, lng, amenities, minPrice, maxPrice } = req.query;
+    const { district, activity, activities, sort, lat, lng, amenities, minPrice, maxPrice, maxDistanceKm } = req.query;
 
-    if (!district || !activity) {
-      return res.status(400).json({ message: "district and activity are required" });
+    if (!district) {
+      return res.status(400).json({ message: "district is required" });
     }
 
-    const filter = { district, activities: activity, isActive: true };
+    // `activity` (single, legacy) or `activities` (comma-separated, from the
+    // filter chips) — either narrows results to venues offering those
+    // sport(s). Neither present = "All Sports Venues" (no sport filter).
+    const activityIds = activities ? activities.split(",").filter(Boolean) : activity ? [activity] : [];
+
+    const filter = { district, isActive: true };
+    if (activityIds.length) filter.activities = { $in: activityIds };
     if (amenities) {
       const list = amenities.split(",").filter(Boolean);
       if (list.length) filter.amenities = { $all: list };
@@ -122,33 +128,41 @@ exports.getPublicVenues = async (req, res) => {
 
     let venues = await pop(PlayVenue.find(filter)).lean();
 
-    // Attach each venue's cheapest active court price for this activity,
-    // plus distance if the caller supplied their coordinates.
-    const courts = await Court.find({
-      venue: { $in: venues.map((v) => v._id) },
-      activity,
-      isActive: true,
-    }).lean();
+    // Attach each venue's cheapest active court price — scoped to the
+    // filtered activity/activities if any were requested, otherwise across
+    // every active court at the venue — plus distance if coordinates were supplied.
+    const courtFilter = { venue: { $in: venues.map((v) => v._id) }, isActive: true };
+    if (activityIds.length) courtFilter.activity = { $in: activityIds };
+    const courts = await Court.find(courtFilter).populate("activity", "name slug icon").lean();
 
     const cheapestByVenue = {};
+    const activitiesByVenue = {};
     for (const c of courts) {
       const minRulePrice = Math.min(...c.pricingRules.map((r) => r.price));
       const key = c.venue.toString();
       if (!(key in cheapestByVenue) || minRulePrice < cheapestByVenue[key]) {
         cheapestByVenue[key] = minRulePrice;
       }
+      if (!activitiesByVenue[key]) activitiesByVenue[key] = new Map();
+      if (c.activity) activitiesByVenue[key].set(c.activity._id.toString(), c.activity);
     }
 
     venues = venues
-      .filter((v) => cheapestByVenue[v._id.toString()] !== undefined) // only venues with an active court for this activity
+      .filter((v) => cheapestByVenue[v._id.toString()] !== undefined) // only venues with a matching active court
       .map((v) => ({
         ...v,
         startingPrice: cheapestByVenue[v._id.toString()],
+        // Sport tags actually bookable at this venue (post-filter) — used
+        // for the little pills on each venue card ("Pool", "Snooker", ...).
+        courtActivities: Array.from(activitiesByVenue[v._id.toString()]?.values() || []),
         distanceKm: lat && lng ? distanceKm(Number(lat), Number(lng), v.latitude, v.longitude) : null,
       }));
 
     if (minPrice) venues = venues.filter((v) => v.startingPrice >= Number(minPrice));
     if (maxPrice) venues = venues.filter((v) => v.startingPrice <= Number(maxPrice));
+    if (maxDistanceKm && lat && lng) {
+      venues = venues.filter((v) => v.distanceKm != null && v.distanceKm <= Number(maxDistanceKm));
+    }
 
     if (sort === "price") venues.sort((a, b) => a.startingPrice - b.startingPrice);
     else if (sort === "distance") venues.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));

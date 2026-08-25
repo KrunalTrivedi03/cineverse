@@ -7,7 +7,6 @@ import BottomNav from "../components/BottomNav";
 import OffersDrawer from "../components/OffersDrawer";
 import { useRazorpay } from "../hooks/useRazorpay";
 import { useEventRazorpay } from "../hooks/useEventRazorpay";
-import { usePlayRazorpay } from "../hooks/usePlayRazorpay";
 import {
   ChevronLeft, ChevronDown, MapPin, Calendar, Clock, Ticket, Timer, Info, Wallet,
   CreditCard, CheckCircle, Loader2, AlertCircle, CheckCircle2,
@@ -71,7 +70,6 @@ export default function BookingReview() {
   const timerRef = useRef(null);
   const { initiatePayment: initiateMoviePayment } = useRazorpay();
   const { initiatePayment: initiateEventPayment } = useEventRazorpay();
-  const { initiatePayment: initiatePlayPayment } = usePlayRazorpay();
   const user = getCurrentUser();
 
   const showToast = (message, type = "success") => {
@@ -91,12 +89,8 @@ export default function BookingReview() {
 
   const isMovie = draft?.type === "movie";
   const isEvent = draft?.type === "event";
-  const isPlay = draft?.type === "play";
 
-  /* ── Movie-only: live seat lock, socket reconnect ─────────────────────
-     (Play's slot lock was already taken in PlaySlotSelection before we got
-     here — it doesn't need its own room on this page, just the countdown
-     below and a release call if the hold expires or the user backs out.) */
+  /* ── Movie-only: live seat lock + countdown, socket reconnect ────────── */
   useEffect(() => {
     if (!isMovie || !draft) return;
     const socket = io(BASE, { query: { userId: draft.userId }, transports: ["websocket"] });
@@ -108,34 +102,24 @@ export default function BookingReview() {
     };
   }, [isMovie, draft]);
 
-  /* ── Release whatever hold is backing this draft (seat lock or slot
-     lock) — used both when the countdown hits zero and could be reused
-     wherever the user abandons the page with time still on the clock. */
-  const releaseLock = useCallback(async () => {
-    if (!draft) return;
-    if (isMovie) {
-      await api
-        .delete("/seats/lock", {
-          data: { showId: draft.showId, slotId: draft.slotId, seatIds: draft.seats.map((s) => s.id), userId: draft.userId },
-        })
-        .catch(() => {});
-    } else if (isPlay) {
-      await api.delete("/play-slots/lock", { data: { slotIds: draft.slotIds } }).catch(() => {});
-    }
-  }, [isMovie, isPlay, draft]);
+  const releaseMovieLock = useCallback(async () => {
+    if (!isMovie || !draft) return;
+    await api
+      .delete("/seats/lock", {
+        data: { showId: draft.showId, slotId: draft.slotId, seatIds: draft.seats.map((s) => s.id), userId: draft.userId },
+      })
+      .catch(() => {});
+  }, [isMovie, draft]);
 
-  /* ── Countdown for any hold-backed booking (movie seat lock or play slot
-     lock) — events don't carry a time-limited hold, so this is a no-op for
-     those. */
   useEffect(() => {
-    if (!(isMovie || isPlay) || !draft?.lockExpiresAt) return;
+    if (!isMovie || !draft?.lockExpiresAt) return;
     const tick = () => {
       const remaining = Math.max(0, Math.round((draft.lockExpiresAt - Date.now()) / 1000));
       setCountdown(remaining);
       if (remaining <= 0) {
         clearInterval(timerRef.current);
-        showToast(isPlay ? "Your slot hold expired. Redirecting to Home…" : "Seat reservation expired. Redirecting to Home…", "error");
-        releaseLock();
+        showToast("Seat reservation expired. Redirecting to Home…", "error");
+        releaseMovieLock();
         clearBookingDraft();
         setTimeout(() => navigate("/", { replace: true }), 1400);
       }
@@ -143,7 +127,7 @@ export default function BookingReview() {
     tick();
     timerRef.current = setInterval(tick, 1000);
     return () => clearInterval(timerRef.current);
-  }, [isMovie, isPlay, draft, navigate, releaseLock]);
+  }, [isMovie, draft, navigate, releaseMovieLock]);
 
   /* ── Create / recreate the order whenever the applied offer changes ──── */
   const createOrder = useCallback(async () => {
@@ -171,18 +155,13 @@ export default function BookingReview() {
         });
         setOrderData(data);
         setPayMethod(data.wallet?.eligible ? "wallet" : "razorpay");
-      } else if (isPlay) {
-        // Play doesn't support offers or wallet pay yet — Razorpay only.
-        const { data } = await api.post("/play-payment/create-order", { slotIds: draft.slotIds });
-        setOrderData(data);
-        setPayMethod("razorpay");
       }
     } catch (err) {
       setOrderError(err.response?.data?.message || "Couldn't prepare this order");
     } finally {
       setLoadingOrder(false);
     }
-  }, [draft, isMovie, isEvent, isPlay, appliedOffer]);
+  }, [draft, isMovie, isEvent, appliedOffer]);
 
   useEffect(() => {
     createOrder();
@@ -208,7 +187,7 @@ export default function BookingReview() {
     return false;
   };
 
-  const bookingConfirmed = (booking, bookingRef) => {
+  const bookingConfirmed = (booking) => {
     clearBookingDraft();
     if (isMovie) {
       socketRef.current?.emit("booking:confirmed", {
@@ -217,8 +196,6 @@ export default function BookingReview() {
         seatIds: draft.seats.map((s) => s.id),
       });
       navigate("/booking/success", { state: { booking, movie: { title: draft.itemTitle, poster: draft.itemPoster, language: draft.language }, theatre: { name: draft.venueName } } });
-    } else if (isPlay) {
-      navigate("/play/booking-success", { state: { booking, bookingRef } });
     } else {
       navigate("/booking/event-success", { state: { booking, event: { title: draft.itemTitle, poster: draft.itemPoster }, venue: { name: draft.venueName } } });
     }
@@ -276,13 +253,6 @@ export default function BookingReview() {
         onSuccess: (_ref, booking) => bookingConfirmed(booking),
         onFailure,
       });
-    } else if (isPlay) {
-      initiatePlayPayment({
-        existingOrder: orderData,
-        userDetails,
-        onSuccess: (bookingRef, booking) => bookingConfirmed(booking, bookingRef),
-        onFailure,
-      });
     } else {
       initiateEventPayment({
         existingOrder: orderData,
@@ -297,9 +267,8 @@ export default function BookingReview() {
   const subtotal = useMemo(() => {
     if (!draft) return 0;
     if (isMovie) return draft.seats.reduce((s, x) => s + x.price, 0);
-    if (isPlay) return draft.slots.reduce((s, x) => s + x.price, 0);
     return (draft.unitPrice || 0) * (draft.quantity || 0);
-  }, [draft, isMovie, isPlay]);
+  }, [draft, isMovie]);
 
   if (!draft) return null;
 
@@ -320,7 +289,7 @@ export default function BookingReview() {
           <div className="flex-1 min-w-0">
             <h1 className="text-[15px] font-bold text-gray-900 truncate">Review your booking</h1>
           </div>
-          {(isMovie || isPlay) && countdown !== null && (
+          {isMovie && countdown !== null && (
             <span
               className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-lg flex-shrink-0"
               style={{
@@ -385,7 +354,7 @@ export default function BookingReview() {
                   <Calendar size={12} style={{ flexShrink: 0 }} /> {fmtDate(draft.date)}
                 </p>
                 <p className="text-[12.5px] text-gray-500 flex items-center gap-1.5">
-                  <Clock size={12} style={{ flexShrink: 0 }} /> {draft.timeLabel || fmt12(draft.time)}
+                  <Clock size={12} style={{ flexShrink: 0 }} /> {fmt12(draft.time)}
                   {draft.venueSub && <span className="text-gray-400">· {draft.venueSub}</span>}
                 </p>
               </div>
@@ -395,14 +364,6 @@ export default function BookingReview() {
                   {draft.seats.map((s) => (
                     <span key={s.id} className="text-[11px] font-bold px-2.5 py-1 rounded-lg" style={{ background: "rgba(240,84,92,0.07)", color: ACCENT }}>
                       {s.id} · {s.category}
-                    </span>
-                  ))}
-                </div>
-              ) : isPlay ? (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {draft.slots.map((s) => (
-                    <span key={s.id} className="text-[11px] font-bold px-2.5 py-1 rounded-lg" style={{ background: "rgba(240,84,92,0.07)", color: ACCENT }}>
-                      {s.startTime}–{s.endTime}
                     </span>
                   ))}
                 </div>
@@ -416,20 +377,15 @@ export default function BookingReview() {
             </div>
           </div>
 
-          {/* Offers aren't supported on Play bookings yet (the backend
-              order endpoint doesn't accept an offerId) — no drawer there
-              rather than showing a control that can't do anything. */}
-          {!isPlay && (
-            <OffersDrawer
-              type={isMovie ? "movies" : "events"}
-              id={draft.itemId}
-              genre={draft.genre}
-              amount={subtotal}
-              appliedOffer={appliedOffer}
-              onApply={setAppliedOffer}
-              onRemove={() => setAppliedOffer(null)}
-            />
-          )}
+          <OffersDrawer
+            type={isMovie ? "movies" : "events"}
+            id={draft.itemId}
+            genre={draft.genre}
+            amount={subtotal}
+            appliedOffer={appliedOffer}
+            onApply={setAppliedOffer}
+            onRemove={() => setAppliedOffer(null)}
+          />
         </div>
 
         {/* ── RIGHT: payment summary, user details, T&Cs ──
@@ -473,13 +429,6 @@ export default function BookingReview() {
                       </div>
                     );
                   })
-                ) : isPlay ? (
-                  draft.slots.map((s) => (
-                    <div key={s.id} className="flex items-center justify-between mb-2">
-                      <span className="text-[13px] text-gray-500">{s.startTime}–{s.endTime}</span>
-                      <span className="text-[13px] font-semibold text-gray-700">₹{s.price}</span>
-                    </div>
-                  ))
                 ) : (
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[13px] text-gray-500">{draft.ticketTypeName} × {draft.quantity}</span>

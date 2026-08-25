@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Icons from "lucide-react";
 import {
-  Dumbbell, SlidersHorizontal, X, Building2, Navigation, ChevronDown,
+  Dumbbell, MapPin, IndianRupee, SlidersHorizontal, X, Building2, Navigation, ChevronDown,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
@@ -75,13 +75,11 @@ export default function Play() {
   }, []);
 
   useEffect(() => {
+    if (!district.id) return;
     setLoadingVenues(true);
     setVenueError("");
     setVenuesShown(VENUES_PAGE_SIZE);
-    // District is an optional filter now, not a precondition — with none
-    // selected this loads venues across every district.
-    const query = new URLSearchParams();
-    if (district.id) query.set("district", district.id);
+    const query = new URLSearchParams({ district: district.id });
     if (activeSportIds.length) query.set("activities", activeSportIds.join(","));
     if (sort) query.set("sort", sort);
     if (coords) { query.set("lat", coords.lat); query.set("lng", coords.lng); }
@@ -118,12 +116,22 @@ export default function Play() {
           <DistrictSelector compact />
         </div>
 
-        {/* District is just an optional filter now (via the selector above,
-            or the chip in the venues filter bar below) — sports and venues
-            always load without one, same as landing on the page fresh. */}
-
-        {/* ══ Explore Sports ══ */}
-        <h2 className="text-[17px] font-extrabold tracking-tight text-gray-900 mb-3">Explore Sports</h2>
+        {!district.id ? (
+          /* ── No district selected yet ── */
+          <div className="rounded-2xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-14" style={{ borderRadius: 20 }}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
+              <MapPin size={24} style={{ color: "#f0545c" }} />
+            </div>
+            <p className="text-[15px] font-bold text-gray-900 mb-1">Select a district to get started</p>
+            <p className="text-[13px] text-gray-400 max-w-[260px] mb-5">
+              We'll show you badminton courts, turfs, and more near you.
+            </p>
+            <DistrictSelector />
+          </div>
+        ) : (
+          <>
+            {/* ══ Explore Sports ══ */}
+            <h2 className="text-[17px] font-extrabold tracking-tight text-gray-900 mb-3">Explore Sports</h2>
 
             {loadingActivities ? (
               <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))" }}>
@@ -282,6 +290,8 @@ export default function Play() {
                 )}
               </>
             )}
+          </>
+        )}
       </div>
 
       {/* Filters sheet: sort + full sport list + distance */}

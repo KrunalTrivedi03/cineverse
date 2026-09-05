@@ -67,6 +67,7 @@ export default function App() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/offers" element={<Offers />} />
 
+        <Route path="/web-shows" element={<WebShowsListing />} />
         <Route path="/web-shows/trending" element={<WebShowsListing category="trending-series" />} />
         <Route path="/web-shows/web-originals" element={<WebShowsListing category="web-original" />} />
         <Route path="/web-shows/:id" element={<WebShowDetails />} />

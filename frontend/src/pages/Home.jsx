@@ -9,13 +9,6 @@ import Footer from "../components/Footer";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "../components/DistrictSelector";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade } from "swiper/modules";
-
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-
 import {
   X, Play, Clock, CalendarDays, Film, Globe, ShieldCheck, Ticket,
   PartyPopper, MapPin, Dumbbell, Trophy,
@@ -146,7 +139,8 @@ export default function Home() {
   const [trailerUrl, setTrailerUrl] = useState(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [loading, setLoading] = useState(true);
-  const swiperRef = useRef(null);
+  const autoplayRef = useRef(null);
+  const pausedRef = useRef(false);
 
   const loadSlides = useCallback(async () => {
     setLoading(true);
@@ -165,6 +159,7 @@ export default function Home() {
     const plays = playRes.status === "fulfilled" ? (playRes.value.data || []).slice(0, 2) : [];
 
     setSlides(buildSlideOrder(dailyMovies, events, plays));
+    setActiveIdx(0);
     setLoading(false);
   }, []);
 
@@ -176,8 +171,41 @@ export default function Home() {
     return () => window.removeEventListener("districtChanged", handler);
   }, [loadSlides]);
 
-  const openTrailer = (url) => url && setTrailerUrl(url);
-  const closeTrailer = () => setTrailerUrl(null);
+  // Self-contained autoplay — no Swiper involved, so there's no fade-effect
+  // race where two slides can end up rendered at full opacity together.
+  // Only ever one index is "active" at a time; everything else is opacity 0
+  // and pointer-events: none.
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    autoplayRef.current = setInterval(() => {
+      if (pausedRef.current) return;
+      setActiveIdx((i) => (i + 1) % slides.length);
+    }, 5500);
+    return () => clearInterval(autoplayRef.current);
+  }, [slides.length]);
+
+  const goTo = (i) => {
+    setActiveIdx(i);
+    // Restart the autoplay clock so a manual click doesn't get immediately
+    // overridden by a timer that was already halfway through its interval.
+    clearInterval(autoplayRef.current);
+    if (slides.length > 1) {
+      autoplayRef.current = setInterval(() => {
+        if (pausedRef.current) return;
+        setActiveIdx((i2) => (i2 + 1) % slides.length);
+      }, 5500);
+    }
+  };
+
+  const openTrailer = (url) => {
+    if (!url) return;
+    pausedRef.current = true;
+    setTrailerUrl(url);
+  };
+  const closeTrailer = () => {
+    pausedRef.current = false;
+    setTrailerUrl(null);
+  };
 
   useEffect(() => {
     const fn = (e) => e.key === "Escape" && closeTrailer();
@@ -192,7 +220,12 @@ export default function Home() {
       <Navbar />
       <BottomNav />
 
-      <div className="relative" style={{ background: "#111" }}>
+      <div
+        className="relative"
+        style={{ background: "#111" }}
+        onMouseEnter={() => (pausedRef.current = true)}
+        onMouseLeave={() => (pausedRef.current = false)}
+      >
         {loading ? (
           <div
             className="w-full flex items-center justify-center"
@@ -217,23 +250,23 @@ export default function Home() {
             <p className="text-white/35 text-[12px]">Check back soon, or pick a district to see local events &amp; play venues.</p>
           </div>
         ) : (
-          <Swiper
-            onSwiper={(s) => (swiperRef.current = s)}
-            onSlideChange={(s) => setActiveIdx(s.realIndex)}
-            modules={[Autoplay, EffectFade]}
-            effect="fade"
-            autoplay={{ delay: 5500, disableOnInteraction: false }}
-            loop={slides.length > 1}
-            speed={900}
-            className="w-full"
-            style={{ height: "clamp(420px, 58vw, 600px)" }}
-          >
-            {slides.map((item) => (
-              <SwiperSlide key={item.key}>
+          <div className="relative w-full overflow-hidden" style={{ height: "clamp(420px, 58vw, 600px)" }}>
+            {slides.map((item, i) => (
+              <div
+                key={item.key}
+                className="absolute inset-0"
+                style={{
+                  opacity: i === activeIdx ? 1 : 0,
+                  zIndex: i === activeIdx ? 2 : 1,
+                  pointerEvents: i === activeIdx ? "auto" : "none",
+                  transition: "opacity 0.7s ease",
+                }}
+                aria-hidden={i !== activeIdx}
+              >
                 <HeroSlide item={item} onPlay={() => openTrailer(item.trailer)} />
-              </SwiperSlide>
+              </div>
             ))}
-          </Swiper>
+          </div>
         )}
 
         {/* Dot indicators */}
@@ -242,7 +275,7 @@ export default function Home() {
             {slides.map((_, i) => (
               <button
                 key={i}
-                onClick={() => swiperRef.current?.slideToLoop(i)}
+                onClick={() => goTo(i)}
                 className="transition-all duration-300 rounded-full"
                 style={{
                   width: i === activeIdx ? 24 : 8,

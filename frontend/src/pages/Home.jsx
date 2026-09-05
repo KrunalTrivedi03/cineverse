@@ -1,39 +1,30 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LatestMovies from "../components/LatestMovies";
 import ComingSoon from "../components/ComingSoon";
 import Events from "../components/Events";
+import PlayHome from "../components/PlayHome";
 import Footer from "../components/Footer";
 import api from "../api/axiosInstance";
+import { getSelectedDistrict } from "../components/DistrictSelector";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import { Autoplay, EffectFade } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
 import {
-  X,
-  Play,
-  Clock,
-  CalendarDays,
-  Film,
-  Globe,
-  ShieldCheck,
-  Ticket,
+  X, Play, Clock, CalendarDays, Film, Globe, ShieldCheck, Ticket,
+  PartyPopper, MapPin, Dumbbell, Trophy,
 } from "lucide-react";
 import OffersBanner from "../components/OffersBanner";
 import BottomNav from "../components/BottomNav";
 
 /* ─── Helpers ─────────────────────────────────────────── */
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
-
-const isReleased = (dateStr) => {
-  if (!dateStr) return true;
-  return new Date(dateStr) <= new Date();
-};
 
 const isLatestMovie = (m) =>
   m.status === "streaming" || (m.status === "released" && m.isInCinemas);
@@ -55,11 +46,7 @@ const getDailyRotatingSlice = (list, count) => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 };
 
 const getYoutubeEmbed = (url) => {
@@ -68,41 +55,126 @@ const getYoutubeEmbed = (url) => {
   return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : null;
 };
 
+/* Movie doc -> hero slide */
+function movieToSlide(m) {
+  return {
+    type: "movie",
+    id: m._id,
+    key: `movie-${m._id}`,
+    title: m.title,
+    tag: m.status === "streaming" ? "Streaming" : "Now Showing",
+    meta: [
+      m.runtime && { icon: Clock, label: m.runtime },
+      m.genre && { icon: Film, label: m.genre },
+      m.language && { icon: Globe, label: m.language },
+      m.certificate && { icon: ShieldCheck, label: m.certificate },
+    ].filter(Boolean),
+    description: m.description || "",
+    poster: IMG(m.poster),
+    background: IMG(m.poster),
+    trailer: getYoutubeEmbed(m.trailerLink),
+    primaryCta: { label: "Book Tickets", to: `/movie/${m._id}`, icon: Ticket },
+    posterBadge: "In Cinemas",
+    posterLink: `/movie/${m._id}`,
+  };
+}
+
+/* Upcoming Event doc -> hero slide */
+function eventToSlide(ev) {
+  const sched = ev.nextSchedule;
+  return {
+    type: "event",
+    id: ev._id,
+    key: `event-${ev._id}`,
+    title: ev.title,
+    tag: ev.category || "Live Event",
+    meta: [
+      sched?.eventDate && { icon: CalendarDays, label: formatDate(sched.eventDate) },
+      sched?.venue?.name && { icon: MapPin, label: `${sched.venue.name}${sched.venue.district?.name ? `, ${sched.venue.district.name}` : ""}` },
+      sched?.startingPrice != null && { icon: Ticket, label: `₹${sched.startingPrice.toLocaleString("en-IN")} onwards` },
+    ].filter(Boolean),
+    description: ev.description || "",
+    poster: IMG(ev.poster),
+    background: IMG(ev.poster),
+    trailer: null,
+    primaryCta: { label: "View Event", to: `/events/${ev._id}`, icon: PartyPopper },
+    posterBadge: "Live Event",
+    posterLink: `/events/${ev._id}`,
+  };
+}
+
+/* Play venue doc -> hero slide */
+function venueToSlide(v) {
+  const activityNames = (v.courtActivities || v.activities || []).map((a) => a.name).slice(0, 3).join(" · ");
+  return {
+    type: "play",
+    id: v._id,
+    key: `play-${v._id}`,
+    title: v.name,
+    tag: "Play",
+    meta: [
+      v.district?.name && { icon: MapPin, label: v.district.name },
+      activityNames && { icon: Trophy, label: activityNames },
+      v.startingPrice != null && { icon: Ticket, label: `₹${v.startingPrice} onwards` },
+    ].filter(Boolean),
+    description: v.description || "",
+    poster: IMG(v.images?.[0]),
+    background: IMG(v.images?.[0]),
+    trailer: null,
+    primaryCta: { label: "Book slots", to: `/play/venues/${v._id}`, icon: Dumbbell },
+    posterBadge: "Book Now",
+    posterLink: `/play/venues/${v._id}`,
+  };
+}
+
+/* Interleave up to 2 of each type as Movie, Event, Play, Movie, Event, Play —
+   missing items are simply skipped so the sequence never breaks, and the
+   slider ends up with however many of the 6 slots actually have data. */
+function buildSlideOrder(movies, events, plays) {
+  const out = [];
+  for (let i = 0; i < 2; i++) {
+    if (movies[i]) out.push(movieToSlide(movies[i]));
+    if (events[i]) out.push(eventToSlide(events[i]));
+    if (plays[i]) out.push(venueToSlide(plays[i]));
+  }
+  return out;
+}
+
 /* ─── Home ────────────────────────────────────────────── */
 export default function Home() {
-  const [slides, setSlides]       = useState([]);
+  const [slides, setSlides] = useState([]);
   const [trailerUrl, setTrailerUrl] = useState(null);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading] = useState(true);
   const swiperRef = useRef(null);
 
-  /* Fetch movies eligible for the Latest Movies rail, then pick 3 that rotate daily */
-  useEffect(() => {
-    api.get("/movies")
-      .then((res) => {
-        const eligible = res.data.filter(isLatestMovie);
-        const daily = getDailyRotatingSlice(eligible, 3);
-        setSlides(
-          daily.map((m) => ({
-            id: m._id,
-            title: m.title,
-            tag: m.status === "streaming" ? "Streaming" : "Now Showing",
-            duration: m.runtime || "",
-            cert: m.certificate || "",
-            date: formatDate(m.releaseDate),
-            genres: m.genre || "",
-            lang: m.language || "",
-            released: true,
-            description: m.description || "",
-            poster: IMG(m.poster),
-            background: IMG(m.poster),
-            trailer: getYoutubeEmbed(m.trailerLink),
-          }))
-        );
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const loadSlides = useCallback(async () => {
+    setLoading(true);
+    const district = getSelectedDistrict();
+
+    const [movieRes, eventRes, playRes] = await Promise.allSettled([
+      api.get("/movies"),
+      api.get("/events/upcoming", { params: { district: district.id || undefined } }),
+      district.id ? api.get(`/play/venues?district=${district.id}`) : Promise.resolve({ data: [] }),
+    ]);
+
+    const eligibleMovies = movieRes.status === "fulfilled" ? movieRes.value.data.filter(isLatestMovie) : [];
+    const dailyMovies = getDailyRotatingSlice(eligibleMovies, 2);
+
+    const events = eventRes.status === "fulfilled" ? (eventRes.value.data || []).slice(0, 2) : [];
+    const plays = playRes.status === "fulfilled" ? (playRes.value.data || []).slice(0, 2) : [];
+
+    setSlides(buildSlideOrder(dailyMovies, events, plays));
+    setLoading(false);
   }, []);
+
+  useEffect(() => { loadSlides(); }, [loadSlides]);
+
+  useEffect(() => {
+    const handler = () => loadSlides();
+    window.addEventListener("districtChanged", handler);
+    return () => window.removeEventListener("districtChanged", handler);
+  }, [loadSlides]);
 
   const openTrailer = (url) => url && setTrailerUrl(url);
   const closeTrailer = () => setTrailerUrl(null);
@@ -136,6 +208,14 @@ export default function Home() {
               ))}
             </div>
           </div>
+        ) : slides.length === 0 ? (
+          <div
+            className="w-full flex flex-col items-center justify-center gap-2 text-center px-6"
+            style={{ height: "clamp(340px, 40vw, 460px)", background: "#1a1a1a" }}
+          >
+            <p className="text-white/70 text-[14px] font-semibold">Nothing to feature here yet</p>
+            <p className="text-white/35 text-[12px]">Check back soon, or pick a district to see local events &amp; play venues.</p>
+          </div>
         ) : (
           <Swiper
             onSwiper={(s) => (swiperRef.current = s)}
@@ -149,7 +229,7 @@ export default function Home() {
             style={{ height: "clamp(420px, 58vw, 600px)" }}
           >
             {slides.map((item) => (
-              <SwiperSlide key={item.id}>
+              <SwiperSlide key={item.key}>
                 <HeroSlide item={item} onPlay={() => openTrailer(item.trailer)} />
               </SwiperSlide>
             ))}
@@ -181,6 +261,7 @@ export default function Home() {
         <LatestMovies />
         <ComingSoon />
         <Events />
+        <PlayHome />
       </div>
 
       {/* ══ FOOTER ════════════════════════════════════════ */}
@@ -227,7 +308,7 @@ export default function Home() {
   );
 }
 
-/* ─── Single Hero Slide ───────────────────────────────── */
+/* ─── Single Hero Slide (Movie / Event / Play) ────────── */
 function HeroSlide({ item, onPlay }) {
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -235,10 +316,11 @@ function HeroSlide({ item, onPlay }) {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: `url(${item.background})`,
+          backgroundImage: item.background ? `url(${item.background})` : undefined,
+          background: item.background ? undefined : "linear-gradient(135deg,#1c1c1c,#2d2d2d)",
           backgroundSize: "cover",
           backgroundPosition: "center 20%",
-          filter: "blur(0px) brightness(0.22) saturate(1.3)",
+          filter: "brightness(0.22) saturate(1.3)",
           transform: "scale(1.07)",
         }}
       />
@@ -247,8 +329,7 @@ function HeroSlide({ item, onPlay }) {
       <div
         className="absolute inset-0"
         style={{
-          background:
-            "linear-gradient(105deg, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.65) 42%, rgba(8,8,8,0.1) 100%)",
+          background: "linear-gradient(105deg, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.65) 42%, rgba(8,8,8,0.1) 100%)",
         }}
       />
 
@@ -268,9 +349,9 @@ function HeroSlide({ item, onPlay }) {
             <span
               className="inline-block text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4"
               style={{
-                background: item.released ? "rgba(240,84,92,0.2)" : "rgba(251,146,60,0.2)",
-                color: item.released ? "#f0545c" : "#fb923c",
-                border: `1px solid ${item.released ? "rgba(240,84,92,0.35)" : "rgba(251,146,60,0.35)"}`,
+                background: "rgba(240,84,92,0.2)",
+                color: "#f0545c",
+                border: "1px solid rgba(240,84,92,0.35)",
               }}
             >
               {item.tag}
@@ -284,27 +365,19 @@ function HeroSlide({ item, onPlay }) {
             </h2>
 
             {/* Meta row */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-white/45 text-[13px] mb-4">
-              {item.duration && (
-                <span className="flex items-center gap-1"><Clock size={12} /> {item.duration}</span>
-              )}
-              {item.duration && item.genres && <Dot />}
-              {item.genres && (
-                <span className="flex items-center gap-1"><Film size={12} /> {item.genres}</span>
-              )}
-              {item.genres && item.lang && <Dot />}
-              {item.lang && (
-                <span className="flex items-center gap-1"><Globe size={12} /> {item.lang}</span>
-              )}
-              {item.lang && item.cert && <Dot />}
-              {item.cert && (
-                <span className="flex items-center gap-1"><ShieldCheck size={12} /> {item.cert}</span>
-              )}
-              {item.cert && item.date && <Dot />}
-              {item.date && (
-                <span className="flex items-center gap-1"><CalendarDays size={12} /> {item.date}</span>
-              )}
-            </div>
+            {item.meta?.length > 0 && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-white/45 text-[13px] mb-4">
+                {item.meta.map((m, i) => {
+                  const MetaIcon = m.icon;
+                  return (
+                    <span key={i} className="flex items-center gap-3">
+                      {i > 0 && <Dot />}
+                      <span className="flex items-center gap-1"><MetaIcon size={12} /> {m.label}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
 
             {item.description && (
               <p
@@ -317,30 +390,15 @@ function HeroSlide({ item, onPlay }) {
 
             {/* Actions */}
             <div className="flex flex-wrap items-center gap-3">
-              {item.released ? (
-                <Link
-                  to={`/movie/${item.id}`}
-                  className="flex items-center gap-2 font-semibold px-7 py-2.5 rounded-xl text-sm text-white transition-all active:scale-95"
-                  style={{ background: "#f0545c" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
-                >
-                  <Ticket size={15} /> Book Tickets
-                </Link>
-              ) : (
-                <div
-                  className="flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-sm"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
-                >
-                  <CalendarDays size={15} className="text-orange-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold leading-none mb-0.5">
-                      Releasing On
-                    </p>
-                    <p className="text-white font-semibold text-[13px]">{item.date}</p>
-                  </div>
-                </div>
-              )}
+              <Link
+                to={item.primaryCta.to}
+                className="flex items-center gap-2 font-semibold px-7 py-2.5 rounded-xl text-sm text-white transition-all active:scale-95"
+                style={{ background: "#f0545c" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+              >
+                <item.primaryCta.icon size={15} /> {item.primaryCta.label}
+              </Link>
 
               {item.trailer && (
                 <button
@@ -361,50 +419,50 @@ function HeroSlide({ item, onPlay }) {
           </div>
 
           {/* Right: poster */}
-          <div className="flex-shrink-0 hidden sm:block">
-            <Link
-              to={`/movie/${item.id}`}
-              className="relative group cursor-pointer block"
-              style={{ width: "clamp(140px, 14vw, 200px)" }}
-            >
-              <img
-                src={item.poster}
-                alt={item.title}
-                className="w-full rounded-2xl shadow-2xl object-cover"
-                style={{
-                  aspectRatio: "2/3",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  transition: "transform 0.3s ease",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-              />
-
-              {/* Play overlay */}
-              <div
-                className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: "rgba(0,0,0,0.45)" }}
+          {item.poster && (
+            <div className="flex-shrink-0 hidden sm:block">
+              <Link
+                to={item.posterLink}
+                className="relative group cursor-pointer block"
+                style={{ width: "clamp(140px, 14vw, 200px)" }}
               >
+                <img
+                  src={item.poster}
+                  alt={item.title}
+                  className="w-full rounded-2xl shadow-2xl object-cover"
+                  style={{
+                    aspectRatio: "2/3",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    transition: "transform 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                />
+
+                {/* Play overlay — movies with a trailer only */}
+                {item.trailer && (
+                  <div
+                    className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: "rgba(0,0,0,0.45)" }}
+                  >
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center"
+                      style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)", border: "2px solid rgba(255,255,255,0.5)" }}
+                    >
+                      <Play size={20} fill="white" className="text-white ml-0.5" />
+                    </div>
+                  </div>
+                )}
+
                 <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center"
-                  style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)", border: "2px solid rgba(255,255,255,0.5)" }}
+                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg"
+                  style={{ background: "rgba(20,20,20,0.9)", color: "white", border: "1px solid rgba(255,255,255,0.12)" }}
                 >
-                  <Play size={20} fill="white" className="text-white ml-0.5" />
+                  {item.posterBadge}
                 </div>
-              </div>
-
-              <div
-                className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg"
-                style={{
-                  background: item.released ? "rgba(20,20,20,0.9)" : "rgba(234,88,12,0.85)",
-                  color: "white",
-                  border: item.released ? "1px solid rgba(255,255,255,0.12)" : "none",
-                }}
-              >
-                {item.released ? "In Cinemas" : "Coming Soon"}
-              </div>
-            </Link>
-          </div>
+              </Link>
+            </div>
+          )}
 
         </div>
       </div>

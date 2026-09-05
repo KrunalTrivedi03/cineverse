@@ -7,6 +7,7 @@ import BottomNav from "../components/BottomNav";
 import OffersDrawer from "../components/OffersDrawer";
 import { useRazorpay } from "../hooks/useRazorpay";
 import { useEventRazorpay } from "../hooks/useEventRazorpay";
+import { usePlayRazorpay } from "../hooks/usePlayRazorpay";
 import {
   ChevronLeft, ChevronDown, MapPin, Calendar, Clock, Ticket, Timer, Info, Wallet,
   CreditCard, CheckCircle, Loader2, AlertCircle, CheckCircle2,
@@ -89,6 +90,66 @@ export default function BookingReview() {
 
   const isMovie = draft?.type === "movie";
   const isEvent = draft?.type === "event";
+  const isPlay = draft?.type === "play";
+
+  /* ── Play-only: order creation, hold countdown, pay, unlock-on-leave ──── */
+  const { initiatePayment: initiatePlayPayment } = usePlayRazorpay();
+  const [playOrderData, setPlayOrderData] = useState(null);
+  const [playLoadingOrder, setPlayLoadingOrder] = useState(true);
+  const [playPaying, setPlayPaying] = useState(false);
+  const [playCountdown, setPlayCountdown] = useState(null);
+  const playTimerRef = useRef(null);
+
+  const releasePlayLock = useCallback(async () => {
+    if (!isPlay || !draft) return;
+    await api.delete("/play-slots/lock", { data: { slotIds: draft.slotIds, userId: draft.userId } }).catch(() => {});
+  }, [isPlay, draft]);
+
+  useEffect(() => {
+    if (!isPlay || !draft) return;
+    setPlayLoadingOrder(true);
+    api.post("/play-payment/create-order", { slotIds: draft.slotIds })
+      .then((r) => setPlayOrderData(r.data))
+      .catch((err) => showToast(err.response?.data?.message || "Couldn't prepare this order", "error"))
+      .finally(() => setPlayLoadingOrder(false));
+  }, [isPlay, draft]);
+
+  useEffect(() => {
+    if (!isPlay || !draft?.lockExpiresAt) return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.round((draft.lockExpiresAt - Date.now()) / 1000));
+      setPlayCountdown(remaining);
+      if (remaining <= 0) {
+        clearInterval(playTimerRef.current);
+        showToast("Your hold expired. Please reselect.", "error");
+        releasePlayLock();
+        clearBookingDraft();
+        setTimeout(() => navigate(-1), 1400);
+      }
+    };
+    tick();
+    playTimerRef.current = setInterval(tick, 1000);
+    return () => clearInterval(playTimerRef.current);
+  }, [isPlay, draft, navigate, releasePlayLock]);
+
+  const handlePlayPay = () => {
+    if (!requireAuthOrRedirect() || !playOrderData) return;
+    setPlayPaying(true);
+    initiatePlayPayment({
+      existingOrder: playOrderData,
+      userDetails: { name: user?.username || "", email: user?.email || "", contact: user?.phone || "" },
+      onSuccess: (bookingRef, booking) => {
+        setPlayPaying(false);
+        clearBookingDraft();
+        navigate("/play/booking-success", { state: { booking, bookingRef } });
+      },
+      onFailure: (reason) => {
+        setPlayPaying(false);
+        showToast(reason || "Payment failed. Please try again.", "error");
+      },
+    });
+  };
+
 
   /* ── Movie-only: live seat lock + countdown, socket reconnect ────────── */
   useEffect(() => {
@@ -271,6 +332,158 @@ export default function BookingReview() {
   }, [draft, isMovie]);
 
   if (!draft) return null;
+
+  if (isPlay) {
+    const fmtRange = `${fmt12(draft.startTime)} - ${fmt12(draft.endTime)}`;
+    return (
+      <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+        <Navbar />
+        <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
+            <ChevronLeft size={16} />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-[15px] font-bold text-gray-900 truncate">Review your booking</h1>
+          </div>
+          {playCountdown !== null && (
+            <span
+              className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-lg flex-shrink-0"
+              style={{
+                background: playCountdown <= 60 ? "#fff1f2" : "rgba(240,84,92,0.07)",
+                border: `1px solid ${playCountdown <= 60 ? "#fecdd3" : "rgba(240,84,92,0.2)"}`,
+                color: playCountdown <= 60 ? "#dc2626" : ACCENT,
+                fontFamily: "'DM Mono', monospace",
+              }}
+            >
+              {fmtCountdown(playCountdown)}
+            </span>
+          )}
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:items-start gap-6 pb-32 lg:pb-10">
+          {/* Left */}
+          <div className="order-1 space-y-4 min-w-0">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3.5">
+              <div className="w-16 h-16 rounded-xl flex-shrink-0" style={{ background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }} />
+              <div className="min-w-0">
+                <p className="text-[15px] font-extrabold text-gray-900">{draft.activityName}</p>
+                <p className="text-[12px] text-gray-400 mt-0.5 truncate">{draft.venueName}</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[13.5px] font-bold text-gray-900">{fmtDate(draft.date)} | {fmtRange}</p>
+                <p className="text-[13px] font-bold text-gray-900 mt-2">{draft.courtName}</p>
+                <p className="text-[11.5px] text-gray-400 mt-0.5">
+                  {draft.indoor ? "Indoor" : "Outdoor"}{draft.surfaceType ? ` · ${draft.surfaceType}` : ""}
+                </p>
+              </div>
+              <p className="text-[15px] font-extrabold text-gray-900 flex-shrink-0">₹{draft.price?.toFixed ? draft.price.toFixed(2) : `${draft.price}.00`}</p>
+            </div>
+
+            <div>
+              <h2 className="text-[14px] font-extrabold text-gray-900 mb-2">Things to know</h2>
+              <ul className="space-y-1.5">
+                {["Footwear suited to the surface is recommended.", "Arrive 5 mins early to avoid losing playtime."].map((t) => (
+                  <li key={t} className="text-[12.5px] text-gray-500 flex items-start gap-2">
+                    <span className="w-1 h-1 rounded-full bg-gray-300 mt-2 flex-shrink-0" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Right: Payment summary */}
+          <div className="order-2 space-y-4 min-w-0">
+            <div>
+              <h2 className="text-[14px] font-extrabold text-gray-900 mb-2">Payment Summary</h2>
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2.5">
+                <div className="flex justify-between text-[13px]">
+                  <span className="text-gray-500">Order Amount</span>
+                  <span className="font-bold text-gray-900">₹{playOrderData?.subtotal ?? draft.price}.00</span>
+                </div>
+                <div className="flex justify-between text-[13px] pt-2.5 border-t border-gray-100">
+                  <span className="text-gray-500">Subtotal</span>
+                  <span className="font-bold text-gray-900">₹{playOrderData?.total ?? draft.price}.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-[14px] font-extrabold text-gray-900 mb-2">Your Details</h2>
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+                <User size={16} className="text-gray-400 flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold text-gray-900 truncate">{user?.username || "Guest"}</p>
+                  <p className="text-[12px] text-gray-400">{user?.phone || ""}</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-[14px] font-extrabold text-gray-900 mb-2">More</h2>
+              <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-[13px] font-semibold text-gray-700">Cancellation policy</span>
+                  <ChevronDown size={15} className="text-gray-300" style={{ transform: "rotate(-90deg)" }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Pay Now */}
+            <button
+              onClick={handlePlayPay}
+              disabled={playLoadingOrder || playPaying || !playOrderData}
+              className="hidden lg:flex w-full items-center justify-between px-5 py-4 rounded-2xl text-white disabled:opacity-60"
+              style={{ background: ACCENT }}
+            >
+              <div className="text-left">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Total</p>
+                <p className="text-[18px] font-extrabold">₹{playOrderData?.total ?? draft.price}</p>
+              </div>
+              <span className="text-[14px] font-bold flex items-center gap-1.5">
+                {playLoadingOrder ? <><Loader2 size={15} className="animate-spin" /> Preparing…</> : playPaying ? <><Loader2 size={15} className="animate-spin" /> Processing…</> : "Pay Now"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile sticky Pay Now */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 z-40 lg:hidden" style={{ boxShadow: "0 -4px 16px rgba(0,0,0,0.06)" }}>
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total</p>
+            <p className="text-[18px] font-extrabold text-gray-900">₹{playOrderData?.total ?? draft.price}</p>
+          </div>
+          <button
+            onClick={handlePlayPay}
+            disabled={playLoadingOrder || playPaying || !playOrderData}
+            className="px-6 py-3 rounded-xl font-black text-[13px] text-white flex items-center gap-2 disabled:opacity-60"
+            style={{ background: ACCENT }}
+          >
+            {playLoadingOrder || playPaying ? <Loader2 size={15} className="animate-spin" /> : null}
+            {playLoadingOrder ? "Preparing…" : playPaying ? "Processing…" : "Pay Now"}
+          </button>
+        </div>
+
+        {toast && (
+          <div
+            className="fixed bottom-28 lg:bottom-8 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-5 py-3 rounded-xl text-[13px] font-semibold whitespace-nowrap shadow-lg"
+            style={{
+              background: toast.type === "error" ? "#fff1f2" : "#f0fdf4",
+              color: toast.type === "error" ? "#dc2626" : "#16a34a",
+              border: `1px solid ${toast.type === "error" ? "#fecdd3" : "#bbf7d0"}`,
+            }}
+          >
+            {toast.type === "error" ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
+            {toast.message}
+          </div>
+        )}
+      </div>
+    );
+  }
+
 
   const discount = orderData?.discountAmount ?? appliedOffer?.discountAmount ?? 0;
   const convFee = orderData?.convenienceFee ?? Math.round(Math.max(subtotal - discount, 0) * 0.02);

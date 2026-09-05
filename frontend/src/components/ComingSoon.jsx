@@ -88,13 +88,25 @@ export default function ComingSoon() {
 
   const SectionWrapper = ({ children, showSeeAll = false }) => (
     <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-end justify-between mb-6">
         <div>
-          <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">Coming Soon</h2>
-          <p className="text-[13px] text-gray-400 mt-0.5">Upcoming releases worth watching</p>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(234,88,12,0.12)" }}>
+              <CalendarDays size={10} style={{ color: "#ea580c" }} />
+            </span>
+            <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#ea580c" }}>
+              Mark your calendar
+            </p>
+          </div>
+          <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+            Upcoming Movies
+          </h2>
+          {!!movies.length && (
+            <p className="text-[13px] text-gray-400 mt-0.5">{movies.length} release{movies.length !== 1 ? "s" : ""} on the way</p>
+          )}
         </div>
         {showSeeAll && (
-          <button className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline"
+          <button className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline flex-shrink-0"
           onClick={() => navigate("/coming-soon")}
           >
             See All <ChevronRight size={15} />
@@ -160,7 +172,7 @@ export default function ComingSoon() {
   if (!movies.length) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center h-40 gap-2">
+        <div className="flex flex-col items-center justify-center h-40 gap-2 rounded-2xl border border-dashed border-gray-200 bg-white/60">
           <CalendarDays size={28} className="text-gray-300" />
           <p className="text-[13px] text-gray-400">No upcoming movies right now. Check back soon!</p>
         </div>
@@ -178,7 +190,7 @@ export default function ComingSoon() {
 
         <div
           ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1"
+          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {movies.map((movie) => (
@@ -200,6 +212,15 @@ export default function ComingSoon() {
   );
 }
 
+/* Days remaining until release, for the countdown chip. Returns null once released. */
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  const diff = Math.ceil((d.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+  return diff >= 0 ? diff : null;
+}
+
 /* ─── Card ───────────────────────────────────────────────────────── */
 function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
   const [notified, setNotified] = useState(false);
@@ -213,12 +234,13 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
     : [];
 
   const posterUrl = getPosterUrl(movie.poster);
+  const daysLeft = daysUntil(movie.releaseDate);
 
   return (
-    <div className="flex-shrink-0 w-[250px] group">
+    <div className="flex-shrink-0 w-[250px] group snap-start">
       {/* Poster */}
       <div
-        className="relative rounded-xl overflow-hidden bg-gray-200 shadow-sm cursor-pointer"
+        className="relative rounded-2xl overflow-hidden bg-gray-200 shadow-sm cursor-pointer transition-shadow group-hover:shadow-lg"
         style={{ aspectRatio: "2/3" }}
         onClick={onView}
       >
@@ -251,12 +273,12 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
           </span>
         </div>
 
-        {/* Upcoming badge */}
+        {/* Days-left countdown chip, top right (replaces the plain "Upcoming" label when we know the date) */}
         <div
-          className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
-          style={{ background: "rgba(234,88,12,0.88)", color: "white" }}
+          className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+          style={{ background: "rgba(234,88,12,0.9)", color: "white" }}
         >
-          Upcoming
+          {daysLeft != null ? (daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d to go`) : "Upcoming"}
         </div>
 
         {/* Certificate badge */}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ChevronLeft, MapPin, IndianRupee, SlidersHorizontal, X, Building2, Navigation,
+  ChevronLeft, SlidersHorizontal, X, Building2, Navigation,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
@@ -16,56 +16,40 @@ const SORT_OPTIONS = [
 ];
 
 function VenueCard({ venue, navigate }) {
+  const tags = venue.courtActivities?.length ? venue.courtActivities : (venue.amenities || []);
   return (
-    <div
+    <button
       onClick={() => navigate(`/play/venues/${venue._id}`)}
-      className="cursor-pointer group bg-white rounded-2xl overflow-hidden border border-gray-100"
-      style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}
+      className="text-left w-full bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
     >
-      <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden", background: "#eee" }}>
+      <div className="w-full aspect-[4/3] overflow-hidden" style={{ background: "#eee" }}>
         {venue.images?.[0] ? (
-          <img
-            src={IMG(venue.images[0])}
-            alt={venue.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          <img src={IMG(venue.images[0])} alt={venue.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full" style={{ background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }} />
-        )}
-
-        {venue.distanceKm != null && (
-          <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full flex items-center gap-1" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>
-            <Navigation size={9} color="#fff" />
-            <span className="text-[10px] font-bold text-white">{venue.distanceKm.toFixed(1)} km</span>
-          </div>
-        )}
-
-        {venue.startingPrice != null && (
-          <div className="absolute bottom-0 left-0 right-0 px-3 py-2" style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.75))" }}>
-            <span className="flex items-center text-[12.5px] font-extrabold text-white">
-              <IndianRupee size={11} />{venue.startingPrice} <span className="ml-1 text-[10.5px] font-medium text-white/75">onwards</span>
-            </span>
-          </div>
         )}
       </div>
 
       <div className="p-3.5">
-        <p className="text-[14px] font-bold text-gray-900 truncate">{venue.name}</p>
-        <p className="text-[11.5px] text-gray-400 mt-1 flex items-center gap-1 truncate">
-          <MapPin size={11} className="flex-shrink-0" /> {venue.address ? `${venue.address}, ` : ""}{venue.district?.name}
+        <p className="text-[14.5px] font-bold text-gray-900 truncate">{venue.name}</p>
+        <p className="text-[12px] text-gray-400 mt-0.5 truncate">
+          {venue.distanceKm != null && `${venue.distanceKm.toFixed(1)} km · `}{venue.district?.name}
         </p>
-        {venue.amenities?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2.5">
-            {venue.amenities.slice(0, 3).map((a) => (
-              <span key={a} className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: "#f3f4f6", color: "#6b7280" }}>{a}</span>
+        {tags?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2.5">
+            {tags.slice(0, 3).map((t, i) => (
+              <span key={t._id || t || i} className="text-[10.5px] font-semibold px-2 py-1 rounded-full" style={{ background: "#f3f4f6", color: "#6b7280" }}>
+                {t.name || t}
+              </span>
             ))}
-            {venue.amenities.length > 3 && (
-              <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: "#f3f4f6", color: "#9ca3af" }}>+{venue.amenities.length - 3}</span>
+            {tags.length > 3 && (
+              <span className="text-[10.5px] font-semibold px-2 py-1 rounded-full" style={{ background: "#f3f4f6", color: "#9ca3af" }}>+{tags.length - 3}</span>
             )}
           </div>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -83,6 +67,7 @@ export default function PlayVenues() {
   const [sort, setSort] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [coords, setCoords] = useState(null);
+  const [under5km, setUnder5km] = useState(false);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -100,12 +85,13 @@ export default function PlayVenues() {
     const query = new URLSearchParams({ district: district.id, activity: activityId });
     if (sort) query.set("sort", sort);
     if (coords) { query.set("lat", coords.lat); query.set("lng", coords.lng); }
+    if (under5km) query.set("maxDistanceKm", "5");
 
     api.get(`/play/venues?${query.toString()}`)
       .then((r) => setVenues(r.data))
       .catch(() => setError("Couldn't load venues. Please try again."))
       .finally(() => setLoading(false));
-  }, [activityId, district.id, sort, coords]);
+  }, [activityId, district.id, sort, coords, under5km]);
 
   const grouped = useMemo(() => venues, [venues]);
 
@@ -131,48 +117,43 @@ export default function PlayVenues() {
       <Navbar />
       <BottomNav />
 
-      {/* Sticky header, matches DistrictEvents pattern */}
-      <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center gap-3">
+      {/* Header — matches screenshot: back + title, then Filters / Under 5 km chips */}
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-5">
+        <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate("/play")}
             className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
             <ChevronLeft size={16} />
           </button>
-          <div className="min-w-0">
-            <h1 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#111" }} className="truncate">{activityName}</h1>
-            <p className="text-[11.5px] text-gray-400 flex items-center gap-1"><MapPin size={11} /> {district.name}</p>
-          </div>
+          <h1 className="text-[20px] sm:text-[22px] font-extrabold tracking-tight text-gray-900 truncate">
+            {activityName} Courts in {district.name}
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           <button
             onClick={() => setShowFilters(true)}
-            className="ml-auto flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0"
-            style={{ borderColor: "#e5e7eb", color: "#374151", background: "#fff" }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 bg-white"
+            style={{ borderColor: "#e5e7eb", color: "#374151" }}
           >
-            <SlidersHorizontal size={13} /> Sort
+            <SlidersHorizontal size={13} /> Filters
+          </button>
+          <button
+            onClick={() => setUnder5km((v) => !v)}
+            disabled={!coords}
+            className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap disabled:opacity-40"
+            style={under5km
+              ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
+              : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+          >
+            Under 5 km
           </button>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
-        {/* Sort chips */}
-        <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {SORT_OPTIONS.filter((o) => o.id).map((o) => (
-            <button
-              key={o.id}
-              onClick={() => setSort(sort === o.id ? "" : o.id)}
-              disabled={o.id === "distance" && !coords}
-              className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap disabled:opacity-40"
-              style={sort === o.id
-                ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
-                : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pb-6">
         {loading ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
-            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-2xl bg-gray-100 animate-pulse" style={{ aspectRatio: "16/13" }} />)}
+            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-2xl bg-gray-100 animate-pulse" style={{ aspectRatio: "4/3.6" }} />)}
           </div>
         ) : error ? (
           <p className="text-center text-[13px] text-red-500 py-10">{error}</p>

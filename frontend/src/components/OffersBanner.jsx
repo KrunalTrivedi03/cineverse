@@ -5,66 +5,10 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import {
-  Wallet, Ticket, Sparkles, Percent, Gift, Users, ArrowRight,
-  ChevronLeft, ChevronRight, Zap, Flame, Tag,
+  Wallet, Ticket, Sparkles, Percent, Gift, ArrowRight,
+  ChevronLeft, ChevronRight, Zap, Tag,
 } from "lucide-react";
 import { fetchBannerOffers, IMG, themeGradient, formatDiscountLabel } from "../utils/offers";
-
-/* Curated fallback slides — shown only until the Admin Panel has live banner offers. */
-const FALLBACK_OFFERS = [
-  {
-    id: "wallet",
-    icon: Wallet,
-    badge: "Limited Time",
-    badgeIcon: Zap,
-    eyebrow: "QuickPay Wallet",
-    title: "Add ₹500, get ₹50 extra",
-    desc: "Top up your wallet and pay in one tap at checkout.",
-    cta: "Add money",
-    to: "/settings",
-    bg: "linear-gradient(120deg, #f0545c 0%, #ff8a65 60%, #ffb199 100%)",
-    accent: "#7a1c22",
-  },
-  {
-    id: "firstbooking",
-    icon: Ticket,
-    badge: "New Offer",
-    badgeIcon: Sparkles,
-    eyebrow: "First Booking",
-    title: "Flat 20% off, on us",
-    desc: "New here? The discount applies automatically at payment.",
-    cta: "Explore movies",
-    to: "/",
-    bg: "linear-gradient(120deg, #14141a 0%, #2b2b35 60%, #43434f 100%)",
-    accent: "#0a0a0d",
-  },
-  {
-    id: "events",
-    icon: Sparkles,
-    badge: "This Weekend",
-    badgeIcon: Flame,
-    eyebrow: "Live & Trending",
-    title: "Events & plays near you",
-    desc: "From stand-up specials to theatre, see what's on.",
-    cta: "Browse events",
-    to: "/events",
-    bg: "linear-gradient(120deg, #7c3aed 0%, #a855f7 60%, #c99bff 100%)",
-    accent: "#3b1370",
-  },
-  {
-    id: "refer",
-    icon: Users,
-    badge: "Refer & Earn",
-    badgeIcon: Gift,
-    eyebrow: "Bring a Friend",
-    title: "You invite, you both win",
-    desc: "Share your link and unlock bonus wallet credit.",
-    cta: "Learn more",
-    to: "/settings",
-    bg: "linear-gradient(120deg, #059669 0%, #10b981 60%, #6ee7b7 100%)",
-    accent: "#023d2c",
-  },
-];
 
 const PERKS = [
   { icon: Percent, label: "Best price guarantee" },
@@ -73,8 +17,7 @@ const PERKS = [
   { icon: Wallet, label: "Secure QuickPay wallet" },
 ];
 
-/* Normalize a backend Offer document into the same shape FALLBACK_OFFERS use,
-   so the render logic below never has to branch on data source. */
+/* Normalize a backend Offer document into the shape the slide UI expects. */
 function normalizeBackendOffer(offer) {
   return {
     id: offer._id,
@@ -95,24 +38,24 @@ function normalizeBackendOffer(offer) {
 export default function OffersBanner() {
   const swiperRef = useRef(null);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [offers, setOffers] = useState(FALLBACK_OFFERS);
+  const [offers, setOffers] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     fetchBannerOffers()
       .then((data) => {
         if (cancelled) return;
-        if (data && data.length > 0) {
-          setOffers(data.map(normalizeBackendOffer));
-        }
+        setOffers(data && data.length > 0 ? data.map(normalizeBackendOffer) : []);
       })
-      .catch(() => {
-        /* keep fallback slides on failure */
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch(() => { if (!cancelled) setOffers([]); })
+      .finally(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
   }, []);
+
+  // Nothing to show yet, or genuinely no live offers — render nothing.
+  // No static/placeholder slides ever appear here.
+  if (!loaded || offers.length === 0) return null;
 
   const OFFERS = offers;
 

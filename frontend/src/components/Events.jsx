@@ -104,16 +104,11 @@ export default function HomeEvents() {
   if (loading) {
     return (
       <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">Live Events</h2>
-            <p className="text-[13px] text-gray-400 mt-0.5">Trending shows and things coming up</p>
-          </div>
-        </div>
+        <SectionHeader count={0} />
         <div className="flex gap-4 overflow-hidden">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex-shrink-0 w-[200px] animate-pulse">
-              <div className="rounded-xl bg-gray-200" style={{ aspectRatio: "3/4" }} />
+              <div className="rounded-2xl bg-gray-200" style={{ aspectRatio: "2/3" }} />
               <div className="mt-2.5 space-y-2">
                 <div className="h-3.5 bg-gray-200 rounded w-3/4" />
                 <div className="h-3 bg-gray-200 rounded w-1/2" />
@@ -129,18 +124,7 @@ export default function HomeEvents() {
 
   return (
     <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">Live Events</h2>
-          <p className="text-[13px] text-gray-400 mt-0.5">Trending shows and things coming up</p>
-        </div>
-        <button
-          className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all"
-          onClick={() => navigate("/events")}
-        >
-          See All <ChevronRight size={15} />
-        </button>
-      </div>
+      <SectionHeader count={events.length} onSeeAll={() => navigate("/events")} />
 
       <div className="relative">
         {canLeft && (
@@ -148,7 +132,7 @@ export default function HomeEvents() {
         )}
         <div
           ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1"
+          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {events.map((ev) => (
@@ -167,20 +151,60 @@ export default function HomeEvents() {
   );
 }
 
+function SectionHeader({ count, onSeeAll }) {
+  return (
+    <div className="flex items-end justify-between mb-6">
+      <div>
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(240,84,92,0.12)" }}>
+            <Flame size={10} style={{ color: "#f0545c" }} />
+          </span>
+          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+            Don't miss out
+          </p>
+        </div>
+        <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+          Upcoming Live Events
+        </h2>
+        {count > 0 && <p className="text-[13px] text-gray-400 mt-0.5">{count} show{count !== 1 ? "s" : ""} lined up near you</p>}
+      </div>
+      {onSeeAll && (
+        <button
+          className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
+          onClick={onSeeAll}
+        >
+          See All <ChevronRight size={15} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /* ─── Card ────────────────────────────────────────────── */
+function daysUntilEvent(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  const diff = Math.ceil((d.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+  return diff >= 0 ? diff : null;
+}
+
 function EventPosterCard({ event, onClick }) {
   const sched = event.nextSchedule;
   const isTrending = event._tag === "trending";
+  const daysLeft = daysUntilEvent(sched?.eventDate);
 
   const badge = isTrending
     ? { label: "Trending", bg: "rgba(240,84,92,0.9)", icon: Flame }
+    : daysLeft != null
+    ? { label: daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d to go`, bg: "rgba(234,88,12,0.88)", icon: Sparkles }
     : { label: "Coming Soon", bg: "rgba(234,88,12,0.88)", icon: Sparkles };
   const BadgeIcon = badge.icon;
 
   return (
-    <div className="flex-shrink-0 w-[200px] cursor-pointer group" onClick={onClick}>
+    <div className="flex-shrink-0 w-[200px] cursor-pointer group snap-start" onClick={onClick}>
       <div
-        className="relative rounded-xl overflow-hidden bg-gray-100 shadow-sm"
+        className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-shadow group-hover:shadow-lg"
         style={{ aspectRatio: "2/3" }}
       >
         {event.poster ? (

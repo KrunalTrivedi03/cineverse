@@ -28,7 +28,6 @@ const TILE_TINTS = [
   { bg: "linear-gradient(160deg,#eaf6fb 0%,#d6eef8 100%)", fg: "#1c85ab" },
 ];
 
-const SPORTS_PAGE_SIZE = 20;
 const VENUES_PAGE_SIZE = 8;
 
 export default function Play() {
@@ -38,7 +37,6 @@ export default function Play() {
   /* ── Explore Sports ── */
   const [activities, setActivities] = useState([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
-  const [sportsShown, setSportsShown] = useState(SPORTS_PAGE_SIZE);
 
   /* ── All Sports Venues ── */
   const [venues, setVenues] = useState([]);
@@ -91,13 +89,16 @@ export default function Play() {
       .finally(() => setLoadingVenues(false));
   }, [district.id, activeSportIds, sort, coords, under5km]);
 
-  const visibleSports = useMemo(() => activities.slice(0, sportsShown), [activities, sportsShown]);
   const visibleVenues = useMemo(() => venues.slice(0, venuesShown), [venues, venuesShown]);
 
+  const goToSportVenues = (activity) => {
+    navigate(`/play/venues?activity=${activity._id}&activityName=${encodeURIComponent(activity.name)}`);
+  };
+
+  // Filters the "All Sports Venues" list below — separate from the Explore
+  // Sports tiles above, which now navigate to a dedicated venues page instead.
   const toggleSport = (id) => {
     setActiveSportIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-    // Jump to the venues section so the filter's effect is visible.
-    document.getElementById("all-sports-venues")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -147,49 +148,36 @@ export default function Play() {
               </div>
             ) : (
               <>
-                <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))" }}>
-                  {visibleSports.map((a, i) => {
+                <div className="grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(112px, 1fr))" }}>
+                  {activities.map((a, i) => {
                     const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Dumbbell;
                     const tint = TILE_TINTS[i % TILE_TINTS.length];
-                    const active = activeSportIds.includes(a._id);
                     return (
                       <button
                         key={a._id}
-                        onClick={() => toggleSport(a._id)}
-                        className="flex flex-col text-left bg-white rounded-2xl overflow-hidden active:scale-[0.97] transition-transform"
+                        onClick={() => goToSportVenues(a)}
+                        className="flex flex-col text-left bg-white rounded-2xl overflow-hidden active:scale-[0.96] transition-transform"
                         style={{
                           borderRadius: 18,
-                          aspectRatio: "0.82/1",
-                          border: active ? "1.5px solid #f0545c" : "1px solid #f1f1f3",
+                          aspectRatio: "0.86/1",
+                          border: "1px solid #ececef",
                           boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                         }}
                       >
-                        <p className="text-[13px] font-extrabold text-gray-900 leading-tight px-3 pt-3 pb-1">
+                        <p className="text-[13px] font-extrabold text-gray-900 leading-[1.15] px-3 pt-3 pb-1.5">
                           {a.name}
                         </p>
                         <div className="flex-1 flex items-center justify-center" style={{ background: tint.bg }}>
                           {a.image ? (
                             <img src={IMG(a.image)} alt={a.name} className="w-full h-full object-cover" />
                           ) : (
-                            <IconComp size={36} strokeWidth={1.6} style={{ color: tint.fg }} />
+                            <IconComp size={38} strokeWidth={1.5} style={{ color: tint.fg }} />
                           )}
                         </div>
                       </button>
                     );
                   })}
                 </div>
-
-                {sportsShown < activities.length && (
-                  <div className="flex justify-center mt-4">
-                    <button
-                      onClick={() => setSportsShown((n) => n + SPORTS_PAGE_SIZE)}
-                      className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border text-[13px] font-bold text-gray-700 bg-white active:scale-[0.97] transition-transform"
-                      style={{ borderColor: "#e5e7eb" }}
-                    >
-                      Load more <ChevronDown size={14} />
-                    </button>
-                  </div>
-                )}
               </>
             )}
 

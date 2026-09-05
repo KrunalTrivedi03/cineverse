@@ -111,6 +111,28 @@ export default function PlayVenueDetail() {
   const images = venue.images?.length ? venue.images : [];
   const uniqueActivities = [...new Map(courts.map((c) => [c.activity?._id, c.activity])).values()].filter(Boolean);
 
+  const locationCard = (
+    <a
+      href={venue.locationLink || "#"}
+      target={venue.locationLink ? "_blank" : undefined}
+      rel="noreferrer"
+      className="flex items-start gap-3 bg-white rounded-2xl border border-gray-100 p-4"
+      style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}
+    >
+      <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#f3f4f6" }}>
+        <MapPin size={15} className="text-gray-500" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[13.5px] font-bold text-gray-900 leading-snug truncate">{venue.name}, {venue.district?.name}</p>
+        <p className="text-[11.5px] text-gray-400 mt-1 leading-relaxed">
+          {venue.address}
+          {venue.distanceKm != null && <> · {venue.distanceKm.toFixed(1)} km away</>}
+        </p>
+      </div>
+      <ChevronRight size={16} className="text-gray-300 flex-shrink-0 mt-1" />
+    </a>
+  );
+
   const bookingCard = (
     <>
       <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Select a date</p>
@@ -118,9 +140,9 @@ export default function PlayVenueDetail() {
       <button
         onClick={goToSlots}
         className="w-full mt-5 py-3.5 rounded-2xl text-[14px] font-bold text-white flex items-center justify-center gap-2"
-        style={{ background: "#f0545c" }}
+        style={{ background: "#111827" }}
       >
-        View Available Slots <ChevronRight size={16} />
+        Book slots <ChevronRight size={16} />
       </button>
       {venue.contactPhone && (
         <a href={`tel:${venue.contactPhone}`} className="flex items-center justify-center gap-1.5 mt-3 text-[12px] font-semibold text-gray-500">
@@ -202,7 +224,16 @@ export default function PlayVenueDetail() {
           {/* Sports available */}
           {uniqueActivities.length > 0 && (
             <div className="mt-6">
-              <h2 className="text-[15px] font-extrabold text-gray-900 mb-2.5">{uniqueActivities.length} sport{uniqueActivities.length !== 1 ? "s" : ""} available</h2>
+              <div className="flex items-center justify-between gap-3 mb-2.5">
+                <h2 className="text-[15px] font-extrabold text-gray-900">{uniqueActivities.length} sport{uniqueActivities.length !== 1 ? "s" : ""} available</h2>
+                <button
+                  onClick={goToSlots}
+                  className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-bold text-white flex-shrink-0"
+                  style={{ background: "#111827" }}
+                >
+                  Book slots
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {uniqueActivities.map((a) => {
                   const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Trophy;
@@ -220,6 +251,11 @@ export default function PlayVenueDetail() {
               </div>
             </div>
           )}
+
+          {/* Location — desktop shows this in the sticky sidebar */}
+          <div className="mt-6 md:hidden">
+            {locationCard}
+          </div>
 
           {/* Things to know — amenities as an icon list, matching the district.in reference */}
           {venue.amenities?.length > 0 && (
@@ -258,12 +294,15 @@ export default function PlayVenueDetail() {
         </div>
 
         {/* Right: sticky booking card — desktop only */}
-        <div className="hidden md:block">
+        <div className="hidden md:flex md:flex-col md:gap-4">
           <div style={{
             position: "sticky", top: 90, background: "#fff", borderRadius: 18,
             border: "1px solid #eee", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
           }}>
             {bookingCard}
+          </div>
+          <div style={{ position: "sticky", top: 340 }}>
+            {locationCard}
           </div>
         </div>
       </div>
@@ -278,9 +317,9 @@ export default function PlayVenueDetail() {
         <button
           onClick={goToSlots}
           className="w-full mt-3 py-3 rounded-2xl text-[13.5px] font-bold text-white flex items-center justify-center gap-2"
-          style={{ background: "#f0545c" }}
+          style={{ background: "#111827" }}
         >
-          View Available Slots <ChevronRight size={15} />
+          Book slots <ChevronRight size={15} />
         </button>
       </div>
 

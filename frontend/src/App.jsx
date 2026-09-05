@@ -38,6 +38,7 @@ import Aboutus from "./pages/Aboutus";
 import ContactUs from "./pages/Contactus";
 import Offers from "./pages/Offers";
 import BookingReview from "./pages/BookingReview";
+import WebShowsListing from "./pages/WebShowsListing";
 
 export default function App() {
   return (
@@ -64,6 +65,8 @@ export default function App() {
         <Route path="/about" element={<Aboutus />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/offers" element={<Offers />} />
+
+        <Route path="/web-shows" element={<WebShowsListing />} />
 
         <Route path="/events" element={<ExploreEvents />} />
         <Route path="/events/:id" element={<EventDetail />} />

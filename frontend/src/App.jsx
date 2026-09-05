@@ -38,6 +38,7 @@ import Aboutus from "./pages/Aboutus";
 import ContactUs from "./pages/Contactus";
 import Offers from "./pages/Offers";
 import BookingReview from "./pages/BookingReview";
+import WebShowDetails from "./pages/WebShowDetails";
 import WebShowsListing from "./pages/WebShowsListing";
 
 export default function App() {
@@ -66,7 +67,9 @@ export default function App() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/offers" element={<Offers />} />
 
-        <Route path="/web-shows" element={<WebShowsListing />} />
+        <Route path="/web-shows/trending" element={<WebShowsListing category="trending-series" />} />
+        <Route path="/web-shows/web-originals" element={<WebShowsListing category="web-original" />} />
+        <Route path="/web-shows/:id" element={<WebShowDetails />} />
 
         <Route path="/events" element={<ExploreEvents />} />
         <Route path="/events/:id" element={<EventDetail />} />

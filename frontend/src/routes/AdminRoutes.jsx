@@ -28,6 +28,7 @@ import AdminPlayActivities from "../admin/pages/AdminPlayActivities";
 import AdminPlayVenues from "../admin/pages/AdminPlayVenues";
 import AdminPlayVenueCourts from "../admin/pages/AdminPlayVenueCourts";
 import AdminPlayBookings from "../admin/pages/AdminPlayBookings";
+import WebAdminShows from "../admin/pages/WebAdminShows";
 
 export default function AdminRoutes() {
   return (
@@ -54,6 +55,7 @@ export default function AdminRoutes() {
       <Route path="/admin/venues" element={<AdminVenues />} />
       <Route path="/admin/venues/:venueId/layout" element={<AdminVenueSeatLayout />}/>
       <Route path="/admin/districts" element={<AdminDistricts />} />
+      <Route path="/admin/web-shows" element={<WebAdminShows />} />
       <Route path="admin/schedule-events" element={<AdminEventSchedules />} />
       <Route path="/admin/offers" element={<AdminOffers />} />
       <Route path="/admin/change-password" element={<AdminChangePassword />} />

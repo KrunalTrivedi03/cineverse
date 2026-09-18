@@ -100,10 +100,26 @@ export default function BookingReview() {
   const [playCountdown, setPlayCountdown] = useState(null);
   const playTimerRef = useRef(null);
 
+  const playPaidRef = useRef(false);
+
   const releasePlayLock = useCallback(async () => {
     if (!isPlay || !draft) return;
     await api.delete("/play-slots/lock", { data: { slotIds: draft.slotIds, userId: draft.userId } }).catch(() => {});
   }, [isPlay, draft]);
+
+  // Release the hold on unmount — covers the back button, browser back,
+  // and closing/navigating away any other way — unless payment just
+  // succeeded (in which case the slots are booked, not just held).
+  useEffect(() => {
+    if (!isPlay || !draft) return;
+    return () => { if (!playPaidRef.current) releasePlayLock(); };
+  }, [isPlay, draft, releasePlayLock]);
+
+  const handlePlayBack = () => {
+    releasePlayLock();
+    clearBookingDraft();
+    navigate(-1);
+  };
 
   useEffect(() => {
     if (!isPlay || !draft) return;
@@ -139,6 +155,7 @@ export default function BookingReview() {
       existingOrder: playOrderData,
       userDetails: { name: user?.username || "", email: user?.email || "", contact: user?.phone || "" },
       onSuccess: (bookingRef, booking) => {
+        playPaidRef.current = true;
         setPlayPaying(false);
         clearBookingDraft();
         navigate("/play/booking-success", { state: { booking, bookingRef } });
@@ -340,7 +357,7 @@ export default function BookingReview() {
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
         <Navbar />
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
+          <button onClick={handlePlayBack} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
             <ChevronLeft size={16} />
           </button>
           <div className="flex-1 min-w-0">
@@ -365,7 +382,9 @@ export default function BookingReview() {
           {/* Left */}
           <div className="order-1 space-y-4 min-w-0">
             <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3.5">
-              <div className="w-16 h-16 rounded-xl flex-shrink-0" style={{ background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }} />
+              <div className="w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden" style={{ background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }}>
+                {draft.venueImage && <img src={IMG(draft.venueImage)} alt={draft.venueName} className="w-full h-full object-cover" />}
+              </div>
               <div className="min-w-0">
                 <p className="text-[15px] font-extrabold text-gray-900">{draft.activityName}</p>
                 <p className="text-[12px] text-gray-400 mt-0.5 truncate">{draft.venueName}</p>

@@ -5,9 +5,8 @@ import {
   Dumbbell, MapPin, IndianRupee, SlidersHorizontal, X, Building2, Navigation, ChevronDown,
 } from "lucide-react";
 import api from "../api/axiosInstance";
-import Navbar from "../components/Navbar";
+import Navbar, { getSelectedCity } from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
-import DistrictSelector, { getSelectedDistrict } from "../components/DistrictSelector";
 import { IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
 
 const SORT_OPTIONS = [
@@ -32,7 +31,7 @@ const VENUES_PAGE_SIZE = 8;
 
 export default function Play() {
   const navigate = useNavigate();
-  const [district, setDistrict] = useState(getSelectedDistrict());
+  const [city, setCity] = useState(getSelectedCity());
 
   /* ── Explore Sports ── */
   const [activities, setActivities] = useState([]);
@@ -50,9 +49,9 @@ export default function Play() {
   const [coords, setCoords] = useState(null);
 
   useEffect(() => {
-    const onChange = () => setDistrict(getSelectedDistrict());
-    window.addEventListener("districtChanged", onChange);
-    return () => window.removeEventListener("districtChanged", onChange);
+    const onChange = () => setCity(getSelectedCity());
+    window.addEventListener("cityChanged", onChange);
+    return () => window.removeEventListener("cityChanged", onChange);
   }, []);
 
   useEffect(() => {
@@ -73,11 +72,11 @@ export default function Play() {
   }, []);
 
   useEffect(() => {
-    if (!district.id) return;
+    if (!city.id) return;
     setLoadingVenues(true);
     setVenueError("");
     setVenuesShown(VENUES_PAGE_SIZE);
-    const query = new URLSearchParams({ district: district.id });
+    const query = new URLSearchParams({ city: city.id });
     if (activeSportIds.length) query.set("activities", activeSportIds.join(","));
     if (sort) query.set("sort", sort);
     if (coords) { query.set("lat", coords.lat); query.set("lng", coords.lng); }
@@ -87,7 +86,7 @@ export default function Play() {
       .then((r) => setVenues(r.data))
       .catch(() => setVenueError("Couldn't load venues. Please try again."))
       .finally(() => setLoadingVenues(false));
-  }, [district.id, activeSportIds, sort, coords, under5km]);
+  }, [city.id, activeSportIds, sort, coords, under5km]);
 
   const visibleVenues = useMemo(() => venues.slice(0, venuesShown), [venues, venuesShown]);
 
@@ -109,25 +108,21 @@ export default function Play() {
 
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 40px" }}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h1 className="text-[22px] font-extrabold tracking-tight text-gray-900">Play</h1>
-            <p className="text-[12.5px] text-gray-400 mt-0.5">Book courts &amp; turfs near you</p>
-          </div>
-          <DistrictSelector compact />
+        <div className="mb-5">
+          <h1 className="text-[22px] font-extrabold tracking-tight text-gray-900">Play</h1>
+          <p className="text-[12.5px] text-gray-400 mt-0.5">Book courts &amp; turfs near you</p>
         </div>
 
-        {!district.id ? (
-          /* ── No district selected yet ── */
+        {!city.id ? (
+          /* ── No city selected in the navbar yet ── */
           <div className="rounded-2xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-14" style={{ borderRadius: 20 }}>
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
               <MapPin size={24} style={{ color: "#f0545c" }} />
             </div>
-            <p className="text-[15px] font-bold text-gray-900 mb-1">Select a district to get started</p>
-            <p className="text-[13px] text-gray-400 max-w-[260px] mb-5">
-              We'll show you badminton courts, turfs, and more near you.
+            <p className="text-[15px] font-bold text-gray-900 mb-1">Select a city to get started</p>
+            <p className="text-[13px] text-gray-400 max-w-[260px]">
+              Pick your city from the top of the page and we'll show you badminton courts, turfs, and more near you.
             </p>
-            <DistrictSelector />
           </div>
         ) : (
           <>

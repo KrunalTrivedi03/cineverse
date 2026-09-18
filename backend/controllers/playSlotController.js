@@ -46,6 +46,8 @@ exports.getSlotAvailability = async (req, res) => {
 
     res.json({
       venue: venue.name,
+      venueId: venue._id,
+      venueImage: venue.images?.[0] || null,
       date: targetDate,
       locksExpireIn: LOCK_MINUTES * 60,
       courts: courts.map((c) => ({

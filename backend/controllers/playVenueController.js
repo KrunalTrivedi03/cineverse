@@ -102,16 +102,18 @@ exports.deleteVenue = async (req, res) => {
 };
 
 /* ── Public browse ────────────────────────────────────────
-   GET /api/play/venues?district=<id>&activity=<id>&sort=distance|price|rating
+   GET /api/play/venues?city=<id>&activity=<id>&sort=distance|price|rating
                         &lat=&lng=&amenities=Parking,Cafeteria&minPrice=&maxPrice=
+   `district` is still accepted for backwards compatibility, but `city` is
+   the primary scope now — Play no longer requires picking a district.
    "price" here means the venue's cheapest active court price, computed
    on the fly — venues don't store a price themselves. */
 exports.getPublicVenues = async (req, res) => {
   try {
-    const { district, activity, activities, sort, lat, lng, amenities, minPrice, maxPrice, maxDistanceKm } = req.query;
+    const { city, district, activity, activities, sort, lat, lng, amenities, minPrice, maxPrice, maxDistanceKm } = req.query;
 
-    if (!district) {
-      return res.status(400).json({ message: "district is required" });
+    if (!city && !district) {
+      return res.status(400).json({ message: "city is required" });
     }
 
     // `activity` (single, legacy) or `activities` (comma-separated, from the
@@ -119,7 +121,9 @@ exports.getPublicVenues = async (req, res) => {
     // sport(s). Neither present = "All Sports Venues" (no sport filter).
     const activityIds = activities ? activities.split(",").filter(Boolean) : activity ? [activity] : [];
 
-    const filter = { district, isActive: true };
+    const filter = { isActive: true };
+    if (city) filter.city = city;
+    else filter.district = district;
     if (activityIds.length) filter.activities = { $in: activityIds };
     if (amenities) {
       const list = amenities.split(",").filter(Boolean);

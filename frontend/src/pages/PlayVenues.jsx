@@ -4,9 +4,8 @@ import {
   ChevronLeft, SlidersHorizontal, X, Building2, Navigation,
 } from "lucide-react";
 import api from "../api/axiosInstance";
-import Navbar from "../components/Navbar";
+import Navbar, { getSelectedCity } from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
-import { getSelectedDistrict } from "../components/DistrictSelector";
 import { IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
 
 const SORT_OPTIONS = [
@@ -59,7 +58,7 @@ export default function PlayVenues() {
   const activityId = params.get("activity");
   const activityName = params.get("activityName") || "Venues";
 
-  const district = getSelectedDistrict();
+  const city = getSelectedCity();
 
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,10 +78,10 @@ export default function PlayVenues() {
   }, []);
 
   useEffect(() => {
-    if (!activityId || !district.id) return;
+    if (!activityId || !city.id) return;
     setLoading(true);
     setError("");
-    const query = new URLSearchParams({ district: district.id, activity: activityId });
+    const query = new URLSearchParams({ city: city.id, activity: activityId });
     if (sort) query.set("sort", sort);
     if (coords) { query.set("lat", coords.lat); query.set("lng", coords.lng); }
     if (under5km) query.set("maxDistanceKm", "5");
@@ -91,18 +90,18 @@ export default function PlayVenues() {
       .then((r) => setVenues(r.data))
       .catch(() => setError("Couldn't load venues. Please try again."))
       .finally(() => setLoading(false));
-  }, [activityId, district.id, sort, coords, under5km]);
+  }, [activityId, city.id, sort, coords, under5km]);
 
   const grouped = useMemo(() => venues, [venues]);
 
-  if (!activityId || !district.id) {
+  if (!activityId || !city.id) {
     return (
       <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
         <style>{OUTFIT_IMPORT}</style>
         <Navbar />
         <BottomNav />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
-          <p className="text-[14px] font-semibold text-gray-500 mb-4">Select a district and activity first.</p>
+          <p className="text-[14px] font-semibold text-gray-500 mb-4">Select a city from the navbar and an activity first.</p>
           <button onClick={() => navigate("/play")} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>
             Go to Play
           </button>
@@ -125,7 +124,7 @@ export default function PlayVenues() {
             <ChevronLeft size={16} />
           </button>
           <h1 className="text-[20px] sm:text-[22px] font-extrabold tracking-tight text-gray-900 truncate">
-            {activityName} Courts in {district.name}
+            {activityName} Courts in {city.name}
           </h1>
         </div>
 

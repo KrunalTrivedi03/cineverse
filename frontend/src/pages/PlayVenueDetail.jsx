@@ -140,7 +140,7 @@ export default function PlayVenueDetail() {
       <button
         onClick={goToSlots}
         className="w-full mt-5 py-3.5 rounded-2xl text-[14px] font-bold text-white flex items-center justify-center gap-2"
-        style={{ background: "#111827" }}
+        style={{ background: "#F0545C" }}
       >
         Book slots <ChevronRight size={16} />
       </button>
@@ -229,7 +229,7 @@ export default function PlayVenueDetail() {
                 <button
                   onClick={goToSlots}
                   className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-bold text-white flex-shrink-0"
-                  style={{ background: "#111827" }}
+                  style={{ background: "#F0545C" }}
                 >
                   Book slots
                 </button>
@@ -317,7 +317,7 @@ export default function PlayVenueDetail() {
         <button
           onClick={goToSlots}
           className="w-full mt-3 py-3 rounded-2xl text-[13.5px] font-bold text-white flex items-center justify-center gap-2"
-          style={{ background: "#111827" }}
+          style={{ background: "#F0545C" }}
         >
           Book slots <ChevronRight size={15} />
         </button>

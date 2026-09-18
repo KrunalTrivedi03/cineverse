@@ -3,7 +3,6 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
-import BottomNav from "../components/BottomNav";
 import { getSocketUserId, getCurrentUser, IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
 import {
   ArrowLeft, X, CheckCircle2, AlertCircle, IndianRupee, Loader2, Clock, Check, Minus, Plus,
@@ -271,7 +270,7 @@ export default function PlaySlotSelection() {
   if (error) {
     return (
       <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
-        <Navbar /><BottomNav />
+        <Navbar />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
           <p className="text-[14px] font-semibold text-gray-500 mb-4">{error}</p>
           <button onClick={() => navigate(-1)} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>Go back</button>
@@ -284,7 +283,6 @@ export default function PlaySlotSelection() {
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
       <style>{OUTFIT_IMPORT}</style>
       <Navbar />
-      <BottomNav />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 140px" }}>
         <div className="flex items-center gap-3 mb-4">

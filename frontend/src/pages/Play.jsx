@@ -6,7 +6,6 @@ import {
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar, { getSelectedCity } from "../components/Navbar";
-import BottomNav from "../components/BottomNav";
 import { IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
 
 const SORT_OPTIONS = [
@@ -104,7 +103,6 @@ export default function Play() {
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
       <style>{OUTFIT_IMPORT}</style>
       <Navbar />
-      <BottomNav />
 
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 40px" }}>
         {/* Header */}

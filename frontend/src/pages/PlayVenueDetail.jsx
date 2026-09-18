@@ -6,7 +6,6 @@ import {
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
-import BottomNav from "../components/BottomNav";
 import { IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
 
 const DAYS_AHEAD = 14; // matches the backend's rolling slot-generation window
@@ -86,7 +85,7 @@ export default function PlayVenueDetail() {
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: "#f7f7f8" }}>
-        <Navbar /><BottomNav />
+        <Navbar />
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-6">
           <div className="h-64 rounded-2xl bg-gray-100 animate-pulse mb-4" />
           <div className="h-5 w-2/3 bg-gray-100 rounded animate-pulse mb-2" />
@@ -99,7 +98,7 @@ export default function PlayVenueDetail() {
   if (error || !venue) {
     return (
       <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
-        <Navbar /><BottomNav />
+        <Navbar />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
           <p className="text-[14px] font-semibold text-gray-500 mb-4">{error || "Venue not found"}</p>
           <button onClick={() => navigate(-1)} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>Go back</button>
@@ -156,7 +155,6 @@ export default function PlayVenueDetail() {
     <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
       <style>{OUTFIT_IMPORT}</style>
       <Navbar />
-      <BottomNav />
 
       <div className="max-w-5xl mx-auto px-4 md:px-8 pt-4">
         <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 mb-3">

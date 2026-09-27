@@ -29,7 +29,7 @@ const TIPS = [
   {
     icon: Ban,
     title: "Never share your OTP or password",
-    text: "CineVerse staff will never ask for your password or login code.",
+    text: "NOW staff will never ask for your password or login code.",
   },
 ];
 

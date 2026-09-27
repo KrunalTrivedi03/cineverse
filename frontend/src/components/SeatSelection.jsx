@@ -148,7 +148,7 @@ function SeatCountSelector({ max, onSelect, layoutData }) {
               className="w-[7px] h-[7px] rounded-full flex-shrink-0"
               style={{ background: "#f0545c" }}
             />
-            CineVerse
+            NOW
           </div>
         </div>
 
@@ -303,7 +303,7 @@ function PaymentMethodPicker({ wallet, payMethod, setPayMethod }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-bold text-gray-900">
-              CineVerse Wallet
+              NOW Wallet
             </p>
             <p className="text-[11px] text-gray-400 mt-0.5">
               Balance: ₹{(wallet?.balance || 0).toLocaleString("en-IN")}

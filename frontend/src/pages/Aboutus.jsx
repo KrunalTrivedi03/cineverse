@@ -42,7 +42,7 @@ const HIGHLIGHTS = [
   {
     icon: Globe,
     title: "Growing Every City",
-    desc: "We're expanding city by city, bringing the full CineVerse experience closer to you.",
+    desc: "We're expanding city by city, bringing the full NOW experience closer to you.",
   },
   {
     icon: Heart,
@@ -82,14 +82,14 @@ export default function Aboutus() {
           <div className="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full" style={{ background: "rgba(240,84,92,0.15)" }}>
             <Sparkles size={12} style={{ color: "#f0545c" }} />
             <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
-              About CineVerse
+              About NOW
             </span>
           </div>
           <h1 className="text-white font-black text-[32px] sm:text-[44px] md:text-[52px] leading-[1.1] tracking-tight max-w-3xl mx-auto" style={{ letterSpacing: "-0.02em" }}>
             One Platform, <span style={{ color: "#f0545c" }}>Every Experience</span>
           </h1>
           <p className="text-white/60 text-[14px] sm:text-[16px] max-w-xl mx-auto mt-5 leading-relaxed">
-            CineVerse brings movies, live events and plays together in a single, seamless booking
+            NOW brings movies, live events and plays together in a single, seamless booking
             experience — designed for people who love to go out and be entertained.
           </p>
         </div>
@@ -120,12 +120,12 @@ export default function Aboutus() {
               A single home for everything you want to experience
             </h2>
             <p className="text-[14px] text-gray-500 leading-relaxed mb-4">
-              CineVerse started with a simple idea: booking a movie ticket, a concert pass or a play
+              NOW started with a simple idea: booking a movie ticket, a concert pass or a play
               shouldn't mean juggling five different apps. We built one platform that brings it all
               together — discovery, booking, payments and reminders — in a fast, modern experience.
             </p>
             <p className="text-[14px] text-gray-500 leading-relaxed">
-              Today, CineVerse is a fast-growing entertainment platform covering movies, live events
+              Today, NOW is a fast-growing entertainment platform covering movies, live events
               and theatre, with new cities, venues and experiences added every week.
             </p>
           </div>
@@ -178,7 +178,7 @@ export default function Aboutus() {
       <section className="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-20">
         <div className="text-center mb-10 md:mb-12">
           <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#f0545c" }}>
-            Why CineVerse
+            Why NOW
           </p>
           <h2 className="text-[24px] md:text-[30px] font-black text-gray-900 tracking-tight">
             Built for a better night out

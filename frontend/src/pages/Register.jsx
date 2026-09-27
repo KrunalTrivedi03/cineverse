@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { User, Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { showToast } from "../utils/toast";
+import nowLogo from "../assets/now-logo-mark.png";
 
 import api from "../api/axiosInstance";
 
@@ -64,7 +65,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex flex-row-reverse" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
 
         @keyframes scrollUp {
           from { transform: translateY(0); }
@@ -132,6 +133,28 @@ export default function Register() {
 
         {/* Branding bottom-right */}
         <div className="absolute bottom-10 right-8 left-8 z-10 text-right">
+          <div
+            className="inline-flex flex-col items-end gap-1.5 mb-4 px-4 py-3 rounded-2xl ml-auto"
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <img src={nowLogo} alt="NOW" className="h-9 w-auto" />
+            <p
+              style={{
+                margin: 0,
+                fontFamily: "'Caveat', 'Segoe Script', cursive",
+                fontWeight: 700,
+                fontSize: 16,
+                lineHeight: 1,
+              }}
+            >
+              <span style={{ color: "#ffffff" }}>Your World of </span>
+              <span style={{ color: "#f0545c" }}>Entertainment</span>
+            </p>
+          </div>
           <p className="text-white/40 text-[13px] leading-relaxed max-w-xs ml-auto">
             Discover, watch, and book movies you love — all in one place.
           </p>
@@ -145,14 +168,9 @@ export default function Register() {
       >
         <div className="fade-up w-full max-w-sm mx-auto">
 
-          {/* Logo */}
-          <div className="flex items-center gap-2 mb-10">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#f0545c" }}>
-              <Film size={16} color="white" />
-            </div>
-            <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 mb-10 lg:hidden">
+            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
           </div>
 
           {/* Heading */}
@@ -160,7 +178,7 @@ export default function Register() {
             Create account
           </h1>
           <p className="text-[14px] text-gray-400 mt-1 mb-8">
-            Start your cinema journey with CineVerse
+            Start your cinema journey with NOW
           </p>
 
           {/* Form */}
@@ -297,5 +315,3 @@ export default function Register() {
     </div>
   );
 }
-
-

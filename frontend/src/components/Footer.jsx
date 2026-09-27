@@ -1,5 +1,6 @@
-import { Film, Twitter, Instagram, Youtube } from "lucide-react";
+import { Twitter, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
+import nowLogo from "../assets/now-logo-mark.png";
 
 const NAV = [
   { label: "Movies", to: "/movies" },
@@ -21,127 +22,215 @@ export default function Footer() {
       style={{
         fontFamily: "'Outfit', sans-serif",
         background: "#f7f6f4",
+        color: "#1a1917",
       }}
     >
+      {/* Top accent */}
       <div
         style={{
           height: 2,
           background:
-            "linear-gradient(90deg, transparent, #f0545c 25%, #f0545c 75%, transparent)",
+            "linear-gradient(90deg, transparent 0%, #f0545c 18%, #f0545c 82%, transparent 100%)",
         }}
       />
 
-      <div className="mx-auto px-6 md:px-16" style={{ maxWidth: 1200 }}>
+      <div
+        className="mx-auto px-6 md:px-16"
+        style={{
+          maxWidth: 1200,
+        }}
+      >
+        {/* Main footer row */}
         <div
-          className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
-          style={{ padding: "40px 0 28px", borderBottom: "1px solid #e8e5e1" }}
+          className="flex flex-col md:flex-row md:items-center justify-between gap-8"
+          style={{
+            padding: "42px 0 34px",
+            borderBottom: "1px solid #e5e2de",
+          }}
         >
+          {/* Brand */}
           <Link
             to="/"
-            className="flex items-center gap-2.5"
-            style={{ textDecoration: "none" }}
-          >
-            <CineVerseLogo size={26} />
-            <span
-              style={{
-                fontSize: 20,
-                fontWeight: 900,
-                letterSpacing: "-0.5px",
-                color: "#1a1917",
-              }}
-            >
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
-          </Link>
-
-          <p
+            aria-label="NOW Home"
             style={{
-              fontSize: 13,
-              color: "#9c9890",
-              letterSpacing: "0.02em",
-              maxWidth: 300,
-              lineHeight: 1.65,
-              margin: 0,
+              width: 220,
+              flexShrink: 0,
+              textDecoration: "none",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            Book tickets, discover showtimes & explore the world of cinema,
-            events and plays.
-          </p>
+            <img
+              src={nowLogo}
+              alt="NOW"
+              style={{
+                display: "block",
+                width: 150,
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
 
-          <div style={{ display: "flex", gap: 7, flexShrink: 0 }}>
+            {/* Tagline SVG - kept as one centered lockup */}
+            <svg
+              viewBox="0 0 260 40"
+              width="260"
+              height="40"
+              role="img"
+              aria-label="Your World of Entertainment"
+              style={{
+                display: "block",
+                marginTop: 6,
+                overflow: "visible",
+              }}
+            >
+              <text
+                x="130"
+                y="21"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="17"
+                fontWeight="700"
+                fontFamily="'Caveat', 'Segoe Script', cursive"
+                letterSpacing="0.2px"
+              >
+                <tspan fill="#1a1917">Your World of </tspan>
+                <tspan fill="#f0545c">Entertainment</tspan>
+              </text>
+
+              {/* Underline positioned only beneath Entertainment */}
+              <path
+                d="M140 31 C164 34, 200 34, 236 30"
+                fill="none"
+                stroke="#f0545c"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </Link>
+
+          {/* Description */}
+          <div
+            style={{
+              maxWidth: 330,
+              flex: "1 1 auto",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                lineHeight: 1.7,
+                color: "#918d87",
+                letterSpacing: "0.01em",
+              }}
+            >
+              Book tickets, discover showtimes & explore the world of cinema,
+              events and plays.
+            </p>
+          </div>
+
+          {/* Socials */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
             {SOCIALS.map(({ Icon, href, label }) => (
               <a
                 key={label}
                 href={href}
                 aria-label={label}
                 style={{
-                  width: 33,
-                  height: 33,
-                  borderRadius: 8,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: "#fff",
-                  border: "1px solid #e2deda",
-                  color: "#b0ada8",
-                  transition: "all 0.15s ease",
+                  background: "#ffffff",
+                  border: "1px solid #e1ddd8",
+                  color: "#9e9a94",
+                  transition:
+                    "background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease",
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#fff0f0";
                   e.currentTarget.style.borderColor = "#f0545c";
                   e.currentTarget.style.color = "#f0545c";
+                  e.currentTarget.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "#fff";
-                  e.currentTarget.style.borderColor = "#e2deda";
-                  e.currentTarget.style.color = "#b0ada8";
+                  e.currentTarget.style.background = "#ffffff";
+                  e.currentTarget.style.borderColor = "#e1ddd8";
+                  e.currentTarget.style.color = "#9e9a94";
+                  e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                <Icon size={14} />
+                <Icon size={15} strokeWidth={1.8} />
               </a>
             ))}
           </div>
         </div>
 
+        {/* Bottom row */}
         <div
-          className="flex flex-col sm:flex-row items-center justify-between gap-3"
-          style={{ padding: "18px 0 22px" }}
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          style={{
+            padding: "20px 0 24px",
+          }}
         >
+          {/* Navigation */}
           <nav
-            style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+            aria-label="Footer navigation"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              rowGap: 6,
+            }}
           >
             {NAV.map(({ label, to }, i) => (
               <span
                 key={label}
-                style={{ display: "flex", alignItems: "center" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
               >
                 <Link
                   to={to}
                   style={{
                     fontSize: 13,
                     fontWeight: 500,
-                    color: "#9c9890",
+                    color: "#89857f",
                     textDecoration: "none",
-                    padding: "4px 10px",
+                    padding: "4px 9px",
                     borderRadius: 6,
                     transition: "color 0.15s ease",
                     letterSpacing: "0.01em",
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#1a1917")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#9c9890")
-                  }
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#1a1917";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "#89857f";
+                  }}
                 >
                   {label}
                 </Link>
+
                 {i < NAV.length - 1 && (
                   <span
+                    aria-hidden="true"
                     style={{
-                      color: "#d4d0cb",
-                      fontSize: 10,
+                      color: "#d2cec9",
+                      fontSize: 11,
                       userSelect: "none",
                     }}
                   >
@@ -152,77 +241,20 @@ export default function Footer() {
             ))}
           </nav>
 
+          {/* Copyright */}
           <p
             style={{
+              margin: 0,
               fontSize: 12,
-              color: "#c4c0bb",
+              color: "#b4b0aa",
               letterSpacing: "0.02em",
               whiteSpace: "nowrap",
-              margin: 0,
             }}
           >
-            © {new Date().getFullYear()} CineVerse. All rights reserved.
+            © {new Date().getFullYear()} NOW. All rights reserved.
           </p>
         </div>
       </div>
     </footer>
-  );
-}
-
-function CineVerseLogo({ size = 24 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 80 80"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="40" cy="40" r="32" fill="#f0545c" />
-      <circle
-        cx="40"
-        cy="40"
-        r="32"
-        fill="none"
-        stroke="#c03040"
-        strokeWidth="1"
-      />
-      <polygon points="33,27 33,53 57,40" fill="#ffffff" />
-      <rect
-        x="8"
-        y="37"
-        width="12"
-        height="6"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-      <rect
-        x="60"
-        y="37"
-        width="12"
-        height="6"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-      <rect
-        x="37"
-        y="8"
-        width="6"
-        height="12"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-      <rect
-        x="37"
-        y="60"
-        width="6"
-        height="12"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-    </svg>
   );
 }

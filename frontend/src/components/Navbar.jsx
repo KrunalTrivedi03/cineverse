@@ -19,6 +19,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { consumeCityPromptFlag } from "../utils/authSession";
+import nowLogo from "../assets/now-logo-mark.png";
 
 const GENRES = [
   "Action",
@@ -175,10 +176,7 @@ export default function Navbar() {
       <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-5 md:px-8 h-[60px] flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <CineVerseLogo size={26} />
-            <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
+            <img src={nowLogo} alt="NOW" className="h-[26px] w-auto" />
           </Link>
 
           <div className="hidden lg:flex items-center gap-1 text-[14px] font-medium text-gray-700">
@@ -700,63 +698,5 @@ function ProfileLink({ to, children, onClick }) {
     >
       {children}
     </Link>
-  );
-}
-
-function CineVerseLogo({ size = 24 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 80 80"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="40" cy="40" r="32" fill="#f0545c" />
-      <circle
-        cx="40"
-        cy="40"
-        r="32"
-        fill="none"
-        stroke="#c03040"
-        strokeWidth="1"
-      />
-      <polygon points="33,27 33,53 57,40" fill="#ffffff" />
-      <rect
-        x="8"
-        y="37"
-        width="12"
-        height="6"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-      <rect
-        x="60"
-        y="37"
-        width="12"
-        height="6"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-      <rect
-        x="37"
-        y="8"
-        width="6"
-        height="12"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-      <rect
-        x="37"
-        y="60"
-        width="6"
-        height="12"
-        rx="3"
-        fill="#ffffff"
-        opacity="0.15"
-      />
-    </svg>
   );
 }

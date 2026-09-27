@@ -846,7 +846,7 @@ export default function BookingReview() {
 /**
  * Payment method popup — opened by the "Pay now" CTA instead of showing
  * payment options inline on the summary page. Methods are grouped by
- * category (Razorpay checkout, CineVerse Wallet, Scan & Pay via UPI apps).
+ * category (Razorpay checkout, NOW Wallet, Scan & Pay via UPI apps).
  * "Scan QR" and "Card / UPI / Net Banking" both route through the same
  * Razorpay order — Razorpay's own checkout surfaces a UPI QR code there —
  * this popup just gives the user a direct, familiar shortcut to it.
@@ -913,14 +913,14 @@ function PaymentMethodPopup({ orderData, quickPay, payMethod, setPayMethod, tota
             />
           </div>
 
-          {/* CineVerse Wallet */}
+          {/* NOW Wallet */}
           <div>
-            <p className="text-[10.5px] font-bold text-gray-300 uppercase tracking-widest mb-2">CineVerse Wallet</p>
+            <p className="text-[10.5px] font-bold text-gray-300 uppercase tracking-widest mb-2">NOW Wallet</p>
             <Option
               active={payMethod === "wallet"}
               disabled={!walletEligible}
               icon={<Wallet size={16} style={{ color: payMethod === "wallet" ? ACCENT : "#9ca3af" }} />}
-              title="CineVerse Wallet"
+              title="NOW Wallet"
               sub={
                 walletEligible
                   ? `Balance: ₹${walletBalance.toLocaleString("en-IN")}`

@@ -129,7 +129,7 @@ export default function NotFound() {
             })}
           </svg>
           <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase", color: "#b0905a" }}>
-            CineVerse · Error
+            NOW · Error
           </span>
         </div>
 
@@ -213,5 +213,3 @@ export default function NotFound() {
     </div>
   );
 }
-
-

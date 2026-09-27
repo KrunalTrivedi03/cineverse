@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { Film, ArrowRight, RotateCcw, CheckCircle, ShieldCheck } from "lucide-react";
+import { ArrowRight, RotateCcw, CheckCircle, ShieldCheck } from "lucide-react";
 import api from "../api/axiosInstance";
+import nowLogo from "../assets/now-logo-mark.png";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -119,7 +120,7 @@ export default function OtpVerification() {
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
 
         @keyframes scrollUp {
           from { transform: translateY(0); }
@@ -180,13 +181,27 @@ export default function OtpVerification() {
 
         {/* Branding */}
         <div className="absolute bottom-10 left-8 z-10">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#f0545c" }}>
-              <Film size={18} color="white" />
-            </div>
-            <span className="text-white text-[22px] font-extrabold tracking-tight">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
+          <div
+            className="inline-flex flex-col items-start gap-1.5 mb-4 px-4 py-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
+            <p
+              style={{
+                margin: 0,
+                fontFamily: "'Caveat', 'Segoe Script', cursive",
+                fontWeight: 700,
+                fontSize: 16,
+                lineHeight: 1,
+              }}
+            >
+              <span style={{ color: "#ffffff" }}>Your World of </span>
+              <span style={{ color: "#f0545c" }}>Entertainment</span>
+            </p>
           </div>
           <p className="text-white/40 text-[13px] max-w-xs leading-relaxed">
             One last step — verify your email to unlock the full experience.
@@ -203,12 +218,7 @@ export default function OtpVerification() {
 
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#f0545c" }}>
-              <Film size={16} color="white" />
-            </div>
-            <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
+            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
           </div>
 
           {/* ── Success state ── */}
@@ -331,5 +341,3 @@ export default function OtpVerification() {
     </div>
   );
 }
-
-

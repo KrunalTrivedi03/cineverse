@@ -93,7 +93,7 @@ const sendOTPEmail = async (user, otp) => {
 
   await sendEmail({
     to: user.email,
-    subject: "Your CineVerse admin login code",
+    subject: "Your NOW admin login code",
     html,
   });
 };
@@ -112,7 +112,7 @@ const sendResetOTPEmail = async (user, otp) => {
 
   await sendEmail({
     to: user.email,
-    subject: "Your CineVerse admin password reset code",
+    subject: "Your NOW admin password reset code",
     html,
   });
 };

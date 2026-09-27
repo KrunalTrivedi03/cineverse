@@ -192,7 +192,7 @@ export default function OAuthSuccess() {
               You're in{username ? `, ${username}` : ""}!
             </h1>
             <p className="text-[13.5px] text-gray-400 leading-relaxed mb-8 max-w-[240px]">
-              Signed in with Google successfully. Taking you to CineVerse…
+              Signed in with Google successfully. Taking you to NOW…
             </p>
 
             <div className="w-full">

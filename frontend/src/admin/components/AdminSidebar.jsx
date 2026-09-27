@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import { AdminAuthContext } from "../../context/AdminAuthContext";
+import nowLogo from "../../assets/now-logo-mark.png";
 import {
   LayoutDashboard,
   Film,
@@ -98,23 +99,36 @@ export default function AdminSidebar() {
       className="w-[240px] h-screen fixed left-0 top-0 flex flex-col bg-white border-r border-gray-100"
       style={{ fontFamily: "'Outfit', sans-serif", boxShadow: "1px 0 0 #f3f4f6" }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
-      <div className="px-5 py-5 border-b border-gray-100">
-        <Link to="/admin/dashboard" className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "#f0545c" }}
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');`}</style>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <Link to="/admin/dashboard" className="flex flex-col items-center gap-1 max-w-full">
+          <img
+            src={nowLogo}
+            alt="NOW"
+            style={{
+              height: 24,
+              width: "auto",
+              maxWidth: "100%",
+              display: "block",
+              objectFit: "contain",
+            }}
+          />
+          <p
+            style={{
+              margin: 0,
+              fontFamily: "'Caveat', 'Segoe Script', cursive",
+              fontWeight: 700,
+              fontSize: 13,
+              lineHeight: 1,
+              textAlign: "center",
+            }}
           >
-            <Film size={16} color="white" />
-          </div>
-          <div>
-            <span className="text-[17px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
-            <p className="text-[10px] text-gray-400 font-medium -mt-0.5 tracking-wide">
-              ADMIN PANEL
-            </p>
-          </div>
+            <span style={{ color: "#1a1917" }}>Your World of </span>
+            <span style={{ color: "#f0545c" }}>Entertainment</span>
+          </p>
+          <p className="text-[10px] text-gray-400 font-medium tracking-wide mt-0.5 text-center">
+            ADMIN PANEL
+          </p>
         </Link>
       </div>
 
@@ -297,7 +311,7 @@ export default function AdminSidebar() {
         </button>
 
         <p className="text-[10px] text-gray-300 text-center mt-3 font-medium">
-          © CineVerse 2026
+          © NOW 2026
         </p>
       </div>
     </aside>

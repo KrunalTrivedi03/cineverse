@@ -21,7 +21,7 @@ const CONTACT_INFO = [
   {
     icon: MapPin,
     label: "Our Office",
-    lines: ["CineVerse HQ, 4th Floor, Prahlad Nagar", "Ahmedabad, Gujarat 380015, India"],
+    lines: ["NOW HQ, 4th Floor, Prahlad Nagar", "Ahmedabad, Gujarat 380015, India"],
   },
   {
     icon: Phone,
@@ -237,7 +237,7 @@ export default function ContactUs() {
           <div className="flex flex-col gap-5">
             <div className="rounded-3xl overflow-hidden border border-gray-100 shadow-sm flex-1 min-h-[280px]">
               <iframe
-                title="CineVerse location map"
+                title="NOW location map"
                 src="https://www.google.com/maps?q=Prahlad+Nagar,+Ahmedabad,+Gujarat&output=embed"
                 width="100%"
                 height="100%"

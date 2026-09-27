@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Mail, Lock, Film, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { saveOAuthRedirect, consumeSessionExpiredRedirect } from "../utils/authSession";
+import nowLogo from "../assets/now-logo-mark.png";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -87,7 +88,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
 
         @keyframes scrollUp {
           from { transform: translateY(0); }
@@ -156,16 +157,27 @@ export default function Login() {
 
         {/* Branding overlay */}
         <div className="absolute bottom-10 left-8 right-8 z-10">
-          <div className="flex items-center gap-2 mb-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: "#f0545c" }}
+          <div
+            className="inline-flex flex-col items-start gap-1.5 mb-4 px-4 py-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <img src={nowLogo} alt="NOW" className="h-9 w-auto" />
+            <p
+              style={{
+                margin: 0,
+                fontFamily: "'Caveat', 'Segoe Script', cursive",
+                fontWeight: 700,
+                fontSize: 16,
+                lineHeight: 1,
+              }}
             >
-              <Film size={18} color="white" />
-            </div>
-            <span className="text-white text-[22px] font-extrabold tracking-tight">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
+              <span style={{ color: "#ffffff" }}>Your World of </span>
+              <span style={{ color: "#f0545c" }}>Entertainment</span>
+            </p>
           </div>
           <p className="text-white/50 text-[14px] leading-relaxed max-w-xs">
             Your gateway to movies, shows, trailers, and bookings — all in one place.
@@ -182,12 +194,7 @@ export default function Login() {
 
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#f0545c" }}>
-              <Film size={16} color="white" />
-            </div>
-            <span className="text-[20px] font-extrabold tracking-tight text-gray-900">
-              Cine<span style={{ color: "#f0545c" }}>Verse</span>
-            </span>
+            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
           </div>
 
           {/* Heading */}
@@ -307,7 +314,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-[14px] text-gray-500 mt-4">
-            New to CineVerse?{" "}
+            New to NOW?{" "}
             <Link
               to="/register"
               className="font-semibold hover:underline"

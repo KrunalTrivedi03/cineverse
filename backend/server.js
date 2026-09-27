@@ -160,7 +160,7 @@ app.use("/api/play-payment",    playPaymentRoutes);
 app.use("/api/offers",  offerRoutes);
 app.use("/api/contact", contactRoutes);
 
-app.get("/", (req, res) => res.send("CineVerse Backend Running..."));
+app.get("/", (req, res) => res.send("NOW Backend Running..."));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

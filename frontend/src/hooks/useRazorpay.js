@@ -69,7 +69,7 @@ export function useRazorpay() {
         key:         keyId,
         amount,
         currency:    currency || "INR",
-        name:        "CineVerse",
+        name:        "NOW",
         description: movie && theatre
           ? `${movie} — ${theatre}${screen ? ` | ${screen}` : ""}`
           : "Movie Ticket Booking",
@@ -132,5 +132,3 @@ export function useRazorpay() {
 
   return { initiatePayment, loading, error };
 }
-
-

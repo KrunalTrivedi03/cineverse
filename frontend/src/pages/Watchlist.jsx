@@ -6,12 +6,16 @@ import {
   Star,
   Trash2,
   Loader2,
+  Play,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
 import Footer from "../components/Footer";
+import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
+import PageLoader from "../components/PageLoader";
+import { WatchlistArt } from "../components/CinemaIllustrations";
 
 const IMG = (path) =>
   !path ? null : path.startsWith("http") ? path : `${import.meta.env.VITE_API_URL}${path}`;
@@ -27,22 +31,22 @@ const STATUS = {
   completed: {
     icon: CheckCircle,
     color: "#059669",
-    bg: "rgba(16,185,129,0.08)",
-    border: "rgba(16,185,129,0.2)",
+    bg: "#f0fdf4",
+    border: "#bbf7d0",
     label: "Completed",
   },
   watching: {
     icon: PlayCircle,
-    color: "#f0545c",
-    bg: "rgba(240,84,92,0.08)",
-    border: "rgba(240,84,92,0.2)",
+    color: "#ff4d58",
+    bg: "#fff0f2",
+    border: "#fecdd3",
     label: "Watching",
   },
   favorites: {
     icon: Heart,
     color: "#d97706",
-    bg: "rgba(245,158,11,0.08)",
-    border: "rgba(245,158,11,0.2)",
+    bg: "#fefce8",
+    border: "#fef08a",
     label: "Favorite",
   },
 };
@@ -61,14 +65,15 @@ function MovieCard({ movie, onRemove, onStatusChange }) {
 
   return (
     <div
-      className="group cursor-pointer rounded-xl overflow-hidden bg-white border border-neutral-200/80 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+      className="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-neutral-150/80 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-4 flex gap-4 items-center"
       style={{
         opacity: removing ? 0.4 : 1,
         pointerEvents: removing ? "none" : "auto",
       }}
       onClick={() => navigate(`/movie/${movie.id}`)}
     >
-      <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-100">
+      {/* Poster */}
+      <div className="relative aspect-[2/3] w-20 sm:w-24 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0">
         <img
           src={IMG(movie.poster)}
           alt={movie.title}
@@ -78,58 +83,62 @@ function MovieCard({ movie, onRemove, onStatusChange }) {
 
         {/* Rating badge */}
         {movie.rating > 0 && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold text-white bg-black/60 backdrop-blur-md">
-            <Star size={10} fill="#facc15" className="text-yellow-400" />
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/60 backdrop-blur-md">
+            <Star size={9} fill="#facc15" className="text-yellow-400" />
             <span>{movie.rating}</span>
           </div>
         )}
 
-        {/* Status corner indicator */}
-        <div className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center bg-white/95 shadow-xs">
-          <Icon
-            size={12}
-            style={{ color: st.color }}
-            fill={movie.status === "favorites" ? st.color : "none"}
-          />
-        </div>
-
-        {/* Hover delete button */}
+        {/* Delete button */}
         <button
-          className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center bg-black/60 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center bg-black/60 hover:bg-red-600 text-white transition-all cursor-pointer"
           onClick={handleRemove}
           title="Remove from watchlist"
         >
-          {removing ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Trash2 size={14} />
-          )}
+          {removing ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
         </button>
       </div>
 
-      <div className="p-3">
-        <h3 className="text-sm font-semibold text-neutral-900 truncate group-hover:text-[#f0545c] transition-colors">
-          {movie.title}
-        </h3>
+      {/* Info & Progress */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+        <div>
+          <h3 className="text-sm sm:text-base font-bold text-neutral-900 truncate group-hover:text-[#ff4d58] transition-colors">
+            {movie.title}
+          </h3>
+          <p className="text-xs text-neutral-400 mt-0.5 truncate">
+            Cinema · Action · Streaming
+          </p>
+        </div>
 
-        <div className="mt-2 flex items-center justify-between">
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border transition-colors cursor-pointer"
-            style={{ background: st.bg, color: st.color, borderColor: st.border }}
-            onClick={(e) => {
-              e.stopPropagation();
-              const order = ["watching", "completed", "favorites"];
-              const next = order[(order.indexOf(movie.status) + 1) % order.length];
-              onStatusChange(movie.id, next);
-            }}
-            title="Click to toggle status"
-          >
-            <Icon size={10} />
-            <span>{st.label}</span>
-          </button>
+        {/* Viewing progress bar (Mockup Image 1 Bottom-Left) */}
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-[11px] font-bold text-neutral-500 mb-1">
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
+              style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}` }}
+            >
+              <Icon size={10} />
+              <span>{st.label}</span>
+            </span>
+            <span>46%</span>
+          </div>
+          <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+            <div className="h-full bg-[#ff4d58] rounded-full" style={{ width: "46%" }} />
+          </div>
         </div>
       </div>
+
+      {/* Play Icon CTA */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/movie/${movie.id}`);
+        }}
+        className="w-10 h-10 rounded-full flex items-center justify-center bg-[#fff0f2] hover:bg-[#ff4d58] text-[#ff4d58] hover:text-white transition-all shadow-xs flex-shrink-0 cursor-pointer"
+        aria-label="Play title"
+      >
+        <Play size={16} fill="currentColor" className="ml-0.5" />
+      </button>
     </div>
   );
 }
@@ -202,46 +211,51 @@ export default function Watchlist() {
     activeTab === "all" ? movies : movies.filter((m) => m.status === activeTab);
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative overflow-hidden selection:bg-[#ff4d58] selection:text-white">
+      {/* Background Watermark (Image 2) */}
+      <PageBackgroundWatermark variant="movies" />
+
+      {loading && <PageLoader text="Loading your saved watchlist and progress..." />}
+
+      <div className="relative z-10">
         <Navbar />
         <BottomNav />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          {/* Header Card (Mockup Image 1 Bottom-Left) */}
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#fff5f6] via-white to-[#fef7f2] border border-rose-100 shadow-[0_10px_30px_rgba(255,77,88,0.06)] p-6 sm:p-8 flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
-                Watchlist
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900">
+                My Watchlist
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+              <p className="text-xs sm:text-sm text-neutral-500 mt-1">
                 Saved titles and viewing progress
               </p>
             </div>
 
-            <span className="text-xs font-semibold text-neutral-500 px-3 py-1 rounded-full bg-neutral-200/60 border border-neutral-300/40 w-fit">
-              {movies.length} {movies.length === 1 ? "Title" : "Titles"}
-            </span>
+            <div className="flex items-center gap-4">
+              <WatchlistArt className="w-24 h-24 sm:w-28 sm:h-28 hidden sm:flex" />
+            </div>
           </div>
 
-          {/* Filter Tabs Bar */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl mb-8 w-fit bg-neutral-200/60 border border-neutral-300/40 overflow-x-auto max-w-full no-scrollbar">
+          {/* Filter Tabs Bar (Mockup Image 1 Bottom-Left) */}
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
             {TABS.map(({ id, label }) => {
               const isActive = activeTab === id;
               return (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                     isActive
-                      ? "bg-white text-neutral-900 shadow-2xs"
-                      : "text-neutral-600 hover:text-neutral-900"
+                      ? "bg-[#ff4d58] text-white shadow-xs"
+                      : "bg-white border border-neutral-200/80 text-neutral-700 hover:bg-neutral-50"
                   }`}
                 >
                   <span>{label}</span>
                   <span
-                    className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                      isActive ? "bg-neutral-100 text-neutral-700" : "text-neutral-400"
+                    className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
+                      isActive ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-500"
                     }`}
                   >
                     {counts[id] || 0}
@@ -252,33 +266,21 @@ export default function Watchlist() {
           </div>
 
           {/* State Displays */}
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-xl overflow-hidden animate-pulse">
-                  <div className="aspect-[2/3] bg-neutral-200" />
-                  <div className="p-2 space-y-1.5">
-                    <div className="h-3.5 bg-neutral-200 rounded w-3/4" />
-                    <div className="h-3 bg-neutral-200 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="p-8 text-center bg-white rounded-xl border border-neutral-200">
+          {error ? (
+            <div className="p-8 text-center bg-white rounded-2xl border border-neutral-200 shadow-xs">
               <p className="text-sm font-semibold text-red-500">{error}</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-20 text-center bg-white rounded-xl border border-neutral-200/80 p-8">
-              <p className="text-base font-semibold text-neutral-800">
+            <div className="py-20 text-center bg-white rounded-3xl border border-neutral-150/80 p-8 shadow-xs">
+              <p className="text-base font-bold text-neutral-800">
                 {activeTab === "all" ? "Your watchlist is empty" : `No titles in "${activeTab}"`}
               </p>
-              <p className="text-xs text-neutral-400 mt-1">
-                Explore movies and click the Watchlist button to save titles here.
+              <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
+                Explore movies or web shows and click the Watchlist button to track your titles here.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
               {filtered.map((movie) => (
                 <MovieCard
                   key={movie.id}

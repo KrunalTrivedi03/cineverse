@@ -9,6 +9,8 @@ import api from "../api/axiosInstance";
 import Navbar, { getSelectedCity } from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
 import Footer from "../components/Footer";
+import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
+import PageLoader from "../components/PageLoader";
 import { IMG } from "../utils/eventHelpers";
 
 const SORT_OPTIONS = [
@@ -95,8 +97,11 @@ export default function Play() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative">
+      <PageBackgroundWatermark variant="play" />
+      {(loadingActivities && loadingVenues) && <PageLoader />}
+
+      <div className="relative z-10">
         <Navbar />
         <BottomNav />
 

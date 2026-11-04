@@ -2,9 +2,9 @@
 
 @layer base {
   :root {
-    --accent: #f0545c;
-    --accent-hover: #e04149;
-    --accent-glow: rgba(240, 84, 92, 0.25);
+    --accent: #ff4d58;
+    --accent-hover: #e03d47;
+    --accent-glow: rgba(255, 77, 88, 0.22);
   }
 
   html {
@@ -13,8 +13,8 @@
   }
 
   body {
-    background-color: #090a10;
-    color: #f8fafc;
+    background-color: #f8f9fa;
+    color: #111827;
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -22,20 +22,20 @@
   }
 }
 
-/* Subtle, refined dark scrollbar */
+/* Subtle, refined light scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090a10;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -46,27 +46,24 @@
   scrollbar-width: none;
 }
 
-/* District by Zomato Signature 3D & Glass Utilities */
-.district-glass {
-  background: rgba(14, 17, 26, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.district-glass-card {
-  background: rgba(18, 22, 33, 0.65);
+/* Light Theme Precision Utilities */
+.glass-header {
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
-.district-glass-card:hover {
-  background: rgba(24, 29, 44, 0.85);
-  border-color: rgba(240, 84, 92, 0.35);
-  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.8), 0 0 24px -4px rgba(240, 84, 92, 0.2);
-  transform: translateY(-4px);
+
+@keyframes progress {
+  0% {
+    left: -40%;
+  }
+  50% {
+    left: 40%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 /* 3D Floating Animations */

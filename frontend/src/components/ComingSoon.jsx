@@ -90,20 +90,20 @@ export default function ComingSoon() {
   };
 
   const SectionWrapper = ({ children, showSeeAll = false }) => (
-    <section className="w-full px-4 sm:px-8 md:px-12 py-10 md:py-12 bg-transparent relative border-t border-b border-white/[0.06]">
+    <section className="w-full px-4 sm:px-8 md:px-12 py-8 md:py-10 bg-transparent relative">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-neutral-900">
               Upcoming Premieres
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
               Anticipated releases coming to theatres soon
             </p>
           </div>
           {showSeeAll && (
             <button
-              className="flex items-center gap-1 text-sm font-semibold text-[#f0545c] hover:text-[#ff6b73] transition-colors group cursor-pointer"
+              className="flex items-center gap-1 text-sm font-bold text-[#ff4d58] hover:text-[#e03d47] transition-colors group cursor-pointer"
               onClick={() => navigate("/coming-soon")}
             >
               <span>Explore All</span>
@@ -122,10 +122,10 @@ export default function ComingSoon() {
         <div className="flex gap-4 overflow-hidden">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex-shrink-0 w-[160px] sm:w-[190px] animate-pulse">
-              <div className="rounded-2xl bg-[#121520] aspect-[2/3]" />
+              <div className="rounded-2xl bg-neutral-200 aspect-[2/3]" />
               <div className="mt-2.5 space-y-1.5">
-                <div className="h-4 bg-[#161a28] rounded w-3/4" />
-                <div className="h-3 bg-[#161a28] rounded w-1/2" />
+                <div className="h-4 bg-neutral-200 rounded w-3/4" />
+                <div className="h-3 bg-neutral-200 rounded w-1/2" />
               </div>
             </div>
           ))}
@@ -145,7 +145,7 @@ export default function ComingSoon() {
           <button
             onClick={() => scroll("left")}
             aria-label="Scroll left"
-            className="absolute -left-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-[#161a28]/90 backdrop-blur-md shadow-xl border border-white/10 flex items-center justify-center text-white hover:bg-[#f0545c] hover:border-[#f0545c] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="absolute -left-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-neutral-100 flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
           >
             <ChevronLeft size={18} />
           </button>
@@ -170,7 +170,7 @@ export default function ComingSoon() {
           <button
             onClick={() => scroll("right")}
             aria-label="Scroll right"
-            className="absolute -right-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-[#161a28]/90 backdrop-blur-md shadow-xl border border-white/10 flex items-center justify-center text-white hover:bg-[#f0545c] hover:border-[#f0545c] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="absolute -right-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-neutral-100 flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
           >
             <ChevronRight size={18} />
           </button>
@@ -190,7 +190,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
     <div className="flex-shrink-0 w-[160px] sm:w-[190px] md:w-[200px] group">
       {/* Poster */}
       <div
-        className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden bg-[#121520] ring-1 ring-white/10 transition-all duration-300 group-hover:ring-[#f0545c]/50 group-hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_24px_rgba(240,84,92,0.18)] group-hover:-translate-y-1.5 cursor-pointer"
+        className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1.5 cursor-pointer"
         onClick={onView}
       >
         {posterUrl && !imgError ? (
@@ -202,15 +202,15 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-[#121520] text-slate-500 p-4 text-center">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-100 text-neutral-400 p-4 text-center">
             <span className="text-xs font-semibold">{movie.title}</span>
           </div>
         )}
 
         {/* Release Date overlay */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-2.5 pt-6 flex items-center justify-between text-white">
-          <span className="text-[11px] font-semibold text-white/90 flex items-center gap-1.5">
-            <Calendar size={11} className="text-[#f0545c]" />
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-6 flex items-center justify-between text-white">
+          <span className="text-[11px] font-semibold text-white flex items-center gap-1.5">
+            <Calendar size={11} className="text-[#ff4d58]" />
             {formatReleaseDate(movie.releaseDate)}
           </span>
         </div>
@@ -220,7 +220,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
       <div className="mt-2.5 px-0.5">
         <div className="flex items-start justify-between gap-1.5">
           <h3
-            className="text-sm font-semibold text-white truncate group-hover:text-[#f0545c] transition-colors cursor-pointer"
+            className="text-sm font-bold text-neutral-900 truncate group-hover:text-[#ff4d58] transition-colors cursor-pointer"
             onClick={onView}
           >
             {movie.title}
@@ -229,7 +229,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
           <button
             onClick={() => setNotified((p) => !p)}
             className={`p-1 rounded-md transition-colors cursor-pointer ${
-              notified ? "text-[#f0545c]" : "text-slate-500 hover:text-white"
+              notified ? "text-[#ff4d58]" : "text-neutral-400 hover:text-neutral-700"
             }`}
             title={notified ? "Reminder set" : "Notify me"}
             aria-label={notified ? "Reminder set" : "Notify me"}
@@ -238,7 +238,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
           </button>
         </div>
 
-        <p className="text-xs text-slate-400 mt-0.5 truncate">
+        <p className="text-xs text-neutral-500 mt-0.5 truncate">
           {Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre || "Cinema"}
         </p>
       </div>

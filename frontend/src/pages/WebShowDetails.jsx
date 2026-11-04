@@ -17,6 +17,8 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
+import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
+import PageLoader from "../components/PageLoader";
 
 const ACCENT = "#f0545c";
 
@@ -124,7 +126,8 @@ function TrailerModal({ url, title, onClose }) {
 
 function DetailsSkeleton() {
   return (
-    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-[#f8f9fa] relative">
+      <PageBackgroundWatermark variant="movies" />
       <Navbar />
       <BottomNav />
       <div className="relative w-full h-[38vh] sm:h-[50vh] bg-gray-900 animate-pulse" />
@@ -227,11 +230,12 @@ export default function WebShowDetails() {
 
   const backdropSrc = show?.banner || show?.poster;
 
-  if (loading) return <DetailsSkeleton />;
+  if (loading) return <PageLoader />;
 
   if (error || !show) {
     return (
-      <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <div className="min-h-screen bg-[#f8f9fa] relative">
+        <PageBackgroundWatermark variant="movies" />
         <Navbar />
         <BottomNav />
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4 text-center">
@@ -253,7 +257,8 @@ export default function WebShowDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-[#f8f9fa] relative">
+      <PageBackgroundWatermark variant="movies" />
       <Navbar />
       <BottomNav />
 

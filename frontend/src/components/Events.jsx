@@ -99,16 +99,16 @@ export default function HomeEvents() {
 
   if (loading) {
     return (
-      <section className="w-full px-4 sm:px-8 md:px-12 py-10 md:py-12 bg-transparent">
+      <section className="w-full px-4 sm:px-8 md:px-12 py-8 md:py-10 bg-transparent">
         <div className="max-w-7xl mx-auto">
           <SectionHeader count={0} />
           <div className="flex gap-4 overflow-hidden">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-[160px] sm:w-[190px] animate-pulse">
-                <div className="rounded-2xl bg-[#121520] aspect-[2/3]" />
+                <div className="rounded-2xl bg-neutral-200 aspect-[2/3]" />
                 <div className="mt-2.5 space-y-1.5">
-                  <div className="h-4 bg-[#161a28] rounded w-3/4" />
-                  <div className="h-3 bg-[#161a28] rounded w-1/2" />
+                  <div className="h-4 bg-neutral-200 rounded w-3/4" />
+                  <div className="h-3 bg-neutral-200 rounded w-1/2" />
                 </div>
               </div>
             ))}
@@ -121,7 +121,7 @@ export default function HomeEvents() {
   if (!events.length) return null;
 
   return (
-    <section className="w-full px-4 sm:px-8 md:px-12 py-10 md:py-12 bg-transparent relative">
+    <section className="w-full px-4 sm:px-8 md:px-12 py-8 md:py-10 bg-transparent relative">
       <div className="max-w-7xl mx-auto">
         <SectionHeader count={events.length} onSeeAll={() => navigate("/events")} />
 
@@ -130,7 +130,7 @@ export default function HomeEvents() {
             <button
               onClick={() => scroll("left")}
               aria-label="Scroll left"
-              className="absolute -left-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-[#161a28]/90 backdrop-blur-md shadow-xl border border-white/10 flex items-center justify-center text-white hover:bg-[#f0545c] hover:border-[#f0545c] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="absolute -left-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-neutral-100 flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               <ChevronLeft size={18} />
             </button>
@@ -153,7 +153,7 @@ export default function HomeEvents() {
             <button
               onClick={() => scroll("right")}
               aria-label="Scroll right"
-              className="absolute -right-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-[#161a28]/90 backdrop-blur-md shadow-xl border border-white/10 flex items-center justify-center text-white hover:bg-[#f0545c] hover:border-[#f0545c] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="absolute -right-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-neutral-100 flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               <ChevronRight size={18} />
             </button>
@@ -168,16 +168,16 @@ function SectionHeader({ count, onSeeAll }) {
   return (
     <div className="flex items-end justify-between mb-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-neutral-900">
           Live Events &amp; Experiences
         </h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
           Concerts, comedy, and theater performances
         </p>
       </div>
       {onSeeAll && (
         <button
-          className="flex items-center gap-1 text-sm font-semibold text-[#f0545c] hover:text-[#ff6b73] transition-colors group cursor-pointer"
+          className="flex items-center gap-1 text-sm font-bold text-[#ff4d58] hover:text-[#e03d47] transition-colors group cursor-pointer"
           onClick={onSeeAll}
         >
           <span>See All</span>
@@ -197,7 +197,7 @@ function EventPosterCard({ event, onClick }) {
       onClick={onClick}
     >
       <div
-        className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden bg-[#121520] ring-1 ring-white/10 transition-all duration-300 group-hover:ring-[#f0545c]/50 group-hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_24px_rgba(240,84,92,0.18)] group-hover:-translate-y-1.5"
+        className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1.5"
       >
         {event.poster ? (
           <img
@@ -207,49 +207,49 @@ function EventPosterCard({ event, onClick }) {
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-[#121520] text-slate-500 p-4 text-center">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-100 text-neutral-400 p-4 text-center">
             <span className="text-xs font-semibold">{event.title}</span>
           </div>
         )}
 
         {event.category && (
-          <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/10 text-white/90">
+          <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white">
             {event.category}
           </span>
         )}
 
         {event.ratings?.count > 0 && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full px-2 py-0.5 text-white">
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white">
             <Star size={10} fill="#facc15" className="text-yellow-400" />
             <span className="text-[11px] font-bold">{event.ratings.average.toFixed(1)}</span>
           </div>
         )}
 
         {sched?.startingPrice != null && (
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-2.5 pt-6 flex items-end">
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-6 flex items-end">
             <span className="text-xs font-bold text-white">
               ₹{sched.startingPrice.toLocaleString("en-IN")}{" "}
-              <span className="font-normal text-[10px] text-white/70">onwards</span>
+              <span className="font-normal text-[10px] text-white/80">onwards</span>
             </span>
           </div>
         )}
       </div>
 
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#f0545c] transition-colors">
+        <h3 className="text-sm font-bold text-neutral-900 truncate group-hover:text-[#ff4d58] transition-colors">
           {event.title}
         </h3>
 
         {sched && (
-          <p className="text-xs text-slate-400 mt-0.5 truncate flex items-center gap-1.5">
-            <Calendar size={11} className="text-[#f0545c] flex-shrink-0" />
+          <p className="text-xs text-neutral-500 mt-0.5 truncate flex items-center gap-1.5">
+            <Calendar size={11} className="text-[#ff4d58] flex-shrink-0" />
             <span>{fmtDate(sched.eventDate)}</span>
           </p>
         )}
 
         {sched?.venue && (
-          <p className="text-xs text-slate-400 mt-0.5 truncate flex items-center gap-1.5">
-            <MapPin size={11} className="flex-shrink-0 text-slate-500" />
+          <p className="text-xs text-neutral-400 mt-0.5 truncate flex items-center gap-1.5">
+            <MapPin size={11} className="flex-shrink-0 text-neutral-400" />
             <span>{sched.venue.name}</span>
           </p>
         )}

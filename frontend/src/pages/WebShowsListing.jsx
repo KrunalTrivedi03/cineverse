@@ -5,6 +5,8 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
+import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
+import PageLoader from "../components/PageLoader";
 
 const ACCENT = "#f0545c";
 
@@ -165,45 +167,27 @@ export default function WebShowsListing({ category }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative">
+      <PageBackgroundWatermark variant="movies" />
+      {loading && <PageLoader />}
+
+      <div className="relative z-10">
         <Navbar />
         <BottomNav />
 
-        {/* ══ HERO ════════════════════════════════════════ */}
-        <div className="relative overflow-hidden bg-[#0c0d12]">
-          <div className="absolute inset-0 opacity-20">
-            <div className="flex h-full w-full">
-              {(collagePosters.length ? collagePosters : Array(6).fill(null)).map((src, i) => (
-                <div key={i} className="flex-1 h-full">
-                  {src ? (
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gray-900" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(12,13,18,0.7) 0%, rgba(12,13,18,0.85) 60%, #0c0d12 100%)",
-            }}
-          />
-
-          <div className="relative px-6 sm:px-12 pt-12 pb-10 sm:pt-16 sm:pb-14 max-w-7xl mx-auto">
+        {/* ══ HERO in Warm Blush Light Theme ════════════════════════════════════════ */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#fff4f5] via-[#fff1f3] to-[#fef6f2] border-b border-rose-100">
+          <div className="relative px-6 sm:px-12 pt-10 pb-8 sm:pt-14 sm:pb-12 max-w-7xl mx-auto">
             <div
-              className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest mb-3 border border-[#f0545c]/30 backdrop-blur-md bg-[#f0545c]/15 text-[#ff737b]"
+              className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider mb-3 bg-[#fff0f2] text-[#ff4d58] border border-rose-200/60 shadow-2xs"
             >
               <Tv size={12} />
               <span>Originals &amp; Web Series</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-neutral-900">
               {category ? CATEGORY_LABELS[category] : "Shows &amp; Series"}
             </h1>
-            <p className="text-[14px] sm:text-[15px] text-gray-300 mt-2 max-w-md font-medium">
+            <p className="text-[14px] sm:text-[15px] text-neutral-500 mt-2 max-w-lg font-medium">
               {category
                 ? CATEGORY_TAGLINES[category]
                 : "Binge-worthy series, critically-acclaimed originals, hand-picked for stream lovers."}

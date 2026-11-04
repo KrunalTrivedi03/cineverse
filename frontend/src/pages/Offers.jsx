@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
+import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
+import PageLoader from "../components/PageLoader";
 import { fetchActiveOffers, IMG, formatDiscountLabel, formatValidity, themeGradient } from "../utils/offers";
 import {
   Tag,
@@ -213,42 +215,40 @@ export default function Offers() {
   }, [offers, tab]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 relative">
+      <PageBackgroundWatermark variant="movies" />
+      {loading && <PageLoader />}
+
       <Navbar />
 
-      {/* Cinematic Hero Section */}
-      <section className="relative overflow-hidden bg-[#0c0d12] text-white pt-20 pb-24 md:pt-24 md:pb-28">
-        {/* Ambient radial lighting */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[radial-gradient(ellipse_at_top,_rgba(240,84,92,0.22)_0%,_transparent_70%)] pointer-events-none" />
-        <div className="absolute -left-20 top-20 w-80 h-80 rounded-full bg-[#f0545c]/10 blur-3xl pointer-events-none" />
-        <div className="absolute -right-20 top-10 w-96 h-96 rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
-
-        <div className="relative max-w-4xl mx-auto px-5 md:px-8 text-center">
-          <p className="text-[11px] font-bold text-[#f0545c] uppercase tracking-wider mb-3">
+      {/* Cinematic Hero Section in Light Warm Blush Theme */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-[#fff4f5] via-[#fff1f3] to-[#fef6f2] border-b border-rose-100 text-neutral-900 pt-12 pb-16 md:pt-16 md:pb-20">
+        <div className="relative max-w-4xl mx-auto px-5 md:px-8 text-center z-10">
+          <p className="text-[11px] font-bold text-[#ff4d58] uppercase tracking-wider mb-2">
             Special Offers &amp; Perks
           </p>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] text-white">
+          <h1 className="text-3xl sm:text-5xl md:text-5xl font-black tracking-tight leading-[1.15] text-neutral-900">
             Unlock exclusive <br className="hidden sm:inline" />
-            <span>entertainment savings</span>
+            <span className="text-[#ff4d58]">entertainment savings</span>
           </h1>
 
-          <p className="text-white/60 text-[14px] sm:text-[16px] max-w-xl mx-auto mt-4 leading-relaxed font-normal">
+          <p className="text-neutral-500 text-[14px] sm:text-[15px] max-w-xl mx-auto mt-3 leading-relaxed font-medium">
             Enjoy instant discounts on blockbuster movies, stadium concerts, and sports arenas. Apply promo codes at checkout in one tap.
           </p>
 
           {/* Quick Perks Strip */}
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mt-8 pt-6 border-t border-white/10 text-[12px] sm:text-[13px] text-white/70 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mt-6 pt-5 border-t border-rose-200/50 text-[12px] sm:text-[13px] text-neutral-600 font-semibold">
             <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-emerald-400" />
+              <ShieldCheck size={16} className="text-emerald-500" />
               <span>Verified Valid Offers</span>
             </div>
             <div className="flex items-center gap-2">
-              <Zap size={16} className="text-amber-400" />
+              <Zap size={16} className="text-amber-500" />
               <span>Instant Checkout Application</span>
             </div>
             <div className="flex items-center gap-2">
-              <Tag size={16} className="text-[#f0545c]" />
+              <Tag size={16} className="text-[#ff4d58]" />
               <span>No Hidden Charges</span>
             </div>
           </div>

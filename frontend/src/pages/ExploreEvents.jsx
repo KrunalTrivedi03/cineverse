@@ -13,6 +13,8 @@ import { getSelectedCity } from "../components/Navbar";
 import { EVENT_CATEGORIES } from "../utils/eventHelpers";
 import BottomNav from "../components/BottomNav";
 import Footer from "../components/Footer";
+import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
+import PageLoader from "../components/PageLoader";
 
 const CATEGORY_ICON = {
   Music: Music2, Nightlife: Moon, "Comedy Shows": Mic2,
@@ -105,8 +107,11 @@ export default function ExploreEvents() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative">
+      <PageBackgroundWatermark variant="events" />
+      {loading && <PageLoader />}
+
+      <div className="relative z-10">
         <Navbar />
         <BottomNav />
 

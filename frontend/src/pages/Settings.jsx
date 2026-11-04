@@ -12,7 +12,6 @@ import Navbar from "../components/Navbar";
 import api from "../api/axiosInstance";
 import MyEventBookings from "./MyEventBookings";
 import BottomNav from "../components/BottomNav";
-import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
 
 /* ─────────────────────────────────────────────────────────
    Toast
@@ -111,110 +110,91 @@ export default function Settings() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 relative">
-      <PageBackgroundWatermark variant="settings" />
+    <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+        .fade-in { animation: fadeUp 0.28s cubic-bezier(.4,0,.2,1) both; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .nav-item { transition: all 0.15s; }
+        .nav-item:hover { background: #fff5f5; }
+        @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+        .animate-slideIn { animation: slideIn 0.2s ease both; }
+      `}</style>
 
       <Navbar />
       <BottomNav />
       <Toast toasts={toasts} remove={remove} />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 py-8 pb-32 md:pb-16">
-        <div className="mb-6">
-          <h1 className="text-[26px] md:text-[28px] font-black tracking-tight text-neutral-900">
-            Settings
-          </h1>
+      <div className="max-w-5xl mx-auto px-4 md:px-8 py-8">
+        <div className="mb-7">
+          <p className="text-[11px] font-bold uppercase tracking-widest mb-1" style={{ color: "#f0545c" }}>Account</p>
+          <h1 className="text-[28px] font-black tracking-tight text-gray-900" style={{ letterSpacing: "-0.02em" }}>Settings</h1>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* ── Unified Clean Sidebar matching Mockup ── */}
-          <aside className="w-full md:w-60 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-2 shadow-2xs space-y-1">
+        <div className="flex flex-col md:flex-row gap-5">
+          {/* ── Sidebar ── */}
+          <aside className="w-full md:w-56 flex-shrink-0">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-3 flex items-center gap-3">
+              {loadingProfile
+                ? <div className="w-11 h-11 rounded-full bg-gray-100 animate-pulse flex-shrink-0" />
+                : sidebarAvatar}
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold text-gray-900 capitalize truncate">{profile?.username || "User"}</p>
+                <p className="text-[11px] text-gray-400 truncate">{profile?.email || ""}</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-3">
               {NAV.map(({ id, icon: Icon, label }) => {
                 const active = activeSection === id;
                 return (
-                  <button
-                    key={id}
-                    onClick={() => setActiveSection(id)}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all ${
-                      active
-                        ? "bg-[#fff0f2] text-[#ff4d58] font-bold shadow-2xs"
-                        : "text-neutral-700 hover:text-black hover:bg-neutral-50 font-semibold"
-                    }`}
-                  >
-                    <Icon
-                      size={16}
-                      className={active ? "text-[#ff4d58]" : "text-neutral-400"}
-                    />
-                    <span className="text-[13px]">{label}</span>
+                  <button key={id} onClick={() => setActiveSection(id)}
+                    className="nav-item w-full flex items-center gap-3 px-4 py-3 text-left border-b border-gray-50 last:border-0"
+                    style={active
+                      ? { background: "rgba(240,84,92,0.07)", borderLeft: "3px solid #f0545c" }
+                      : { borderLeft: "3px solid transparent" }}>
+                    <Icon size={15} style={{ color: active ? "#f0545c" : "#9ca3af", flexShrink: 0 }} />
+                    <span className="text-[13px] font-semibold" style={{ color: active ? "#f0545c" : "#374151" }}>{label}</span>
                     {id === "rewards" && (
-                      <span className="ml-auto text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                        NEW
-                      </span>
+                      <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#d97706" }}>NEW</span>
                     )}
                   </button>
                 );
               })}
+            </div>
 
-              <div className="h-px bg-neutral-100 my-1" />
-
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
               {[
-                { icon: Bell, label: "Notifications" },
-                { icon: Shield, label: "Privacy" },
-                { icon: HelpCircle, label: "Help & Support" },
+                { icon: Bell,        label: "Notifications" },
+                { icon: Shield,      label: "Privacy"       },
+                { icon: HelpCircle,  label: "Help & Support"},
               ].map(({ icon: Icon, label }) => (
-                <button
-                  key={label}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-neutral-700 hover:text-black hover:bg-neutral-50 font-medium transition-colors"
-                >
-                  <Icon size={16} className="text-neutral-400" />
-                  <span className="text-[13px]">{label}</span>
-                  <ChevronRight size={13} className="ml-auto text-neutral-300" />
+                <button key={label} className="nav-item w-full flex items-center gap-3 px-4 py-3 text-left border-b border-gray-50 last:border-0">
+                  <Icon size={15} className="text-gray-400 flex-shrink-0" />
+                  <span className="text-[13px] font-medium text-gray-600">{label}</span>
+                  <ChevronRight size={13} className="ml-auto text-gray-300" />
                 </button>
               ))}
-
-              <div className="h-px bg-neutral-100 my-1" />
-
-              <button
-                onClick={logout}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-[#ff4d58] hover:bg-red-50 font-bold transition-colors"
-              >
-                <LogOut size={16} className="text-[#ff4d58]" />
-                <span className="text-[13px]">Logout</span>
+              <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-50 transition-colors">
+                <LogOut size={15} className="text-red-400 flex-shrink-0" />
+                <span className="text-[13px] font-semibold text-red-400">Logout</span>
               </button>
             </div>
           </aside>
 
-          {/* ── Main Content Area ── */}
-          <main className="flex-1 min-w-0 w-full">
+          {/* ── Main ── */}
+          <main className="flex-1 min-w-0">
             {loadingProfile ? (
-              <div className="bg-white rounded-2xl border border-neutral-200/80 flex items-center justify-center py-24 shadow-2xs">
-                <Loader2 size={24} className="animate-spin text-[#ff4d58]" />
+              <div className="bg-white rounded-2xl border border-gray-100 flex items-center justify-center py-24">
+                <Loader2 size={24} className="animate-spin text-[#f0545c]" />
               </div>
             ) : (
               <>
-                {activeSection === "profile" && (
-                  <ProfileSection
-                    profile={profile}
-                    setProfile={setProfile}
-                    toast={toast}
-                  />
-                )}
-                {activeSection === "quickpay" && <QuickPaySection toast={toast} />}
-                {activeSection === "bookings" && (
-                  <BookingsSection
-                    bookings={bookings}
-                    loading={loadingBookings}
-                    toast={toast}
-                  />
-                )}
-                {activeSection === "eventbookings" && (
-                  <MyEventBookings
-                    bookings={bookings}
-                    loading={loadingBookings}
-                    toast={toast}
-                  />
-                )}
-                {activeSection === "rewards" && <RewardsSection />}
+                {activeSection === "profile"  && <ProfileSection  profile={profile} setProfile={setProfile} toast={toast} />}
+                {activeSection === "quickpay" && <QuickPaySection  toast={toast} />}
+                {activeSection === "bookings" && <BookingsSection  bookings={bookings} loading={loadingBookings} toast={toast} />}
+                {activeSection === "eventbookings" && <MyEventBookings  bookings={bookings} loading={loadingBookings} toast={toast} />}
+                {activeSection === "rewards"  && <RewardsSection />}
               </>
             )}
           </main>
@@ -304,152 +284,79 @@ function ProfileSection({ profile, setProfile, toast }) {
   const avatarSrc = IMG(profile?.avatar);
 
   return (
-    <div className="space-y-6">
-      {/* ── User Overview Card matching Mockup ── */}
-      <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-2xs flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="relative flex-shrink-0">
-            {avatarLoading ? (
-              <div className="w-14 h-14 rounded-2xl bg-neutral-100 flex items-center justify-center">
-                <Loader2 size={20} className="animate-spin text-[#ff4d58]" />
-              </div>
-            ) : avatarSrc ? (
-              <img
-                src={avatarSrc}
-                alt="avatar"
-                className="w-14 h-14 rounded-2xl object-cover ring-2 ring-[#ff4d58]/20"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-xs bg-gradient-to-tr from-[#ff4d58] to-[#ff757e]">
-                {(profile?.username?.[0] || "U").toUpperCase()}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => avatarInputRef.current?.click()}
-              disabled={avatarLoading}
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-xs border border-neutral-200 hover:bg-neutral-50 text-[#ff4d58] transition-colors"
-            >
-              <Camera size={11} />
-            </button>
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
-          </div>
-
-          <div className="min-w-0">
-            <h2 className="text-[17px] font-black text-neutral-900 capitalize tracking-tight truncate">
-              {profile?.username || "User"}
-            </h2>
-            <p className="text-[12px] text-neutral-500 mt-0.5 truncate">
-              {profile?.email || "No email set"}
-            </p>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="inline-block text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#fff0f2] text-[#ff4d58]">
-                {profile?.role || "USER"}
-              </span>
-              {profile?.avatar && (
-                <button
-                  type="button"
-                  onClick={handleRemoveAvatar}
-                  disabled={avatarLoading}
-                  className="text-[10px] font-semibold text-neutral-400 hover:text-red-500 transition-colors flex items-center gap-1"
-                >
-                  <Trash2 size={10} /> Remove
-                </button>
-              )}
+    <div className="fade-in">
+      {/* Avatar + name card */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 mb-4 flex items-center gap-5">
+        <div className="relative flex-shrink-0">
+          {avatarLoading ? (
+            <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center">
+              <Loader2 size={20} className="animate-spin text-[#f0545c]" />
             </div>
+          ) : avatarSrc ? (
+            <img src={avatarSrc} alt="avatar" className="w-20 h-20 rounded-2xl object-cover" />
+          ) : (
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white font-black text-[28px]"
+              style={{ background: "linear-gradient(135deg, #f0545c 0%, #ff8a65 100%)" }}>
+              {(profile?.username?.[0] || "U").toUpperCase()}
+            </div>
+          )}
+          <button type="button" onClick={() => avatarInputRef.current?.click()} disabled={avatarLoading}
+            className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm border-2 border-white hover:bg-gray-50 transition-colors"
+            style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
+            <Camera size={13} style={{ color: "#f0545c" }} />
+          </button>
+          <input ref={avatarInputRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[18px] font-black text-gray-900 capitalize tracking-tight truncate">{profile?.username || "User"}</p>
+          <p className="text-[13px] text-gray-400 mt-0.5 truncate">{profile?.email || "No email set"}</p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide" style={{ background: "rgba(240,84,92,0.09)", color: "#f0545c" }}>
+              {profile?.role || "Member"}
+            </span>
+            {profile?.avatar && (
+              <button type="button" onClick={handleRemoveAvatar} disabled={avatarLoading}
+                className="text-[10px] font-semibold text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                <Trash2 size={10} /> Remove photo
+              </button>
+            )}
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setEditing((v) => !v)}
-          className={`flex items-center gap-1.5 text-[12px] font-bold px-4 py-1.5 rounded-full border transition-all flex-shrink-0 shadow-2xs ${
-            editing
-              ? "bg-[#ff4d58] text-white border-[#ff4d58]"
-              : "bg-white text-neutral-700 border-neutral-200/80 hover:bg-neutral-50"
-          }`}
-        >
+        <button type="button" onClick={() => setEditing((v) => !v)}
+          className="flex items-center gap-1.5 text-[12px] font-semibold px-4 py-2 rounded-xl border transition-all flex-shrink-0"
+          style={editing
+            ? { background: "#f0545c", color: "#fff", borderColor: "#f0545c" }
+            : { background: "white", color: "#374151", borderColor: "#e5e7eb" }}>
           <Edit3 size={12} /> {editing ? "Cancel" : "Edit Profile"}
         </button>
       </div>
 
-      {/* ── Personal Information Section matching Mockup ── */}
-      <div>
-        <h3 className="text-[14px] font-bold text-neutral-900 mb-3">
-          Personal Information
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Personal info */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
+        <div className="px-6 py-4 border-b border-gray-50">
+          <p className="text-[13px] font-bold text-gray-900">Personal Information</p>
+        </div>
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
           {[
-            {
-              key: "username",
-              label: "Full Name",
-              icon: User,
-              type: "text",
-              placeholder: "Your name",
-              editable: true,
-            },
-            {
-              key: "email",
-              label: "Email Address",
-              icon: Mail,
-              type: "email",
-              placeholder: "you@email.com",
-              editable: false,
-            },
-            {
-              key: "phone",
-              label: "Phone Number",
-              icon: Phone,
-              type: "tel",
-              placeholder: "+91 00000 00000",
-              editable: true,
-            },
-            {
-              key: "city",
-              label: "City",
-              icon: MapPin,
-              type: "text",
-              placeholder: "Your city",
-              editable: true,
-            },
+            { key: "username", label: "Full Name",      icon: User,  type: "text",  placeholder: "Your name",           editable: true  },
+            { key: "email",    label: "Email Address",  icon: Mail,  type: "email", placeholder: "you@email.com",        editable: false },
+            { key: "phone",    label: "Phone Number",   icon: Phone, type: "tel",   placeholder: "+91 00000 00000",      editable: true  },
+            { key: "city",     label: "City",           icon: MapPin,type: "text",  placeholder: "Your city",            editable: true  },
           ].map(({ key, label, icon: Icon, type, placeholder, editable }) => {
             const isEditable = editing && editable;
-            const value = key === "email" ? profile?.email || "" : form[key];
+            const value      = key === "email" ? (profile?.email || "") : form[key];
             return (
-              <div
-                key={key}
-                className="bg-white rounded-2xl border border-neutral-200/80 p-3.5 shadow-2xs transition-all"
-              >
-                <label className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-                  {label}
-                </label>
-                <div className="flex items-center gap-2.5">
-                  <Icon
-                    size={15}
-                    className={
-                      isEditable ? "text-[#ff4d58]" : "text-neutral-400"
-                    }
-                  />
-                  <input
-                    type={type}
-                    value={value}
-                    onChange={(e) =>
-                      editable &&
-                      setForm((f) => ({ ...f, [key]: e.target.value }))
-                    }
-                    disabled={!isEditable}
-                    placeholder={placeholder}
-                    className="flex-1 bg-transparent text-[13px] font-semibold text-neutral-800 outline-none placeholder-neutral-300 disabled:cursor-default"
-                  />
+              <div key={key}>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
+                <div className="flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all"
+                  style={{ borderColor: isEditable ? "#f0545c" : "#e5e7eb", background: isEditable ? "#fff" : "#f9fafb" }}>
+                  <Icon size={14} style={{ color: isEditable ? "#f0545c" : "#9ca3af", flexShrink: 0 }} />
+                  <input type={type} value={value}
+                    onChange={(e) => editable && setForm((f) => ({ ...f, [key]: e.target.value }))}
+                    disabled={!isEditable} placeholder={placeholder}
+                    className="flex-1 bg-transparent text-[13px] text-gray-800 outline-none placeholder-gray-300 disabled:cursor-default" />
                   {key === "email" && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1 flex-shrink-0">
-                      <Check size={10} />
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#f0fdf4", color: "#16a34a" }}>
                       {profile?.isEmailVerified ? "Verified" : "Unverified"}
                     </span>
                   )}
@@ -458,58 +365,37 @@ function ProfileSection({ profile, setProfile, toast }) {
             );
           })}
         </div>
-
         {editing && (
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 text-[13px] font-bold text-white px-6 py-2.5 rounded-full bg-[#ff4d58] hover:bg-[#e03d47] transition-all active:scale-95 disabled:opacity-60 shadow-xs"
-            >
+          <div className="px-6 pb-5 flex items-center gap-3">
+            <button type="button" onClick={handleSave} disabled={saving}
+              className="flex items-center gap-2 text-[13px] font-bold text-white px-6 py-2.5 rounded-xl transition-all active:scale-95 disabled:opacity-60"
+              style={{ background: "#f0545c" }}>
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
               {saving ? "Saving..." : "Save Changes"}
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEditing(false);
-                setForm({
-                  username: profile?.username || "",
-                  phone: profile?.phone || "",
-                  city: profile?.city || "",
-                });
-              }}
-              className="text-[13px] font-semibold text-neutral-400 hover:text-neutral-700 transition-colors"
-            >
+            <button type="button"
+              onClick={() => { setEditing(false); setForm({ username: profile?.username || "", phone: profile?.phone || "", city: profile?.city || "" }); }}
+              className="text-[13px] font-semibold text-gray-400 hover:text-gray-700 transition-colors">
               Discard
             </button>
           </div>
         )}
       </div>
 
-      {/* ── Security Section matching Mockup ── */}
-      <div>
-        <h3 className="text-[14px] font-bold text-neutral-900 mb-3">
-          Security
-        </h3>
-        <div className="bg-white rounded-2xl border border-neutral-200/80 p-4 shadow-2xs flex items-center justify-between">
+      {/* Security */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-50"><p className="text-[13px] font-bold text-gray-900">Security</p></div>
+        <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-neutral-100 text-neutral-600">
-              <Lock size={16} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#f9fafb", border: "1px solid #e5e7eb" }}>
+              <Lock size={15} className="text-gray-400" />
             </div>
             <div>
-              <p className="text-[13px] font-bold text-neutral-900">Password</p>
-              <p className="text-[11px] text-neutral-400">Keep your account secure</p>
+              <p className="text-[13px] font-semibold text-gray-800">Password</p>
+              <p className="text-[11px] text-gray-400">Keep your account secure</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setPwdModal(true)}
-            className="text-[12px] font-bold text-[#ff4d58] hover:underline"
-          >
-            Change
-          </button>
+          <button type="button" onClick={() => setPwdModal(true)} className="text-[12px] font-semibold hover:underline" style={{ color: "#f0545c" }}>Change</button>
         </div>
       </div>
 

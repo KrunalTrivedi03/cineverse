@@ -8,19 +8,16 @@ import PlayHome from "../components/PlayHome";
 import Footer from "../components/Footer";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "../components/DistrictSelector";
-import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
-import PageLoader from "../components/PageLoader";
-import { HeroBannerArt } from "../components/CinemaIllustrations";
 
 import {
   X, Play, Clock, CalendarDays, Film, Globe, ShieldCheck, Ticket,
-  PartyPopper, MapPin, Dumbbell, Trophy, ChevronLeft, ChevronRight,
-  Tv, Tag, Sparkles,
+  PartyPopper, MapPin, Dumbbell, Trophy,
 } from "lucide-react";
 import OffersBanner from "../components/OffersBanner";
 import BottomNav from "../components/BottomNav";
 
-const IMG = (path) => (!path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`);
+/* ─── Helpers ─────────────────────────────────────────── */
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const isLatestMovie = (m) =>
   m.status === "streaming" || (m.status === "released" && m.isInCinemas);
@@ -51,13 +48,14 @@ const getYoutubeEmbed = (url) => {
   return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : null;
 };
 
+/* Movie doc -> hero slide */
 function movieToSlide(m) {
   return {
     type: "movie",
     id: m._id,
     key: `movie-${m._id}`,
     title: m.title,
-    tag: m.status === "streaming" ? "Streaming Online" : "Now In Cinemas",
+    tag: m.status === "streaming" ? "Streaming" : "Now Showing",
     meta: [
       m.runtime && { icon: Clock, label: m.runtime },
       m.genre && { icon: Film, label: m.genre },
@@ -74,6 +72,7 @@ function movieToSlide(m) {
   };
 }
 
+/* Upcoming Event doc -> hero slide */
 function eventToSlide(ev) {
   const sched = ev.nextSchedule;
   return {
@@ -81,7 +80,7 @@ function eventToSlide(ev) {
     id: ev._id,
     key: `event-${ev._id}`,
     title: ev.title,
-    tag: ev.category ? `Live Event · ${ev.category}` : "Live Experience",
+    tag: ev.category || "Live Event",
     meta: [
       sched?.eventDate && { icon: CalendarDays, label: formatDate(sched.eventDate) },
       sched?.venue?.name && { icon: MapPin, label: `${sched.venue.name}${sched.venue.district?.name ? `, ${sched.venue.district.name}` : ""}` },
@@ -97,6 +96,7 @@ function eventToSlide(ev) {
   };
 }
 
+/* Play venue doc -> hero slide */
 function venueToSlide(v) {
   const activityNames = (v.courtActivities || v.activities || []).map((a) => a.name).slice(0, 3).join(" · ");
   return {
@@ -104,7 +104,7 @@ function venueToSlide(v) {
     id: v._id,
     key: `play-${v._id}`,
     title: v.name,
-    tag: "Sports Arena · Book Court",
+    tag: "Play",
     meta: [
       v.district?.name && { icon: MapPin, label: v.district.name },
       activityNames && { icon: Trophy, label: activityNames },
@@ -114,12 +114,15 @@ function venueToSlide(v) {
     poster: IMG(v.images?.[0]),
     background: IMG(v.images?.[0]),
     trailer: null,
-    primaryCta: { label: "Book Slots", to: `/play/venues/${v._id}`, icon: Dumbbell },
-    posterBadge: "Play Arena",
+    primaryCta: { label: "Book slots", to: `/play/venues/${v._id}`, icon: Dumbbell },
+    posterBadge: "Book Now",
     posterLink: `/play/venues/${v._id}`,
   };
 }
 
+/* Interleave up to 2 of each type as Movie, Event, Play, Movie, Event, Play —
+   missing items are simply skipped so the sequence never breaks, and the
+   slider ends up with however many of the 6 slots actually have data. */
 function buildSlideOrder(movies, events, plays) {
   const out = [];
   for (let i = 0; i < 2; i++) {
@@ -130,6 +133,7 @@ function buildSlideOrder(movies, events, plays) {
   return out;
 }
 
+/* ─── Home ────────────────────────────────────────────── */
 export default function Home() {
   const [slides, setSlides] = useState([]);
   const [trailerUrl, setTrailerUrl] = useState(null);
@@ -167,32 +171,30 @@ export default function Home() {
     return () => window.removeEventListener("districtChanged", handler);
   }, [loadSlides]);
 
+  // Self-contained autoplay — no Swiper involved, so there's no fade-effect
+  // race where two slides can end up rendered at full opacity together.
+  // Only ever one index is "active" at a time; everything else is opacity 0
+  // and pointer-events: none.
   useEffect(() => {
     if (slides.length <= 1) return;
     autoplayRef.current = setInterval(() => {
       if (pausedRef.current) return;
       setActiveIdx((i) => (i + 1) % slides.length);
-    }, 6000);
+    }, 5500);
     return () => clearInterval(autoplayRef.current);
   }, [slides.length]);
 
   const goTo = (i) => {
     setActiveIdx(i);
+    // Restart the autoplay clock so a manual click doesn't get immediately
+    // overridden by a timer that was already halfway through its interval.
     clearInterval(autoplayRef.current);
     if (slides.length > 1) {
       autoplayRef.current = setInterval(() => {
         if (pausedRef.current) return;
         setActiveIdx((i2) => (i2 + 1) % slides.length);
-      }, 6000);
+      }, 5500);
     }
-  };
-
-  const nextSlide = () => {
-    goTo((activeIdx + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    goTo((activeIdx - 1 + slides.length) % slides.length);
   };
 
   const openTrailer = (url) => {
@@ -211,160 +213,85 @@ export default function Home() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
 
-  const CATEGORIES = [
-    {
-      title: "Movies",
-      to: "/now-showing",
-      icon: Film,
-      active: true,
-    },
-    {
-      title: "Shows",
-      to: "/web-shows",
-      icon: Tv,
-    },
-    {
-      title: "Events",
-      to: "/events",
-      icon: CalendarDays,
-    },
-    {
-      title: "Play",
-      to: "/play",
-      icon: Trophy,
-    },
-    {
-      title: "Offers",
-      to: "/offers",
-      icon: Tag,
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 selection:bg-[#ff4d58] selection:text-white relative overflow-hidden">
-      {/* Subtle curved filmstrip background watermark (Image 2 highlighted) */}
-      <PageBackgroundWatermark variant="movies" />
-
-      {/* Light-theme full page loading screen */}
-      {loading && <PageLoader text="Loading featured cinema premieres and experiences..." />}
+    <div className="min-h-screen bg-[#f5f5f5]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
       <Navbar />
       <BottomNav />
 
-      {/* ══ HERO BANNER (Image 1 Top-Left) ═════════════════ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-        <div
-          className="relative rounded-3xl sm:rounded-[36px] overflow-hidden bg-gradient-to-r from-[#fff4f5] via-[#fff1f3] to-[#fef6f2] border border-rose-100 shadow-[0_10px_30px_rgba(255,77,88,0.06)]"
-          onMouseEnter={() => (pausedRef.current = true)}
-          onMouseLeave={() => (pausedRef.current = false)}
-        >
-          {slides.length === 0 && !loading ? (
-            <div className="w-full flex flex-col items-center justify-center gap-2 text-center py-24 px-6">
-              <p className="text-neutral-900 text-base font-bold">No featured premieres right now</p>
-              <p className="text-neutral-500 text-xs max-w-sm">
-                Explore showtimes by choosing your city or district in the navigation bar above.
-              </p>
-            </div>
-          ) : (
-            <div className="relative w-full overflow-hidden" style={{ minHeight: "clamp(340px, 44vw, 460px)" }}>
-              {slides.map((item, i) => (
-                <div
-                  key={item.key}
-                  className="absolute inset-0"
-                  style={{
-                    opacity: i === activeIdx ? 1 : 0,
-                    zIndex: i === activeIdx ? 2 : 1,
-                    pointerEvents: i === activeIdx ? "auto" : "none",
-                    transition: "opacity 0.6s ease",
-                  }}
-                  aria-hidden={i !== activeIdx}
-                >
-                  <HeroSlide item={item} onPlay={() => openTrailer(item.trailer)} />
-                </div>
-              ))}
-
-              {/* Prev / Next Slide Nav Arrows (Floating White Buttons) */}
-              {slides.length > 1 && (
-                <>
-                  <button
-                    onClick={prevSlide}
-                    className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full items-center justify-center bg-white/95 hover:bg-white shadow-md border border-neutral-100 text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer flex"
-                    aria-label="Previous Slide"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full items-center justify-center bg-white/95 hover:bg-white shadow-md border border-neutral-100 text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer flex"
-                    aria-label="Next Slide"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </>
-              )}
-
-              {/* Bottom Dots Indicator (Mockup Style) */}
-              {slides.length > 1 && !loading && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-                  {slides.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goTo(i)}
-                      className="rounded-full transition-all duration-300 cursor-pointer"
-                      style={{
-                        width: i === activeIdx ? 24 : 6,
-                        height: 6,
-                        background: i === activeIdx ? "#ff4d58" : "rgba(0,0,0,0.15)",
-                      }}
-                      aria-label={`Go to slide ${i + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ══ CATEGORY QUICK DISCOVERY BAR (Image 1 Mockup) ════ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            return (
-              <Link
-                key={cat.title}
-                to={cat.to}
-                className={`flex flex-col items-center justify-center py-4 px-3 rounded-2xl transition-all duration-200 cursor-pointer shadow-xs ${
-                  cat.active
-                    ? "bg-[#fff0f2] border border-[#ff4d58]/30 text-[#ff4d58]"
-                    : "bg-white border border-neutral-150/80 text-neutral-700 hover:bg-neutral-50/80 hover:border-neutral-200 hover:shadow-sm"
-                }`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 transition-colors ${
-                    cat.active ? "text-[#ff4d58]" : "text-neutral-600"
-                  }`}
-                >
-                  <Icon size={22} strokeWidth={cat.active ? 2.3 : 1.9} />
-                </div>
+      <div
+        className="relative"
+        style={{ background: "#111" }}
+        onMouseEnter={() => (pausedRef.current = true)}
+        onMouseLeave={() => (pausedRef.current = false)}
+      >
+        {loading ? (
+          <div
+            className="w-full flex items-center justify-center"
+            style={{ height: "clamp(420px, 58vw, 600px)", background: "#1a1a1a" }}
+          >
+            <div className="flex gap-2">
+              {[0, 1, 2].map((i) => (
                 <span
-                  className={`text-[13px] tracking-tight ${
-                    cat.active ? "font-bold text-[#ff4d58]" : "font-semibold text-neutral-800"
-                  }`}
-                >
-                  {cat.title}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+                  key={i}
+                  className="w-2.5 h-2.5 rounded-full animate-bounce"
+                  style={{ background: "#f0545c", animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : slides.length === 0 ? (
+          <div
+            className="w-full flex flex-col items-center justify-center gap-2 text-center px-6"
+            style={{ height: "clamp(340px, 40vw, 460px)", background: "#1a1a1a" }}
+          >
+            <p className="text-white/70 text-[14px] font-semibold">Nothing to feature here yet</p>
+            <p className="text-white/35 text-[12px]">Check back soon, or pick a district to see local events &amp; play venues.</p>
+          </div>
+        ) : (
+          <div className="relative w-full overflow-hidden" style={{ height: "clamp(420px, 58vw, 600px)" }}>
+            {slides.map((item, i) => (
+              <div
+                key={item.key}
+                className="absolute inset-0"
+                style={{
+                  opacity: i === activeIdx ? 1 : 0,
+                  zIndex: i === activeIdx ? 2 : 1,
+                  pointerEvents: i === activeIdx ? "auto" : "none",
+                  transition: "opacity 0.7s ease",
+                }}
+                aria-hidden={i !== activeIdx}
+              >
+                <HeroSlide item={item} onPlay={() => openTrailer(item.trailer)} />
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* ══ MAIN BODY CONTENT ══════════════════════════════ */}
-      <div className="relative z-10">
-        <LatestMovies />
+        {/* Dot indicators */}
+        {slides.length > 1 && !loading && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className="transition-all duration-300 rounded-full"
+                style={{
+                  width: i === activeIdx ? 24 : 8,
+                  height: 8,
+                  background: i === activeIdx ? "#f0545c" : "rgba(255,255,255,0.35)",
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ══ LIGHT CONTENT ═════════════════════════════════ */}
+      <div className="bg-white">
         <OffersBanner />
+        <LatestMovies />
         <ComingSoon />
         <Events />
         <PlayHome />
@@ -376,30 +303,25 @@ export default function Home() {
       {/* ══ TRAILER MODAL ═════════════════════════════════ */}
       {trailerUrl && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(6px)" }}
           onClick={closeTrailer}
         >
           <div
             className="relative w-full max-w-4xl"
             onClick={(e) => e.stopPropagation()}
+            style={{ animation: "scaleUp 0.22s cubic-bezier(.4,0,.2,1) both" }}
           >
-            <div className="flex items-center justify-between pb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-white">
-                Official Trailer
-              </span>
-              <button
-                onClick={closeTrailer}
-                className="flex items-center gap-1 text-white/80 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                <X size={14} /> Close
-              </button>
-            </div>
-            
-            <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black aspect-video">
+            <button
+              onClick={closeTrailer}
+              className="absolute -top-11 right-0 flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors"
+            >
+              <X size={15} /> Close
+            </button>
+            <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
               <iframe
                 width="100%"
-                height="100%"
-                className="w-full h-full block"
+                className="aspect-video block"
                 src={trailerUrl}
                 title="Trailer"
                 allow="autoplay; fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -407,76 +329,180 @@ export default function Home() {
               />
             </div>
           </div>
+          <style>{`
+            @keyframes scaleUp {
+              from { opacity: 0; transform: scale(0.93); }
+              to   { opacity: 1; transform: scale(1); }
+            }
+          `}</style>
         </div>
       )}
     </div>
   );
 }
 
+/* ─── Single Hero Slide (Movie / Event / Play) ────────── */
 function HeroSlide({ item, onPlay }) {
   return (
-    <div className="relative w-full h-full flex items-center px-6 sm:px-10 lg:px-14 py-8">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-10 w-full">
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Blurred backdrop */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: item.background ? `url(${item.background})` : undefined,
+          background: item.background ? undefined : "linear-gradient(135deg,#1c1c1c,#2d2d2d)",
+          backgroundSize: "cover",
+          backgroundPosition: "center 20%",
+          filter: "brightness(0.22) saturate(1.3)",
+          transform: "scale(1.07)",
+        }}
+      />
 
-        {/* Left: Info */}
-        <div className="flex-1 min-w-0 text-neutral-900 max-w-xl">
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase text-[#ff4d58] bg-[#ff4d58]/10 px-3 py-1 rounded-full mb-3">
-            {item.tag}
-          </span>
+      {/* Left-dark overlay */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "linear-gradient(105deg, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.65) 42%, rgba(8,8,8,0.1) 100%)",
+        }}
+      />
 
-          <h1
-            className="font-black leading-tight mb-2.5 tracking-tight text-neutral-900 line-clamp-2"
-            style={{ fontSize: "clamp(26px, 4vw, 44px)" }}
-          >
-            {item.title}
-          </h1>
+      {/* Bottom bleed into page */}
+      <div
+        className="absolute bottom-0 left-0 right-0"
+        style={{ height: 80, background: "linear-gradient(to bottom, transparent, #f5f5f5)" }}
+      />
 
-          {/* Subtitle / Description */}
-          {item.description && (
-            <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed mb-3 line-clamp-2">
-              {item.description}
-            </p>
-          )}
+      {/* Content */}
+      <div className="relative z-10 h-full flex items-center px-8 md:px-16 max-w-6xl mx-auto">
+        <div className="flex items-center gap-10 md:gap-16 w-full">
 
-          {/* Metadata Line */}
-          {item.meta?.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 text-neutral-500 text-xs font-semibold mb-6">
-              {item.meta.map((m, i) => (
-                <span key={i} className="flex items-center gap-1">
-                  {i > 0 && <span className="text-neutral-400 mr-1">•</span>}
-                  <span>{m.label}</span>
-                </span>
-              ))}
+          {/* Left: text */}
+          <div className="flex-1 min-w-0 text-white">
+            {/* Tag pill */}
+            <span
+              className="inline-block text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4"
+              style={{
+                background: "rgba(240,84,92,0.2)",
+                color: "#f0545c",
+                border: "1px solid rgba(240,84,92,0.35)",
+              }}
+            >
+              {item.tag}
+            </span>
+
+            <h2
+              className="font-black leading-none mb-3 tracking-tight"
+              style={{ fontSize: "clamp(28px, 4.5vw, 52px)" }}
+            >
+              {item.title}
+            </h2>
+
+            {/* Meta row */}
+            {item.meta?.length > 0 && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-white/45 text-[13px] mb-4">
+                {item.meta.map((m, i) => {
+                  const MetaIcon = m.icon;
+                  return (
+                    <span key={i} className="flex items-center gap-3">
+                      {i > 0 && <Dot />}
+                      <span className="flex items-center gap-1"><MetaIcon size={12} /> {m.label}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
+            {item.description && (
+              <p
+                className="text-white/55 leading-relaxed mb-6 line-clamp-2"
+                style={{ maxWidth: 480, fontSize: 14 }}
+              >
+                {item.description}
+              </p>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to={item.primaryCta.to}
+                className="flex items-center gap-2 font-semibold px-7 py-2.5 rounded-xl text-sm text-white transition-all active:scale-95"
+                style={{ background: "#f0545c" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+              >
+                <item.primaryCta.icon size={15} /> {item.primaryCta.label}
+              </Link>
+
+              {item.trailer && (
+                <button
+                  onClick={onPlay}
+                  className="flex items-center gap-2 font-semibold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-95"
+                  style={{
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.75)",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.14)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+                >
+                  <Play size={14} fill="currentColor" /> Watch Trailer
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Right: poster */}
+          {item.poster && (
+            <div className="flex-shrink-0 hidden sm:block">
+              <Link
+                to={item.posterLink}
+                className="relative group cursor-pointer block"
+                style={{ width: "clamp(140px, 14vw, 200px)" }}
+              >
+                <img
+                  src={item.poster}
+                  alt={item.title}
+                  className="w-full rounded-2xl shadow-2xl object-cover"
+                  style={{
+                    aspectRatio: "2/3",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    transition: "transform 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                />
+
+                {/* Play overlay — movies with a trailer only */}
+                {item.trailer && (
+                  <div
+                    className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: "rgba(0,0,0,0.45)" }}
+                  >
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center"
+                      style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)", border: "2px solid rgba(255,255,255,0.5)" }}
+                    >
+                      <Play size={20} fill="white" className="text-white ml-0.5" />
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg"
+                  style={{ background: "rgba(20,20,20,0.9)", color: "white", border: "1px solid rgba(255,255,255,0.12)" }}
+                >
+                  {item.posterBadge}
+                </div>
+              </Link>
             </div>
           )}
 
-          {/* CTA Buttons */}
-          <div className="flex items-center gap-3">
-            <Link
-              to={item.primaryCta.to}
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-bold text-white bg-[#ff4d58] hover:bg-[#e03d47] shadow-md shadow-[#ff4d58]/20 transition-all active:scale-95 cursor-pointer"
-            >
-              <span>{item.primaryCta.label}</span>
-            </Link>
-
-            {item.trailer && (
-              <button
-                onClick={onPlay}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold text-neutral-800 bg-white hover:bg-neutral-50 border border-neutral-200/80 shadow-xs transition-all active:scale-95 cursor-pointer"
-              >
-                <Play size={15} fill="#ff4d58" className="text-[#ff4d58]" />
-                <span>Watch Trailer</span>
-              </button>
-            )}
-          </div>
         </div>
-
-        {/* Right: Pastel Artwork Composition (Mockup Top-Left) */}
-        <div className="flex-shrink-0 hidden md:flex items-center justify-center">
-          <HeroBannerArt className="w-56 h-48 lg:w-72 lg:h-60" />
-        </div>
-
       </div>
     </div>
   );
+}
+
+function Dot() {
+  return <span className="text-white/20 text-[10px]">•</span>;
 }

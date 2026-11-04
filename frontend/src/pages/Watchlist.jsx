@@ -2,27 +2,23 @@ import { useState, useEffect } from "react";
 import {
   Heart,
   PlayCircle,
+  Bookmark,
   CheckCircle,
   Star,
   Trash2,
   Loader2,
-  Play,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
-import Footer from "../components/Footer";
-import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
-import PageLoader from "../components/PageLoader";
-import { WatchlistArt } from "../components/CinemaIllustrations";
 
 const IMG = (path) =>
-  !path ? null : path.startsWith("http") ? path : `${import.meta.env.VITE_API_URL}${path}`;
+  path?.startsWith("http") ? path : `${import.meta.env.VITE_API_URL}${path}`;
 
 const TABS = [
-  { id: "all", label: "All Titles" },
-  { id: "watching", label: "Watching" },
+  { id: "all",       label: "All" },
+  { id: "watching",  label: "Watching" },
   { id: "completed", label: "Completed" },
   { id: "favorites", label: "Favorites" },
 ];
@@ -31,22 +27,22 @@ const STATUS = {
   completed: {
     icon: CheckCircle,
     color: "#059669",
-    bg: "#f0fdf4",
-    border: "#bbf7d0",
+    bg: "rgba(16,185,129,0.08)",
+    border: "rgba(16,185,129,0.2)",
     label: "Completed",
   },
   watching: {
     icon: PlayCircle,
-    color: "#ff4d58",
-    bg: "#fff0f2",
-    border: "#fecdd3",
+    color: "#f0545c",
+    bg: "rgba(240,84,92,0.08)",
+    border: "rgba(240,84,92,0.2)",
     label: "Watching",
   },
   favorites: {
     icon: Heart,
-    color: "#d97706",
-    bg: "#fefce8",
-    border: "#fef08a",
+    color: "#b45309",
+    bg: "rgba(245,158,11,0.08)",
+    border: "rgba(245,158,11,0.2)",
     label: "Favorite",
   },
 };
@@ -65,89 +61,124 @@ function MovieCard({ movie, onRemove, onStatusChange }) {
 
   return (
     <div
-      className="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-neutral-150/80 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-3 sm:p-4 flex gap-4 items-center"
+      className="group cursor-pointer rounded-2xl overflow-hidden bg-white transition-all duration-300"
       style={{
+        border: "1px solid #efefef",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         opacity: removing ? 0.4 : 1,
         pointerEvents: removing ? "none" : "auto",
       }}
       onClick={() => navigate(`/movie/${movie.id}`)}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = "0 10px 28px rgba(0,0,0,0.11)";
+        e.currentTarget.style.transform = "translateY(-4px)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
+        e.currentTarget.style.transform = "translateY(0)";
+      }}
     >
-      {/* Poster */}
-      <div className="relative aspect-[2/3] w-20 sm:w-24 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0">
+      <div className="relative overflow-hidden" style={{ aspectRatio: "2/3" }}>
         <img
           src={IMG(movie.poster)}
           alt={movie.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
         />
 
-        {/* Rating badge */}
-        {movie.rating > 0 && (
-          <div className="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/60 backdrop-blur-md">
-            <Star size={9} fill="#facc15" className="text-yellow-400" />
-            <span>{movie.rating}</span>
-          </div>
-        )}
+        <div
+          className="absolute inset-0 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
+          style={{ background: "rgba(0,0,0,0.42)" }}
+        />
 
-        {/* Delete button */}
-        <button
-          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center bg-black/60 hover:bg-red-600 text-white transition-all cursor-pointer"
-          onClick={handleRemove}
-          title="Remove from watchlist"
+        <div
+          className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold text-white"
+          style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(6px)" }}
         >
-          {removing ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
-        </button>
-      </div>
-
-      {/* Info & Progress */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-        <div>
-          <h3 className="text-sm sm:text-base font-bold text-neutral-900 truncate group-hover:text-[#ff4d58] transition-colors">
-            {movie.title}
-          </h3>
-          <p className="text-xs text-neutral-400 mt-0.5 truncate">
-            Cinema · Action · Streaming
-          </p>
+          <Star size={10} fill="#f59e0b" stroke="none" />
+          {movie.rating ?? "—"}
         </div>
 
-        {/* Viewing progress bar (Mockup Image 1 Bottom-Left) */}
-        <div className="mt-3">
-          <div className="flex items-center justify-between text-[11px] font-bold text-neutral-500 mb-1">
-            <span
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
-              style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}` }}
-            >
-              <Icon size={10} />
-              <span>{st.label}</span>
-            </span>
-            <span>46%</span>
-          </div>
-          <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-            <div className="h-full bg-[#ff4d58] rounded-full" style={{ width: "46%" }} />
-          </div>
+        <div
+          className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(6px)" }}
+        >
+          <Icon
+            size={13}
+            style={{ color: st.color }}
+            fill={movie.status === "favorites" ? st.color : "none"}
+          />
         </div>
+
+        <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+          <button
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95"
+            style={{ background: "#f0545c" }}
+            onClick={(e) => { e.stopPropagation(); navigate(`/movie/${movie.id}`); }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            title="View movie"
+          >
+            <PlayCircle size={18} className="text-white" />
+          </button>
+          <button
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95"
+            style={{
+              background: "rgba(255,255,255,0.2)",
+              border: "1px solid rgba(255,255,255,0.35)",
+            }}
+            onClick={handleRemove}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.45)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.2)")}
+            title="Remove from watchlist"
+          >
+            {removing ? (
+              <Loader2 size={15} className="text-white animate-spin" />
+            ) : (
+              <Trash2 size={15} className="text-white" />
+            )}
+          </button>
+        </div>
+
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: 40,
+            background: "linear-gradient(to top, rgba(0,0,0,0.18), transparent)",
+          }}
+        />
       </div>
 
-      {/* Play Icon CTA */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(`/movie/${movie.id}`);
-        }}
-        className="w-10 h-10 rounded-full flex items-center justify-center bg-[#fff0f2] hover:bg-[#ff4d58] text-[#ff4d58] hover:text-white transition-all shadow-xs flex-shrink-0 cursor-pointer"
-        aria-label="Play title"
-      >
-        <Play size={16} fill="currentColor" className="ml-0.5" />
-      </button>
+      <div className="px-3 pt-3 pb-3">
+        <h3 className="text-[13px] font-semibold text-gray-900 truncate leading-snug">
+          {movie.title}
+        </h3>
+
+        <div className="flex items-center justify-between mt-1.5">
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border cursor-pointer select-none transition-all active:scale-95"
+            style={{ background: st.bg, color: st.color, borderColor: st.border }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const order = ["watching", "completed", "favorites"];
+              const next = order[(order.indexOf(movie.status) + 1) % order.length];
+              onStatusChange(movie.id, next);
+            }}
+            title="Click to change status"
+          >
+            <Icon size={9} />
+            {st.label}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function Watchlist() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab]   = useState("all");
+  const [movies, setMovies]         = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -157,11 +188,11 @@ export default function Watchlist() {
         setMovies(
           res.data.map((entry) => ({
             entryId: entry._id,
-            id: entry.movie._id,
-            title: entry.movie.title,
-            poster: entry.movie.poster,
-            rating: entry.movie.rating,
-            status: entry.status,
+            id:      entry.movie._id,
+            title:   entry.movie.title,
+            poster:  entry.movie.poster,
+            rating:  entry.movie.rating,
+            status:  entry.status,
           }))
         );
       })
@@ -174,7 +205,6 @@ export default function Watchlist() {
       await api.post("/watchlist/remove", { movieId });
       setMovies((prev) => prev.filter((m) => m.id !== movieId));
     } catch {
-      // rollback or silent
     }
   };
 
@@ -189,11 +219,11 @@ export default function Watchlist() {
         setMovies(
           res.data.map((entry) => ({
             entryId: entry._id,
-            id: entry.movie._id,
-            title: entry.movie.title,
-            poster: entry.movie.poster,
-            rating: entry.movie.rating,
-            status: entry.status,
+            id:      entry.movie._id,
+            title:   entry.movie.title,
+            poster:  entry.movie.poster,
+            rating:  entry.movie.rating,
+            status:  entry.status,
           }))
         )
       );
@@ -201,8 +231,8 @@ export default function Watchlist() {
   };
 
   const counts = {
-    all: movies.length,
-    watching: movies.filter((m) => m.status === "watching").length,
+    all:       movies.length,
+    watching:  movies.filter((m) => m.status === "watching").length,
     completed: movies.filter((m) => m.status === "completed").length,
     favorites: movies.filter((m) => m.status === "favorites").length,
   };
@@ -211,90 +241,145 @@ export default function Watchlist() {
     activeTab === "all" ? movies : movies.filter((m) => m.status === activeTab);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative overflow-hidden selection:bg-[#ff4d58] selection:text-white">
-      {/* Background Watermark (Image 2) */}
-      <PageBackgroundWatermark variant="movies" />
+    <div
+      className="min-h-screen"
+      style={{ fontFamily: "'Outfit', sans-serif", background: "#f5f5f5" }}
+    >
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
-      {loading && <PageLoader text="Loading your saved watchlist and progress..." />}
+      <Navbar />
+      <BottomNav />
 
-      <div className="relative z-10">
-        <Navbar />
-        <BottomNav />
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-10 pt-6 sm:pt-10 pb-16">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* Header Card (Mockup Image 1 Bottom-Left) */}
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#fff5f6] via-white to-[#fef7f2] border border-rose-100 shadow-[0_10px_30px_rgba(255,77,88,0.06)] p-6 sm:p-8 flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900">
-                My Watchlist
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-                Saved titles and viewing progress
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <WatchlistArt className="w-24 h-24 sm:w-28 sm:h-28 hidden sm:flex" />
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+          <div>
+            <p
+              className="text-[11px] font-bold uppercase tracking-widest mb-1.5"
+              style={{ color: "#f0545c" }}
+            >
+              Your Collection
+            </p>
+            <h1
+              className="font-black leading-none tracking-tight text-gray-900"
+              style={{ fontSize: "clamp(26px, 4vw, 38px)" }}
+            >
+              My Watchlist
+            </h1>
           </div>
 
-          {/* Filter Tabs Bar (Mockup Image 1 Bottom-Left) */}
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
-            {TABS.map(({ id, label }) => {
-              const isActive = activeTab === id;
-              return (
-                <button
-                  key={id}
-                  onClick={() => setActiveTab(id)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs ${
-                    isActive
-                      ? "bg-[#ff4d58] text-white shadow-xs"
-                      : "bg-white border border-neutral-200/80 text-neutral-700 hover:bg-neutral-50"
-                  }`}
-                >
-                  <span>{label}</span>
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white self-start sm:self-auto"
+            style={{ border: "1px solid #e5e7eb" }}
+          >
+            <Bookmark size={13} style={{ color: "#f0545c" }} />
+            <span className="text-[13px] font-semibold text-gray-600">
+              {movies.length} {movies.length === 1 ? "title" : "titles"} saved
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="flex items-center gap-1 p-1 rounded-2xl mb-8 w-fit bg-white overflow-x-auto max-w-full"
+          style={{ border: "1px solid #e5e7eb", scrollbarWidth: "none" }}
+        >
+          {TABS.map(({ id, label }) => {
+            const isActive = activeTab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
+                style={
+                  isActive
+                    ? { background: "#f0545c", color: "#fff" }
+                    : { background: "transparent", color: "#6b7280" }
+                }
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.color = "#111827";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.color = "#6b7280";
+                }}
+              >
+                {label}
+                {counts[id] > 0 && (
                   <span
-                    className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
-                      isActive ? "bg-white/20 text-white" : "bg-neutral-100 text-neutral-500"
-                    }`}
+                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+                    style={
+                      isActive
+                        ? { background: "rgba(255,255,255,0.25)", color: "#fff" }
+                        : { background: "#f3f4f6", color: "#6b7280" }
+                    }
                   >
-                    {counts[id] || 0}
+                    {counts[id]}
                   </span>
-                </button>
-              );
-            })}
-          </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* State Displays */}
-          {error ? (
-            <div className="p-8 text-center bg-white rounded-2xl border border-neutral-200 shadow-xs">
-              <p className="text-sm font-semibold text-red-500">{error}</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="py-20 text-center bg-white rounded-3xl border border-neutral-150/80 p-8 shadow-xs">
-              <p className="text-base font-bold text-neutral-800">
-                {activeTab === "all" ? "Your watchlist is empty" : `No titles in "${activeTab}"`}
-              </p>
-              <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
-                Explore movies or web shows and click the Watchlist button to track your titles here.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
-              {filtered.map((movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={movie}
-                  onRemove={handleRemove}
-                  onStatusChange={handleStatusChange}
+        {loading && (
+          <div className="flex items-center justify-center py-32">
+            <div className="flex gap-2">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce"
+                  style={{ animationDelay: `${i * 0.15}s` }}
                 />
               ))}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
 
-      <Footer />
+        {!loading && error && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <p className="text-[15px] font-semibold text-gray-700 mb-1">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-3 text-[13px] font-semibold text-[#f0545c] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div
+              className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-white"
+              style={{ border: "1px solid #fce7e7" }}
+            >
+              <Bookmark size={30} style={{ color: "#f0545c", opacity: 0.45 }} />
+            </div>
+            <h3 className="text-[20px] font-bold text-gray-800 mb-2">
+              {activeTab === "all" ? "Nothing here yet" : `No ${activeTab} titles`}
+            </h3>
+            <p className="text-[14px] text-gray-400">
+              {activeTab === "all"
+                ? "Start adding movies and shows you want to watch."
+                : `Movies you mark as "${activeTab}" will appear here.`}
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && filtered.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            {filtered.map((movie) => (
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                onRemove={handleRemove}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+

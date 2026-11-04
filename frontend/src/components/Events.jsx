@@ -3,15 +3,21 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import { getSelectedCity } from "./Navbar";
 import { getSelectedDistrict } from "./DistrictSelector";
-import { IMG, fmtDate } from "../utils/eventHelpers";
+import { IMG, fmt12, fmtDate } from "../utils/eventHelpers";
 import {
   ChevronRight,
   ChevronLeft,
-  Calendar,
   MapPin,
   Star,
+  Calendar,
+  Flame,
+  Sparkles,
+  PartyPopper,
 } from "lucide-react";
 
+/* Merge trending + upcoming (5 each), tagging each with where it came from.
+   If an event appears in both lists, keep it tagged as "trending" only —
+   avoids showing the same card twice. */
 const mergeEvents = (trending, upcoming) => {
   const seen = new Set();
   const out = [];
@@ -32,18 +38,18 @@ const mergeEvents = (trending, upcoming) => {
 };
 
 export default function HomeEvents() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [canLeft, setCanLeft] = useState(false);
+  const [events, setEvents]     = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [canLeft, setCanLeft]   = useState(false);
   const [canRight, setCanRight] = useState(false);
   const sliderRef = useRef(null);
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
       const loc = {
-        city: getSelectedCity().id || undefined,
+        city:     getSelectedCity().id || undefined,
         district: getSelectedDistrict().id || undefined,
       };
       const [t, u] = await Promise.all([
@@ -58,9 +64,7 @@ export default function HomeEvents() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   useEffect(() => {
     const handler = () => fetchEvents();
@@ -75,8 +79,8 @@ export default function HomeEvents() {
   const checkScroll = () => {
     const el = sliderRef.current;
     if (!el) return;
-    setCanLeft(el.scrollLeft > 6);
-    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 6);
+    setCanLeft(el.scrollLeft > 4);
+    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
   };
 
   useEffect(() => {
@@ -93,26 +97,24 @@ export default function HomeEvents() {
 
   const scroll = (dir) =>
     sliderRef.current?.scrollBy({
-      left: dir === "left" ? -720 : 720,
+      left: dir === "left" ? -880 : 880,
       behavior: "smooth",
     });
 
   if (loading) {
     return (
-      <section className="w-full px-4 sm:px-8 md:px-12 py-8 md:py-10 bg-transparent">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader count={0} />
-          <div className="flex gap-4 overflow-hidden">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[160px] sm:w-[190px] animate-pulse">
-                <div className="rounded-2xl bg-neutral-200 aspect-[2/3]" />
-                <div className="mt-2.5 space-y-1.5">
-                  <div className="h-4 bg-neutral-200 rounded w-3/4" />
-                  <div className="h-3 bg-neutral-200 rounded w-1/2" />
-                </div>
+      <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
+        <SectionHeader count={0} />
+        <div className="flex gap-4 overflow-hidden">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-[200px] animate-pulse">
+              <div className="rounded-2xl bg-gray-200" style={{ aspectRatio: "2/3" }} />
+              <div className="mt-2.5 space-y-2">
+                <div className="h-3.5 bg-gray-200 rounded w-3/4" />
+                <div className="h-3 bg-gray-200 rounded w-1/2" />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
     );
@@ -121,44 +123,29 @@ export default function HomeEvents() {
   if (!events.length) return null;
 
   return (
-    <section className="w-full px-4 sm:px-8 md:px-12 py-8 md:py-10 bg-transparent relative">
-      <div className="max-w-7xl mx-auto">
-        <SectionHeader count={events.length} onSeeAll={() => navigate("/events")} />
+    <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
+      <SectionHeader count={events.length} onSeeAll={() => navigate("/events")} />
 
-        <div className="relative group/slider">
-          {canLeft && (
-            <button
-              onClick={() => scroll("left")}
-              aria-label="Scroll left"
-              className="absolute -left-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-neutral-100 flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            >
-              <ChevronLeft size={18} />
-            </button>
-          )}
-
-          <div
-            ref={sliderRef}
-            className="flex gap-4 sm:gap-5 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
-          >
-            {events.map((ev) => (
-              <EventPosterCard
-                key={ev._id}
-                event={ev}
-                onClick={() => navigate(`/events/${ev._id}`)}
-              />
-            ))}
-          </div>
-
-          {canRight && (
-            <button
-              onClick={() => scroll("right")}
-              aria-label="Scroll right"
-              className="absolute -right-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-neutral-100 flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            >
-              <ChevronRight size={18} />
-            </button>
-          )}
+      <div className="relative">
+        {canLeft && (
+          <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -16, top: "38%" }} />
+        )}
+        <div
+          ref={sliderRef}
+          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {events.map((ev) => (
+            <EventPosterCard
+              key={ev._id}
+              event={ev}
+              onClick={() => navigate(`/events/${ev._id}`)}
+            />
+          ))}
         </div>
+        {canRight && (
+          <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -16, top: "38%" }} />
+        )}
       </div>
     </section>
   );
@@ -168,92 +155,166 @@ function SectionHeader({ count, onSeeAll }) {
   return (
     <div className="flex items-end justify-between mb-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-neutral-900">
-          Live Events &amp; Experiences
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(240,84,92,0.12)" }}>
+            <Flame size={10} style={{ color: "#f0545c" }} />
+          </span>
+          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+            Don't miss out
+          </p>
+        </div>
+        <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+          Upcoming Live Events
         </h2>
-        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-          Concerts, comedy, and theater performances
-        </p>
+        {count > 0 && <p className="text-[13px] text-gray-400 mt-0.5">{count} show{count !== 1 ? "s" : ""} lined up near you</p>}
       </div>
       {onSeeAll && (
         <button
-          className="flex items-center gap-1 text-sm font-bold text-[#ff4d58] hover:text-[#e03d47] transition-colors group cursor-pointer"
+          className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
           onClick={onSeeAll}
         >
-          <span>See All</span>
-          <ChevronRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+          See All <ChevronRight size={15} />
         </button>
       )}
     </div>
   );
 }
 
+/* ─── Card ────────────────────────────────────────────── */
+function daysUntilEvent(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  const diff = Math.ceil((d.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+  return diff >= 0 ? diff : null;
+}
+
 function EventPosterCard({ event, onClick }) {
   const sched = event.nextSchedule;
+  const isTrending = event._tag === "trending";
+  const daysLeft = daysUntilEvent(sched?.eventDate);
+
+  const badge = isTrending
+    ? { label: "Trending", bg: "rgba(240,84,92,0.9)", icon: Flame }
+    : daysLeft != null
+    ? { label: daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d to go`, bg: "rgba(234,88,12,0.88)", icon: Sparkles }
+    : { label: "Coming Soon", bg: "rgba(234,88,12,0.88)", icon: Sparkles };
+  const BadgeIcon = badge.icon;
 
   return (
-    <div
-      className="flex-shrink-0 w-[160px] sm:w-[190px] md:w-[200px] cursor-pointer group"
-      onClick={onClick}
-    >
+    <div className="flex-shrink-0 w-[200px] cursor-pointer group snap-start" onClick={onClick}>
       <div
-        className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-xs transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1.5"
+        className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-shadow group-hover:shadow-lg"
+        style={{ aspectRatio: "2/3" }}
       >
         {event.poster ? (
           <img
             src={IMG(event.poster)}
             alt={event.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-100 text-neutral-400 p-4 text-center">
-            <span className="text-xs font-semibold">{event.title}</span>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-200 to-gray-300 gap-2">
+            <PartyPopper size={22} className="text-gray-400" />
+            <div className="text-gray-400 text-[10px] font-semibold text-center px-4 leading-tight">
+              {event.title}
+            </div>
           </div>
         )}
 
+        {/* Category badge — top left */}
         {event.category && (
-          <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white">
+          <span
+            className="absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide"
+            style={{ background: "rgba(0,0,0,0.62)", color: "rgba(255,255,255,0.85)" }}
+          >
             {event.category}
           </span>
         )}
 
+        {/* Status badge — top right (Trending / Coming Soon) */}
+        <div
+          className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+          style={{ background: badge.bg, color: "#fff" }}
+        >
+          <BadgeIcon size={10} />
+          {badge.label}
+        </div>
+
+        {/* Rating chip, if present, sits just under status badge */}
         {event.ratings?.count > 0 && (
-          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white">
-            <Star size={10} fill="#facc15" className="text-yellow-400" />
-            <span className="text-[11px] font-bold">{event.ratings.average.toFixed(1)}</span>
+          <div
+            className="absolute top-[30px] right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+            style={{ background: "rgba(0,0,0,0.55)" }}
+          >
+            <Star size={9} color="#facc15" fill="#facc15" />
+            <span className="text-[10px] font-bold text-white">{event.ratings.average.toFixed(1)}</span>
           </div>
         )}
 
-        {sched?.startingPrice != null && (
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-6 flex items-end">
-            <span className="text-xs font-bold text-white">
-              ₹{sched.startingPrice.toLocaleString("en-IN")}{" "}
-              <span className="font-normal text-[10px] text-white/80">onwards</span>
+        {/* Bottom gradient — price / date */}
+        <div
+          className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 px-3 py-2"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
+        >
+          {sched?.startingPrice != null ? (
+            <span className="text-white font-bold text-[12px]">
+              ₹{sched.startingPrice.toLocaleString("en-IN")} onwards
+            </span>
+          ) : sched?.eventDate ? (
+            <span className="flex items-center gap-1 text-white text-[11px] font-semibold">
+              <Calendar size={11} className="text-orange-400 flex-shrink-0" />
+              {fmtDate(sched.eventDate)}
+            </span>
+          ) : (
+            <span className="text-white/70 text-[11px] font-semibold">Details soon</span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-2.5 px-0.5">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+          {event.title}
+        </h3>
+
+        {event.artists?.length > 0 && (
+          <p className="text-[12px] text-gray-400 mt-0.5 truncate">
+            {event.artists.map((a) => a.name).join(", ")}
+          </p>
+        )}
+
+        {sched && (
+          <div className="flex items-center gap-1 mt-1">
+            <Calendar size={10} color="#f0545c" />
+            <span className="text-[11px] font-semibold text-[#f0545c] truncate">
+              {fmtDate(sched.eventDate)}{sched.time ? ` · ${fmt12(sched.time)}` : ""}
+            </span>
+          </div>
+        )}
+
+        {sched?.venue && (
+          <div className="flex items-center gap-1 mt-0.5">
+            <MapPin size={10} color="#9ca3af" />
+            <span className="text-[11px] text-gray-400 truncate">
+              {sched.venue.name}{sched.venue.district?.name ? `, ${sched.venue.district.name}` : ""}
             </span>
           </div>
         )}
       </div>
-
-      <div className="mt-2.5 px-0.5">
-        <h3 className="text-sm font-bold text-neutral-900 truncate group-hover:text-[#ff4d58] transition-colors">
-          {event.title}
-        </h3>
-
-        {sched && (
-          <p className="text-xs text-neutral-500 mt-0.5 truncate flex items-center gap-1.5">
-            <Calendar size={11} className="text-[#ff4d58] flex-shrink-0" />
-            <span>{fmtDate(sched.eventDate)}</span>
-          </p>
-        )}
-
-        {sched?.venue && (
-          <p className="text-xs text-neutral-400 mt-0.5 truncate flex items-center gap-1.5">
-            <MapPin size={11} className="flex-shrink-0 text-neutral-400" />
-            <span>{sched.venue.name}</span>
-          </p>
-        )}
-      </div>
     </div>
+  );
+}
+
+/* ─── Arrow Button ────────────────────────────────────── */
+function ArrowBtn({ dir, onClick, style }) {
+  return (
+    <button
+      onClick={onClick}
+      onMouseDown={(e) => e.preventDefault()}
+      className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"
+      style={{ ...style, transform: "translateY(-50%)" }}
+    >
+      {dir === "left" ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
+    </button>
   );
 }

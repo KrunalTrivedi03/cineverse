@@ -2,29 +2,28 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Icons from "lucide-react";
 import {
-  Dumbbell, MapPin, SlidersHorizontal, X, Building2, Navigation, ChevronDown,
-  Sparkles, Trophy,
+  Dumbbell, MapPin, IndianRupee, SlidersHorizontal, X, Building2, Navigation, ChevronDown,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar, { getSelectedCity } from "../components/Navbar";
-import BottomNav from "../components/BottomNav";
-import Footer from "../components/Footer";
-import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
-import PageLoader from "../components/PageLoader";
-import { IMG } from "../utils/eventHelpers";
+import { IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
 
 const SORT_OPTIONS = [
   { id: "", label: "Recommended" },
   { id: "price", label: "Price: Low to High" },
-  { id: "distance", label: "Nearest to Me" },
+  { id: "distance", label: "Nearest" },
 ];
 
+// Cycled per-card tint for the sport tiles (icon panel background + icon
+// color). District has bespoke 3D renders per sport; we don't have those
+// image assets, so this approximates the same "labelled card, tinted art
+// panel" layout with lucide icons instead.
 const TILE_TINTS = [
-  { bg: "linear-gradient(145deg, #eafaf0 0%, #c9f0d8 100%)", fg: "#15803d" },
-  { bg: "linear-gradient(145deg, #eef2ff 0%, #d8e0fe 100%)", fg: "#4338ca" },
-  { bg: "linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)", fg: "#e11d48" },
-  { bg: "linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%)", fg: "#b45309" },
-  { bg: "linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%)", fg: "#0f766e" },
+  { bg: "linear-gradient(160deg,#eafaf0 0%,#d8f3e3 100%)", fg: "#1f9d55" },
+  { bg: "linear-gradient(160deg,#eef1fb 0%,#dde2f6 100%)", fg: "#4a55c7" },
+  { bg: "linear-gradient(160deg,#fdeeea 0%,#fbdcd4 100%)", fg: "#e0603f" },
+  { bg: "linear-gradient(160deg,#fef6e6 0%,#fbebc6 100%)", fg: "#c98a1a" },
+  { bg: "linear-gradient(160deg,#eaf6fb 0%,#d6eef8 100%)", fg: "#1c85ab" },
 ];
 
 const VENUES_PAGE_SIZE = 8;
@@ -33,14 +32,16 @@ export default function Play() {
   const navigate = useNavigate();
   const [city, setCity] = useState(getSelectedCity());
 
+  /* ── Explore Sports ── */
   const [activities, setActivities] = useState([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
 
+  /* ── All Sports Venues ── */
   const [venues, setVenues] = useState([]);
   const [loadingVenues, setLoadingVenues] = useState(true);
   const [venueError, setVenueError] = useState("");
   const [venuesShown, setVenuesShown] = useState(VENUES_PAGE_SIZE);
-  const [activeSportIds, setActiveSportIds] = useState([]);
+  const [activeSportIds, setActiveSportIds] = useState([]); // multi-select chip filter
   const [under5km, setUnder5km] = useState(false);
   const [sort, setSort] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -56,7 +57,7 @@ export default function Play() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {},
+      () => {}, // silently ignore — distance sort/filter just won't be available
       { timeout: 4000 }
     );
   }, []);
@@ -82,7 +83,7 @@ export default function Play() {
 
     api.get(`/play/venues?${query.toString()}`)
       .then((r) => setVenues(r.data))
-      .catch(() => setVenueError("Couldn't load sports venues. Please try again."))
+      .catch(() => setVenueError("Couldn't load venues. Please try again."))
       .finally(() => setLoadingVenues(false));
   }, [city.id, activeSportIds, sort, coords, under5km]);
 
@@ -92,273 +93,225 @@ export default function Play() {
     navigate(`/play/venues?activity=${activity._id}&activityName=${encodeURIComponent(activity.name)}`);
   };
 
+  // Filters the "All Sports Venues" list below — separate from the Explore
+  // Sports tiles above, which now navigate to a dedicated venues page instead.
   const toggleSport = (id) => {
     setActiveSportIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative">
-      <PageBackgroundWatermark variant="play" />
-      {(loadingActivities && loadingVenues) && <PageLoader />}
+    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+      <style>{OUTFIT_IMPORT}</style>
+      <Navbar />
 
-      <div className="relative z-10">
-        <Navbar />
-        <BottomNav />
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 40px" }}>
+        {/* Header */}
+        <div className="mb-5">
+          <h1 className="text-[22px] font-extrabold tracking-tight text-gray-900">Play</h1>
+          <p className="text-[12.5px] text-gray-400 mt-0.5">Book courts &amp; turfs near you</p>
+        </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[11px] font-extrabold uppercase tracking-widest mb-2 border border-emerald-500/20">
-              <Dumbbell size={11} />
-              <span>Court &amp; Turf Reservations</span>
+        {!city.id ? (
+          /* ── No city selected in the navbar yet ── */
+          <div className="rounded-2xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-14" style={{ borderRadius: 20 }}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
+              <MapPin size={24} style={{ color: "#f0545c" }} />
             </div>
-            <h1 className="text-[26px] sm:text-[34px] font-black tracking-tight text-gray-900 leading-tight">
-              Play &amp; Sports Arenas
-            </h1>
-            <p className="text-[13.5px] text-gray-500 mt-1 font-medium">
-              Book football turfs, badminton courts, cricket nets &amp; swimming slots in <span className="font-bold text-gray-800">{city.name || "your city"}</span>
+            <p className="text-[15px] font-bold text-gray-900 mb-1">Select a city to get started</p>
+            <p className="text-[13px] text-gray-400 max-w-[260px]">
+              Pick your city from the top of the page and we'll show you badminton courts, turfs, and more near you.
             </p>
           </div>
+        ) : (
+          <>
+            {/* ══ Explore Sports ══ */}
+            <h2 className="text-[17px] font-extrabold tracking-tight text-gray-900 mb-3">Explore Sports</h2>
 
-          {!city.id ? (
-            <div className="rounded-3xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-16 shadow-2xs">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-red-50 text-[#f0545c]">
-                <MapPin size={28} />
+            {loadingActivities ? (
+              <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))" }}>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl bg-gray-100 animate-pulse" style={{ aspectRatio: "0.82/1" }} />
+                ))}
               </div>
-              <p className="text-[17px] font-black text-gray-900 mb-1">Select a City to View Arenas</p>
-              <p className="text-[13px] text-gray-400 max-w-sm">
-                Choose your city from the location dropdown in the navigation bar to discover venues near you.
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Explore Sports */}
-              <div className="mb-10">
-                <h2 className="text-[18px] sm:text-[20px] font-black tracking-tight text-gray-900 mb-4">
-                  Explore by Sport
-                </h2>
-
-                {loadingActivities ? (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3.5">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="rounded-2xl bg-gray-200 animate-pulse aspect-[0.9/1]" />
-                    ))}
-                  </div>
-                ) : activities.length === 0 ? (
-                  <div className="rounded-3xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-12 shadow-2xs">
-                    <Dumbbell size={28} className="text-gray-300 mb-3" />
-                    <p className="text-[14px] font-bold text-gray-500">No activities listed currently</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3.5">
-                    {activities.map((a, i) => {
-                      const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Dumbbell;
-                      const tint = TILE_TINTS[i % TILE_TINTS.length];
-                      return (
-                        <button
-                          key={a._id}
-                          onClick={() => goToSportVenues(a)}
-                          className="flex flex-col text-left bg-white rounded-2xl overflow-hidden active:scale-95 transition-all border border-gray-100 shadow-2xs hover:shadow-xl hover:-translate-y-1 group"
-                          style={{ aspectRatio: "0.88/1" }}
-                        >
-                          <p className="text-[13px] font-black text-gray-900 leading-tight px-3.5 pt-3 pb-1 truncate">
-                            {a.name}
-                          </p>
-                          <div className="flex-1 flex items-center justify-center p-3" style={{ background: tint.bg }}>
-                            {a.image ? (
-                              <img src={IMG(a.image)} alt={a.name} className="w-full h-full object-cover rounded-xl" />
-                            ) : (
-                              <IconComp size={36} strokeWidth={1.8} style={{ color: tint.fg }} className="group-hover:scale-110 transition-transform" />
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+            ) : activities.length === 0 ? (
+              <div className="rounded-2xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-14" style={{ borderRadius: 20 }}>
+                <Dumbbell size={28} style={{ color: "#d1d5db" }} className="mb-3" />
+                <p className="text-[14px] font-semibold text-gray-400">No activities available yet</p>
+                <p className="text-[12px] text-gray-400 mt-1">Check back soon — we're adding venues.</p>
               </div>
-
-              {/* All Sports Venues */}
-              <div id="all-sports-venues" className="mt-12 scroll-mt-24">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-[18px] sm:text-[20px] font-black tracking-tight text-gray-900">
-                    All Available Arenas &amp; Turfs
-                  </h2>
-                </div>
-
-                {/* Filter chips */}
-                <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1 no-scrollbar">
-                  <button
-                    onClick={() => setShowFilters(true)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200/90 text-[12.5px] font-bold flex-shrink-0 bg-white hover:bg-gray-50 shadow-2xs"
-                  >
-                    <SlidersHorizontal size={13} className="text-[#f0545c]" />
-                    <span>Filter &amp; Sort</span>
-                  </button>
-
-                  <button
-                    onClick={() => setUnder5km((v) => !v)}
-                    disabled={!coords}
-                    className={`px-4 py-2 rounded-full border text-[12.5px] font-bold flex-shrink-0 whitespace-nowrap transition-all shadow-2xs ${
-                      under5km
-                        ? "bg-[#f0545c] text-white border-[#f0545c]"
-                        : "bg-white text-gray-700 border-gray-200/90 hover:border-gray-300"
-                    } disabled:opacity-40`}
-                  >
-                    Under 5 km
-                  </button>
-
-                  {activities.slice(0, 6).map((a) => {
-                    const active = activeSportIds.includes(a._id);
+            ) : (
+              <>
+                <div className="grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(112px, 1fr))" }}>
+                  {activities.map((a, i) => {
+                    const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Dumbbell;
+                    const tint = TILE_TINTS[i % TILE_TINTS.length];
                     return (
                       <button
                         key={a._id}
-                        onClick={() => toggleSport(a._id)}
-                        className={`px-4 py-2 rounded-full border text-[12.5px] font-bold flex-shrink-0 whitespace-nowrap transition-all shadow-2xs ${
-                          active
-                            ? "bg-[#f0545c] text-white border-[#f0545c]"
-                            : "bg-white text-gray-700 border-gray-200/90 hover:border-gray-300"
-                        }`}
+                        onClick={() => goToSportVenues(a)}
+                        className="flex flex-col text-left bg-white rounded-2xl overflow-hidden active:scale-[0.96] transition-transform"
+                        style={{
+                          borderRadius: 18,
+                          aspectRatio: "0.86/1",
+                          border: "1px solid #ececef",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                        }}
                       >
-                        {a.name}
+                        <p className="text-[13px] font-extrabold text-gray-900 leading-[1.15] px-3 pt-3 pb-1.5">
+                          {a.name}
+                        </p>
+                        <div className="flex-1 flex items-center justify-center" style={{ background: tint.bg }}>
+                          {a.image ? (
+                            <img src={IMG(a.image)} alt={a.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <IconComp size={38} strokeWidth={1.5} style={{ color: tint.fg }} />
+                          )}
+                        </div>
                       </button>
                     );
                   })}
                 </div>
+              </>
+            )}
 
-                {loadingVenues ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="h-56 rounded-3xl bg-gray-200 animate-pulse" />
-                    ))}
-                  </div>
-                ) : venueError ? (
-                  <p className="text-center text-[14px] font-bold text-red-500 py-10">{venueError}</p>
-                ) : venues.length === 0 ? (
-                  <div className="rounded-3xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-16 shadow-2xs">
-                    <Building2 size={32} className="text-gray-300 mb-3" />
-                    <p className="text-[15px] font-black text-gray-700">No venues match your criteria</p>
-                    <p className="text-[13px] text-gray-400 mt-1">Try resetting sport filters or changing district.</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
-                      {visibleVenues.map((v) => (
-                        <button
-                          key={v._id}
-                          onClick={() => navigate(`/play/venues/${v._id}`)}
-                          className="flex flex-col text-left bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all group"
-                        >
-                          <div
-                            className="w-full aspect-[4/3] relative overflow-hidden bg-gray-100"
-                          >
-                            <img
-                              src={v.images?.[0] ? IMG(v.images[0]) : "/no-image.png"}
-                              alt={v.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            {v.startingPrice != null && (
-                              <div
-                                className="absolute bottom-0 left-0 right-0 px-3 py-1.5"
-                                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)" }}
-                              >
-                                <span className="text-white font-black text-[11.5px]">₹{v.startingPrice} onwards</span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="p-3.5">
-                            <p className="text-[14px] font-black text-gray-900 truncate group-hover:text-[#f0545c] transition-colors">{v.name}</p>
-                            <p className="text-[11.5px] font-medium text-gray-400 mt-0.5 truncate flex items-center gap-1">
-                              <MapPin size={11} className="flex-shrink-0" />
-                              {v.distanceKm != null && `${v.distanceKm.toFixed(1)} km · `}{v.district?.name || "Local Zone"}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-2.5">
-                              {(v.courtActivities?.length ? v.courtActivities : []).slice(0, 2).map((a) => (
-                                <span
-                                  key={a._id}
-                                  className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 border border-emerald-500/20"
-                                >
-                                  {a.name}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+            {/* ══ All Sports Venues ══ */}
+            <h2 id="all-sports-venues" className="text-[17px] font-extrabold tracking-tight text-gray-900 mt-9 mb-3 scroll-mt-20">
+              All Sports Venues
+            </h2>
 
-                    {venuesShown < venues.length && (
-                      <div className="flex justify-center mt-8">
-                        <button
-                          onClick={() => setVenuesShown((n) => n + VENUES_PAGE_SIZE)}
-                          className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200/90 text-[13px] font-bold text-gray-700 bg-white hover:bg-gray-50 shadow-2xs hover:shadow-md transition-all active:scale-95"
-                        >
-                          <span>Load More Venues</span>
-                          <ChevronDown size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Filter Modal */}
-      {showFilters && (
-        <div
-          className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowFilters(false)}
-        >
-          <div
-            className="bg-white rounded-3xl w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto shadow-2xl border border-white/20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-5">
-              <p className="text-[17px] font-black text-gray-900">Filters &amp; Sort</p>
+            {/* Filter chips */}
+            <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
               <button
-                onClick={() => setShowFilters(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"
+                onClick={() => setShowFilters(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 bg-white"
+                style={{ borderColor: "#e5e7eb", color: "#374151" }}
               >
-                <X size={16} />
+                <SlidersHorizontal size={13} /> Filters
               </button>
+              <button
+                onClick={() => setUnder5km((v) => !v)}
+                disabled={!coords}
+                className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap disabled:opacity-40"
+                style={under5km
+                  ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
+                  : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+              >
+                Under 5 km
+              </button>
+              {activities.slice(0, 6).map((a) => {
+                const active = activeSportIds.includes(a._id);
+                return (
+                  <button
+                    key={a._id}
+                    onClick={() => toggleSport(a._id)}
+                    className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap"
+                    style={active
+                      ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
+                      : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+                  >
+                    {a.name}
+                  </button>
+                );
+              })}
             </div>
 
-            <p className="text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">Order By</p>
-            <div className="flex flex-col gap-1 mb-5">
+            {loadingVenues ? (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-52 rounded-2xl bg-gray-100 animate-pulse" />)}
+              </div>
+            ) : venueError ? (
+              <p className="text-center text-[13px] text-red-500 py-10">{venueError}</p>
+            ) : venues.length === 0 ? (
+              <div className="rounded-2xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-14">
+                <Building2 size={28} style={{ color: "#d1d5db" }} className="mb-3" />
+                <p className="text-[14px] font-semibold text-gray-500">No venues found</p>
+                <p className="text-[12px] text-gray-400 mt-1">Try clearing a filter or a different district.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {visibleVenues.map((v) => (
+                    <button
+                      key={v._id}
+                      onClick={() => navigate(`/play/venues/${v._id}`)}
+                      className="flex flex-col text-left bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+                    >
+                      <div
+                        className="w-full aspect-[4/3]"
+                        style={{ background: v.images?.[0] ? `url(${IMG(v.images[0])}) center/cover` : "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }}
+                      />
+                      <div className="p-3">
+                        <p className="text-[13.5px] font-bold text-gray-900 truncate">{v.name}</p>
+                        <p className="text-[11.5px] text-gray-400 mt-0.5 truncate flex items-center gap-1">
+                          {v.distanceKm != null && `${v.distanceKm.toFixed(1)} km · `}{v.district?.name}
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {(v.courtActivities?.length ? v.courtActivities : []).slice(0, 2).map((a) => (
+                            <span key={a._id} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#f3f4f6", color: "#6b7280" }}>
+                              {a.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {venuesShown < venues.length && (
+                  <div className="flex justify-center mt-5">
+                    <button
+                      onClick={() => setVenuesShown((n) => n + VENUES_PAGE_SIZE)}
+                      className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border text-[13px] font-bold text-gray-700 bg-white active:scale-[0.97] transition-transform"
+                      style={{ borderColor: "#e5e7eb" }}
+                    >
+                      Load more <ChevronDown size={14} />
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Filters sheet: sort + full sport list + distance */}
+      {showFilters && (
+        <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={() => setShowFilters(false)}>
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[15px] font-bold text-gray-900">Filters</p>
+              <button onClick={() => setShowFilters(false)}><X size={18} className="text-gray-400" /></button>
+            </div>
+
+            <p className="text-[11.5px] font-bold text-gray-400 uppercase tracking-wide mb-2">Sort by</p>
+            <div className="flex flex-col gap-1 mb-4">
               {SORT_OPTIONS.map((o) => (
                 <button
                   key={o.id}
                   onClick={() => setSort(o.id)}
                   disabled={o.id === "distance" && !coords}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] font-bold transition-all ${
-                    sort === o.id
-                      ? "bg-[#f0545c]/10 text-[#f0545c]"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className="flex items-center justify-between px-3 py-2.5 rounded-xl text-[13.5px] font-medium disabled:opacity-40"
+                  style={{ background: sort === o.id ? "rgba(240,84,92,0.06)" : "transparent", color: sort === o.id ? "#f0545c" : "#374151" }}
                 >
-                  <span>{o.label}</span>
-                  {o.id === "distance" && <Navigation size={13} className="text-gray-400" />}
+                  {o.label}
+                  {o.id === "distance" && <Navigation size={13} className="text-gray-300" />}
                 </button>
               ))}
             </div>
 
-            <p className="text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">Sport Activities</p>
-            <div className="flex flex-wrap gap-1.5 mb-6">
+            <p className="text-[11.5px] font-bold text-gray-400 uppercase tracking-wide mb-2">Sport</p>
+            <div className="flex flex-wrap gap-2 mb-5">
               {activities.map((a) => {
                 const active = activeSportIds.includes(a._id);
                 return (
                   <button
                     key={a._id}
                     onClick={() => toggleSport(a._id)}
-                    className={`px-3 py-1.5 rounded-full border text-[12px] font-bold transition-all ${
-                      active
-                        ? "bg-[#f0545c] text-white border-[#f0545c]"
-                        : "bg-white text-gray-700 border-gray-200/90"
-                    }`}
+                    className="px-3 py-1.5 rounded-full border text-[12.5px] font-semibold"
+                    style={active
+                      ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
+                      : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
                   >
                     {a.name}
                   </button>
@@ -368,16 +321,14 @@ export default function Play() {
 
             <button
               onClick={() => setShowFilters(false)}
-              className="w-full py-3.5 rounded-2xl text-[14px] font-black text-white shadow-md shadow-[#f0545c]/30 hover:bg-[#d94048] transition-all"
+              className="w-full py-3 rounded-xl text-[13.5px] font-bold text-white"
               style={{ background: "#f0545c" }}
             >
-              Apply ({venues.length} Arenas)
+              Show {venues.length} venue{venues.length === 1 ? "" : "s"}
             </button>
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }

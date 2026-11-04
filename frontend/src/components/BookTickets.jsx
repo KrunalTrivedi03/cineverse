@@ -4,7 +4,7 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import {
   MapPin, ChevronLeft, Star, X, Ticket, Calendar,
-  Monitor, Loader2, Plus, Minus, RotateCcw, ChevronDown, Check, Globe, Sparkles, Navigation
+  Monitor, Loader2, Plus, Minus, RotateCcw, ChevronDown, Check, Globe
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 
@@ -85,6 +85,12 @@ export default function BookTickets() {
   const [filterPrice,  setFilterPrice]  = useState("");
   const [searchCinema, setSearchCinema] = useState("");
   
+  /* Language state & modal toggle.
+   * `languageConfirmed` is tracked separately from `selectedLanguage` so we
+   * can tell "user hasn't chosen yet" apart from "a language is set" —
+   * needed because the very first prompt for a multi-language movie must
+   * be answered explicitly (no silent default, no dismiss button) while
+   * later re-opens (via the Language filter pill) are freely dismissible. */
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [languageConfirmed, setLanguageConfirmed] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -162,6 +168,10 @@ export default function BookTickets() {
     }
 
     if (!rawString) {
+      // The movie itself has no language metadata — fall back to whatever
+      // languages the scheduled shows actually carry, rather than guessing
+      // a default (e.g. "Hindi, English") that may not be accurate for
+      // this movie.
       return [...new Set(shows.map((s) => s.language).filter(Boolean))];
     }
 
@@ -172,6 +182,13 @@ export default function BookTickets() {
       .filter(Boolean);
   }, [movie, shows]);
 
+  /* ── Auto-open language picker modal if language is not chosen ──
+   * Two refinements over a naive "always prompt" flow:
+   *  1. If the movie only has one language, there's nothing to actually
+   *     choose — apply it directly and skip the interruption.
+   *  2. Otherwise the prompt is mandatory: we don't pre-assign a default
+   *     language behind the scenes, so the modal can't be dismissed
+   *     without the user actually picking one. */
   useEffect(() => {
     if (!availableLanguages.length) return;
     if (languageConfirmed && availableLanguages.includes(selectedLanguage)) return;
@@ -247,16 +264,21 @@ export default function BookTickets() {
   const resetFilters = () => { setFilterTime(""); setFilterPrice(""); setSearchCinema(""); };
 
   if (!movie) return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f8fafc]">
-      <div className="flex flex-col items-center gap-3">
-        <Loader2 size={28} className="animate-spin text-[#f0545c]" />
-        <span className="text-[13px] font-semibold text-gray-400">Loading movie showtimes...</span>
+    <div className="flex items-center justify-center h-screen bg-white">
+      <div className="flex gap-2">
+        {[0,1,2].map((i) => (
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce"
+            style={{ animationDelay: `${i * 0.15}s` }} />
+        ))}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+      `}</style>
       <Navbar />
       <BottomNav />
 
@@ -272,195 +294,145 @@ export default function BookTickets() {
         />
       )}
 
-      {/* ── Movie Info Bar (Frosted Glass Sticky Header) ── */}
-      <div className="bg-white/90 backdrop-blur-xl border-b border-gray-100 sticky top-[60px] z-40 shadow-xs">
+      {/* ── Movie Info Bar ── */}
+      <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-xl flex items-center justify-center border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all flex-shrink-0 active:scale-95"
-          >
-            <ChevronLeft size={18} />
+          <button onClick={() => navigate(-1)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all flex-shrink-0">
+            <ChevronLeft size={16} />
           </button>
-          
           {movie.poster && (
-            <img
-              src={IMG(movie.poster)}
-              alt={movie.title}
-              className="w-10 h-14 object-cover rounded-xl flex-shrink-0 shadow-sm border border-gray-200"
-            />
+            <img src={IMG(movie.poster)} alt={movie.title}
+              className="w-9 h-[52px] object-cover rounded-lg flex-shrink-0" />
           )}
-
           <div className="flex-1 min-w-0">
-            <h1 className="text-[16px] sm:text-[18px] font-black text-gray-900 truncate tracking-tight">
+            <h1 className="text-[15px] font-bold text-gray-900 truncate">
               {movie.title}
             </h1>
-            <div className="flex items-center gap-2.5 mt-0.5 flex-wrap">
-              {movie.rating && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#f0545c] bg-red-50 px-2 py-0.5 rounded-md">
-                  <Star size={11} fill="#f0545c" />
-                  <span>{movie.rating}/10</span>
-                </span>
-              )}
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              {movie.rating && <>
+                <Star size={11} fill="#f0545c" className="text-[#f0545c]" />
+                <span className="text-[12px] font-semibold text-gray-600">{movie.rating}/10</span>
+              </>}
               {movie.certificate && (
-                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-gray-200 text-gray-600 bg-gray-50">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200 text-gray-500">
                   {movie.certificate}
                 </span>
               )}
-              {movie.genre && <span className="text-[12px] text-gray-500 font-medium">{movie.genre}</span>}
-              {movie.duration && (
-                <span className="text-[12px] text-gray-400 font-medium">· {movie.duration}m</span>
-              )}
+              {movie.genre    && <span className="text-[12px] text-gray-400">{movie.genre}</span>}
+              {movie.duration && <span className="text-[12px] text-gray-400">{movie.duration} min</span>}
             </div>
           </div>
-
           {cityName && (
-            <div className="hidden md:flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-gray-50 border border-gray-200 px-3.5 py-2 rounded-xl flex-shrink-0 shadow-2xs">
+            <div className="hidden md:flex items-center gap-1 text-[13px] font-medium text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg flex-shrink-0">
               <MapPin size={13} className="text-[#f0545c]" />
-              <span>{cityName}</span>
+              {cityName}
             </div>
           )}
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 pb-24">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 py-5">
 
         {/* ── Dates Horizontal Bar ── */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {DATES.map((d) => {
-              const active = selectedDate === d.key;
-              return (
-                <button
-                  key={d.key}
-                  onClick={() => setSelectedDate(d.key)}
-                  className={`flex-shrink-0 flex flex-col items-center py-2.5 px-4 rounded-2xl border text-center transition-all duration-200 min-w-[70px] cursor-pointer ${
-                    active
-                      ? "bg-[#f0545c] border-[#f0545c] text-white shadow-lg shadow-[#f0545c]/30 scale-[1.02]"
-                      : "bg-white border-gray-200/80 text-gray-700 hover:border-gray-300 hover:bg-gray-50/80 shadow-2xs"
-                  }`}
-                >
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${active ? "text-white/80" : "text-gray-400"}`}>
-                    {d.day}
-                  </span>
-                  <span className="text-[20px] font-black leading-tight my-0.5">
-                    {d.date}
-                  </span>
-                  <span className={`text-[10px] font-bold uppercase ${active ? "text-white/90" : "text-gray-500"}`}>
-                    {d.month}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          <Calendar size={15} className="text-gray-400 flex-shrink-0" />
+          {DATES.map((d) => {
+            const active = selectedDate === d.key;
+            return (
+              <button key={d.key} onClick={() => setSelectedDate(d.key)}
+                className="flex-shrink-0 flex flex-col items-center py-2 px-3 rounded-lg border text-center transition-all min-w-[64px]"
+                style={active
+                  ? { background: "#f0545c", borderColor: "#f0545c", color: "#fff" }
+                  : { background: "white", borderColor: "#e5e7eb", color: "#374151" }}>
+                <span className="text-[9px] font-semibold uppercase tracking-wide opacity-80">{d.day}</span>
+                <span className="text-[18px] font-bold leading-none my-0.5">{d.date}</span>
+                <span className="text-[9px] font-medium opacity-75">{d.month}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Filter Toolbar ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-3.5 mb-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-4 shadow-sm">
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Search Cinema input */}
-            <div className="flex items-center gap-2.5 border border-gray-200 rounded-xl px-3.5 py-2 bg-gray-50/70 flex-1 min-w-[180px] max-w-[260px] focus-within:border-[#f0545c] focus-within:bg-white transition-all">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5">
+            <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 flex-1 min-w-[160px] max-w-[240px]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
-              <input
-                type="text"
-                placeholder="Search cinema or theatre..."
-                value={searchCinema}
-                onChange={(e) => setSearchCinema(e.target.value)}
-                className="flex-1 text-[13px] text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium"
-              />
-              {searchCinema && (
-                <button onClick={() => setSearchCinema("")} className="text-gray-400 hover:text-gray-600">
-                  <X size={13} />
-                </button>
-              )}
+              <input type="text" placeholder="Search for cinema"
+                value={searchCinema} onChange={(e) => setSearchCinema(e.target.value)}
+                className="flex-1 text-[13px] text-gray-700 bg-transparent outline-none placeholder-gray-400" />
+              {searchCinema && <button onClick={() => setSearchCinema("")}><X size={12} className="text-gray-400" /></button>}
             </div>
 
-            {/* Language Filter Button */}
+            {/* Language Filter Button (Styled with your brand color) */}
             <button
               onClick={() => setShowLanguageModal(true)}
-              className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold rounded-xl border transition-all active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold rounded-lg border transition-all active:scale-[0.98]"
               style={{
                 borderColor: selectedLanguage ? "#f0545c" : "#e5e7eb",
                 background: selectedLanguage ? "rgba(240, 84, 92, 0.08)" : "#ffffff",
                 color: selectedLanguage ? "#f0545c" : "#374151",
-              }}
-            >
-              <Globe size={14} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
+              }}>
+              <Globe size={13} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
               <span>{selectedLanguage || "Language"}</span>
               <ChevronDown size={14} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
             </button>
 
-            <FilterDropdown
-              label="Show Timing"
-              value={filterTime}
-              options={["Morning", "Afternoon", "Evening", "Night"]}
-              onChange={setFilterTime}
-            />
+            <FilterDropdown label="Show Timing" value={filterTime}
+              options={["Morning", "Afternoon", "Evening", "Night"]} onChange={setFilterTime} />
 
-            <FilterDropdown
-              label="Price Range"
-              value={filterPrice}
-              options={PRICE_RANGES.map((r) => r.label)}
-              onChange={setFilterPrice}
-            />
+            <FilterDropdown label="Price Range" value={filterPrice}
+              options={PRICE_RANGES.map((r) => r.label)} onChange={setFilterPrice} />
 
             {/* Availability Legend */}
-            <div className="hidden lg:flex items-center gap-5 ml-auto text-[11px] font-bold">
+            <div className="hidden md:flex items-center gap-4 ml-auto text-[11px] font-semibold">
               <LegendDot color="#16a34a" bg="#f0fdf4" label="Available" />
               <LegendDot color="#d97706" bg="#fffbeb" label="Filling Fast" />
               <LegendDot color="#dc2626" bg="#fef2f2" label="Sold Out" />
             </div>
 
             {hasActiveFilters && (
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-1.5 text-[12px] font-bold px-3 py-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#f0545c] transition-all ml-auto lg:ml-0"
-              >
-                <RotateCcw size={13} /> Reset
+              <button onClick={resetFilters}
+                className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#f0545c] transition-all ml-auto md:ml-0">
+                <RotateCcw size={12} /> Reset
               </button>
             )}
           </div>
         </div>
 
-        {/* State Displays */}
         {!cityId && (
-          <EmptyState
-            icon={<MapPin size={28} className="text-[#f0545c]" />}
-            title="Select your city"
-            sub="Choose your city from the top bar to view cinemas and showtimes near you."
-          />
+          <EmptyState icon={<MapPin size={26} style={{ color: "#f0545c", opacity: 0.5 }} />}
+            title="Select a city" sub="Choose your city from the top bar to see available shows" />
         )}
 
         {cityId && loadingShows && (
-          <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-400">
-            <Loader2 size={24} className="animate-spin text-[#f0545c]" />
-            <span className="text-[14px] font-bold text-gray-600">Discovering showtimes near you…</span>
+          <div className="flex items-center justify-center py-20 gap-3 text-gray-400">
+            <Loader2 size={20} className="animate-spin" style={{ color: "#f0545c" }} />
+            <span className="text-[14px] font-medium">Loading shows…</span>
           </div>
         )}
 
         {cityId && !loadingShows && (
           filteredGroups.length === 0 ? (
-            <EmptyState
-              icon={<Ticket size={28} className="text-[#f0545c]" />}
-              title="No shows scheduled"
+            <EmptyState icon={<Ticket size={26} style={{ color: "#f0545c", opacity: 0.4 }} />}
+              title="No shows available"
               sub={hasActiveFilters
-                ? "No showtimes match your current filters. Try resetting or selecting another time slot."
+                ? "Try adjusting your filters"
                 : selectedDate === TODAY_KEY
-                  ? `All${selectedLanguage ? ` ${selectedLanguage}` : ""} shows for today have concluded in ${cityName}. Check upcoming dates.`
-                  : `No${selectedLanguage ? ` ${selectedLanguage}` : ""} shows currently scheduled for this date in ${cityName}.`}
+                  ? `All${selectedLanguage ? ` ${selectedLanguage}` : ""} shows for today have ended in ${cityName}`
+                  : `No${selectedLanguage ? ` ${selectedLanguage}` : ""} shows scheduled for this date in ${cityName}`}
               action={hasActiveFilters && (
-                <button
-                  onClick={resetFilters}
-                  className="mt-5 px-6 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-md shadow-[#f0545c]/25 transition-transform active:scale-95 cursor-pointer"
-                  style={{ background: "#f0545c" }}
-                >
-                  Clear Filters
+                <button onClick={resetFilters}
+                  className="mt-4 px-5 py-2 rounded-lg text-[13px] font-semibold text-white transition-transform active:scale-95"
+                  style={{ background: "#f0545c" }}>
+                  Reset Filters
                 </button>
               )}
             />
           ) : (
-            <div className="space-y-3.5">
+            <div className="space-y-2">
               {filteredGroups.map((group) => (
                 <TheatreCard
                   key={group.theatreId}
@@ -478,66 +450,69 @@ export default function BookTickets() {
   );
 }
 
-/* ── Modal for language preference selection ── */
+/* ── Modal for language preference selection (Styled to match your theme & brand button) ── */
 function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick, onClose }) {
   const [selected, setSelected] = useState(selectedLanguage || languages[0] || "");
 
   return (
     <div
       className="fixed inset-0 z-[999] flex items-center justify-center px-4"
-      style={{ background: "rgba(0, 0, 0, 0.55)", backdropFilter: "blur(8px)" }}
+      style={{ background: "rgba(0, 0, 0, 0.45)", backdropFilter: "blur(4px)" }}
     >
-      <div className="bg-white rounded-3xl w-full max-w-[420px] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-gray-100">
+      <div className="bg-white rounded-2xl w-full max-w-[420px] overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
         {dismissible && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         )}
 
         <div className="px-6 pt-6 pb-2">
-          <span className="inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider text-[#f0545c] bg-red-50 px-2.5 py-1 rounded-md">
-            <Globe size={11} /> Audio Format
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#f0545c] bg-red-50 px-2.5 py-1 rounded-md">
+            Language Choice
           </span>
-          <h2 className="text-[19px] font-black text-gray-900 leading-tight mt-2.5">
+          <h2 className="text-[18px] font-extrabold text-gray-900 leading-tight mt-2">
             {movie?.title || "Select Language"}
           </h2>
-          <p className="text-[13px] text-gray-500 mt-0.5">Select your preferred audio &amp; subtitle experience</p>
+          <p className="text-[13px] text-gray-500 mt-0.5">Choose your preferred audio format</p>
         </div>
 
-        <div className="px-6 py-4">
-          <div className="rounded-2xl border border-gray-100 bg-gray-50/70 overflow-hidden divide-y divide-gray-100 max-h-[280px] overflow-y-auto">
+        <div className="px-6 py-3">
+          <div className="rounded-xl border border-gray-100 bg-gray-50/50 overflow-hidden divide-y divide-gray-100 max-h-[280px] overflow-y-auto">
             {languages.map((lang, index) => {
               const active = selected === lang;
               return (
                 <button
                   key={lang}
-                  type="button"
                   onClick={() => setSelected(lang)}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 text-left transition-all cursor-pointer ${
-                    active ? "bg-red-50/70" : "hover:bg-gray-100/50"
-                  }`}
+                  className="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all hover:bg-gray-50"
+                  style={{
+                    background: active ? "rgba(240, 84, 92, 0.03)" : "transparent"
+                  }}
                 >
                   <div className="flex items-center gap-3">
+                    {/* Number Circle Badge */}
                     <span 
-                      className={`w-6 h-6 rounded-full font-bold text-[12px] flex items-center justify-center flex-shrink-0 transition-all ${
-                        active ? "bg-[#f0545c] text-white" : "bg-gray-200 text-gray-600"
-                      }`}
+                      className="w-6 h-6 rounded-full font-bold text-[12px] flex items-center justify-center flex-shrink-0 transition-all"
+                      style={{
+                        background: active ? "#f0545c" : "#e5e7eb",
+                        color: active ? "#ffffff" : "#4b5563"
+                      }}
                     >
                       {index + 1}
                     </span>
-                    <span className="text-[14px] font-bold text-gray-900">{lang}</span>
+                    <span className="text-[14px] font-bold text-gray-800">{lang}</span>
                   </div>
 
+                  {/* Radio Indicator */}
                   <span
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                      active ? "border-[#f0545c]" : "border-gray-300"
-                    }`}
+                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0"
+                    style={{ borderColor: active ? "#f0545c" : "#d1d5db" }}
                   >
                     {active && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#f0545c]" />
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#f0545c" }} />
                     )}
                   </span>
                 </button>
@@ -546,19 +521,18 @@ function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick
           </div>
         </div>
 
-        <div className="px-6 pb-6 pt-1">
+        <div className="px-6 pb-6 pt-2">
           <button
-            type="button"
             onClick={() => selected && onPick(selected)}
             disabled={!selected}
-            className="w-full py-3.5 rounded-2xl text-[14px] font-bold text-white shadow-lg shadow-[#f0545c]/25 hover:bg-[#e0454d] transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+            className="w-full py-3 rounded-xl text-[14px] font-bold text-white shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
             style={{ background: "#f0545c" }}
           >
-            Confirm &amp; View Shows
+            Apply Choice
           </button>
           {!dismissible && (
             <p className="text-[11px] text-gray-400 text-center mt-2.5">
-              You can switch languages anytime using the filter bar above.
+              You can change this anytime from the Language filter.
             </p>
           )}
         </div>
@@ -573,13 +547,12 @@ function FilterDropdown({ label, value, options, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none pl-3.5 pr-8 py-2 text-[13px] font-bold border rounded-xl outline-none cursor-pointer transition-all"
+        className="appearance-none pl-3 pr-8 py-2 text-[13px] font-semibold border rounded-lg outline-none cursor-pointer transition-all"
         style={{
           borderColor: value ? "rgba(240,84,92,0.5)" : "#e5e7eb",
           color:       value ? "#f0545c" : "#374151",
-          background:  value ? "rgba(240,84,92,0.06)" : "#ffffff",
-        }}
-      >
+          background:  value ? "rgba(240,84,92,0.04)" : "white",
+        }}>
         <option value="">{label}</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -593,10 +566,10 @@ function LegendDot({ color, bg, label }) {
   return (
     <span className="flex items-center gap-1.5 text-gray-500">
       <span
-        className="w-4 h-2 rounded-full flex-shrink-0"
+        className="w-6 h-2 rounded-full flex-shrink-0"
         style={{ background: bg, border: `1.5px solid ${color}` }}
       />
-      <span>{label}</span>
+      {label}
     </span>
   );
 }
@@ -633,57 +606,42 @@ function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-center justify-between px-5 py-4 cursor-pointer select-none" onClick={() => setExpanded((v) => !v)}>
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-5 py-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h3 className="text-[16px] font-black text-gray-900 tracking-tight">{group.name}</h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-[15px] font-bold text-gray-900">{group.name}</h3>
             {group.locationLink && (
-              <a
-                href={group.locationLink}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#f0545c] hover:underline bg-red-50/70 px-2.5 py-0.5 rounded-full"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Navigation size={10} /> Map &amp; Directions
+              <a href={group.locationLink} target="_blank" rel="noreferrer"
+                className="flex items-center gap-0.5 text-[11px] font-semibold text-[#f0545c] hover:underline"
+                onClick={(e) => e.stopPropagation()}>
+                <MapPin size={11} /> Directions
               </a>
             )}
           </div>
           <p className="text-[12px] text-gray-400 mt-0.5 truncate max-w-[560px]">{group.address}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[11px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-              ₹{minPrice}{minPrice !== maxPrice ? ` – ₹${maxPrice}` : ""}
-            </span>
-            <span className="text-[11px] text-gray-400 font-medium">
-              · {group.slots.length} showtime{group.slots.length !== 1 ? "s" : ""}
-            </span>
-          </div>
+          <p className="text-[11px] font-semibold mt-1" style={{ color: "#059669" }}>
+            ₹{minPrice}{minPrice !== maxPrice ? ` – ₹${maxPrice}` : ""}
+          </p>
         </div>
-
         <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded((v) => !v);
-          }}
-          className="w-8 h-8 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-300 hover:bg-gray-50 transition-all flex-shrink-0 ml-4 cursor-pointer"
-        >
-          {expanded ? <Minus size={15} /> : <Plus size={15} />}
+          onClick={() => setExpanded((v) => !v)}
+          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:bg-gray-50 transition-all flex-shrink-0 ml-4">
+          {expanded ? <Minus size={14} /> : <Plus size={14} />}
         </button>
       </div>
 
       {expanded && (
-        <div className="border-t border-gray-100 px-5 py-4 space-y-4 bg-gray-50/30">
+        <div className="border-t border-gray-100 px-5 py-4 space-y-5">
           {byScreen.map(([screenName, slots]) => (
             <div key={screenName}>
-              <div className="flex items-center gap-2 mb-2.5">
-                <Monitor size={12} className="text-gray-400" />
-                <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest">
+              <div className="flex items-center gap-2 mb-3">
+                <Monitor size={11} className="text-gray-300" />
+                <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
                   {screenName}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2">
                 {slots.map((slot) => (
                   <SlotButton
                     key={slot.slotId}
@@ -710,32 +668,88 @@ function SlotButton({ slot, onClick }) {
   const time12           = fmt12(slot.time);
   const [timePart, ampm] = time12.split(" ");
 
+  const scheme = {
+    available: {
+      border:    hov ? "#f0545c" : "#adafb1",
+      bg:        hov ? "#fff8f8" : "#fff",
+      timeColor: hov ? "#f0545c" : "#111",
+      ampmColor: hov ? "#f0545c" : "#9ca3af",
+      subColor:  hov ? "#f0545c" : "#d1d5db",
+    },
+    filling_fast: {
+      border:    hov ? "#b45309" : "#fde68a",
+      bg:        hov ? "#fffbeb" : "#fffdf5",
+      timeColor: "#92400e",
+      ampmColor: "#d97706",
+      subColor:  "#d97706",
+      shadow:    "none",
+    },
+    sold_out: {
+      border:    "#fecaca",
+      bg:        "#fef2f2",
+      timeColor: "#fca5a5",
+      ampmColor: "#fca5a5",
+      subColor:  "#fca5a5",
+      shadow:    "none",
+    },
+  }[availability];
+
   return (
     <button
       onClick={isSoldOut ? undefined : onClick}
       onMouseEnter={() => !isSoldOut && setHov(true)}
       onMouseLeave={() => setHov(false)}
       disabled={isSoldOut}
-      title={isSoldOut ? "Sold Out" : `${slot.time} - ₹${slot.price}`}
-      className={`inline-flex flex-col items-start px-3.5 py-2 rounded-xl border transition-all duration-150 flex-shrink-0 gap-0.5 cursor-pointer select-none ${
-        isSoldOut
-          ? "border-red-100 bg-red-50/50 opacity-60 cursor-not-allowed"
-          : hov
-          ? "border-[#f0545c] bg-white text-[#f0545c] shadow-md shadow-[#f0545c]/10 -translate-y-0.5"
-          : "border-gray-200 bg-white hover:border-gray-300 text-gray-800"
-      }`}
+      title={isSoldOut ? "Sold Out" : slot.time}
+      style={{
+        display:        "inline-flex",
+        flexDirection:  "column",
+        alignItems:     "flex-start",
+        padding:        "7px 15px",
+        borderRadius:    5,
+        border:         `1px solid ${scheme.border}`,
+        background:      scheme.bg,
+        cursor:          isSoldOut ? "not-allowed" : "pointer",
+        transition:      "all 0.12s ease",
+        opacity:         isSoldOut ? 0.6 : 1,
+        transform:       hov && !isSoldOut ? "translateY(-1px)" : "none",
+        boxShadow:       scheme.shadow,
+        flexShrink:      0,
+        gap:             3,
+      }}
     >
-      <span className="flex items-baseline gap-1">
-        <span className={`text-[15px] font-extrabold leading-none ${hov ? "text-[#f0545c]" : "text-gray-900"}`}>
+      <span style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+        <span style={{
+          fontSize:      15,
+          fontWeight:    700,
+          color:         scheme.timeColor,
+          letterSpacing: "-0.3px",
+          lineHeight:    1,
+        }}>
           {timePart}
         </span>
-        <span className={`text-[9px] font-extrabold uppercase tracking-wider ${hov ? "text-[#f0545c]" : "text-gray-400"}`}>
+        <span style={{
+          fontSize:      9,
+          fontWeight:    700,
+          color:         scheme.ampmColor,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+        }}>
           {ampm}
         </span>
       </span>
 
-      <span className="text-[10px] font-bold text-gray-400 truncate max-w-[100px]">
-        {isSoldOut ? "Sold Out" : isFast ? "Filling Fast" : `₹${slot.price}`}
+      <span style={{
+        fontSize:      9,
+        fontWeight:    600,
+        color:         isSoldOut ? "#fca5a5" : isFast ? "#d97706" : scheme.subColor,
+        letterSpacing: "0.03em",
+        maxWidth:       90,
+        overflow:       "hidden",
+        textOverflow:   "ellipsis",
+        whiteSpace:     "nowrap",
+      }}>
+        {isSoldOut ? "Sold Out" : isFast ? "Filling Fast" : slot.screen}
       </span>
     </button>
   );
@@ -743,12 +757,13 @@ function SlotButton({ slot, onClick }) {
 
 function EmptyState({ icon, title, sub, action }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-gray-100 p-8 shadow-xs">
-      <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4 bg-red-50 text-[#f0545c]">
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+        style={{ background: "rgba(240,84,92,0.07)" }}>
         {icon}
       </div>
-      <p className="text-[17px] font-black text-gray-900 tracking-tight">{title}</p>
-      <p className="text-[13px] text-gray-500 mt-1 max-w-sm leading-relaxed">{sub}</p>
+      <p className="text-[16px] font-bold text-gray-400">{title}</p>
+      <p className="text-[13px] text-gray-300 mt-1 max-w-xs">{sub}</p>
       {action}
     </div>
   );

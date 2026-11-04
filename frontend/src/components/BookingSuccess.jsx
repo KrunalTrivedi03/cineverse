@@ -1,16 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { CheckCircle2, MapPin, Calendar, Clock, Home, Ticket, Sparkles, Download, Share2 } from "lucide-react";
+import { CheckCircle2, MapPin, Calendar, Clock, Home, Ticket } from "lucide-react";
 import BottomNav from "./BottomNav";
 
-const IMG = (path) => (!path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`);
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const fmt12 = (t) => {
   if (!t) return "";
   const [h, m] = t.split(":").map(Number);
   const ap = h >= 12 ? "PM" : "AM";
-  return `${(h % 12 || 12).toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${ap}`;
+  return `${((h % 12) || 12).toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${ap}`;
 };
 
 const fmtDate = (d) => {
@@ -20,193 +20,200 @@ const fmtDate = (d) => {
 
 const CAT_COLOR = {
   Recliner: { color: "#7c3aed", bg: "#f3eeff", border: "#c4b5fd" },
-  Premium: { color: "#e11d48", bg: "#fff1f2", border: "#fda4af" },
-  Classic: { color: "#059669", bg: "#ecfdf5", border: "#6ee7b7" },
+  Premium:  { color: "#e11d48", bg: "#fff1f2", border: "#fda4af" },
+  Classic:  { color: "#059669", bg: "#ecfdf5", border: "#6ee7b7" },
 };
 
 export default function BookingSuccess() {
-  const { state } = useLocation();
-  const navigate = useNavigate();
+  const { state }  = useLocation();
+  const navigate   = useNavigate();
   const { booking, movie, theatre } = state || {};
 
   useEffect(() => {
     if (!booking) navigate("/");
-  }, [booking, navigate]);
+  }, []);
 
   if (!booking) return null;
 
-  const seats = booking.seats || [];
-  const ref = booking.bookingRef || "";
-  const total = booking.grandTotal || 0;
-  const sub = booking.totalAmount || 0;
-  const fee = booking.convenienceFee || 0;
-  const title = movie?.title || "";
+  const seats  = booking.seats || [];
+  const ref    = booking.bookingRef || "";
+  const total  = booking.grandTotal || 0;
+  const sub    = booking.totalAmount || 0;
+  const fee    = booking.convenienceFee || 0;
+  const title  = movie?.title || "";
   const poster = movie?.poster || "";
-  const venue = theatre?.name || "";
+  const venue  = theatre?.name || "";
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
       <BottomNav />
 
-      <div className="max-w-md mx-auto px-4 py-8 pb-28">
-        {/* Celebration Header */}
-        <div className="text-center mb-6">
-          <div className="relative inline-flex items-center justify-center mb-3">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-100/70 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-lg shadow-emerald-500/10">
-              <CheckCircle2 size={32} className="stroke-[2.5]" />
-            </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center shadow-sm">
-              <Sparkles size={13} className="stroke-[2.5]" />
-            </div>
+      <div style={{ maxWidth: 420, margin: "0 auto", padding: "16px 16px 32px" }}>
+
+        {/* ── Success badge ── */}
+        <div style={{ textAlign: "center", padding: "20px 0 16px" }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            width: 48, height: 48, borderRadius: "50%",
+            background: "rgba(5,150,105,0.1)", marginBottom: 10,
+          }}>
+            <CheckCircle2 size={24} color="#059669" strokeWidth={2.5} />
           </div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Booking Confirmed!</h1>
-          <p className="text-[13px] text-gray-500 mt-1">
-            Your e-ticket has been generated and sent to your registered email.
-          </p>
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#111", letterSpacing: "-.3px" }}>Booking Confirmed!</h1>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#9ca3af" }}>Check your email for the ticket</p>
         </div>
 
-        {/* Digital Ticket Pass Card */}
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/60 overflow-hidden">
-          {/* Header Banner */}
-          <div className="bg-[#0f1117] p-5 text-white flex items-center gap-4 relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-32 h-32 bg-[#f0545c]/10 rounded-full blur-2xl pointer-events-none" />
+        {/* ── Ticket card ── */}
+        <div style={{
+          background: "#fff", borderRadius: 20,
+          boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+          overflow: "hidden",
+        }}>
 
+          {/* Movie header */}
+          <div style={{
+            background: "#111827", padding: "14px 16px",
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
             {poster && (
-              <img
-                src={IMG(poster)}
-                alt={title}
-                className="w-12 h-16 object-cover rounded-xl flex-shrink-0 border border-white/20 shadow-md"
-              />
+              <img src={IMG(poster)} alt={title} style={{
+                width: 38, height: 52, objectFit: "cover",
+                borderRadius: 8, flexShrink: 0,
+                border: "1px solid rgba(255,255,255,0.1)",
+              }} />
             )}
-            <div className="flex-1 min-w-0">
-              <span className="inline-block text-[9px] font-extrabold uppercase tracking-widest text-[#f0545c] bg-white/10 px-2 py-0.5 rounded-full mb-1">
-                Verified Ticket
-              </span>
-              <p className="text-[15px] font-black text-white leading-tight truncate">{title}</p>
-              <p className="text-[11px] text-white/50 font-mono mt-0.5 tracking-wider">{ref}</p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>{title}</p>
+              <p style={{ margin: "3px 0 0", fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>{ref}</p>
             </div>
-            {booking.screen && (
-              <div className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
-                <span className="text-[11px] font-black text-[#f87171]">{booking.screen}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Show Info Grid */}
-          <div className="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100 bg-gray-50/50">
-            <div className="p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-                <Calendar size={11} />
-                <span className="text-[9px] font-bold uppercase tracking-wider">Date</span>
-              </div>
-              <p className="text-[12px] font-extrabold text-gray-900 leading-tight">
-                {fmtDate(booking.showDate)}
-              </p>
-            </div>
-
-            <div className="p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-                <Clock size={11} />
-                <span className="text-[9px] font-bold uppercase tracking-wider">Time</span>
-              </div>
-              <p className="text-[12px] font-extrabold text-gray-900 leading-tight">
-                {fmt12(booking.showTime)}
-              </p>
-            </div>
-
-            <div className="p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-                <MapPin size={11} />
-                <span className="text-[9px] font-bold uppercase tracking-wider">Cinema</span>
-              </div>
-              <p className="text-[12px] font-extrabold text-gray-900 leading-tight truncate" title={venue}>
-                {venue}
-              </p>
+            <div style={{
+              flexShrink: 0, padding: "4px 10px", borderRadius: 8,
+              background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.3)",
+            }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#f87171" }}>{booking.screen}</span>
             </div>
           </div>
 
-          {/* Perforated Divider Strip with Notches */}
-          <div className="relative flex items-center justify-between px-3 py-0 bg-white">
-            <div className="w-5 h-5 -ml-5.5 rounded-full bg-[#f8fafc] border-r border-gray-100 shadow-inner" />
-            <div className="flex-1 border-t-2 border-dashed border-gray-200 mx-2" />
-            <div className="w-5 h-5 -mr-5.5 rounded-full bg-[#f8fafc] border-l border-gray-100 shadow-inner" />
+          {/* Show info row */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
+            borderBottom: "1px solid #f3f4f6",
+          }}>
+            {[
+              { icon: <Calendar size={10} color="#9ca3af" />, label: "Date", val: fmtDate(booking.showDate) },
+              { icon: <Clock    size={10} color="#9ca3af" />, label: "Time", val: fmt12(booking.showTime) },
+              { icon: <MapPin   size={10} color="#9ca3af" />, label: "Venue", val: venue },
+            ].map((item, i) => (
+              <div key={i} style={{
+                padding: "10px 12px",
+                borderRight: i < 2 ? "1px solid #f3f4f6" : "none",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 3, marginBottom: 3 }}>
+                  {item.icon}
+                  <span style={{ fontSize: 9, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".08em" }}>{item.label}</span>
+                </div>
+                <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: "#111", lineHeight: 1.3 }}>{item.val}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Seats & Payment Section */}
-          <div className="p-5">
-            <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2.5">
-              {seats.length} Reserved Seat{seats.length !== 1 ? "s" : ""}
+          {/* Dashed divider with notches */}
+          <div style={{ position: "relative", display: "flex", alignItems: "center", padding: "0 16px" }}>
+            <div style={{
+              position: "absolute", left: -12, width: 24, height: 24,
+              borderRadius: "50%", background: "#f5f5f7",
+            }} />
+            <div style={{ flex: 1, borderTop: "1.5px dashed #e5e7eb" }} />
+            <div style={{
+              position: "absolute", right: -12, width: 24, height: 24,
+              borderRadius: "50%", background: "#f5f5f7",
+            }} />
+          </div>
+
+          {/* Seats + pricing */}
+          <div style={{ padding: "12px 16px 14px" }}>
+
+            {/* Seats */}
+            <p style={{ margin: "0 0 8px", fontSize: 9, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".1em" }}>
+              {seats.length} Seat{seats.length !== 1 ? "s" : ""}
             </p>
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
               {seats.map((s) => {
                 const c = CAT_COLOR[s.category] || CAT_COLOR.Classic;
                 return (
-                  <div
-                    key={s.seatId}
-                    className="px-3 py-1.5 rounded-xl border flex flex-col items-center shadow-xs"
-                    style={{ background: c.bg, borderColor: c.border }}
-                  >
-                    <span className="text-[13px] font-black font-mono" style={{ color: c.color }}>
-                      {s.seatId}
-                    </span>
-                    <span
-                      className="text-[8px] font-bold uppercase tracking-wider"
-                      style={{ color: c.color, opacity: 0.8 }}
-                    >
-                      {s.category}
-                    </span>
+                  <div key={s.seatId} style={{
+                    padding: "4px 10px", borderRadius: 8,
+                    background: c.bg, border: `1px solid ${c.border}`,
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                  }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: c.color, fontFamily: "monospace" }}>{s.seatId}</span>
+                    <span style={{ fontSize: 7, fontWeight: 600, color: c.color, opacity: .6, textTransform: "uppercase" }}>{s.category}</span>
                   </div>
                 );
               })}
             </div>
 
-            {/* Price Breakdown */}
-            <div className="pt-3 border-t border-gray-100 space-y-1.5 text-[12px]">
-              <div className="flex justify-between text-gray-500">
-                <span>Subtotal</span>
-                <span className="font-semibold text-gray-700">₹{sub?.toLocaleString("en-IN")}</span>
+            {/* Pricing */}
+            <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 10, display: "flex", flexDirection: "column", gap: 3 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 11, color: "#9ca3af" }}>Subtotal</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#4b5563" }}>₹{sub?.toLocaleString("en-IN")}</span>
               </div>
-              <div className="flex justify-between text-gray-500">
-                <span>Convenience fee</span>
-                <span className="font-semibold text-gray-700">₹{fee}</span>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 11, color: "#9ca3af" }}>Convenience fee</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#4b5563" }}>₹{fee}</span>
               </div>
-              <div className="flex justify-between text-[14px] font-black text-gray-900 pt-2 border-t border-gray-100">
-                <span>Total Amount Paid</span>
-                <span className="text-[#f0545c]">₹{total?.toLocaleString("en-IN")}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6, borderTop: "1px solid #f3f4f6", marginTop: 3 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>Total Paid</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: "#f0545c" }}>₹{total?.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>
 
-          {/* Pass Footer Bar */}
-          <div className="bg-gray-50/80 px-5 py-3 border-t border-gray-100 flex items-center justify-between text-[11px]">
-            <div className="flex items-center gap-1.5">
-              <Ticket size={14} className="text-[#f0545c]" />
-              <span className="font-extrabold text-gray-900">NOW Cinema Pass</span>
+          {/* Footer strip */}
+          <div style={{
+            borderTop: "1px solid #f3f4f6",
+            padding: "9px 16px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: "#fafafa",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <Ticket size={12} color="#f0545c" />
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>NOW</span>
             </div>
-            <span className="font-mono text-gray-400 font-medium tracking-wider">{ref}</span>
+            <span style={{ fontSize: 9, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "monospace" }}>{ref}</span>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-3 mt-6">
+        {/* ── Buttons ── */}
+        <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
           <button
-            type="button"
             onClick={() => navigate("/")}
-            className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-[#f0545c] text-white font-bold text-[13px] shadow-md shadow-[#f0545c]/25 hover:bg-[#e0454d] transition-all active:scale-[0.98]"
-          >
-            <Home size={15} />
-            <span>Home</span>
+            style={{
+              flex: 1, padding: "12px 0", border: "none", cursor: "pointer",
+              borderRadius: 14, background: "#f0545c",
+              fontSize: 13, fontWeight: 700, color: "#fff",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              fontFamily: "'Outfit', sans-serif",
+            }}>
+            <Home size={15} /> Home
           </button>
           <button
-            type="button"
-            onClick={() => navigate("/dashboard")}
-            className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-white border border-gray-200 text-gray-800 font-bold text-[13px] shadow-xs hover:bg-gray-50 transition-all active:scale-[0.98]"
-          >
-            <Ticket size={15} />
-            <span>My Bookings</span>
+            onClick={() => navigate("/settings")}
+            style={{
+              flex: 1, padding: "12px 0", cursor: "pointer",
+              borderRadius: 14, background: "#fff",
+              border: "1.5px solid #e5e7eb",
+              fontSize: 13, fontWeight: 700, color: "#374151",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              fontFamily: "'Outfit', sans-serif",
+            }}>
+            <Ticket size={15} /> My Bookings
           </button>
         </div>
+
       </div>
     </div>
   );

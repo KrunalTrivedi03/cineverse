@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
-import PageBackgroundWatermark from "./PageBackgroundWatermark";
-import PageLoader from "./PageLoader";
 import {
   BellPlus, Star, CalendarDays, X,
   ChevronDown, ChevronUp, MapPin, Clock,
@@ -311,14 +309,18 @@ export default function UpcomingMoviesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 relative">
-      <PageBackgroundWatermark variant="movies" />
-      {loading && <PageLoader />}
-
+    <div className="min-h-screen bg-[#f4f4f4]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+        ::-webkit-scrollbar { display: none; }
+        * { box-sizing: border-box; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+      `}</style>
       <Navbar />
+
       <BottomNav />
 
-      <div className="relative z-10 max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 py-5 md:py-7 pb-32 md:pb-16 flex gap-5 md:gap-6 items-start">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 py-5 md:py-7 pb-16 flex gap-5 md:gap-6 items-start">
 
         {/* ── Desktop Sidebar ── */}
         <aside className="w-[228px] flex-shrink-0 hidden md:flex flex-col gap-2.5 sticky top-[76px]">

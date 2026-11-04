@@ -1,9 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Search, X, Music2, Moon, Mic2, Building, Drama, GraduationCap,
-  Trophy, ChevronLeft, ChevronRight, Sparkles, Flame, Loader2,
-} from "lucide-react";
+import { Search, X, Music2, Moon, Mic2, Building, Drama, GraduationCap, Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import EventRow from "../components/EventRow";
@@ -11,10 +8,8 @@ import EventCard from "../components/EventCard";
 import DistrictSelector, { getSelectedDistrict } from "../components/DistrictSelector";
 import { getSelectedCity } from "../components/Navbar";
 import { EVENT_CATEGORIES } from "../utils/eventHelpers";
+import { useRef } from "react";
 import BottomNav from "../components/BottomNav";
-import Footer from "../components/Footer";
-import PageBackgroundWatermark from "../components/PageBackgroundWatermark";
-import PageLoader from "../components/PageLoader";
 
 const CATEGORY_ICON = {
   Music: Music2, Nightlife: Moon, "Comedy Shows": Mic2,
@@ -39,8 +34,6 @@ export default function ExploreEvents() {
   const [searchResults, setSearchResults] = useState(null);
   const [searching, setSearching] = useState(false);
 
-  const categoryScrollRef = useRef(null);
-
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
@@ -58,7 +51,7 @@ export default function ExploreEvents() {
       setRecommended(r.data);
       setArtists(a.data.slice(0, 10));
     } catch {
-      // silent
+      /* silent — sections just render empty */
     } finally {
       setLoading(false);
     }
@@ -102,209 +95,205 @@ export default function ExploreEvents() {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  const scrollCategories = (dir) => {
-    categoryScrollRef.current?.scrollBy({ left: dir * 280, behavior: "smooth" });
-  };
+  const categoryScrollRef = useRef(null);
+const scrollCategories = (dir) => {
+  categoryScrollRef.current?.scrollBy({ left: dir * 260, behavior: "smooth" });
+};
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative">
-      <PageBackgroundWatermark variant="events" />
-      {loading && <PageLoader />}
+    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <Navbar />
 
-      <div className="relative z-10">
-        <Navbar />
-        <BottomNav />
+      <BottomNav />
 
-        {/* Sticky Search & Location Bar */}
-        <div className="bg-white/95 backdrop-blur-xl border-b border-gray-100 sticky top-[64px] z-40 shadow-2xs">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-3.5 flex items-center gap-3 flex-wrap">
-            <h1 className="text-[20px] font-black text-gray-900 tracking-tight flex-shrink-0">
-              Live Events
-            </h1>
+      {/* Header bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center gap-3 flex-wrap">
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#111", flexShrink: 0 }}>Events</h1>
 
-            <div className="flex-1 min-w-[200px] flex items-center gap-2.5 bg-gray-50 border border-gray-200/90 rounded-2xl px-4 py-2.5 focus-within:bg-white focus-within:border-[#f0545c] transition-all shadow-2xs">
-              <Search size={15} className="text-gray-400 flex-shrink-0" />
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search live events, musicians, comedians, venues…"
-                className="flex-1 bg-transparent text-[13.5px] font-medium text-gray-800 outline-none placeholder-gray-400"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery("")}>
-                  <X size={14} className="text-gray-400 hover:text-gray-600" />
-                </button>
-              )}
-            </div>
-
-            <DistrictSelector compact />
+          <div className="flex-1 min-w-[180px] flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+            <Search size={14} className="text-gray-400 flex-shrink-0" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search events, artists, venues…"
+              className="flex-1 bg-transparent text-[13px] text-gray-800 outline-none placeholder-gray-400"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")}>
+                <X size={13} className="text-gray-400" />
+              </button>
+            )}
           </div>
 
-          {/* Quick Jump Category Pills */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-            {EVENT_CATEGORIES.map((cat) => {
-              const Icon = CATEGORY_ICON[cat] || Music2;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => navigate(`/events/category/${encodeURIComponent(cat)}`)}
-                  className="flex items-center gap-1.5 flex-shrink-0 px-3.5 py-1.5 rounded-full border border-gray-200/90 bg-white hover:border-[#f0545c]/40 hover:bg-[#f0545c]/5 text-[12px] font-bold text-gray-700 transition-all shadow-2xs group"
-                >
-                  <Icon size={13} className="text-[#f0545c] group-hover:scale-110 transition-transform" />
-                  <span>{cat}</span>
-                </button>
-              );
-            })}
-          </div>
+          <DistrictSelector compact />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-10">
-
-          {/* Search Results */}
-          {searchQuery.trim() ? (
-            <section>
-              <h2 className="text-[20px] font-black text-gray-900 tracking-tight mb-5">
-                {searching ? "Searching events…" : `Results for "${searchQuery}"`}
-              </h2>
-              {!searching && searchResults?.length === 0 && (
-                <div className="py-20 text-center bg-white rounded-3xl border border-gray-100 p-8">
-                  <p className="text-[15px] font-bold text-gray-500">No events matched your search query.</p>
-                  <p className="text-[12.5px] text-gray-400 mt-1">Try another keyword or select a category below.</p>
-                </div>
-              )}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5">
-                {(searchResults || []).map((ev) => <EventCard key={ev._id} event={ev} width="100%" />)}
-              </div>
-            </section>
-          ) : (
-            <>
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-28 gap-3">
-                  <Loader2 size={28} className="animate-spin text-[#f0545c]" />
-                  <span className="text-[13px] font-semibold text-gray-400">Discovering live events...</span>
-                </div>
-              ) : (
-                <>
-                  {/* Browse by Category Tiles */}
-                  <section className="mb-12">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-[11px] font-bold text-[#f0545c] uppercase tracking-wider mb-1">
-                          Curated Experiences
-                        </p>
-                        <h2 className="text-[20px] sm:text-[24px] font-black text-gray-900 tracking-tight">
-                          Explore by Category
-                        </h2>
-                      </div>
-
-                      <div className="hidden md:flex items-center gap-2">
-                        <button
-                          onClick={() => scrollCategories(-1)}
-                          className="w-9 h-9 rounded-full bg-white border border-gray-200/90 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all shadow-xs"
-                          aria-label="Previous categories"
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-                        <button
-                          onClick={() => scrollCategories(1)}
-                          className="w-9 h-9 rounded-full bg-white border border-gray-200/90 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all shadow-xs"
-                          aria-label="Next categories"
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      ref={categoryScrollRef}
-                      className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth"
-                    >
-                      {EVENT_CATEGORIES.map((cat) => {
-                        const Icon = CATEGORY_ICON[cat] || Music2;
-                        return (
-                          <div
-                            key={cat}
-                            onClick={() => navigate(`/events/category/${encodeURIComponent(cat)}`)}
-                            className="flex-shrink-0 w-[130px] flex flex-col items-center gap-3 p-5 rounded-3xl bg-white border border-gray-100 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
-                          >
-                            <div className="w-12 h-12 rounded-2xl bg-[#f0545c]/10 group-hover:bg-[#f0545c] flex items-center justify-center text-[#f0545c] group-hover:text-white transition-all shadow-xs">
-                              <Icon size={20} />
-                            </div>
-                            <span className="text-[13px] font-bold text-gray-800 text-center leading-tight group-hover:text-[#f0545c] transition-colors">
-                              {cat}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-
-                  {/* Trending Events */}
-                  <EventRow title="Trending Events" events={trending} seeAllPath="/events/category/Music" />
-
-                  {/* Artists to Watch */}
-                  {artists.length > 0 && (
-                    <section className="mb-12">
-                      <div className="mb-4">
-                        <h2 className="text-[20px] font-black text-gray-900 tracking-tight">
-                          Featured Artists &amp; Performers
-                        </h2>
-                        <p className="text-[12.5px] text-gray-400 font-medium mt-0.5">
-                          Follow the stars bringing music, comedy, and theater to life
-                        </p>
-                      </div>
-
-                      <div className="flex gap-5 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
-                        {artists.map((a) => (
-                          <div
-                            key={a._id}
-                            onClick={() => navigate(`/artists/${a._id}`)}
-                            className="flex-shrink-0 w-[95px] text-center cursor-pointer group card-hover-lift"
-                          >
-                            <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-2 bg-gray-100 border-2 border-white shadow-md group-hover:border-[#f0545c] transition-all">
-                              {a.image ? (
-                                <img
-                                  src={a.image.startsWith("http") ? a.image : `https://res.cloudinary.com/duhc0vvqz/image/upload${a.image}`}
-                                  alt={a.name}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[22px] font-black text-gray-400 bg-gray-200">
-                                  {a.name?.[0]}
-                                </div>
-                              )}
-                            </div>
-                            <p className="text-[12px] font-bold text-gray-800 line-clamp-1 group-hover:text-[#f0545c] transition-colors">
-                              {a.name}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  {/* District Row */}
-                  {district.id && (
-                    <EventRow
-                      title={`Happening in ${district.name}`}
-                      events={byDistrict}
-                      seeAllPath={`/events/district/${district.id}`}
-                      emptyText={`No events found in ${district.name} yet.`}
-                    />
-                  )}
-
-                  {/* Remaining Algorithm Rows */}
-                  <EventRow title="Recommended For You" events={recommended} />
-                  <EventRow title="Popular Right Now"   events={popular} />
-                  <EventRow title="Upcoming Events"     events={upcoming} />
-                </>
-              )}
-            </>
-          )}
+        {/* Category pills — quick-jump shortcut, kept sticky at top */}
+        <div className="max-w-6xl mx-auto px-4 md:px-8 pb-3 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          {EVENT_CATEGORIES.map((cat) => {
+            const Icon = CATEGORY_ICON[cat] || Music2;
+            return (
+              <button
+                key={cat}
+                onClick={() => navigate(`/events/category/${encodeURIComponent(cat)}`)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                  padding: "7px 14px", borderRadius: 20,
+                  border: "1.5px solid #e5e7eb", background: "#fff",
+                  fontSize: 12, fontWeight: 700, color: "#374151", cursor: "pointer",
+                }}
+              >
+                <Icon size={13} color="#f0545c" /> {cat}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <Footer />
+      <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+
+        {/* ── Search results override ── */}
+        {searchQuery.trim() ? (
+          <section>
+            <h2 style={{ margin: "0 0 12px", fontSize: 17, fontWeight: 800, color: "#111" }}>
+              {searching ? "Searching…" : `Results for "${searchQuery}"`}
+            </h2>
+            {!searching && searchResults?.length === 0 && (
+              <p style={{ fontSize: 13, color: "#9ca3af" }}>No events found. Try a different search.</p>
+            )}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 16 }}>
+              {(searchResults || []).map((ev) => <EventCard key={ev._id} event={ev} width="100%" />)}
+            </div>
+          </section>
+        ) : (
+          <>
+            {loading ? (
+              <div className="flex items-center justify-center py-24">
+                <div className="flex gap-2">
+                  {[0, 1, 2].map((i) => (
+                    <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* ── Browse by Category — now first ── */}
+                <section style={{ marginBottom: 32 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#111" }}>Browse by Category</h2>
+                    <div className="hidden md:flex" style={{ gap: 6 }}>
+                      <button
+                        onClick={() => scrollCategories(-1)}
+                        aria-label="Scroll categories left"
+                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        <ChevronLeft size={15} color="#374151" />
+                      </button>
+                      <button
+                        onClick={() => scrollCategories(1)}
+                        aria-label="Scroll categories right"
+                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        <ChevronRight size={15} color="#374151" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    ref={categoryScrollRef}
+                    style={{
+                      display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
+                      scrollBehavior: "smooth", paddingBottom: 4, scrollbarWidth: "none",
+                    }}
+                  >
+                    {EVENT_CATEGORIES.map((cat) => {
+                      const Icon = CATEGORY_ICON[cat] || Music2;
+                      return (
+                        <div
+                          key={cat}
+                          onClick={() => navigate(`/events/category/${encodeURIComponent(cat)}`)}
+                          style={{
+                            flexShrink: 0, scrollSnapAlign: "start", width: 112,
+                            display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                            padding: "18px 8px", borderRadius: 16, background: "#fff",
+                            border: "1px solid #eee", cursor: "pointer",
+                            transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                            e.currentTarget.style.boxShadow = "0 6px 16px rgba(0,0,0,0.08)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
+                        >
+                          <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(240,84,92,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Icon size={17} color="#f0545c" />
+                          </div>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#374151", textAlign: "center" }}>{cat}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* ── Trending — next, highest-signal row ── */}
+                <EventRow title="Trending Events" events={trending} seeAllPath="/events/category/Music" />
+
+                {/* ── Artists to Watch — right after Trending ── */}
+                {artists.length > 0 && (
+                  <section style={{ marginBottom: 28 }}>
+                    <h2 style={{ margin: "0 0 12px", fontSize: 17, fontWeight: 800, color: "#111" }}>Artists to Watch</h2>
+                    <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
+                      {artists.map((a) => (
+                        <div
+                          key={a._id}
+                          onClick={() => navigate(`/artists/${a._id}`)}
+                          style={{ flexShrink: 0, width: 84, textAlign: "center", cursor: "pointer" }}
+                        >
+                          <div style={{
+                            width: 72, height: 72, borderRadius: "50%", overflow: "hidden",
+                            margin: "0 auto 6px", background: "#eee", border: "2px solid #fff",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                          }}>
+                            {a.image ? (
+                              <img src={a.image.startsWith("http") ? a.image : `https://res.cloudinary.com/duhc0vvqz/image/upload${a.image}`}
+                                alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, color: "#bbb" }}>
+                                {a.name?.[0]}
+                              </div>
+                            )}
+                          </div>
+                          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: "#374151" }} className="line-clamp-1">{a.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* ── District row ── */}
+                {district.id && (
+                  <EventRow
+                    title={`Happening in ${district.name}`}
+                    events={byDistrict}
+                    seeAllPath={`/events/district/${district.id}`}
+                    emptyText={`No events found in ${district.name} yet.`}
+                  />
+                )}
+
+                {/* ── Remaining algorithmic rows ── */}
+                <EventRow title="Recommended For You" events={recommended} />
+                <EventRow title="Popular Right Now"   events={popular} />
+                <EventRow title="Upcoming Events"     events={upcoming} />
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

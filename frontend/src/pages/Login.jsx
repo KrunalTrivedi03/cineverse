@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
@@ -18,6 +18,12 @@ export default function Login() {
   const location = useLocation();
   const { login } = useAuth();
 
+  // Where to send the user after a successful sign-in — set by
+  // ProtectedRoute / AuthContext's in-SPA logout (location.state?.from),
+  // or — when the logout instead happened via a hard `window.location.href`
+  // redirect (axios refresh-token failure, which can't carry React Router
+  // state) — the path stashed just before that redirect. Read once so the
+  // one-time sessionStorage consume below doesn't repeat on every render.
   const [redirectTo] = useState(() => location.state?.from || consumeSessionExpiredRedirect() || "/");
   const sessionExpiredViaQuery = new URLSearchParams(location.search).get("sessionExpired") === "1";
 
@@ -25,6 +31,7 @@ export default function Login() {
     if (location.state?.sessionExpired || sessionExpiredViaQuery) {
       showToast.info("You were signed out due to inactivity. Please log in again.");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isLatestMovie = (m) =>
@@ -63,7 +70,7 @@ export default function Login() {
       setLoading(true);
       const res = await api.post("/auth/login", form);
       login(res.data.accessToken, res.data.user);
-      showToast.success("Welcome back! Enjoy the show.");
+      showToast.success("Welcome! Enjoy your show.");
       setTimeout(() => navigate(redirectTo, { replace: true }), 1000);
     } catch (err) {
       const data = err.response?.data;
@@ -72,15 +79,17 @@ export default function Login() {
         navigate(`/verify-otp?email=${form.email}`);
         return;
       }
-      showToast.error(data?.message || "Invalid email or password");
+      showToast.error(data?.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-[#0f1015]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
+
         @keyframes scrollUp {
           from { transform: translateY(0); }
           to   { transform: translateY(-50%); }
@@ -93,18 +102,19 @@ export default function Login() {
         .strip-down { animation: scrollDown 45s linear infinite; }
 
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
+          from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .fade-up { animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) both; }
+        .fade-up { animation: fadeUp 0.55s cubic-bezier(.4,0,.2,1) both; }
       `}</style>
 
       {/* ── LEFT: Cinematic poster wall ─────────────────── */}
       <div
-        className="hidden lg:flex flex-1 relative overflow-hidden bg-[#0c0d12]"
+        className="hidden lg:flex flex-1 relative overflow-hidden"
+        style={{ background: "#0d0d0d" }}
       >
-        {/* Scrolling poster columns */}
-        <div className="absolute inset-0 flex gap-4 px-4 py-0 opacity-45">
+        {/* Scrolling poster strips */}
+        <div className="absolute inset-0 flex gap-3 px-3 py-0">
           {[0, 1, 2].map((col) => (
             <div key={col} className="flex-1 overflow-hidden">
               <div className={col % 2 === 0 ? "strip-up" : "strip-down"}>
@@ -113,7 +123,7 @@ export default function Login() {
                     key={i}
                     src={url}
                     alt=""
-                    className="w-full rounded-2xl mb-4 object-cover shadow-2xl border border-white/5"
+                    className="w-full rounded-xl mb-3 object-cover"
                     style={{ aspectRatio: "2/3" }}
                     loading="lazy"
                   />
@@ -123,80 +133,97 @@ export default function Login() {
           ))}
         </div>
 
-        {/* Ambient Dark Gradient Overlays */}
+        {/* Dark gradient overlays — top/bottom fade */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "linear-gradient(to bottom, #0c0d12 0%, transparent 15%, transparent 85%, #0c0d12 100%)",
+            background:
+              "linear-gradient(to bottom, #0d0d0d 0%, transparent 18%, transparent 82%, #0d0d0d 100%)",
           }}
         />
+        {/* Center vignette for text readability */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "radial-gradient(circle at center, rgba(12,13,18,0.4) 0%, rgba(12,13,18,0.95) 100%)",
+            background:
+              "radial-gradient(ellipse at center, rgba(13,13,13,0.55) 0%, transparent 70%)",
           }}
         />
+        {/* Right fade into form panel */}
         <div
-          className="absolute top-0 right-0 bottom-0 w-36 pointer-events-none"
-          style={{ background: "linear-gradient(to right, transparent, #f8fafc)" }}
+          className="absolute top-0 right-0 bottom-0 w-32 pointer-events-none"
+          style={{ background: "linear-gradient(to right, transparent, #f5f5f5)" }}
         />
 
-        {/* Brand Overlay */}
-        <div className="absolute bottom-12 left-10 right-10 z-10">
+        {/* Branding overlay */}
+        <div className="absolute bottom-10 left-8 right-8 z-10">
           <div
-            className="inline-flex flex-col items-start gap-2 mb-4 px-5 py-4 rounded-3xl backdrop-blur-xl border border-white/10 shadow-2xl"
-            style={{ background: "rgba(255,255,255,0.06)" }}
+            className="inline-flex flex-col items-start gap-1.5 mb-4 px-4 py-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              backdropFilter: "blur(12px)",
+            }}
           >
-            <img src={nowLogo} alt="NOW" className="h-9 w-auto brightness-110" />
-            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#f0545c]">
-              <span>Cinema &amp; Live Entertainment</span>
-            </div>
+            <img src={nowLogo} alt="NOW" className="h-9 w-auto" />
+            <p
+              style={{
+                margin: 0,
+                fontFamily: "'Caveat', 'Segoe Script', cursive",
+                fontWeight: 700,
+                fontSize: 16,
+                lineHeight: 1,
+              }}
+            >
+              <span style={{ color: "#ffffff" }}>Your World of </span>
+              <span style={{ color: "#f0545c" }}>Entertainment</span>
+            </p>
           </div>
-          <p className="text-white/60 text-[14px] leading-relaxed max-w-sm font-medium">
-            Discover trending releases, book cinema seats with zero hassle, and reserve exclusive concert &amp; sports experiences.
+          <p className="text-white/50 text-[14px] leading-relaxed max-w-xs">
+            Your gateway to movies, shows, trailers, and bookings — all in one place.
           </p>
         </div>
       </div>
 
-      {/* ── RIGHT: Modern Login Panel ────────────────────── */}
+      {/* ── RIGHT: Login form ────────────────────────────── */}
       <div
-        className="w-full lg:w-[460px] flex-shrink-0 flex flex-col justify-center px-6 sm:px-12 py-12 bg-[#f8fafc]"
+        className="w-full lg:w-[420px] flex-shrink-0 flex flex-col justify-center px-8 md:px-12 py-12"
+        style={{ background: "#f5f5f5" }}
       >
         <div className="fade-up w-full max-w-sm mx-auto">
 
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
+          <div className="flex items-center gap-2 mb-10 lg:hidden">
             <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
           </div>
 
           {/* Heading */}
-          <div className="mb-8">
-            <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-tight">
-              Welcome Back
-            </h1>
-            <p className="text-[14px] text-gray-500 mt-1 font-medium">
-              Sign in to manage your tickets &amp; watchlist
-            </p>
-          </div>
+          <h1 className="text-[26px] font-bold text-gray-900 leading-tight">
+            Welcome back
+          </h1>
+          <p className="text-[14px] text-gray-400 mt-1 mb-8">
+            Sign in to continue your experience
+          </p>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email */}
             <div>
-              <label className="block text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-1.5">
-                Email Address
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
+                Email
               </label>
               <div
-                className="flex items-center gap-3 bg-white border border-gray-200/90 rounded-2xl px-4 py-3 transition-all focus-within:border-[#f0545c] focus-within:ring-4 focus-within:ring-[#f0545c]/10 shadow-2xs"
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
+                style={{ borderColor: "#e5e7eb" }}
               >
-                <Mail size={16} className="text-gray-400 flex-shrink-0" />
+                <Mail size={15} className="text-gray-300 flex-shrink-0" />
                 <input
                   type="email"
-                  placeholder="you@domain.com"
+                  placeholder="you@example.com"
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="flex-1 text-[14px] font-medium text-gray-900 outline-none bg-transparent placeholder-gray-400"
+                  className="flex-1 text-[14px] text-gray-900 outline-none bg-transparent placeholder-gray-300"
                 />
               </div>
             </div>
@@ -204,34 +231,36 @@ export default function Login() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">
+                <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest">
                   Password
                 </label>
                 <button
                   type="button"
-                  className="text-[12px] font-bold text-[#f0545c] hover:underline"
+                  className="text-[12px] font-medium hover:underline"
+                  style={{ color: "#f0545c" }}
                 >
-                  Forgot?
+                  Forgot password?
                 </button>
               </div>
               <div
-                className="flex items-center gap-3 bg-white border border-gray-200/90 rounded-2xl px-4 py-3 transition-all focus-within:border-[#f0545c] focus-within:ring-4 focus-within:ring-[#f0545c]/10 shadow-2xs"
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
+                style={{ borderColor: "#e5e7eb" }}
               >
-                <Lock size={16} className="text-gray-400 flex-shrink-0" />
+                <Lock size={15} className="text-gray-300 flex-shrink-0" />
                 <input
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
                   required
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="flex-1 text-[14px] font-medium text-gray-900 outline-none bg-transparent placeholder-gray-400"
+                  className="flex-1 text-[14px] text-gray-900 outline-none bg-transparent placeholder-gray-300"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((p) => !p)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-300 hover:text-gray-500 transition-colors"
                 >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
@@ -239,56 +268,57 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-3 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-[14.5px] text-white transition-all shadow-sm hover:shadow active:scale-[0.98]"
+              className="mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-white transition-all active:scale-[0.98]"
               style={{
-                background: loading ? "#9ca3af" : "#f0545c",
+                background: loading ? "#ccc" : "#f0545c",
                 cursor: loading ? "not-allowed" : "pointer",
               }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#d94048"; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#f0545c"; }}
             >
               {loading ? (
                 <>
                   <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  <span>Signing In...</span>
+                  Signing in...
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
-                  <ArrowRight size={15} />
+                  Sign In <ArrowRight size={15} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-[12px] text-gray-400 font-bold uppercase tracking-wider">or</span>
+            <span className="text-[12px] text-gray-400 font-medium">or</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* Google OAuth Button */}
           <button
             type="button"
             onClick={() => {
               saveOAuthRedirect(redirectTo);
               window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
             }}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl font-bold text-[13.5px] text-gray-700 bg-white border border-gray-200/90 shadow-2xs hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-gray-700 bg-white border transition-all active:scale-[0.98] hover:bg-gray-50"
+            style={{ borderColor: "#e5e7eb" }}
           >
-            <svg width="17" height="17" viewBox="0 0 48 48">
+            <svg width="16" height="16" viewBox="0 0 48 48">
               <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.7 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
               <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
               <path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.5l-6.5-5.5C29.5 34.9 26.9 36 24 36c-5.4 0-9.9-3.3-11.4-7.9l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/>
               <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3.1 5.3-5.8 6.9l6.5 5.5C39.9 37.3 44 31.4 44 24c0-1.3-.1-2.7-.4-3.5z"/>
             </svg>
-            <span>Continue with Google</span>
+            Continue with Google
           </button>
 
-          <p className="text-center text-[13.5px] text-gray-500 font-medium mt-6">
+          <p className="text-center text-[14px] text-gray-500 mt-4">
             New to NOW?{" "}
             <Link
               to="/register"
-              className="font-bold text-[#f0545c] hover:underline"
+              className="font-semibold hover:underline"
+              style={{ color: "#f0545c" }}
             >
               Create an account
             </Link>

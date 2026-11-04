@@ -2,98 +2,70 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
-import BottomNav from "./BottomNav";
-import Footer from "./Footer";
-import PageBackgroundWatermark from "./PageBackgroundWatermark";
-import PageLoader from "./PageLoader";
 import {
-  Star,
-  Tv,
-  X,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  MapPin,
-  ChevronRight,
-  SlidersHorizontal,
-  Sparkles,
-  Heart,
+  Star, ThumbsUp, Tv, X, Check,
+  ChevronDown, ChevronUp, MapPin, ChevronRight, SlidersHorizontal,
 } from "lucide-react";
+import BottomNav from "./BottomNav";
 
-const IMG = (path) =>
-  !path
-    ? null
-    : path.startsWith("http")
-    ? path
-    : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
+const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
+
+const formatVotes = (votes = 0) => {
+  if (votes >= 1_000_000) return (votes / 1_000_000).toFixed(1) + "M";
+  if (votes >= 1_000)     return (votes / 1_000).toFixed(1) + "K";
+  return String(votes);
+};
 
 const STORAGE_KEY = "voted_movies";
-const getVoted = () => {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
-  } catch {
-    return new Set();
-  }
+const getVoted    = () => {
+  try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); }
+  catch { return new Set(); }
 };
 const saveVoted = (set) =>
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
 
-const GENRES = [
-  "Action",
-  "Comedy",
-  "Drama",
-  "Horror",
-  "Romance",
-  "Sci-Fi",
-  "Thriller",
-  "Adventure",
-  "Animation",
-];
-const CERTIFICATES = ["U", "UA", "A", "PG"];
-const LANGUAGES = [
-  "Hindi",
-  "English",
-  "Tamil",
-  "Telugu",
-  "Malayalam",
-  "Gujarati",
-  "Kannada",
-  "Punjabi",
-  "Bengali",
-];
+const GENRES       = ["Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller", "Adventure", "Animation"];
+const CERTIFICATES = ["U", "UA", "A", "PG", "PG-13"];
+const LANGUAGES    = ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada", "Gujarati", "Punjabi", "Bengali"];
 
-function FilterCheckbox({ label, checked, onChange }) {
+function FilterSection({ title, children, onClear, hasActive }) {
+  const [open, setOpen] = useState(true);
   return (
-    <label className="flex items-center gap-2.5 py-1 text-[13px] font-semibold text-neutral-700 hover:text-black cursor-pointer select-none">
-      <div
-        className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${
-          checked
-            ? "bg-[#ff4d58] border-[#ff4d58] text-white shadow-2xs"
-            : "border-neutral-300 bg-white hover:border-neutral-400"
-        }`}
-      >
-        {checked && <Check size={11} strokeWidth={3} />}
+    <div className="border border-gray-100 rounded-2xl bg-white overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 cursor-pointer select-none"
+        onClick={() => setOpen((v) => !v)}>
+        <div className="flex items-center gap-2">
+          {open ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
+          <span className="text-[13px] font-bold text-gray-700">{title}</span>
+        </div>
+        {hasActive && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            className="text-[11px] font-semibold text-[#f0545c] hover:underline"
+          >
+            Clear
+          </button>
+        )}
       </div>
-      <span>{label}</span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="hidden"
-      />
-    </label>
+      {open && (
+        <div className="px-4 pb-4 flex flex-wrap gap-2">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }
 
-function CertificateChip({ label, active, onClick }) {
+function SideChip({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-10 h-10 rounded-xl text-[12px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
+      className="px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all"
+      style={
         active
-          ? "bg-[#ff4d58] text-white border-[#ff4d58] shadow-xs"
-          : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
-      }`}
+          ? { background: "rgba(240,84,92,0.1)", color: "#f0545c", borderColor: "rgba(240,84,92,0.4)" }
+          : { background: "white", color: "#374151", borderColor: "#e5e7eb" }
+      }
     >
       {label}
     </button>
@@ -104,36 +76,45 @@ function LangPill({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-1.5 rounded-full text-[13px] font-bold transition-all flex-shrink-0 cursor-pointer ${
+      className="px-4 py-1.5 rounded-full text-[13px] font-semibold border transition-all flex-shrink-0"
+      style={
         active
-          ? "bg-[#ff4d58] text-white shadow-xs"
-          : "bg-white text-neutral-700 border border-neutral-200/80 hover:bg-neutral-50 hover:text-black"
-      }`}
+          ? { background: "#f0545c", color: "#fff", borderColor: "#f0545c" }
+          : { background: "white", color: "#374151", borderColor: "#d1d5db" }
+      }
     >
       {label}
     </button>
   );
 }
 
+/* ── Coming Soon Banner ─────────────────────────────── */
 function ComingSoonBanner({ movies }) {
   return (
     <div
-      className="relative rounded-2xl overflow-hidden mb-6 border border-neutral-200/70 bg-white shadow-2xs"
-      style={{ minHeight: 70 }}
+      className="relative rounded-2xl overflow-hidden mb-6"
+      style={{ background: "white", border: "1px solid #f0f0f0", minHeight: 64 }}
     >
-      <div className="absolute inset-0 flex justify-end pointer-events-none">
+      {/* Blurred poster thumbnails */}
+      <div className="absolute inset-0 flex justify-end" style={{ pointerEvents: "none" }}>
         <div className="flex h-full">
           {movies.slice(0, 6).map((m, i) => (
             <div
               key={m._id}
               className="h-full"
               style={{
-                width: 75,
+                width: 70,
                 backgroundImage: `url(${IMG(m.poster)})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center top",
-                opacity: Math.max(0.1, 0.35 - i * 0.05),
-                filter: "blur(2px)",
+                opacity: Math.max(0.12, 0.38 - i * 0.05),
+                filter: "blur(1.5px)",
+                maskImage: i === 0
+                  ? "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 40%, black 100%)"
+                  : "none",
+                WebkitMaskImage: i === 0
+                  ? "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 40%, black 100%)"
+                  : "none",
               }}
             />
           ))}
@@ -141,180 +122,184 @@ function ComingSoonBanner({ movies }) {
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(to right, white 35%, rgba(255,255,255,0.92) 60%, rgba(255,255,255,0.2) 100%)",
+            background: "linear-gradient(to right, white 38%, rgba(255,255,255,0.92) 58%, rgba(255,255,255,0.3) 100%)",
           }}
         />
       </div>
 
-      <div className="relative z-10 flex items-center justify-between px-5 md:px-6 py-3.5 gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center">
-            <Sparkles size={16} />
-          </div>
-          <div>
-            <span className="text-[14px] md:text-[15px] font-black text-neutral-900 tracking-tight block leading-tight">
-              Coming Soon to Cinemas
-            </span>
-            <span className="text-[11px] text-neutral-400 font-medium hidden sm:block">
-              Sneak peek into upcoming premieres &amp; advance bookings
-            </span>
-          </div>
-        </div>
-
+      {/* Foreground — single line */}
+      <div className="relative z-10 flex items-center justify-between px-4 md:px-5 py-4 gap-3">
+        <span className="text-[16px] md:text-[17px] font-black text-gray-900 tracking-tight whitespace-nowrap">
+          Coming Soon
+        </span>
         <Link
           to="/coming-soon"
-          className="inline-flex items-center gap-1 text-[12px] font-bold px-3.5 py-1.5 rounded-full bg-[#ff4d58]/10 text-[#ff4d58] hover:bg-[#ff4d58] hover:text-white transition-all whitespace-nowrap shadow-2xs"
+          className="flex items-center gap-1 text-[12px] md:text-[13px] font-bold whitespace-nowrap flex-shrink-0 hover:opacity-70 transition-opacity"
+          style={{ color: "#f0545c" }}
         >
-          <span>Explore Upcoming</span>
-          <ChevronRight size={13} />
+          Explore Upcoming
+          <ChevronRight size={14} />
         </Link>
       </div>
     </div>
   );
 }
 
-function MobileFilterDrawer({
-  open,
-  onClose,
-  filters,
-  setFilters,
-  toggleFilter,
-  activeCount,
-}) {
+/* ── Mobile Filter Drawer ───────────────────────────── */
+function MobileFilterDrawer({ open, onClose, filters, setFilters, availableFormats }) {
+  const toggleFilter = (key, val) =>
+    setFilters((f) => ({
+      ...f,
+      [key]: f[key].includes(val) ? f[key].filter((v) => v !== val) : [...f[key], val],
+    }));
+
+  const activeCount =
+    filters.genre.length + filters.language.length +
+    filters.certificate.length + filters.format.length +
+    (filters.inCinemas ? 1 : 0);
+
   if (!open) return null;
 
   return (
     <>
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-black/40"
         onClick={onClose}
       />
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#f8f9fa] rounded-t-3xl max-h-[85vh] overflow-y-auto shadow-2xl border-t border-neutral-100 animate-in slide-in-from-bottom duration-200">
+      {/* Drawer */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[#f5f5f7] rounded-t-2xl"
+        style={{ maxHeight: "85vh", overflowY: "auto" }}
+      >
+        {/* Handle */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-12 h-1.5 bg-neutral-300 rounded-full" />
+          <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-white sticky top-0 z-10">
-          <span className="text-[16px] font-black text-neutral-900">
-            Filter Movies
-          </span>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+          <span className="text-[16px] font-bold text-gray-900">Filters</span>
           <div className="flex items-center gap-3">
             {activeCount > 0 && (
               <button
-                onClick={() =>
-                  setFilters({
-                    genre: [],
-                    language: [],
-                    certificate: [],
-                    format: [],
-                    inCinemas: false,
-                  })
-                }
-                className="text-[12px] font-bold text-[#ff4d58]"
+                onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [], inCinemas: false })}
+                className="text-[12px] font-semibold text-[#f0545c]"
               >
                 Clear All ({activeCount})
               </button>
             )}
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 hover:text-black"
-            >
-              <X size={16} />
+            <button onClick={onClose}>
+              <X size={20} className="text-gray-500" />
             </button>
           </div>
         </div>
 
-        <div className="p-5 flex flex-col gap-4">
-          <div className="bg-white rounded-2xl p-4 border border-neutral-200/70">
-            <h4 className="text-[13px] font-bold text-neutral-900 mb-2">
-              Languages
-            </h4>
-            <div className="space-y-1">
-              {LANGUAGES.map((l) => (
-                <FilterCheckbox
-                  key={l}
-                  label={l}
-                  checked={filters.language.includes(l)}
-                  onChange={() => toggleFilter("language", l)}
-                />
-              ))}
-            </div>
-          </div>
+        <div className="p-4 flex flex-col gap-3">
+          <FilterSection
+            title="Languages"
+            hasActive={filters.language.length > 0}
+            onClear={() => setFilters((f) => ({ ...f, language: [] }))}
+          >
+            {LANGUAGES.map((l) => (
+              <SideChip key={l} label={l}
+                active={filters.language.includes(l)}
+                onClick={() => toggleFilter("language", l)} />
+            ))}
+          </FilterSection>
 
-          <div className="bg-white rounded-2xl p-4 border border-neutral-200/70">
-            <h4 className="text-[13px] font-bold text-neutral-900 mb-2">
-              Genres
-            </h4>
-            <div className="space-y-1">
-              {GENRES.map((g) => (
-                <FilterCheckbox
-                  key={g}
-                  label={g}
-                  checked={filters.genre.includes(g)}
-                  onChange={() => toggleFilter("genre", g)}
-                />
-              ))}
-            </div>
-          </div>
+          <FilterSection
+            title="Genres"
+            hasActive={filters.genre.length > 0}
+            onClear={() => setFilters((f) => ({ ...f, genre: [] }))}
+          >
+            {GENRES.map((g) => (
+              <SideChip key={g} label={g}
+                active={filters.genre.includes(g)}
+                onClick={() => toggleFilter("genre", g)} />
+            ))}
+          </FilterSection>
 
-          <div className="bg-white rounded-2xl p-4 border border-neutral-200/70">
-            <h4 className="text-[13px] font-bold text-neutral-900 mb-3">
-              Certificate
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {CERTIFICATES.map((c) => (
-                <CertificateChip
-                  key={c}
-                  label={c}
-                  active={filters.certificate.includes(c)}
-                  onClick={() => toggleFilter("certificate", c)}
-                />
+          <FilterSection
+            title="Certificate"
+            hasActive={filters.certificate.length > 0}
+            onClear={() => setFilters((f) => ({ ...f, certificate: [] }))}
+          >
+            {CERTIFICATES.map((c) => (
+              <SideChip key={c} label={c}
+                active={filters.certificate.includes(c)}
+                onClick={() => toggleFilter("certificate", c)} />
+            ))}
+          </FilterSection>
+
+          {availableFormats.length > 0 && (
+            <FilterSection
+              title="Format"
+              hasActive={filters.format.length > 0}
+              onClear={() => setFilters((f) => ({ ...f, format: [] }))}
+            >
+              {availableFormats.map((f) => (
+                <SideChip key={f} label={f}
+                  active={filters.format.includes(f)}
+                  onClick={() => toggleFilter("format", f)} />
               ))}
-            </div>
-          </div>
+            </FilterSection>
+          )}
+
+          <button
+            onClick={() => setFilters((f) => ({ ...f, inCinemas: !f.inCinemas }))}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-[13px] font-semibold transition-all bg-white"
+            style={
+              filters.inCinemas
+                ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
+                : { borderColor: "#e5e7eb", color: "#6b7280" }
+            }
+          >
+            <span className="flex items-center gap-2"><Tv size={14} /> In Cinemas Only</span>
+            {filters.inCinemas && <Check size={14} />}
+          </button>
+
+          {/* Apply button */}
+          <button
+            onClick={onClose}
+            className="w-full py-3 rounded-2xl text-[14px] font-bold text-white mt-1"
+            style={{ background: "#f0545c" }}
+          >
+            {activeCount > 0 ? `Apply ${activeCount} Filter${activeCount !== 1 ? "s" : ""}` : "Apply Filters"}
+          </button>
         </div>
       </div>
     </>
   );
 }
 
-export default function NowShowing() {
+export default function NowShowingPage() {
+  const [movies,       setMovies]       = useState([]);
+  const [comingSoon,   setComingSoon]   = useState([]);
+  const [filtered,     setFiltered]     = useState([]);
+  const [voted,        setVoted]        = useState(getVoted);
+  const [city,         setCity]         = useState(() => localStorage.getItem("selectedCity") || "Mumbai");
+  const [loading,      setLoading]      = useState(true);
+  const [drawerOpen,   setDrawerOpen]   = useState(false);
   const navigate = useNavigate();
-  const [movies, setMovies] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [comingSoon, setComingSoon] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [voted, setVoted] = useState(getVoted);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [seeMoreLang, setSeeMoreLang] = useState(false);
-  const [seeMoreGenre, setSeeMoreGenre] = useState(false);
-  const [sortBy, setSortBy] = useState("popular");
-
-  const [city, setCity] = useState(
-    () => localStorage.getItem("selectedCity") || "Mumbai"
-  );
 
   const [filters, setFilters] = useState({
-    genre: [],
-    language: [],
+    genre:       [],
+    language:    [],
     certificate: [],
-    format: [],
-    inCinemas: false,
+    format:      [],
+    inCinemas:   false,
   });
 
   useEffect(() => {
-    const handler = () => {
-      setCity(localStorage.getItem("selectedCity") || "Mumbai");
-    };
+    const handler = () => setCity(localStorage.getItem("selectedCity") || "Mumbai");
     window.addEventListener("cityChanged", handler);
     return () => window.removeEventListener("cityChanged", handler);
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    api
-      .get("/movies", { params: { city } })
+    api.get("/movies", { params: { city } })
       .then((res) => {
         const released = res.data.filter((m) => m.status === "released");
         const upcoming = res.data.filter((m) => m.status !== "released");
@@ -333,317 +318,264 @@ export default function NowShowing() {
     if (filters.genre.length)
       result = result.filter((m) => filters.genre.includes(m.genre));
     if (filters.certificate.length)
-      result = result.filter((m) =>
-        filters.certificate.includes(m.certificate)
-      );
+      result = result.filter((m) => filters.certificate.includes(m.certificate));
     if (filters.format.length)
-      result = result.filter((m) =>
-        m.formats?.some((f) => filters.format.includes(f))
-      );
+      result = result.filter((m) => m.formats?.some((f) => filters.format.includes(f)));
     if (filters.inCinemas)
       result = result.filter((m) => m.isInCinemas === true);
-
-    if (sortBy === "rating") {
-      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (sortBy === "popular") {
-      result.sort((a, b) => (b.votes || 0) - (a.votes || 0));
-    } else if (sortBy === "newest") {
-      result.sort(
-        (a, b) => new Date(b.releaseDate || 0) - new Date(a.releaseDate || 0)
-      );
-    }
-
     setFiltered(result);
-  }, [filters, movies, sortBy]);
+  }, [filters, movies]);
+
+  const availableFormats = [...new Set(movies.flatMap((m) => m.formats || []))];
 
   const toggleFilter = (key, val) =>
     setFilters((f) => ({
       ...f,
-      [key]: f[key].includes(val)
-        ? f[key].filter((v) => v !== val)
-        : [...f[key], val],
+      [key]: f[key].includes(val) ? f[key].filter((v) => v !== val) : [...f[key], val],
     }));
 
   const activeCount =
-    filters.genre.length +
-    filters.language.length +
-    filters.certificate.length +
-    filters.format.length +
+    filters.genre.length + filters.language.length +
+    filters.certificate.length + filters.format.length +
     (filters.inCinemas ? 1 : 0);
 
   const handleVote = async (e, movieId) => {
     e.stopPropagation();
     if (voted.has(movieId)) return;
-    setFiltered((prev) =>
-      prev.map((m) =>
-        m._id === movieId ? { ...m, votes: (m.votes || 0) + 1 } : m
-      )
-    );
-    setVoted((prev) => {
-      const next = new Set(prev);
-      next.add(movieId);
-      saveVoted(next);
-      return next;
-    });
+    setFiltered((prev) => prev.map((m) => m._id === movieId ? { ...m, votes: (m.votes || 0) + 1 } : m));
+    setVoted((prev) => { const next = new Set(prev); next.add(movieId); saveVoted(next); return next; });
     try {
       await api.put(`/movies/vote/${movieId}`);
     } catch {
-      setFiltered((prev) =>
-        prev.map((m) =>
-          m._id === movieId
-            ? { ...m, votes: Math.max(0, (m.votes || 0) - 1) }
-            : m
-        )
-      );
-      setVoted((prev) => {
-        const next = new Set(prev);
-        next.delete(movieId);
-        saveVoted(next);
-        return next;
-      });
+      setFiltered((prev) => prev.map((m) => m._id === movieId ? { ...m, votes: Math.max(0, (m.votes || 0) - 1) } : m));
+      setVoted((prev) => { const next = new Set(prev); next.delete(movieId); saveVoted(next); return next; });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 flex flex-col justify-between relative">
-      <PageBackgroundWatermark variant="movies" />
+    <div className="min-h-screen bg-[#f2f2f2]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <Navbar />
 
-      {loading && <PageLoader />}
+      <BottomNav />
 
-      <div className="relative z-10">
-        <Navbar />
-        <BottomNav />
+      <div className="max-w-[1300px] mx-auto px-4 md:px-8 py-6 md:py-8 flex gap-6 items-start">
 
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 pb-32 md:pb-16 flex gap-7 items-start">
-          {/* ── Left Filters Sidebar matching Mockup ── */}
-          <aside className="w-[240px] flex-shrink-0 hidden md:flex flex-col gap-4 sticky top-[80px]">
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-2xs">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-100">
-                <h2 className="text-[16px] font-black text-neutral-900">
-                  Filters
-                </h2>
-                {activeCount > 0 && (
-                  <button
-                    onClick={() =>
-                      setFilters({
-                        genre: [],
-                        language: [],
-                        certificate: [],
-                        format: [],
-                        inCinemas: false,
-                      })
-                    }
-                    className="text-[12px] font-bold text-[#ff4d58] hover:underline cursor-pointer"
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
+        {/* ── Desktop Sidebar ── */}
+        <aside className="w-[240px] flex-shrink-0 hidden md:flex flex-col gap-3 sticky top-[76px]">
+          <div className="flex items-center justify-between mb-1 px-1">
+            <h2 className="text-[16px] font-bold text-gray-900">Filters</h2>
+            {activeCount > 0 && (
+              <button
+                onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [], inCinemas: false })}
+                className="text-[12px] font-semibold text-[#f0545c] hover:underline flex items-center gap-1"
+              >
+                <X size={12} /> Clear All
+              </button>
+            )}
+          </div>
 
-              {/* Languages */}
-              <div className="mb-5">
-                <h3 className="text-[13px] font-bold text-neutral-900 mb-2">
-                  Languages
-                </h3>
-                <div className="space-y-1">
-                  {(seeMoreLang ? LANGUAGES : LANGUAGES.slice(0, 5)).map(
-                    (lang) => (
-                      <FilterCheckbox
-                        key={lang}
-                        label={lang}
-                        checked={filters.language.includes(lang)}
-                        onChange={() => toggleFilter("language", lang)}
-                      />
-                    )
-                  )}
-                </div>
-                {LANGUAGES.length > 5 && (
-                  <button
-                    type="button"
-                    onClick={() => setSeeMoreLang((v) => !v)}
-                    className="text-[11px] font-bold text-neutral-400 hover:text-[#ff4d58] flex items-center gap-1 mt-2 cursor-pointer transition-colors"
-                  >
-                    <span>{seeMoreLang ? "Show Less" : "See More"}</span>
-                    <ChevronDown
-                      size={12}
-                      className={seeMoreLang ? "rotate-180" : ""}
-                    />
-                  </button>
-                )}
-              </div>
+          <FilterSection
+            title="Languages"
+            hasActive={filters.language.length > 0}
+            onClear={() => setFilters((f) => ({ ...f, language: [] }))}
+          >
+            {LANGUAGES.map((l) => (
+              <SideChip key={l} label={l}
+                active={filters.language.includes(l)}
+                onClick={() => toggleFilter("language", l)} />
+            ))}
+          </FilterSection>
 
-              {/* Genres */}
-              <div className="mb-5 pt-3 border-t border-neutral-100">
-                <h3 className="text-[13px] font-bold text-neutral-900 mb-2">
-                  Genres
-                </h3>
-                <div className="space-y-1">
-                  {(seeMoreGenre ? GENRES : GENRES.slice(0, 5)).map((genre) => (
-                    <FilterCheckbox
-                      key={genre}
-                      label={genre}
-                      checked={filters.genre.includes(genre)}
-                      onChange={() => toggleFilter("genre", genre)}
-                    />
-                  ))}
-                </div>
-                {GENRES.length > 5 && (
-                  <button
-                    type="button"
-                    onClick={() => setSeeMoreGenre((v) => !v)}
-                    className="text-[11px] font-bold text-neutral-400 hover:text-[#ff4d58] flex items-center gap-1 mt-2 cursor-pointer transition-colors"
-                  >
-                    <span>{seeMoreGenre ? "Show Less" : "See More"}</span>
-                    <ChevronDown
-                      size={12}
-                      className={seeMoreGenre ? "rotate-180" : ""}
-                    />
-                  </button>
-                )}
-              </div>
+          <FilterSection
+            title="Genres"
+            hasActive={filters.genre.length > 0}
+            onClear={() => setFilters((f) => ({ ...f, genre: [] }))}
+          >
+            {GENRES.map((g) => (
+              <SideChip key={g} label={g}
+                active={filters.genre.includes(g)}
+                onClick={() => toggleFilter("genre", g)} />
+            ))}
+          </FilterSection>
 
-              {/* Certificate */}
-              <div className="pt-3 border-t border-neutral-100">
-                <h3 className="text-[13px] font-bold text-neutral-900 mb-2.5">
-                  Certificate
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {CERTIFICATES.map((cert) => (
-                    <CertificateChip
-                      key={cert}
-                      label={cert}
-                      active={filters.certificate.includes(cert)}
-                      onClick={() => toggleFilter("certificate", cert)}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
+          <FilterSection
+            title="Certificate"
+            hasActive={filters.certificate.length > 0}
+            onClear={() => setFilters((f) => ({ ...f, certificate: [] }))}
+          >
+            {CERTIFICATES.map((c) => (
+              <SideChip key={c} label={c}
+                active={filters.certificate.includes(c)}
+                onClick={() => toggleFilter("certificate", c)} />
+            ))}
+          </FilterSection>
 
-          {/* ── Main Movies Grid Area matching Mockup ── */}
-          <div className="flex-1 min-w-0">
-            {/* Header row with Movies in <City> and Popular ⌵ */}
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <h1 className="text-[20px] md:text-[24px] font-black text-neutral-900 tracking-tight">
-                Movies in <span className="text-[#ff4d58]">{city}</span>
+          {availableFormats.length > 0 && (
+            <FilterSection
+              title="Format"
+              hasActive={filters.format.length > 0}
+              onClear={() => setFilters((f) => ({ ...f, format: [] }))}
+            >
+              {availableFormats.map((f) => (
+                <SideChip key={f} label={f}
+                  active={filters.format.includes(f)}
+                  onClick={() => toggleFilter("format", f)} />
+              ))}
+            </FilterSection>
+          )}
+
+          <button
+            onClick={() => setFilters((f) => ({ ...f, inCinemas: !f.inCinemas }))}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-[13px] font-semibold transition-all bg-white"
+            style={
+              filters.inCinemas
+                ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
+                : { borderColor: "#e5e7eb", color: "#6b7280" }
+            }
+          >
+            <span className="flex items-center gap-2"><Tv size={14} /> In Cinemas Only</span>
+            {filters.inCinemas && <Check size={14} />}
+          </button>
+        </aside>
+
+        {/* ── Main content ── */}
+        <div className="flex-1 min-w-0">
+
+          {/* Page header row */}
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[18px] md:text-[22px] font-bold text-gray-900">
+                Movies In <span style={{ color: "#f0545c" }}>{city}</span>
               </h1>
-
-              <div className="flex items-center gap-2">
-                {/* Mobile filter button */}
-                <button
-                  onClick={() => setDrawerOpen(true)}
-                  className={`flex md:hidden items-center gap-1.5 px-3 py-1.5 rounded-full border text-[12px] font-bold transition-all shadow-2xs ${
-                    activeCount > 0
-                      ? "border-[#ff4d58]/40 text-[#ff4d58] bg-[#fff0f2]"
-                      : "border-neutral-200 bg-white text-neutral-700"
-                  }`}
-                >
-                  <SlidersHorizontal size={13} />
-                  <span>Filters</span>
-                  {activeCount > 0 && <span>({activeCount})</span>}
-                </button>
-
-                {/* Popular Sort Dropdown */}
-                <div className="relative">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="text-[12px] font-bold text-neutral-700 bg-white border border-neutral-200/80 rounded-full px-3.5 py-1.5 pr-7 appearance-none cursor-pointer hover:bg-neutral-50 shadow-2xs outline-none"
-                  >
-                    <option value="popular">Popular</option>
-                    <option value="rating">Top Rated</option>
-                    <option value="newest">Newest</option>
-                  </select>
-                  <ChevronDown
-                    size={12}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
-                  />
-                </div>
-              </div>
+              <MapPin size={15} className="text-gray-400" />
             </div>
 
-            {/* Horizontal Language Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2 no-scrollbar">
-              <LangPill
-                label="All"
-                active={filters.language.length === 0}
-                onClick={() => setFilters((f) => ({ ...f, language: [] }))}
-              />
-              {LANGUAGES.map((l) => (
-                <LangPill
-                  key={l}
-                  label={l}
-                  active={filters.language.includes(l)}
-                  onClick={() => toggleFilter("language", l)}
+            {/* Mobile filter button */}
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex md:hidden items-center gap-2 px-3 py-2 rounded-xl border text-[13px] font-semibold bg-white transition-all"
+              style={
+                activeCount > 0
+                  ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
+                  : { borderColor: "#e5e7eb", color: "#374151" }
+              }
+            >
+              <SlidersHorizontal size={15} />
+              Filters
+              {activeCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#f0545c] text-white text-[10px] font-bold flex items-center justify-center">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Language pills — horizontal scroll */}
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-5" style={{ scrollbarWidth: "none" }}>
+            {LANGUAGES.map((l) => (
+              <LangPill key={l} label={l}
+                active={filters.language.includes(l)}
+                onClick={() => toggleFilter("language", l)} />
+            ))}
+          </div>
+
+          {/* Coming Soon Banner */}
+          {!loading && comingSoon.length > 0 && (
+            <ComingSoonBanner movies={comingSoon} />
+          )}
+
+          {/* Active filter chips */}
+          {activeCount > 0 && (
+            <div className="flex items-center gap-2 flex-wrap mb-4">
+              {!loading && (
+                <span className="text-[13px] text-gray-500 font-medium">
+                  {filtered.length} movie{filtered.length !== 1 ? "s" : ""}
+                </span>
+              )}
+              {[...filters.genre, ...filters.certificate, ...filters.format].map((v) => (
+                <span key={v}
+                  className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border"
+                  style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.2)" }}>
+                  {v}
+                  <button onClick={() => {
+                    if (filters.genre.includes(v))            toggleFilter("genre", v);
+                    else if (filters.certificate.includes(v)) toggleFilter("certificate", v);
+                    else                                       toggleFilter("format", v);
+                  }}><X size={10} /></button>
+                </span>
+              ))}
+              {filters.inCinemas && (
+                <span className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border"
+                  style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.2)" }}>
+                  In Cinemas <button onClick={() => setFilters((f) => ({ ...f, inCinemas: false }))}><X size={10} /></button>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Movie count — only when no active filter chips */}
+          {activeCount === 0 && !loading && filtered.length > 0 && (
+            <p className="text-[13px] text-gray-400 font-medium mb-4">
+              {filtered.length} movie{filtered.length !== 1 ? "s" : ""}
+            </p>
+          )}
+
+          {/* Skeleton */}
+          {loading && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i}>
+                  <div className="rounded-2xl bg-gray-200 animate-pulse" style={{ aspectRatio: "2/3" }} />
+                  <div className="mt-2 space-y-1.5">
+                    <div className="h-3.5 w-3/4 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-3 w-1/2 bg-gray-100 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+                style={{ background: "rgba(240,84,92,0.07)" }}>
+                <Tv size={30} style={{ color: "#f0545c", opacity: 0.4 }} />
+              </div>
+              <p className="text-[16px] font-bold text-gray-400">
+                {activeCount > 0 ? "No movies match your filters" : `No movies showing in ${city}`}
+              </p>
+              <p className="text-[13px] text-gray-300 mt-1">
+                {activeCount > 0 ? "Try adjusting or clearing your filters" : "Try selecting a different city"}
+              </p>
+              {activeCount > 0 && (
+                <button
+                  onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [], inCinemas: false })}
+                  className="mt-4 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white"
+                  style={{ background: "#f0545c" }}>
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Movie grid */}
+          {!loading && filtered.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              {filtered.map((movie) => (
+                <MovieCard
+                  key={movie._id}
+                  movie={movie}
+                  isVoted={voted.has(movie._id)}
+                  onVote={handleVote}
+                  onClick={() => navigate(`/movie/${movie._id}`)}
                 />
               ))}
             </div>
-
-            {/* Results count text matching Mockup */}
-            <p className="text-[12px] font-semibold text-neutral-400 mb-4">
-              {filtered.length} Results
-            </p>
-
-            {/* Coming Soon Teaser Banner */}
-            {!loading && comingSoon.length > 0 && (
-              <ComingSoonBanner movies={comingSoon} />
-            )}
-
-            {/* Empty State */}
-            {!loading && filtered.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-neutral-200/80 p-8 shadow-2xs">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-red-50 text-[#ff4d58]">
-                  <Tv size={30} />
-                </div>
-                <p className="text-[17px] font-black text-neutral-800">
-                  {activeCount > 0
-                    ? "No movies match your filters"
-                    : `No movies currently showing in ${city}`}
-                </p>
-                <p className="text-[13px] text-neutral-400 mt-1 max-w-sm">
-                  {activeCount > 0
-                    ? "Try loosening your filter parameters or selecting other genres."
-                    : "Switch to a nearby metropolitan city from the top bar to view cinemas."}
-                </p>
-                {activeCount > 0 && (
-                  <button
-                    onClick={() =>
-                      setFilters({
-                        genre: [],
-                        language: [],
-                        certificate: [],
-                        format: [],
-                        inCinemas: false,
-                      })
-                    }
-                    className="mt-5 px-6 py-2.5 rounded-full text-[13px] font-bold text-white shadow-xs bg-[#ff4d58] hover:bg-[#e03d47] transition-all"
-                  >
-                    Reset All Filters
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Movies Grid matching Mockup Image 1 */}
-            {!loading && filtered.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                {filtered.map((movie) => (
-                  <MovieCard
-                    key={movie._id}
-                    movie={movie}
-                    isVoted={voted.has(movie._id)}
-                    onVote={handleVote}
-                    onClick={() => navigate(`/movie/${movie._id}`)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
-
-      <Footer />
 
       {/* Mobile filter drawer */}
       <MobileFilterDrawer
@@ -651,8 +583,7 @@ export default function NowShowing() {
         onClose={() => setDrawerOpen(false)}
         filters={filters}
         setFilters={setFilters}
-        toggleFilter={toggleFilter}
-        activeCount={activeCount}
+        availableFormats={availableFormats}
       />
     </div>
   );
@@ -660,49 +591,66 @@ export default function NowShowing() {
 
 function MovieCard({ movie, isVoted, onVote, onClick }) {
   return (
-    <div className="cursor-pointer group card-hover-lift" onClick={onClick}>
-      <div
-        className="relative rounded-2xl overflow-hidden bg-neutral-100 shadow-2xs group-hover:shadow-xl transition-all duration-300 border border-neutral-100"
-        style={{ aspectRatio: "2/3" }}
-      >
-        <img
-          src={IMG(movie.poster)}
-          alt={movie.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+    <div className="cursor-pointer group" onClick={onClick}>
+      <div className="relative rounded-2xl overflow-hidden bg-gray-200 shadow-sm" style={{ aspectRatio: "2/3" }}>
+        <img src={IMG(movie.poster)} alt={movie.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
 
-        {/* Certificate / Format tag */}
         {movie.certificate && (
-          <span className="absolute top-2.5 left-2.5 text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-md bg-black/60 text-white/90">
+          <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-1.5 py-0.5 rounded"
+            style={{ background: "rgba(0,0,0,0.55)", color: "rgba(255,255,255,0.9)" }}>
             {movie.certificate}
           </span>
         )}
 
-        {/* Bottom stats overlay: Star rating on bottom-left, heart on bottom-right */}
-        <div className="absolute bottom-2 left-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg text-white text-[11px] font-black">
-          <Star size={11} fill="#facc15" className="text-[#facc15]" />
-          <span>{movie.rating ? Number(movie.rating).toFixed(1) : "N/A"}</span>
-        </div>
+        {movie.isInCinemas && (
+          <span className="absolute top-2.5 right-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{ background: "rgba(240,84,92,0.88)", color: "#fff" }}>
+            In Cinemas
+          </span>
+        )}
 
-        <button
-          onClick={(e) => onVote(e, movie._id)}
-          className="absolute bottom-2 right-2.5 w-8 h-8 rounded-full bg-black/50 backdrop-blur-md hover:bg-black/70 flex items-center justify-center text-white transition-all active:scale-90"
-          aria-label="Interested"
-        >
-          <Heart
-            size={14}
-            className={isVoted ? "fill-[#ff4d58] text-[#ff4d58]" : "text-white"}
-          />
-        </button>
+        <div className="absolute bottom-0 left-0 right-0 px-3 py-3"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)" }}>
+          {movie.formats?.length > 0 && (
+            <p className="text-[10px] text-white/60 font-medium mb-1">
+              {movie.formats.slice(0, 3).join(" · ")}
+            </p>
+          )}
+          <div className="flex items-center gap-1.5">
+            <Star size={11} fill="#f0545c" className="text-[#f0545c] flex-shrink-0" />
+            <span className="text-white font-bold text-[12px]">{movie.rating}/10</span>
+            <span className="text-white/50 text-[11px]">{formatVotes(movie.votes)}+ Votes</span>
+          </div>
+        </div>
       </div>
 
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-neutral-900 leading-snug line-clamp-1 group-hover:text-[#ff4d58] transition-colors">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
           {movie.title}
         </h3>
-        <p className="text-[12px] font-medium text-neutral-500 mt-0.5 truncate">
-          ★ {movie.rating ? Number(movie.rating).toFixed(1) : "N/A"}
+        <p className="text-[12px] text-gray-400 mt-0.5 truncate">
+          {[movie.genre, movie.language].filter(Boolean).join(" · ")}
         </p>
+        {movie.duration && (
+          <p className="text-[11px] text-gray-400 mt-0.5">
+            {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+          </p>
+        )}
+        <button
+          onClick={(e) => onVote(e, movie._id)}
+          className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-semibold transition-all border"
+          style={{
+            borderColor: isVoted ? "rgba(240,84,92,0.5)"  : "rgba(240,84,92,0.25)",
+            color:       isVoted ? "#fff"                  : "#f0545c",
+            background:  isVoted ? "#f0545c"               : "white",
+          }}
+          onMouseEnter={(e) => { if (!isVoted) e.currentTarget.style.background = "rgba(240,84,92,0.05)"; }}
+          onMouseLeave={(e) => { if (!isVoted) e.currentTarget.style.background = "white"; }}
+        >
+          <ThumbsUp size={12} fill={isVoted ? "#fff" : "none"} />
+          {isVoted ? "Interested" : "Interested"}
+        </button>
       </div>
     </div>
   );

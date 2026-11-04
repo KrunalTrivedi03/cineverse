@@ -3,12 +3,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft, ChevronDown, MapPin, Calendar, Clock, Users, Info,
-  ShieldAlert, Building2, Mail, Phone, Star, Ticket, InfoIcon, Loader2,
+  ShieldAlert, Building2, Mail, Phone, Star, Ticket, InfoIcon,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar, { getSelectedCity } from "../components/Navbar";
 import EventRow from "../components/EventRow";
-import Footer from "../components/Footer";
 import { IMG, fmtDateLong, fmt12 } from "../utils/eventHelpers";
 import OfferBadge from "../components/OfferBadge";
 
@@ -56,9 +55,12 @@ export default function EventDetail() {
   }, [id]);
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8fafc] gap-3">
-      <Loader2 size={28} className="animate-spin text-[#f0545c]" />
-      <span className="text-[13px] font-semibold text-gray-400">Loading event details...</span>
+    <div className="flex items-center justify-center h-screen bg-white">
+      <div className="flex gap-2">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+        ))}
+      </div>
     </div>
   );
 
@@ -353,8 +355,6 @@ export default function EventDetail() {
           </button>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }

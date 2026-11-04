@@ -1,92 +1,214 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Home, ArrowLeft, Compass, Sparkles } from "lucide-react";
 
 export default function NotFound() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
   const [countdown, setCountdown] = useState(10);
-  const timerRef = useRef(null);
+  const timerRef  = useRef(null);
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setCountdown((c) => {
-        if (c <= 1) {
-          clearInterval(timerRef.current);
-          navigate("/");
-          return 0;
-        }
+        if (c <= 1) { clearInterval(timerRef.current); navigate("/"); return 0; }
         return c - 1;
       });
     }, 1000);
     return () => clearInterval(timerRef.current);
   }, [navigate]);
 
+  const stop = () => clearInterval(timerRef.current);
+
   return (
-    <div
-      className="min-h-screen bg-[#0c0d12] text-white flex flex-col items-center justify-center px-4 relative overflow-hidden"
-      style={{ fontFamily: "'Outfit', sans-serif" }}
-    >
-      {/* Ambient Radial Lights */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_rgba(240,84,92,0.18)_0%,_transparent_70%)] pointer-events-none" />
-      <div className="absolute -left-20 bottom-10 w-80 h-80 rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
-      <div className="absolute -right-20 top-10 w-80 h-80 rounded-full bg-[#f0545c]/10 blur-3xl pointer-events-none" />
+    <div style={{
+      minHeight: "100vh",
+      background: "#f5f0e6",
+      fontFamily: "'DM Sans', sans-serif",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "48px 24px",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap');
 
-      {/* Decorative Floating Film Strip Track at Top */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#f0545c] via-purple-500 to-[#f0545c]" />
+        .nfa-btn-p {
+          background: #1a1410; color: #faf7f0; border: none;
+          border-radius: 8px; padding: 13px 28px; font-size: 13px;
+          font-weight: 600; font-family: 'DM Sans', sans-serif;
+          cursor: pointer; transition: background .15s, transform .1s;
+          display: inline-flex; align-items: center; gap: 8px;
+        }
+        .nfa-btn-p:hover  { background: #2e261c; }
+        .nfa-btn-p:active { transform: scale(.97); }
 
-      <div className="relative z-10 max-w-lg w-full text-center flex flex-col items-center">
-        {/* Glow Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-extrabold uppercase tracking-widest text-[#f0545c] mb-6">
-          <Film size={13} className="animate-spin-slow" />
-          <span>Scene Not Found</span>
+        .nfa-btn-s {
+          background: transparent; color: #7a6a4a;
+          border: 1px solid #c8b98a; border-radius: 8px;
+          padding: 12px 24px; font-size: 13px; font-weight: 500;
+          font-family: 'DM Sans', sans-serif; cursor: pointer;
+          transition: border-color .15s, color .15s;
+          display: inline-flex; align-items: center; gap: 8px;
+        }
+        .nfa-btn-s:hover { border-color: #a09060; color: #3d3020; }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .nfa-fade1 { animation: fadeUp .5s .05s cubic-bezier(.4,0,.2,1) both; }
+        .nfa-fade2 { animation: fadeUp .5s .15s cubic-bezier(.4,0,.2,1) both; }
+        .nfa-fade3 { animation: fadeUp .5s .25s cubic-bezier(.4,0,.2,1) both; }
+        .nfa-fade4 { animation: fadeUp .5s .35s cubic-bezier(.4,0,.2,1) both; }
+
+        @keyframes filmScroll {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .film-track { animation: filmScroll 10s linear infinite; }
+      `}</style>
+
+      <div style={{
+        position: "fixed", top: 0, left: 0, right: 0,
+        height: 22, background: "#1a1410",
+        overflow: "hidden", display: "flex", alignItems: "center",
+      }}>
+        <div className="film-track" style={{ display: "flex", width: "200%" }}>
+          {Array.from({ length: 48 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <div style={{ width: 12, height: 9, background: "#0a0806", border: "1px solid #2e2010", borderRadius: 2, margin: "0 5px", flexShrink: 0 }} />
+              <div style={{ width: 32, height: 20, background: i % 4 === 0 ? "#221a10" : "#1a1410", flexShrink: 0 }} />
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* 404 Display */}
-        <div className="relative mb-2">
-          <h1 className="text-8xl sm:text-9xl font-black tracking-tighter bg-gradient-to-b from-white via-white/80 to-white/20 bg-clip-text text-transparent select-none drop-shadow-2xl">
-            404
-          </h1>
-          <div className="absolute -top-3 -right-2 w-8 h-8 rounded-full bg-[#f0545c] text-white flex items-center justify-center shadow-lg shadow-[#f0545c]/50">
-            <Sparkles size={16} />
-          </div>
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0,
+        height: 22, background: "#1a1410",
+        overflow: "hidden", display: "flex", alignItems: "center",
+      }}>
+        <div className="film-track" style={{ display: "flex", width: "200%", animationDirection: "reverse" }}>
+          {Array.from({ length: 48 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <div style={{ width: 12, height: 9, background: "#0a0806", border: "1px solid #2e2010", borderRadius: 2, margin: "0 5px", flexShrink: 0 }} />
+              <div style={{ width: 32, height: 20, background: i % 3 === 0 ? "#221a10" : "#1a1410", flexShrink: 0 }} />
+            </div>
+          ))}
         </div>
+      </div>
 
-        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-2">
-          Cut! That scene was left on the cutting room floor.
-        </h2>
+      <div style={{
+        position: "fixed",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -52%)",
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "clamp(200px, 40vw, 360px)",
+        fontWeight: 900,
+        color: "rgba(26,20,16,.05)",
+        lineHeight: 1,
+        letterSpacing: -8,
+        userSelect: "none",
+        pointerEvents: "none",
+        whiteSpace: "nowrap",
+      }}>404</div>
 
-        <p className="text-white/60 text-[14px] sm:text-[15px] mt-3 max-w-md mx-auto leading-relaxed">
-          The page or premiere you are looking for has been moved, rescheduled, or does not exist in our lineup.
-        </p>
-
-        {/* Countdown Indicator */}
-        <div className="mt-6 px-4 py-2 rounded-xl bg-white/5 border border-white/10 inline-flex items-center gap-2 text-[12px] text-white/70">
-          <span>Redirecting to the box office in</span>
-          <span className="font-mono font-bold text-[#f0545c] px-1.5 py-0.5 rounded bg-[#f0545c]/10">
-            {countdown}s
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 560, width: "100%" }}>
+        <div className="nfa-fade1" style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          marginBottom: 20,
+        }}>
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="#c8a050" strokeWidth="2"/>
+            <circle cx="16" cy="16" r="5" fill="none" stroke="#c8a050" strokeWidth="2"/>
+            {[0,60,120,180,240,300].map((deg, i) => {
+              const r = (deg * Math.PI) / 180;
+              return <line key={i} x1={16+6*Math.cos(r)} y1={16+6*Math.sin(r)} x2={16+11*Math.cos(r)} y2={16+11*Math.sin(r)} stroke="#c8a050" strokeWidth="2" strokeLinecap="round"/>;
+            })}
+          </svg>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase", color: "#b0905a" }}>
+            NOW · Error
           </span>
         </div>
 
-        {/* Navigation Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full mt-8">
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#f0545c] text-white font-extrabold text-[14px] shadow-lg shadow-[#f0545c]/30 hover:bg-[#e0454d] transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-          >
-            <Home size={16} />
-            <span>Back to Home</span>
-          </button>
+        <div className="nfa-fade2" style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: "clamp(96px, 24vw, 160px)",
+          fontWeight: 900,
+          color: "#1a1410",
+          lineHeight: 1,
+          letterSpacing: -6,
+          marginBottom: 4,
+        }}>404</div>
 
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-[14px] backdrop-blur-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-          >
-            <ArrowLeft size={16} />
-            <span>Previous Page</span>
+        <div className="nfa-fade2" style={{
+          width: 48, height: 2,
+          background: "#c8a050",
+          margin: "20px auto",
+          borderRadius: 1,
+        }} />
+
+        <div className="nfa-fade3">
+          <h1 style={{ fontSize: "clamp(18px,4vw,22px)", fontWeight: 600, color: "#1a1410", margin: "0 0 10px" }}>
+            Scene Not Found
+          </h1>
+          <p style={{ fontSize: 14, color: "#7a6a4a", lineHeight: 1.75, maxWidth: 380, margin: "0 auto" }}>
+            This page was cut from the final edit. The reel you're looking for has gone missing from our archives.
+          </p>
+        </div>
+
+        <div className="nfa-fade3" style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "clamp(16px,4vw,40px)",
+          margin: "28px 0",
+          flexWrap: "wrap",
+        }}>
+          {[
+            { label: "Status",    val: "Reel Missing" },
+            { label: "Show Time", val: "–– : ––"      },
+            { label: "Seat",      val: "Unknown"      },
+            { label: "Ticket No", val: "CVS–0000–404" },
+          ].map(({ label, val }) => (
+            <div key={label} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 9, letterSpacing: 2, textTransform: "uppercase", color: "#b0a080", marginBottom: 3 }}>{label}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#3d3020" }}>{val}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="nfa-fade3" style={{ maxWidth: 300, margin: "0 auto 28px" }}>
+          <div style={{ height: 3, background: "#e0d6be", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{
+              height: "100%",
+              width: `${countdown * 10}%`,
+              background: "linear-gradient(90deg, #c8a050, #e0b860)",
+              borderRadius: 2,
+              transition: "width 1s linear",
+            }} />
+          </div>
+          <div style={{ fontSize: 11, color: "#b0a080", marginTop: 6 }}>
+            Redirecting to homepage in {countdown}s…
+          </div>
+        </div>
+
+        <div className="nfa-fade4" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <button className="nfa-btn-p" onClick={() => { stop(); navigate("/"); }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Back to homepage
+          </button>
+          <button className="nfa-btn-s" onClick={() => { stop(); navigate(-1); }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Go back
           </button>
         </div>
+
       </div>
     </div>
   );

@@ -192,7 +192,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="w-full sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-gray-100/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] transition-all">
+      <nav className="w-full sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-gray-200/70 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[64px] flex items-center justify-between gap-4">
           
           {/* Logo & Brand */}
@@ -207,7 +207,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1.5 text-[14px] font-semibold text-gray-700">
+          <div className="hidden lg:flex items-center gap-1 text-[14px]">
             <NavDropdown label="Movies" activePaths={["/", "/now-showing", "/coming-soon", "/movie"]}>
               <DropItem icon={<Star size={15} />} label="Top Rated" desc="Critic & user favorites" to="/" />
               <DropItem
@@ -245,81 +245,74 @@ export default function Navbar() {
               />
             </NavDropdown>
 
-            {token && (
-              <NavLink to="/watchlist" active={location.pathname === "/watchlist"}>
-                <Bookmark size={15} className="inline mr-1 text-gray-400 group-hover:text-[#f0545c]" />
-                Watchlist
-              </NavLink>
-            )}
-
             <NavLink to="/events" active={location.pathname.startsWith("/events")}>
-              <Calendar size={15} className="inline mr-1 text-gray-400 group-hover:text-[#f0545c]" />
               Events
             </NavLink>
 
             <NavLink to="/play" active={location.pathname.startsWith("/play")}>
-              <Ticket size={15} className="inline mr-1 text-gray-400 group-hover:text-[#f0545c]" />
               Play
             </NavLink>
 
             <NavLink to="/offers" active={location.pathname === "/offers"}>
-              <span className="relative flex items-center">
-                Offers
-                <span className="ml-1.5 flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f0545c] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f0545c]"></span>
-                </span>
-              </span>
+              Offers
             </NavLink>
+
+            {token && (
+              <NavLink to="/watchlist" active={location.pathname === "/watchlist"}>
+                Watchlist
+              </NavLink>
+            )}
           </div>
 
           {/* Right Action Utilities */}
-          <div className="flex items-center gap-2.5 md:gap-3.5">
-            {/* Search Pill */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Minimalist Search Input */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="hidden md:flex items-center justify-between gap-3 border border-gray-200/90 bg-gray-50/80 hover:bg-white hover:border-[#f0545c]/30 hover:shadow-sm transition-all rounded-full px-3.5 py-1.5 text-[13px] text-gray-500 w-56 lg:w-64 group"
+              className="hidden md:flex items-center justify-between gap-3 bg-gray-100/80 hover:bg-gray-100 border border-gray-200/60 hover:border-gray-300 transition-all rounded-full px-3.5 py-1.5 text-[13px] text-gray-500 hover:text-gray-700 w-52 lg:w-60 group cursor-pointer"
             >
               <div className="flex items-center gap-2 truncate">
-                <Search size={14} className="text-gray-400 group-hover:text-[#f0545c] transition-colors flex-shrink-0" />
+                <Search size={14} className="text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
                 <span className="truncate">Search movies, shows...</span>
               </div>
-              <span className="text-[10px] font-bold text-gray-400 bg-gray-200/60 group-hover:bg-gray-200 px-1.5 py-0.5 rounded border border-gray-300/40">
+              <span className="text-[10px] font-mono text-gray-400 bg-white group-hover:bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 shadow-2xs">
                 /
               </span>
             </button>
 
-            {/* City Selector Pill */}
+            {/* City Selector */}
             <button
               onClick={() => setCityModal(true)}
-              className="hidden md:flex items-center gap-1.5 text-[13px] font-semibold text-gray-700 hover:text-[#f0545c] transition-all px-3 py-1.5 rounded-full border border-gray-200/80 hover:border-[#f0545c]/30 bg-white hover:bg-[#f0545c]/5 shadow-2xs"
+              className="hidden md:flex items-center gap-1.5 text-[13px] font-semibold text-gray-700 hover:text-gray-950 px-2.5 py-1.5 rounded-xl hover:bg-gray-100/70 transition-all cursor-pointer"
             >
               <MapPin
                 size={14}
-                className="flex-shrink-0"
-                style={{ color: selectedCity ? "#f0545c" : "#9ca3af" }}
+                className="flex-shrink-0 text-[#f0545c]"
               />
               <span className="truncate max-w-[100px]">{selectedCity || "Select City"}</span>
-              <ChevronDown size={13} className="text-gray-400" />
+              <ChevronDown size={12} className="text-gray-400" />
             </button>
+
+            {/* Subtle Divider */}
+            <div className="hidden md:block w-px h-4 bg-gray-200/90" />
 
             {/* Mobile search & city icons */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="md:hidden w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:text-[#f0545c] hover:bg-gray-200 transition-colors"
+              className="md:hidden w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors"
               aria-label="Search"
             >
-              <Search size={16} />
+              <Search size={15} />
             </button>
 
             <button
               onClick={() => setCityModal(true)}
-              className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-gray-100 text-gray-700 text-[12px] font-bold hover:text-[#f0545c] transition-colors"
+              className="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-[12px] font-semibold hover:text-gray-900 transition-colors"
               aria-label="Select city"
             >
               <MapPin
-                size={14}
-                style={{ color: selectedCity ? "#f0545c" : undefined }}
+                size={12}
+                className="text-[#f0545c]"
               />
               <span className="max-w-[70px] truncate">{selectedCity || "City"}</span>
             </button>
@@ -328,23 +321,23 @@ export default function Navbar() {
             {!token ? (
               <Link
                 to="/login"
-                className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-[#f0545c] hover:bg-[#e03a43] text-white flex-shrink-0 shadow-sm active:scale-95 transition-all"
+                className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-[#f0545c] text-white flex-shrink-0 shadow-2xs active:scale-95 transition-all text-[12px] font-semibold"
                 aria-label="Sign in"
               >
-                <User size={15} />
+                <User size={14} />
               </Link>
             ) : (
               <div className="md:hidden relative" ref={mobileProfileRef}>
                 <button
                   onClick={() => setMobileProfileOpen((p) => !p)}
-                  className="flex items-center justify-center w-9 h-9 rounded-full bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 ring-2 ring-[#f0545c]/20 shadow-sm"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 ring-2 ring-[#f0545c]/20 shadow-2xs"
                   aria-label="Account"
                 >
                   {(userInfo.username?.[0] || "U").toUpperCase()}
                 </button>
 
                 {mobileProfileOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white/98 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-4 py-3.5 border-b border-gray-100 bg-gray-50/80">
                       <p className="text-[14px] font-bold text-gray-900 capitalize truncate">
                         {userInfo.username || "User"}
@@ -387,30 +380,29 @@ export default function Navbar() {
             {!token ? (
               <Link
                 to="/login"
-                className="hidden md:inline-flex items-center gap-2 text-[13px] font-semibold text-white px-4 py-2 rounded-full bg-[#f0545c] hover:bg-[#e03a43] transition-all duration-150 shadow-sm hover:shadow"
+                className="hidden md:inline-flex items-center justify-center text-[13px] font-semibold text-white px-4 py-1.5 rounded-full bg-[#f0545c] hover:bg-[#e03a43] transition-all shadow-xs hover:shadow"
               >
-                <span>Sign In</span>
-                <ArrowRight size={13} />
+                Sign In
               </Link>
             ) : (
               <div className="hidden md:block relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen((p) => !p)}
-                  className="flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200/90 transition-all rounded-full pl-1.5 pr-3 py-1 shadow-2xs hover:border-[#f0545c]/30"
+                  className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-gray-100/70 border border-transparent hover:border-gray-200/80 transition-all cursor-pointer"
                 >
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0"
+                    className="w-7 h-7 rounded-full flex items-center justify-center bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 shadow-2xs"
                   >
                     {(userInfo.username?.[0] || "U").toUpperCase()}
                   </div>
-                  <span className="text-[13px] font-semibold text-gray-800 capitalize max-w-[90px] truncate">
+                  <span className="text-[13px] font-semibold text-gray-800 capitalize max-w-[100px] truncate">
                     {userInfo.username || "Account"}
                   </span>
-                  <ChevronDown size={13} className="text-gray-400" />
+                  <ChevronDown size={12} className="text-gray-400" />
                 </button>
 
                 {profileOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white/98 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-4 py-3.5 border-b border-gray-100 bg-gray-50/70">
                       <p className="text-[14px] font-bold text-gray-900 capitalize truncate">
                         {userInfo.username || "User"}
@@ -786,13 +778,16 @@ function NavLink({ to, children, active }) {
   return (
     <Link
       to={to}
-      className={`group relative px-3 py-1.5 rounded-xl text-[14px] font-semibold transition-all ${
+      className={`group relative h-[64px] flex items-center px-3.5 text-[14px] font-medium transition-colors ${
         active
-          ? "text-[#f0545c] bg-[#f0545c]/8"
-          : "text-gray-700 hover:text-[#f0545c] hover:bg-gray-100/70"
+          ? "text-gray-950 font-semibold"
+          : "text-gray-600 hover:text-gray-950"
       }`}
     >
-      {children}
+      <span>{children}</span>
+      {active && (
+        <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#f0545c] rounded-full" />
+      )}
     </Link>
   );
 }
@@ -802,21 +797,24 @@ function NavDropdown({ label, children, activePaths = [] }) {
   const isActive = activePaths.some((p) => p === "/" ? location.pathname === "/" : location.pathname.startsWith(p));
 
   return (
-    <div className="group relative">
+    <div className="group relative h-[64px] flex items-center">
       <button
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-[14px] font-semibold transition-all ${
+        className={`flex items-center gap-1 px-3.5 h-full text-[14px] font-medium transition-colors cursor-pointer ${
           isActive
-            ? "text-[#f0545c] bg-[#f0545c]/8"
-            : "text-gray-700 hover:text-[#f0545c] hover:bg-gray-100/70"
+            ? "text-gray-950 font-semibold"
+            : "text-gray-600 hover:text-gray-950"
         }`}
       >
         <span>{label}</span>
-        <ChevronDown size={13} className="transition-transform duration-200 group-hover:rotate-180" />
+        <ChevronDown size={12} className="text-gray-400 group-hover:text-gray-700 transition-transform duration-200 group-hover:rotate-180" />
+        {isActive && (
+          <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#f0545c] rounded-full" />
+        )}
       </button>
 
       {/* Floating Dropdown Card */}
-      <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 z-50">
-        <div className="bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-xl w-60 p-2 space-y-1">
+      <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 z-50">
+        <div className="bg-white/98 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-xl w-60 p-2 space-y-0.5">
           {children}
         </div>
       </div>

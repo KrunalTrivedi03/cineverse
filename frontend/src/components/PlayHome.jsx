@@ -4,7 +4,7 @@ import * as Icons from "lucide-react";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "./DistrictSelector";
 import { IMG } from "../utils/eventHelpers";
-import { ChevronRight, ChevronLeft, MapPin, Dumbbell, Trophy } from "lucide-react";
+import { ChevronRight, ChevronLeft, MapPin, Dumbbell, Trophy, Sparkles } from "lucide-react";
 
 export default function PlayHome() {
   const [venues, setVenues] = useState([]);
@@ -56,42 +56,44 @@ export default function PlayHome() {
 
   if (loading) {
     return (
-      <section className="w-full px-6 md:px-14 py-10 bg-white border-t border-gray-100">
-        <SectionHeader count={0} />
-        <div className="flex gap-4 overflow-hidden">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-[220px] animate-pulse">
-              <div className="rounded-2xl bg-gray-100" style={{ aspectRatio: "4/3" }} />
-              <div className="mt-2.5 space-y-2">
-                <div className="h-3.5 bg-gray-100 rounded w-3/4" />
-                <div className="h-3 bg-gray-100 rounded w-1/2" />
+      <section className="w-full px-4 sm:px-8 md:px-14 py-10 md:py-14 bg-[#f8fafc] border-b border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <SectionHeader count={0} />
+          <div className="flex gap-5 overflow-hidden">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-[210px] sm:w-[230px] animate-pulse">
+                <div className="rounded-2xl bg-gray-200" style={{ aspectRatio: "4/3" }} />
+                <div className="mt-3 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-3/4" />
+                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
     );
   }
 
-  // No district selected, or nothing to show for it — no static filler.
   if (venues.length === 0) return null;
 
   return (
-    <section className="w-full px-6 md:px-14 py-10 bg-white border-t border-gray-100">
-      <SectionHeader count={venues.length} onSeeAll={() => navigate("/play")} />
+    <section className="w-full px-4 sm:px-8 md:px-14 py-10 md:py-14 bg-[#f8fafc] border-b border-gray-100">
+      <div className="max-w-7xl mx-auto">
+        <SectionHeader count={venues.length} onSeeAll={() => navigate("/play")} />
 
-      <div className="relative">
-        {canLeft && <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -16, top: "38%" }} />}
-        <div
-          ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {venues.map((v) => (
-            <VenueCard key={v._id} venue={v} onClick={() => navigate(`/play/venues/${v._id}`)} />
-          ))}
+        <div className="relative group/slider">
+          {canLeft && <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -18, top: "42%" }} />}
+          <div
+            ref={sliderRef}
+            className="flex gap-5 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
+          >
+            {venues.map((v) => (
+              <VenueCard key={v._id} venue={v} onClick={() => navigate(`/play/venues/${v._id}`)} />
+            ))}
+          </div>
+          {canRight && <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -18, top: "42%" }} />}
         </div>
-        {canRight && <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -16, top: "38%" }} />}
       </div>
     </section>
   );
@@ -99,27 +101,28 @@ export default function PlayHome() {
 
 function SectionHeader({ count, onSeeAll }) {
   return (
-    <div className="flex items-end justify-between mb-6">
+    <div className="flex items-end justify-between mb-8">
       <div>
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(240,84,92,0.12)" }}>
-            <Dumbbell size={10} style={{ color: "#f0545c" }} />
-          </span>
-          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
-            Get moving
-          </p>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[11px] font-extrabold uppercase tracking-widest mb-2 border border-emerald-500/20">
+          <Dumbbell size={12} />
+          <span>Turfs &amp; Arenas</span>
         </div>
-        <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-          Upcoming Plays
+        <h2 className="text-[22px] sm:text-[26px] font-black text-gray-900 tracking-tight">
+          Sports &amp; Play Arenas
         </h2>
-        {count > 0 && <p className="text-[13px] text-gray-400 mt-0.5">{count} venue{count !== 1 ? "s" : ""} near you</p>}
+        {count > 0 && (
+          <p className="text-[13px] text-gray-500 mt-1 font-medium">
+            {count} court{count !== 1 ? "s" : ""} &amp; recreational venue{count !== 1 ? "s" : ""} ready for booking
+          </p>
+        )}
       </div>
       {onSeeAll && (
         <button
-          className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
+          className="flex items-center gap-1 text-[#f0545c] hover:text-[#d94048] text-[13.5px] font-bold group transition-all"
           onClick={onSeeAll}
         >
-          See All <ChevronRight size={15} />
+          <span>Explore All Sports</span>
+          <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
         </button>
       )}
     </div>
@@ -129,43 +132,56 @@ function SectionHeader({ count, onSeeAll }) {
 function VenueCard({ venue, onClick }) {
   const activities = venue.courtActivities?.length ? venue.courtActivities : (venue.activities || []);
   return (
-    <div className="flex-shrink-0 w-[220px] cursor-pointer group snap-start" onClick={onClick}>
-      <div className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-shadow group-hover:shadow-lg" style={{ aspectRatio: "4/3" }}>
+    <div
+      className="flex-shrink-0 w-[220px] sm:w-[240px] cursor-pointer group card-hover-lift"
+      onClick={onClick}
+    >
+      <div
+        className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-2xl transition-all duration-300 border border-gray-100"
+        style={{ aspectRatio: "4/3" }}
+      >
         {venue.images?.[0] ? (
           <img
             src={IMG(venue.images[0])}
             alt={venue.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }}>
-            <Dumbbell size={26} className="text-white/30" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-900 to-slate-900">
+            <Dumbbell size={28} className="text-white/40" />
           </div>
         )}
 
+        {/* Pricing tag */}
         {venue.startingPrice != null && (
-          <div className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 px-3 py-2"
-            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}>
-            <span className="text-white font-bold text-[12px]">₹{venue.startingPrice} onwards</span>
+          <div
+            className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 px-3 py-2"
+            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)" }}
+          >
+            <span className="text-white font-black text-[12.5px]">
+              ₹{venue.startingPrice} onwards
+            </span>
           </div>
         )}
       </div>
 
-      <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+      <div className="mt-3 px-1">
+        <h3 className="text-[14.5px] font-bold text-gray-900 leading-snug line-clamp-1 group-hover:text-[#f0545c] transition-colors">
           {venue.name}
         </h3>
-        <p className="text-[11.5px] text-gray-400 mt-0.5 flex items-center gap-1 truncate">
-          <MapPin size={10} className="flex-shrink-0" /> {venue.district?.name}
+        <p className="text-[12px] font-medium text-gray-400 mt-0.5 flex items-center gap-1 truncate">
+          <MapPin size={11} className="flex-shrink-0" /> {venue.district?.name || "Local District"}
         </p>
         {activities.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5">
+          <div className="flex flex-wrap gap-1 mt-2">
             {activities.slice(0, 2).map((a) => {
               const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Trophy;
               return (
-                <span key={a._id} className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(240,84,92,0.08)", color: "#c0353b" }}>
-                  <IconComp size={9} /> {a.name}
+                <span
+                  key={a._id}
+                  className="flex items-center gap-1 text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 border border-emerald-500/20"
+                >
+                  <IconComp size={10} /> {a.name}
                 </span>
               );
             })}
@@ -181,10 +197,11 @@ function ArrowBtn({ dir, onClick, style }) {
     <button
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
-      className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"
+      className="absolute z-10 w-10 h-10 rounded-full bg-white/95 backdrop-blur-md border border-gray-200/90 shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all transform hover:scale-110 active:scale-95"
       style={{ ...style, transform: "translateY(-50%)" }}
+      aria-label={dir === "left" ? "Previous" : "Next"}
     >
-      {dir === "left" ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
+      {dir === "left" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
     </button>
   );
 }

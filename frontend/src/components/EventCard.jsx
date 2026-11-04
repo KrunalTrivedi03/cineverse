@@ -2,90 +2,104 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, Star, Calendar } from "lucide-react";
 import { IMG, fmt12, fmtDate } from "../utils/eventHelpers";
 
-export default function EventCard({ event, width = 190 }) {
+const CATEGORY_COLORS = {
+  Music: { bg: "rgba(168,85,247,0.9)", text: "#fff" },
+  Comedy: { bg: "rgba(249,115,22,0.9)", text: "#fff" },
+  Workshops: { bg: "rgba(14,165,233,0.9)", text: "#fff" },
+  Performances: { bg: "rgba(236,72,153,0.9)", text: "#fff" },
+  Nightlife: { bg: "rgba(99,102,241,0.9)", text: "#fff" },
+};
+
+export default function EventCard({ event, width = 200 }) {
   const navigate = useNavigate();
   const sched    = event.nextSchedule;
+  const catColor = CATEGORY_COLORS[event.category] || { bg: "rgba(0,0,0,0.65)", text: "#fff" };
 
   return (
     <div
       onClick={() => navigate(`/events/${event._id}`)}
-      style={{ width, flexShrink: 0, cursor: "pointer" }}
-      className="group"
+      style={{ width, flexShrink: 0 }}
+      className="group cursor-pointer card-hover-lift"
     >
-      <div style={{
-        position: "relative", width: "100%", aspectRatio: "3/4",
-        borderRadius: 14, overflow: "hidden", background: "#eee",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-      }}>
+      <div
+        className="relative w-full rounded-2xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-2xl transition-all duration-300 border border-gray-100"
+        style={{ aspectRatio: "3/4" }}
+      >
         {event.poster ? (
           <img
             src={IMG(event.poster)}
             alt={event.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            className="group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#bbb", fontSize: 12, fontWeight: 600 }}>
-            No Image
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200 text-gray-400 text-[12px] font-bold">
+            No Poster
           </div>
         )}
 
-        <div style={{
-          position: "absolute", top: 8, left: 8,
-          padding: "3px 9px", borderRadius: 20,
-          background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
-        }}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", letterSpacing: ".04em", textTransform: "uppercase" }}>
-            {event.category}
-          </span>
-        </div>
+        {/* Category Badge */}
+        {event.category && (
+          <div
+            className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-md"
+            style={{ background: catColor.bg, color: catColor.text }}
+          >
+            <span className="text-[10px] font-black uppercase tracking-wider">
+              {event.category}
+            </span>
+          </div>
+        )}
 
+        {/* Rating Badge */}
         {event.ratings?.count > 0 && (
-          <div style={{
-            position: "absolute", top: 8, right: 8,
-            display: "flex", alignItems: "center", gap: 3,
-            padding: "3px 7px", borderRadius: 20,
-            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
-          }}>
-            <Star size={9} color="#facc15" fill="#facc15" />
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{event.ratings.average.toFixed(1)}</span>
+          <div
+            className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full backdrop-blur-md bg-black/60 border border-white/10 shadow-md"
+          >
+            <Star size={10} fill="#facc15" className="text-[#facc15]" />
+            <span className="text-[11px] font-black text-white">
+              {event.ratings.average.toFixed(1)}
+            </span>
           </div>
         )}
 
+        {/* Starting Price Pill */}
         {sched?.startingPrice != null && (
-          <div style={{
-            position: "absolute", bottom: 0, left: 0, right: 0,
-            padding: "8px 10px 6px",
-            background: "linear-gradient(transparent, rgba(0,0,0,0.75))",
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>
+          <div
+            className="absolute bottom-0 left-0 right-0 px-3 py-2"
+            style={{
+              background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 60%, transparent 100%)",
+            }}
+          >
+            <span className="text-[11.5px] font-extrabold text-white">
               ₹{sched.startingPrice.toLocaleString("en-IN")} onwards
             </span>
           </div>
         )}
       </div>
 
-      <div style={{ padding: "8px 2px 0" }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#111", lineHeight: 1.3 }} className="line-clamp-1">
+      <div className="mt-2.5 px-1">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-snug line-clamp-1 group-hover:text-[#f0545c] transition-colors">
           {event.title}
-        </p>
+        </h3>
+
         {event.artists?.length > 0 && (
-          <p style={{ margin: "2px 0 0", fontSize: 11, color: "#9ca3af" }} className="line-clamp-1">
+          <p className="text-[12px] font-medium text-gray-500 mt-0.5 line-clamp-1">
             {event.artists.map((a) => a.name).join(", ")}
           </p>
         )}
+
         {sched && (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
-            <Calendar size={10} color="#f0545c" />
-            <span style={{ fontSize: 10, fontWeight: 600, color: "#f0545c" }}>
+          <div className="flex items-center gap-1.5 mt-1.5 text-[11.5px] font-bold text-[#f0545c]">
+            <Calendar size={12} className="flex-shrink-0" />
+            <span className="truncate">
               {fmtDate(sched.eventDate)}{sched.time ? ` · ${fmt12(sched.time)}` : ""}
             </span>
           </div>
         )}
+
         {sched?.venue && (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-            <MapPin size={10} color="#9ca3af" />
-            <span style={{ fontSize: 10, color: "#9ca3af" }} className="line-clamp-1">
+          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium text-gray-400">
+            <MapPin size={11} className="flex-shrink-0 text-gray-400" />
+            <span className="truncate">
               {sched.venue.name}{sched.venue.district?.name ? `, ${sched.venue.district.name}` : ""}
             </span>
           </div>

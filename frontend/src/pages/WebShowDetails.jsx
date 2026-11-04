@@ -11,6 +11,7 @@ import {
   AlertCircle,
   X,
   Users,
+  Sparkles,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
@@ -19,9 +20,7 @@ import BottomNav from "../components/BottomNav";
 
 const ACCENT = "#f0545c";
 
-/** Turns a YouTube/Vimeo watch link into an embeddable iframe URL.
- *  Returns null for anything else (e.g. direct .mp4 files), which the
- *  player falls back to rendering with a native <video> tag instead. */
+/** Turns a YouTube/Vimeo watch link into an embeddable iframe URL. */
 function getEmbedUrl(url) {
   if (!url) return null;
   try {
@@ -69,19 +68,19 @@ function TrailerModal({ url, title, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-3 sm:p-6"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-6"
       onClick={onClose}
     >
       <button
         onClick={onClose}
         aria-label="Close trailer"
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
       >
-        <X size={18} />
+        <X size={20} />
       </button>
 
       <div
-        className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden bg-black shadow-2xl"
+        className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         {embedUrl ? (
@@ -103,18 +102,18 @@ function TrailerModal({ url, title, onClose }) {
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-center px-6">
-            <Film size={32} className="text-gray-500" />
+            <Film size={36} className="text-gray-500" />
             <p className="text-gray-300 text-sm">
-              This trailer can't be played inline.
+              This trailer cannot be played inline.
             </p>
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-semibold px-4 py-2 rounded-full text-white"
+              className="text-sm font-bold px-6 py-2.5 rounded-full text-white shadow-md shadow-[#f0545c]/30"
               style={{ backgroundColor: ACCENT }}
             >
-              Open trailer link
+              Open Trailer in New Tab
             </a>
           </div>
         )}
@@ -125,17 +124,17 @@ function TrailerModal({ url, title, onClose }) {
 
 function DetailsSkeleton() {
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <Navbar />
       <BottomNav />
-      <div className="relative w-full h-[38vh] sm:h-[50vh] bg-gray-100 animate-pulse" />
+      <div className="relative w-full h-[38vh] sm:h-[50vh] bg-gray-900 animate-pulse" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-20 relative">
         <div className="flex flex-col sm:flex-row gap-6">
-          <div className="w-36 sm:w-56 aspect-[2/3] rounded-xl bg-gray-200 animate-pulse flex-shrink-0 border-4 border-white shadow-xl" />
+          <div className="w-36 sm:w-56 aspect-[2/3] rounded-2xl bg-gray-200 animate-pulse flex-shrink-0 border-4 border-white shadow-xl" />
           <div className="flex-1 pt-4 sm:pt-24 space-y-3">
-            <div className="h-7 w-2/3 rounded bg-gray-100 animate-pulse" />
-            <div className="h-4 w-1/2 rounded bg-gray-100 animate-pulse" />
-            <div className="h-16 w-full rounded bg-gray-100 animate-pulse" />
+            <div className="h-8 w-2/3 rounded-lg bg-gray-200 animate-pulse" />
+            <div className="h-4 w-1/2 rounded-md bg-gray-200 animate-pulse" />
+            <div className="h-20 w-full rounded-xl bg-gray-200 animate-pulse" />
           </div>
         </div>
       </div>
@@ -146,22 +145,25 @@ function DetailsSkeleton() {
 function SimilarShowCard({ show, onOpen }) {
   return (
     <div
-      className="group flex-shrink-0 w-[130px] sm:w-[170px] cursor-pointer"
+      className="group flex-shrink-0 w-[140px] sm:w-[170px] cursor-pointer"
       onClick={() => onOpen(show._id)}
     >
-      <div className="relative aspect-[2/3] w-full rounded-lg overflow-hidden bg-gray-900">
+      <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden bg-gray-900 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
         <img
           src={show.poster}
           alt={show.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-1.5 py-0.5">
-          <Star size={9} fill={ACCENT} stroke={ACCENT} />
-          <span className="text-[10px] font-semibold text-white">{show.rating}</span>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 border border-white/10">
+          <Star size={10} fill={ACCENT} stroke={ACCENT} />
+          <span className="text-[11px] font-bold text-white">{show.rating}</span>
         </div>
       </div>
-      <p className="text-[12px] font-semibold text-gray-800 mt-1.5 truncate">{show.title}</p>
+      <p className="text-[13px] font-bold text-gray-900 mt-2 truncate group-hover:text-[#f0545c] transition-colors">
+        {show.title}
+      </p>
     </div>
   );
 }
@@ -201,7 +203,6 @@ export default function WebShowDetails() {
     };
   }, [id]);
 
-  // Pull a few more titles from the same category to round out the page.
   useEffect(() => {
     if (!show?.category) return;
     let cancelled = false;
@@ -230,18 +231,20 @@ export default function WebShowDetails() {
 
   if (error || !show) {
     return (
-      <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <Navbar />
         <BottomNav />
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4 text-center">
-          <AlertCircle size={36} className="text-gray-200" />
-          <p className="text-gray-500 text-sm font-medium">{error}</p>
+          <div className="w-16 h-16 rounded-3xl bg-red-50 text-[#f0545c] flex items-center justify-center">
+            <AlertCircle size={32} />
+          </div>
+          <p className="text-gray-700 text-[16px] font-bold">{error || "Web show could not be found."}</p>
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full text-white transition-transform hover:scale-105"
+            className="flex items-center gap-2 text-[13px] font-bold px-6 py-3 rounded-2xl text-white shadow-md shadow-[#f0545c]/25 hover:bg-[#e0454d] transition-all cursor-pointer"
             style={{ backgroundColor: ACCENT }}
           >
-            <ArrowLeft size={15} /> Go Back
+            <ArrowLeft size={15} /> Return to Listing
           </button>
         </div>
         <Footer />
@@ -250,25 +253,17 @@ export default function WebShowDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
-
+    <div className="min-h-screen bg-[#f8fafc]" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <Navbar />
       <BottomNav />
 
-      {/* ══ BACKDROP ════════════════════════════════════
-          Show posters are portrait (2:3) but this banner is a wide strip,
-          so a plain object-cover crops in tight on faces. Instead we layer
-          a blurred, fully-covering copy behind a sharp, uncropped
-          object-contain copy — the same "letterboxed hero" pattern
-          streaming apps use when only a poster (not a wide banner) is
-          available. Real 16:9 banners still render edge-to-edge on top. */}
-      <div className="relative w-full h-[38vh] sm:h-[52vh] overflow-hidden bg-[#111]">
+      {/* Cinematic Hero Backdrop */}
+      <div className="relative w-full h-[40vh] sm:h-[54vh] overflow-hidden bg-[#0c0d12]">
         <img
           src={backdropSrc}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"
         />
         <img
           src={backdropSrc}
@@ -278,50 +273,53 @@ export default function WebShowDetails() {
             bgLoaded ? "opacity-100" : "opacity-0"
           }`}
         />
+        {/* Cinematic gradient fade */}
         <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 30%, rgba(255,255,255,0.6) 80%, #fff 100%)",
-          }}
+          className="absolute inset-0 bg-gradient-to-t from-[#f8fafc] via-[#0c0d12]/40 to-[#0c0d12]/60"
         />
 
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 flex items-center gap-1.5 text-white bg-black/40 backdrop-blur-sm hover:bg-black/60 rounded-full pl-2.5 pr-3.5 py-1.5 text-[13px] font-semibold transition-colors"
+          className="absolute top-5 left-5 flex items-center gap-2 text-white bg-black/50 backdrop-blur-md hover:bg-black/70 border border-white/10 rounded-2xl px-4 py-2 text-[13px] font-bold transition-all cursor-pointer"
         >
           <ArrowLeft size={15} /> Back
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-20 sm:-mt-28 relative">
-        <div className="flex flex-col sm:flex-row gap-5 sm:gap-7">
-          <img
-            src={show.poster}
-            alt={show.title}
-            className="w-32 sm:w-56 rounded-xl shadow-xl border-4 border-white flex-shrink-0 self-start"
-          />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-24 sm:-mt-32 relative z-20 pb-16">
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
+          {/* Main Poster Card */}
+          <div className="w-36 sm:w-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gray-900 flex-shrink-0 self-start">
+            <img
+              src={show.poster}
+              alt={show.title}
+              className="w-full aspect-[2/3] object-cover"
+            />
+          </div>
 
-          <div className="flex-1 pt-1 sm:pt-24 min-w-0">
-            <span
-              className="inline-block text-[10.5px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full mb-2"
-              style={{ backgroundColor: "rgba(240,84,92,0.1)", color: ACCENT }}
-            >
-              {show.category === "trending-series" ? "Trending Series" : "Web Original"}
-            </span>
+          {/* Details Column */}
+          <div className="flex-1 pt-1 sm:pt-20 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-black tracking-wider uppercase px-3 py-1 rounded-full bg-red-50 text-[#f0545c]"
+              >
+                <Sparkles size={11} />
+                {show.category === "trending-series" ? "Trending Series" : "Web Original"}
+              </span>
+            </div>
 
-            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-gray-900 leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-gray-900 leading-tight">
               {show.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[13px] text-gray-600">
+            {/* Quick Meta Stats */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-[13px] text-gray-600 font-medium">
               <span
-                className="flex items-center gap-1 font-bold px-2 py-0.5 rounded-md"
-                style={{ backgroundColor: "rgba(240,84,92,0.1)", color: ACCENT }}
+                className="flex items-center gap-1 font-extrabold px-2.5 py-1 rounded-lg bg-red-50 text-[#f0545c]"
               >
                 <Star size={13} fill={ACCENT} stroke={ACCENT} />
-                {show.rating}
-                <span className="font-medium opacity-60">/10</span>
+                <span>{show.rating}</span>
+                <span className="font-semibold opacity-60">/10</span>
               </span>
               {show.releaseYear && (
                 <span className="flex items-center gap-1">
@@ -342,12 +340,13 @@ export default function WebShowDetails() {
               )}
             </div>
 
+            {/* Genres */}
             {show.genre?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3.5">
                 {show.genre.map((g) => (
                   <span
                     key={g}
-                    className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600"
+                    className="text-[11px] font-bold px-3 py-1 rounded-full bg-white border border-gray-200 text-gray-700 shadow-2xs"
                   >
                     {g}
                   </span>
@@ -355,48 +354,53 @@ export default function WebShowDetails() {
               </div>
             )}
 
-            {/* Action buttons — stacked full-width on mobile, inline from sm up */}
-            <div className="flex flex-col sm:flex-row gap-2.5 mt-5">
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
               {show.streamingUrl && (
                 <a
                   href={show.streamingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-lg text-white shadow-sm transition-transform hover:scale-[1.02]"
+                  className="flex items-center justify-center gap-2 font-black px-6 py-3.5 rounded-2xl text-white shadow-lg shadow-[#f0545c]/30 hover:bg-[#e0454d] transition-all hover:scale-[1.02] active:scale-[0.98]"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  <Play size={16} fill="white" /> Watch Now
+                  <Play size={16} fill="white" />
+                  <span>Watch Now</span>
                 </a>
               )}
               {show.trailerUrl && (
                 <button
+                  type="button"
                   onClick={() => setTrailerOpen(true)}
-                  className="flex items-center justify-center gap-2 font-semibold px-5 py-2.5 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+                  className="flex items-center justify-center gap-2 font-bold px-6 py-3.5 rounded-2xl bg-white border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs transition-all cursor-pointer active:scale-[0.98]"
                 >
-                  <Film size={16} /> Watch Trailer
+                  <Film size={16} />
+                  <span>Watch Trailer</span>
                 </button>
               )}
             </div>
 
+            {/* Overview */}
             {show.description && (
-              <div className="mt-6">
-                <h2 className="text-[11px] font-bold tracking-wide uppercase text-gray-400 mb-1.5">
-                  Overview
+              <div className="mt-8 bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
+                <h2 className="text-[11px] font-extrabold tracking-wider uppercase text-gray-400 mb-2">
+                  Storyline
                 </h2>
-                <p className="text-gray-700 text-[13.5px] leading-relaxed">{show.description}</p>
+                <p className="text-gray-700 text-[14px] leading-relaxed font-normal">{show.description}</p>
               </div>
             )}
 
+            {/* Cast */}
             {show.cast?.length > 0 && (
-              <div className="mt-5">
-                <h2 className="text-[11px] font-bold tracking-wide uppercase text-gray-400 mb-2 flex items-center gap-1.5">
-                  <Users size={12} /> Cast
+              <div className="mt-6">
+                <h2 className="text-[11px] font-extrabold tracking-wider uppercase text-gray-400 mb-2.5 flex items-center gap-1.5">
+                  <Users size={13} /> Starring Cast
                 </h2>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {show.cast.map((actor) => (
                     <span
                       key={actor}
-                      className="text-[12px] font-medium px-2.5 py-1 rounded-full border border-gray-200 text-gray-700"
+                      className="text-[12px] font-bold px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-800 shadow-2xs"
                     >
                       {actor}
                     </span>
@@ -407,53 +411,58 @@ export default function WebShowDetails() {
           </div>
         </div>
 
-        {/* ══ SEASONS ═══════════════════════════════════ */}
+        {/* Seasons */}
         {show.seasons?.length > 0 && (
-          <div className="mt-10">
-            <h2 className="font-extrabold tracking-tight text-gray-900 text-lg sm:text-xl mb-4">
-              Seasons
+          <div className="mt-12">
+            <h2 className="font-black tracking-tight text-gray-900 text-xl sm:text-2xl mb-4">
+              All Seasons
             </h2>
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {show.seasons.map((s) => (
                 <div
                   key={s.seasonNumber}
-                  className="flex items-center justify-between gap-3 border border-gray-100 rounded-xl px-4 py-3.5 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                  className="flex items-center justify-between gap-3 bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-xs hover:border-gray-200 hover:shadow-md transition-all"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3.5 min-w-0">
                     <div
-                      className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(240,84,92,0.1)" }}
+                      className="flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center bg-red-50 text-[#f0545c]"
                     >
-                      <Tv size={15} style={{ color: ACCENT }} />
+                      <Tv size={18} />
                     </div>
-                    <span className="text-[14px] font-semibold text-gray-800 truncate">
-                      Season {s.seasonNumber}
-                    </span>
+                    <div>
+                      <span className="text-[15px] font-black text-gray-900">
+                        Season {s.seasonNumber}
+                      </span>
+                      {s.releaseDate && (
+                        <p className="text-[12px] text-gray-400 font-medium">
+                          Premiered {new Date(s.releaseDate).getFullYear()}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-[12px] text-gray-500 flex-shrink-0">
+                  <span className="text-[12px] font-extrabold text-gray-700 bg-gray-50 border border-gray-200 px-3 py-1 rounded-xl flex-shrink-0">
                     {s.episodeCount} episode{s.episodeCount !== 1 ? "s" : ""}
-                    {s.releaseDate && ` • ${new Date(s.releaseDate).getFullYear()}`}
                   </span>
                 </div>
               ))}
             </div>
           </div>
         )}
-      </div>
 
-      {/* ══ MORE LIKE THIS ══════════════════════════════ */}
-      {similar.length > 0 && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-12 mb-16">
-          <h2 className="font-extrabold tracking-tight text-gray-900 text-lg sm:text-xl mb-4">
-            More Like This
-          </h2>
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {similar.map((s) => (
-              <SimilarShowCard key={s._id} show={s} onOpen={handleOpenSimilar} />
-            ))}
+        {/* More Like This */}
+        {similar.length > 0 && (
+          <div className="mt-14">
+            <h2 className="font-black tracking-tight text-gray-900 text-xl sm:text-2xl mb-4">
+              More Series Like This
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
+              {similar.map((s) => (
+                <SimilarShowCard key={s._id} show={s} onOpen={handleOpenSimilar} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <Footer />
 

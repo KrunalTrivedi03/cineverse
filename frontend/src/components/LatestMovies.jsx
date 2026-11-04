@@ -1,7 +1,16 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
-import { ChevronRight, ChevronLeft, Star, ThumbsUp, MonitorPlay, Tv } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Star,
+  ThumbsUp,
+  MonitorPlay,
+  Tv,
+  Sparkles,
+  Ticket,
+} from "lucide-react";
 
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
@@ -19,7 +28,7 @@ const formatDate = (dateStr) => {
 };
 
 const STORAGE_KEY = "voted_movies";
-const getVoted    = () => {
+const getVoted = () => {
   try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); }
   catch { return new Set(); }
 };
@@ -28,14 +37,14 @@ const saveVoted = (set) => {
 };
 
 const STATUS_BADGE = {
-  upcoming:  { label: "Upcoming",   bg: "rgba(234,88,12,0.88)",  color: "#fff" },
-  streaming: { label: "Streaming",  bg: "rgba(99,102,241,0.88)", color: "#fff" },
+  upcoming:  { label: "Upcoming",   bg: "rgba(234,88,12,0.92)",  color: "#fff" },
+  streaming: { label: "Streaming",  bg: "rgba(99,102,241,0.92)", color: "#fff" },
 };
 
 const getBadge = (movie) => {
   if (movie.status === "released") {
     return movie.isInCinemas
-      ? { label: "In Cinemas", bg: "rgba(240,84,92,0.88)", color: "#fff" }
+      ? { label: "In Cinemas", bg: "rgba(240,84,92,0.92)", color: "#fff" }
       : { label: "Not Showing", bg: "rgba(107,114,128,0.85)", color: "#fff" };
   }
   return STATUS_BADGE[movie.status] || STATUS_BADGE.upcoming;
@@ -50,75 +59,75 @@ export default function LatestMovies() {
   const navigate  = useNavigate();
 
   const [city, setCity] = useState(
-  () => localStorage.getItem("selectedCity") || "Mumbai"
-);
-
-useEffect(() => {
-  const handler = () => {
-    const newCity = localStorage.getItem("selectedCity") || "Mumbai";
-    setCity(newCity);
-  };
-  window.addEventListener("cityChanged", handler);
-  return () => window.removeEventListener("cityChanged", handler);
-}, []);
-
-useEffect(() => {
-  api.get("/movies", { params: { city } })
-    .then((res) => {
-      const latest = res.data.filter((m) => m.status === "streaming" || (m.status === "released" && m.isInCinemas)).slice(0, 10);
-      setMovies(
-        latest.map((m) => ({
-          id:          m._id,
-          title:       m.title,
-          rating:      m.rating      ?? 0,
-          genre:       m.genre       || "Drama",
-          votes:       m.votes       || 0,
-          poster:      m.poster      || "/placeholder.jpg",
-          releaseDate: m.releaseDate || null,
-          certificate: m.certificate || null,
-          status:      m.status      || "upcoming",
-          isInCinemas: m.isInCinemas ?? false,
-          ottPlatform: m.ottPlatform || null,
-          formats:     m.formats     || [],
-          language:    m.language    || null,
-          duration:    m.duration    || null,
-        }))
-      );
-    })
-    .catch(console.error);
-}, [city]);
-
-  const handleVote = async (e, movieId) => {
-  e.stopPropagation();
-
-  if (voted.has(movieId)) return;
-
-  setMovies((prev) =>
-    prev.map((m) => m.id === movieId ? { ...m, votes: m.votes + 1 } : m)
+    () => localStorage.getItem("selectedCity") || "Mumbai"
   );
 
-  setVoted((prev) => {
-    const next = new Set(prev);
-    next.add(movieId);
-    saveVoted(next);
-    return next;
-  });
+  useEffect(() => {
+    const handler = () => {
+      const newCity = localStorage.getItem("selectedCity") || "Mumbai";
+      setCity(newCity);
+    };
+    window.addEventListener("cityChanged", handler);
+    return () => window.removeEventListener("cityChanged", handler);
+  }, []);
 
-  try {
-    await api.put(`/movies/vote/${movieId}`);
-  } catch (err) {
-    console.error("Vote failed, rolling back", err);
+  useEffect(() => {
+    api.get("/movies", { params: { city } })
+      .then((res) => {
+        const latest = res.data.filter((m) => m.status === "streaming" || (m.status === "released" && m.isInCinemas)).slice(0, 10);
+        setMovies(
+          latest.map((m) => ({
+            id:          m._id,
+            title:       m.title,
+            rating:      m.rating      ?? 0,
+            genre:       m.genre       || "Drama",
+            votes:       m.votes       || 0,
+            poster:      m.poster      || "/placeholder.jpg",
+            releaseDate: m.releaseDate || null,
+            certificate: m.certificate || null,
+            status:      m.status      || "upcoming",
+            isInCinemas: m.isInCinemas ?? false,
+            ottPlatform: m.ottPlatform || null,
+            formats:     m.formats     || [],
+            language:    m.language    || null,
+            duration:    m.duration    || null,
+          }))
+        );
+      })
+      .catch(console.error);
+  }, [city]);
+
+  const handleVote = async (e, movieId) => {
+    e.stopPropagation();
+
+    if (voted.has(movieId)) return;
+
     setMovies((prev) =>
-      prev.map((m) => m.id === movieId ? { ...m, votes: Math.max(0, m.votes - 1) } : m)
+      prev.map((m) => m.id === movieId ? { ...m, votes: m.votes + 1 } : m)
     );
+
     setVoted((prev) => {
       const next = new Set(prev);
-      next.delete(movieId);
+      next.add(movieId);
       saveVoted(next);
       return next;
     });
-  }
-};
+
+    try {
+      await api.put(`/movies/vote/${movieId}`);
+    } catch (err) {
+      console.error("Vote failed, rolling back", err);
+      setMovies((prev) =>
+        prev.map((m) => m.id === movieId ? { ...m, votes: Math.max(0, m.votes - 1) } : m)
+      );
+      setVoted((prev) => {
+        const next = new Set(prev);
+        next.delete(movieId);
+        saveVoted(next);
+        return next;
+      });
+    }
+  };
 
   const checkScroll = () => {
     const el = sliderRef.current;
@@ -146,56 +155,71 @@ useEffect(() => {
     });
 
   return (
-    <section className="w-full px-6 md:px-14 py-10 bg-white">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">
-            Recommended Movies
-          </h2>
-          <p className="text-[13px] text-gray-400 mt-0.5">Handpicked for you this week</p>
-        </div>
-        <button className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all" 
-        onClick={() => navigate("/now-showing")}>
-          See All <ChevronRight size={15} />
-        </button>
-      </div>
-
-      {movies.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-14 text-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
-            style={{ background: "rgba(240,84,92,0.07)" }}>
-            <Tv size={26} style={{ color: "#f0545c", opacity: 0.4 }} />
+    <section className="w-full px-4 sm:px-8 md:px-14 py-10 md:py-14 bg-white/70 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0545c]/10 text-[#f0545c] text-[11px] font-extrabold uppercase tracking-widest mb-2 border border-[#f0545c]/20">
+              <Sparkles size={12} />
+              <span>Recommended Releases</span>
+            </div>
+            <h2 className="text-[22px] sm:text-[26px] font-black text-gray-900 tracking-tight">
+              Recommended Movies
+            </h2>
+            <p className="text-[13px] text-gray-500 mt-1 font-medium">
+              Handpicked blockbuster screenings &amp; stream premieres in <span className="font-bold text-gray-800">{city}</span>
+            </p>
           </div>
-          <p className="text-[15px] font-bold text-gray-400">No movies in {city}</p>
-          <p className="text-[12px] text-gray-300 mt-1">Try selecting a different city from the navbar</p>
-        </div>
-      )}
 
-      {movies.length > 0 && (
-        <div className="relative">
-          {canLeft && (
-            <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -16, top: "45%" }} />
-          )}
-          <div
-            ref={sliderRef}
-            className="flex gap-4 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          <button
+            onClick={() => navigate("/now-showing")}
+            className="flex items-center gap-1 text-[#f0545c] hover:text-[#d94048] text-[13.5px] font-bold group transition-all"
           >
-            {movies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                isVoted={voted.has(movie.id)}
-                onVote={handleVote}
-                onClick={() => navigate(`/movie/${movie.id}`)}
-              />
-            ))}
-          </div>
-          {canRight && (
-            <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -16, top: "45%" }} />
-          )}
+            <span>See All Movies</span>
+            <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+          </button>
         </div>
-      )}
+
+        {movies.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center rounded-3xl bg-gray-50/80 border border-gray-100">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 shadow-inner"
+              style={{ background: "rgba(240,84,92,0.08)" }}
+            >
+              <Tv size={28} style={{ color: "#f0545c", opacity: 0.6 }} />
+            </div>
+            <p className="text-[16px] font-extrabold text-gray-700">No movies found in {city}</p>
+            <p className="text-[13px] text-gray-400 mt-1">
+              Select another city from the location menu at top to explore showtimes.
+            </p>
+          </div>
+        ) : (
+          <div className="relative group/slider">
+            {canLeft && (
+              <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -18, top: "42%" }} />
+            )}
+
+            <div
+              ref={sliderRef}
+              className="flex gap-5 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
+            >
+              {movies.map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  isVoted={voted.has(movie.id)}
+                  onVote={handleVote}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                />
+              ))}
+            </div>
+
+            {canRight && (
+              <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -18, top: "42%" }} />
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
@@ -205,174 +229,144 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
 
   return (
     <div
-      className="flex-shrink-0 w-[200px] cursor-pointer group"
+      className="flex-shrink-0 w-[190px] sm:w-[210px] cursor-pointer group card-hover-lift"
       onClick={onClick}
     >
       <div
-        className="relative rounded-xl overflow-hidden bg-gray-100 shadow-sm"
+        className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-2xl transition-all duration-300 border border-gray-100"
         style={{ aspectRatio: "2/3" }}
       >
         <img
           src={IMG(movie.poster)}
           alt={movie.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
+        {/* Certificate Badge */}
         {movie.certificate && (
           <span
-            className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded"
-            style={{
-              background: "rgba(0,0,0,0.62)",
-              color: "rgba(255,255,255,0.85)",
-            }}
+            className="absolute top-2.5 left-2.5 text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-md bg-black/60 text-white/90 border border-white/10"
           >
             {movie.certificate}
           </span>
         )}
 
+        {/* Status Tag Badge */}
         <div
-          className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+          className="absolute top-2.5 right-2.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md backdrop-blur-sm"
           style={{ background: badge.bg, color: badge.color }}
         >
           {badge.label}
         </div>
 
+        {/* OTT platform pill */}
         {movie.status === "streaming" && movie.ottPlatform && (
-          <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+          <div className="absolute bottom-12 left-0 right-0 flex justify-center">
             <span
-              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(99,102,241,0.85)", color: "#fff" }}
+              className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-md"
+              style={{ background: "rgba(99,102,241,0.9)", color: "#fff" }}
             >
-              <MonitorPlay size={9} /> {movie.ottPlatform}
+              <MonitorPlay size={10} /> {movie.ottPlatform}
             </span>
           </div>
         )}
 
+        {/* Now Showing overlay pill */}
         {movie.isInCinemas && movie.status !== "streaming" && (
-          <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+          <div className="absolute bottom-12 left-0 right-0 flex justify-center">
             <span
-              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(240,84,92,0.85)", color: "#fff" }}
+              className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-md"
+              style={{ background: "rgba(240,84,92,0.9)", color: "#fff" }}
             >
-              <Tv size={9} /> Now Showing
+              <Ticket size={10} /> Book Now
             </span>
           </div>
         )}
 
+        {/* Rating overlay bottom bar */}
         <div
-          className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 px-3 py-2"
+          className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2.5"
           style={{
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)",
+            background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 60%, transparent 100%)",
           }}
         >
-          <Star
-            size={12}
-            fill="#f0545c"
-            className="text-[#f0545c] flex-shrink-0"
-          />
-          <span className="text-white font-bold text-[12px]">
-            {movie.rating}/10
-          </span>
-          <span className="text-white/50 text-[11px]">
-            {formatVotes(movie.votes)} Votes
+          <div className="flex items-center gap-1.5">
+            <Star
+              size={13}
+              fill="#facc15"
+              className="text-[#facc15] flex-shrink-0"
+            />
+            <span className="text-white font-black text-[13px]">
+              {movie.rating ? Number(movie.rating).toFixed(1) : "N/A"}
+            </span>
+          </div>
+
+          <span className="text-white/70 text-[11px] font-semibold">
+            {formatVotes(movie.votes)} votes
           </span>
         </div>
       </div>
 
-      <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+      {/* Card Details */}
+      <div className="mt-3 px-1">
+        <h3 className="text-[14.5px] font-bold text-gray-900 leading-snug line-clamp-1 group-hover:text-[#f0545c] transition-colors">
           {movie.title}
         </h3>
 
-        <p className="text-[12px] text-gray-400 mt-0.5 truncate">
+        <p className="text-[12px] font-medium text-gray-500 mt-0.5 truncate">
           {[movie.genre, movie.language].filter(Boolean).join(" · ")}
         </p>
 
         {(movie.duration || movie.formats?.length > 0) && (
-          <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+          <p className="text-[11px] font-medium text-gray-400 mt-0.5 truncate">
             {[
-              movie.duration? `${Math.floor(movie.duration / 60)}h ${movie.duration % 60}m` : null,
+              movie.duration ? `${Math.floor(movie.duration / 60)}h ${movie.duration % 60}m` : null,
               movie.formats?.length > 0 ? movie.formats.slice(0, 2).join(" / ") : null,
             ]
               .filter(Boolean)
-              .join("  ·  ")}
+              .join(" · ")}
           </p>
         )}
 
         {movie.status === "upcoming" && movie.releaseDate && (
-          <p className="text-[11px] text-orange-500 font-medium mt-0.5">
-            {formatDate(movie.releaseDate)}
+          <p className="text-[11.5px] text-orange-500 font-bold mt-1">
+            Releases {formatDate(movie.releaseDate)}
           </p>
         )}
 
+        {/* Action Button */}
         {movie.status === "released" && (
           <button
             onClick={(e) => onVote(e, movie.id)}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
-            style={{
-              borderColor: isVoted
-                ? "rgba(240,84,92,0.5)"
-                : "rgba(240,84,92,0.3)",
-              color: isVoted ? "#fff" : "#f0545c",
-              background: isVoted ? "#f0545c" : "rgba(240,84,92,0.05)",
-            }}
-            onMouseEnter={(e) => {
-              if (!isVoted)
-                e.currentTarget.style.background = "rgba(240,84,92,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              if (!isVoted)
-                e.currentTarget.style.background = "rgba(240,84,92,0.05)";
-            }}
+            className={`mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-all border ${
+              isVoted
+                ? "bg-[#f0545c] text-white border-[#f0545c] shadow-xs"
+                : "bg-[#f0545c]/5 text-[#f0545c] border-[#f0545c]/25 hover:bg-[#f0545c]/10"
+            }`}
           >
             <ThumbsUp size={12} fill={isVoted ? "#fff" : "none"} />
-            {isVoted ? "Interested" : "Interested"}
+            <span>{isVoted ? "Voted Interested" : "Interested"}</span>
           </button>
         )}
 
-        {/* ── CTA: Interested (upcoming — no booking yet, just vote) ── */}
         {movie.status === "upcoming" && (
           <button
             onClick={(e) => onVote(e, movie.id)}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
-            style={{
-              borderColor: isVoted
-                ? "rgba(234,88,12,0.5)"
-                : "rgba(234,88,12,0.3)",
-              color: isVoted ? "#fff" : "#ea580c",
-              background: isVoted ? "#ea580c" : "rgba(234,88,12,0.05)",
-            }}
-            onMouseEnter={(e) => {
-              if (!isVoted)
-                e.currentTarget.style.background = "rgba(234,88,12,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              if (!isVoted)
-                e.currentTarget.style.background = "rgba(234,88,12,0.05)";
-            }}
+            className={`mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-all border ${
+              isVoted
+                ? "bg-orange-500 text-white border-orange-500 shadow-xs"
+                : "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100"
+            }`}
           >
             <ThumbsUp size={12} fill={isVoted ? "#fff" : "none"} />
-            {isVoted ? "Notified" : "Notify Me"}
+            <span>{isVoted ? "Reminder Set" : "Notify Me"}</span>
           </button>
         )}
 
-        {/* ── CTA: Watch Now (streaming) ── */}
         {movie.status === "streaming" && (
           <button
             onClick={(e) => e.stopPropagation()}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
-            style={{
-              borderColor: "rgba(99,102,241,0.3)",
-              color: "#6366f1",
-              background: "rgba(99,102,241,0.05)",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(99,102,241,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(99,102,241,0.05)")
-            }
+            className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-all border border-indigo-200/80 bg-indigo-50/70 text-indigo-600 hover:bg-indigo-100/70"
           >
             <MonitorPlay size={12} /> Watch Now
           </button>
@@ -382,18 +376,16 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
   );
 }
 
-/* ─── Arrow Button ────────────────────────────────────── */
 function ArrowBtn({ dir, onClick, style }) {
   return (
     <button
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
-      className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"
+      className="absolute z-10 w-10 h-10 rounded-full bg-white/95 backdrop-blur-md border border-gray-200/90 shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all transform hover:scale-110 active:scale-95"
       style={{ ...style, transform: "translateY(-50%)" }}
+      aria-label={dir === "left" ? "Previous" : "Next"}
     >
-      {dir === "left" ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
+      {dir === "left" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
     </button>
   );
 }
-
-

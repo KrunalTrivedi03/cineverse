@@ -2,11 +2,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
+import Footer from "./Footer";
 import {
   Play, ChevronLeft, ChevronRight, Ticket, X, ArrowLeft,
   CalendarDays, Share2, MonitorPlay,
   ThumbsUp, Star,
   Bookmark, BookmarkCheck, Heart, PlayCircle, CheckCircle, Trash2,
+  Sparkles, ShieldCheck,
 } from "lucide-react";
 import OfferBadge from "./OfferBadge";
 
@@ -51,7 +53,6 @@ const groupCrew = (crew = []) => {
   return Object.values(map);
 };
 
-// ─── Meta-line helpers (certificate | language +N more | duration) ─────────
 const getGenreList = (movie) => {
   if (Array.isArray(movie.genres) && movie.genres.length) return movie.genres;
   if (movie.genre) return movie.genre.split(/[,/]/).map((g) => g.trim()).filter(Boolean);
@@ -87,7 +88,6 @@ const getVoted = () => {
 const saveVoted = (set) =>
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
 
-// ─── Watchlist status options ────────────────────────────────────────────────
 const WL_OPTIONS = [
   {
     value: "watching",
@@ -107,8 +107,8 @@ const WL_OPTIONS = [
     value: "favorites",
     label: "Favorite",
     icon: Heart,
-    color: "#b45309",
-    activeBg: "rgba(180,83,9,0.18)",
+    color: "#d97706",
+    activeBg: "rgba(217,119,6,0.18)",
   },
 ];
 
@@ -116,7 +116,7 @@ function useWatchlist(movieId) {
   const [wlState, setWlState] = useState({
     inWatchlist: false,
     status:      null,
-    loading:     false, // false by default so guests see no spinner
+    loading:     false,
   });
 
   const isLoggedIn = () => !!localStorage.getItem("accessToken");
@@ -184,26 +184,19 @@ function useWatchlist(movieId) {
   return { ...wlState, add, remove, updateStatus };
 }
 
-// ─── StatusPickerDropdown ─────────────────────────────────────────────────────
-// Shown both when adding (initial pick) and when changing status of saved movie
 function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dropUp = true }) {
   return (
     <div
-      className={`absolute ${dropUp ? "bottom-full mb-2" : "top-full mt-2"} right-0 rounded-2xl overflow-hidden z-50 py-1.5`}
+      className={`absolute ${dropUp ? "bottom-full mb-2" : "top-full mt-2"} right-0 rounded-2xl overflow-hidden z-50 py-1.5 shadow-2xl backdrop-blur-xl border border-white/10`}
       style={{
-        background: "#1a1a1a",
-        border: "1px solid rgba(255,255,255,0.1)",
-        minWidth: 178,
-        width: "max-content",
-        maxWidth: "calc(100vw - 32px)",
-        boxShadow: "0 16px 40px rgba(0,0,0,0.5)",
+        background: "rgba(22,23,30,0.95)",
+        minWidth: 180,
       }}
     >
       <p
-        className="text-[10px] font-bold uppercase tracking-widest px-4 pt-1 pb-2"
-        style={{ color: "rgba(255,255,255,0.28)" }}
+        className="text-[10px] font-extrabold uppercase tracking-widest px-4 pt-1.5 pb-2 text-white/40"
       >
-        Add to watchlist
+        Watchlist Status
       </p>
 
       {WL_OPTIONS.map((opt) => {
@@ -213,37 +206,21 @@ function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dro
           <button
             key={opt.value}
             onClick={() => onPick(opt.value)}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-left transition-all"
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-bold text-left transition-all"
             style={{
-              color: isActive ? opt.color : "rgba(255,255,255,0.7)",
+              color: isActive ? opt.color : "rgba(255,255,255,0.75)",
               background: isActive ? opt.activeBg : "transparent",
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive)
-                e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) e.currentTarget.style.background = "transparent";
             }}
           >
             <Icon
-              size={14}
+              size={15}
               style={{ color: isActive ? opt.color : "rgba(255,255,255,0.4)" }}
               fill={isActive && opt.value === "favorites" ? opt.color : "none"}
             />
-            {opt.label}
+            <span>{opt.label}</span>
             {isActive && (
-              <span className="ml-auto">
-                <svg width="12" height="12" viewBox="0 0 12 12">
-                  <path
-                    d="M1.5 6L4.5 9L10.5 3"
-                    stroke={opt.color}
-                    strokeWidth="1.8"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <span className="ml-auto text-emerald-400">
+                <CheckCircle size={13} />
               </span>
             )}
           </button>
@@ -251,158 +228,75 @@ function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dro
       })}
 
       {showRemove && (
-        <>
-          <div
-            style={{
-              borderTop: "0.5px solid rgba(255,255,255,0.07)",
-              margin: "6px 12px",
-            }}
-          />
+        <div className="border-t border-white/10 mt-1 pt-1">
           <button
             onClick={onRemove}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-left transition-all"
-            style={{ color: "rgba(240,84,92,0.75)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(240,84,92,0.08)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
+            className="w-full flex items-center gap-2 px-4 py-2 text-[12px] font-bold text-red-400 hover:bg-red-500/10 transition-colors"
           >
-            <Trash2 size={13} />
-            Remove from list
+            <Trash2 size={13} /> Remove
           </button>
-        </>
+        </div>
       )}
     </div>
   );
 }
 
-// ─── WatchlistButton ─────────────────────────────────────────────────────────
-// `light` renders the trigger for use on a white/light background (mobile
-// info panel); default renders for use on the dark hero (desktop).
-// `pill` renders a fully-rounded, icon-only trigger for the floating mobile
-// action bar (matches the Book Tickets pill in the same bar).
-function WatchlistButton({ movieId, mobile, light = false, pill = false }) {
-  const { inWatchlist, status, loading, add, remove, updateStatus } =
-    useWatchlist(movieId);
+function WatchlistButton({ movieId, mobile = false, light = false, pill = false }) {
+  const { inWatchlist, status, loading, add, remove, updateStatus } = useWatchlist(movieId);
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // Watchlist is an authenticated-only feature — signed-out visitors should
-  // never see the button at all, not even a disabled/prompt version of it.
-  if (!localStorage.getItem("accessToken")) return null;
-
   useEffect(() => {
-    const handler = (e) => {
+    const fn = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
   }, []);
 
+  const handlePick = (newStatus) => {
+    if (!inWatchlist) add(newStatus);
+    else updateStatus(newStatus);
+    setOpen(false);
+  };
+
+  const handleRemove = () => {
+    remove();
+    setOpen(false);
+  };
+
   const current = WL_OPTIONS.find((o) => o.value === status);
+  const shape = pill ? "rounded-full" : "rounded-2xl";
 
-  const handlePick = async (val) => {
-    setOpen(false);
-    if (inWatchlist) {
-      await updateStatus(val);
-    } else {
-      await add(val);
-    }
-  };
-
-  const handleRemove = async () => {
-    setOpen(false);
-    await remove();
-  };
-
-  const shape = pill ? "rounded-full" : "rounded-xl";
-  const sizing = pill ? "w-11 h-11 flex-shrink-0" : "";
-
-  const idleStyle = light
-    ? {
-        borderColor: "#e5e5e5",
-        color: "#525252",
-        background: "#fff",
-      }
-    : {
-        borderColor: "rgba(255,255,255,0.2)",
-        color: "rgba(255,255,255,0.65)",
-        background: "rgba(255,255,255,0.07)",
-      };
-  const idleHover = light
-    ? { borderColor: "#c9c9c9", color: "#171717", background: "#fafafa" }
-    : { borderColor: "rgba(255,255,255,0.38)", color: "#fff", background: "rgba(255,255,255,0.12)" };
-
-  // ── Loading skeleton ──
   if (loading) {
     return (
       <button
         disabled
-        className={`flex items-center justify-center gap-1.5 border font-semibold text-[13px] opacity-40 cursor-not-allowed ${shape} ${sizing}`}
-        style={{
-          ...idleStyle,
-          padding: pill ? 0 : mobile ? "10px 12px" : "10px 20px",
-          boxShadow: pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
-          border: pill ? "none" : undefined,
-        }}
+        className={`flex items-center justify-center border font-bold text-[13px] transition-all ${shape} ${
+          pill ? "w-11 h-11" : mobile ? "px-3 py-2.5" : "px-6 py-3"
+        } bg-white/5 border-white/15 text-white/50`}
       >
-        <Bookmark size={14} />
-        {!mobile && !pill && <span>Watchlist</span>}
+        <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-[#f0545c] rounded-full animate-spin" />
       </button>
     );
   }
 
-  // ── Saved state: shows colored pill with dropdown to change/remove ──
   if (inWatchlist && current) {
     return (
       <div ref={ref} className="relative">
         <button
           onClick={() => setOpen((o) => !o)}
-          className={`flex items-center justify-center gap-1.5 border font-semibold text-[13px] transition-all ${shape} ${sizing}`}
+          className={`flex items-center justify-center gap-2 border font-bold text-[13px] transition-all shadow-md ${shape} ${
+            pill ? "w-11 h-11 p-0" : mobile ? "px-3.5 py-2.5" : "px-6 py-3"
+          }`}
           style={{
-            borderColor: `${current.color}55`,
+            borderColor: `${current.color}66`,
             color: current.color,
             background: `${current.color}1a`,
-            padding: pill ? 0 : mobile ? "10px 12px" : "10px 20px",
-            boxShadow: pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
-            border: pill ? "none" : undefined,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = `${current.color}2e`;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = `${current.color}1a`;
           }}
         >
-          <BookmarkCheck
-            size={14}
-            style={{ color: current.color }}
-          />
-          {!mobile && !pill && (
-            <>
-              <span>{current.label}</span>
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                style={{
-                  opacity: 0.55,
-                  transform: open ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.15s",
-                }}
-              >
-                <path
-                  d="M2 3.5L5 6.5L8 3.5"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </>
-          )}
+          <BookmarkCheck size={16} />
+          {!mobile && !pill && <span>{current.label}</span>}
         </button>
 
         {open && (
@@ -418,22 +312,19 @@ function WatchlistButton({ movieId, mobile, light = false, pill = false }) {
     );
   }
 
-  // ── Not saved: clicking opens status picker ──
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center justify-center gap-1.5 border font-semibold text-[13px] transition-all active:scale-95 ${shape} ${sizing}`}
-        style={{
-          ...idleStyle,
-          padding: pill ? 0 : mobile ? "10px 12px" : "10px 20px",
-          boxShadow: pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
-          border: pill ? "none" : undefined,
-        }}
-        onMouseEnter={(e) => Object.assign(e.currentTarget.style, idleHover)}
-        onMouseLeave={(e) => Object.assign(e.currentTarget.style, idleStyle)}
+        className={`flex items-center justify-center gap-2 font-bold text-[13px] transition-all shadow-md active:scale-95 ${shape} ${
+          pill ? "w-11 h-11 p-0" : mobile ? "px-3.5 py-2.5" : "px-6 py-3"
+        } ${
+          light
+            ? "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+            : "backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 text-white"
+        }`}
       >
-        <Bookmark size={14} />
+        <Bookmark size={15} />
         {!mobile && !pill && <span>Watchlist</span>}
       </button>
 
@@ -452,41 +343,42 @@ function WatchlistButton({ movieId, mobile, light = false, pill = false }) {
 
 function AgeGatePopup({ onConfirm, onBack }) {
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
-      onClick={onBack}>
-      <div className="bg-white rounded-2xl w-[340px] overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}>
-
-        {/* Body */}
-        <div className="px-5 pt-6 pb-5">
-          <h2 className="text-[18px] font-extrabold text-gray-900 mb-4"
-            style={{ letterSpacing: "-0.2px" }}>
-            This movie is rated "A"
-          </h2>
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-[58px] h-[58px] rounded-full flex items-center justify-center"
-              style={{ border: "3px solid #f0545c" }}>
-              <span className="text-[18px] font-extrabold" style={{ color: "#f0545c" }}>18+</span>
-            </div>
-            <p className="text-[13px] text-gray-500 leading-relaxed flex-1">
-              This movie is only for viewers above 18. Please carry a valid ID/Age Proof
-              to the theatre. If you are denied entry due to age or ID issues, you will
-              not get a refund.
-            </p>
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={onBack}
+    >
+      <div
+        className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-white/20 animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-red-50 text-[#f0545c] mb-4 border border-[#f0545c]/20">
+            <span className="text-[20px] font-black">18+</span>
           </div>
+
+          <h2 className="text-[20px] font-black text-gray-900 tracking-tight mb-2">
+            Age Verification (Rated A)
+          </h2>
+          <p className="text-[13px] text-gray-500 leading-relaxed">
+            This movie is intended solely for adult viewers aged 18 and above. Please carry government-issued photo identification to the cinema. Entry is strictly restricted by theatre staff without refund for age non-compliance.
+          </p>
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={onConfirm}
-          className="w-full py-4 text-[15px] font-bold text-white transition-all"
-          style={{ background: "#f0545c" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
-          Continue
-        </button>
-
+        <div className="flex border-t border-gray-100">
+          <button
+            onClick={onBack}
+            className="flex-1 py-4 text-[13.5px] font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-4 text-[13.5px] font-black text-white transition-all shadow-inner"
+            style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
+          >
+            I Agree &amp; Proceed
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -502,12 +394,12 @@ export default function MovieDetailWrapper() {
 
   if (!movie)
     return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <div className="flex gap-2">
+      <div className="flex items-center justify-center h-screen bg-[#0c0d12]">
+        <div className="flex gap-2.5">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce"
+              className="w-3 h-3 rounded-full bg-[#f0545c] animate-bounce"
               style={{ animationDelay: `${i * 0.15}s` }}
             />
           ))}
@@ -555,57 +447,50 @@ function MovieDetail({ movie }) {
   const goToBooking = () =>
     movie.certificate === "A" ? setShowAgeGate(true) : navigate(`/movie/${movie._id}/book`);
 
-  // ── Primary CTA (Book Tickets / Releasing on.. / Watch on OTT) ──
-  // `wide` renders the pill-shaped, flex-1 primary used in the floating
-  // mobile action bar, so it visually anchors as the main call to action.
   const PrimaryCta = ({ mobile, wide }) => {
-    const wideShadow = wide ? { boxShadow: "0 8px 24px rgba(0,0,0,0.16)" } : undefined;
-
     if (status === "released") {
       return (
         <button
           onClick={goToBooking}
-          className={`flex items-center justify-center gap-1.5 bg-[#f0545c] hover:bg-[#d94048] text-white font-semibold transition-colors ${
+          className={`flex items-center justify-center gap-2 text-white font-black transition-all shadow-[0_8px_25px_-4px_rgba(240,84,92,0.5)] hover:shadow-[0_12px_32px_-4px_rgba(240,84,92,0.7)] hover:-translate-y-0.5 active:translate-y-0 ${
             wide
-              ? "flex-1 py-3 rounded-full text-[14px]"
+              ? "flex-1 py-3.5 rounded-2xl text-[14px]"
               : mobile
-              ? "flex-1 py-2.5 rounded-xl text-[13px] shadow-lg shadow-red-900/20"
-              : "px-10 py-2.5 rounded-xl text-sm shadow-lg shadow-red-900/20"
+              ? "flex-1 py-3 rounded-xl text-[13px]"
+              : "px-9 py-3 rounded-2xl text-[14.5px]"
           }`}
-          style={wideShadow}
+          style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
         >
-          <Ticket size={wide ? 16 : mobile ? 14 : 15} /> Book Tickets
+          <Ticket size={wide ? 18 : mobile ? 15 : 17} />
+          <span>Book Tickets</span>
         </button>
       );
     }
     if (status === "streaming" && movie.ottPlatform) {
       return (
         <button
-          className={`flex items-center justify-center gap-1.5 font-semibold transition-all border border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/20 ${
+          className={`flex items-center justify-center gap-2 font-bold transition-all border border-indigo-400/40 text-white ${
             wide
-              ? "flex-1 py-3 rounded-full text-[14px]"
+              ? "flex-1 py-3.5 rounded-2xl text-[14px] bg-indigo-600 shadow-md"
               : mobile
-              ? "flex-1 py-2.5 rounded-xl text-[13px]"
-              : "px-8 py-2.5 rounded-xl text-sm"
+              ? "flex-1 py-3 rounded-xl text-[13px] bg-indigo-600"
+              : "px-8 py-3 rounded-2xl text-[14.5px] bg-indigo-600/90 hover:bg-indigo-600"
           }`}
-          style={{ background: wide ? "#fff" : "rgba(99,102,241,0.12)", ...wideShadow }}
         >
-          <MonitorPlay size={wide ? 16 : mobile ? 14 : 15} /> Watch on {movie.ottPlatform}
+          <MonitorPlay size={wide ? 18 : mobile ? 15 : 17} />
+          <span>Watch on {movie.ottPlatform}</span>
         </button>
       );
     }
-    // upcoming: no bookable action yet — surface the release date as the
-    // wide pill so the floating bar always has a primary element
     if (wide) {
       return (
         <div
-          className="flex-1 flex items-center gap-2 bg-white rounded-full px-4 py-2.5"
-          style={wideShadow}
+          className="flex-1 flex items-center gap-2.5 bg-white rounded-2xl px-4 py-2.5 shadow-md border border-gray-100"
         >
-          <CalendarDays size={15} className="text-orange-500 flex-shrink-0" />
+          <CalendarDays size={16} className="text-orange-500 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-gray-400 text-[9px] uppercase tracking-widest font-semibold leading-none">Releasing On</p>
-            <p className="text-gray-800 font-bold text-[12px] mt-0.5 truncate">{formatDateShort(movie.releaseDate)}</p>
+            <p className="text-gray-400 text-[9.5px] uppercase tracking-widest font-extrabold leading-none">Releases On</p>
+            <p className="text-gray-900 font-extrabold text-[12.5px] mt-0.5 truncate">{formatDateShort(movie.releaseDate)}</p>
           </div>
         </div>
       );
@@ -614,182 +499,63 @@ function MovieDetail({ movie }) {
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
+    <div className="min-h-screen bg-[#f8fafc] text-gray-900 flex flex-col justify-between">
+      <div>
+        <Navbar />
 
-      <Navbar />
+        {/* ══════════════════════════ MOBILE HERO ══════════════════════════ */}
+        <div className="md:hidden">
+          <div className="relative w-full overflow-hidden bg-black" style={{ aspectRatio: "16/10" }}>
+            <img
+              src={IMG(movie.poster)}
+              alt={movie.title}
+              className="absolute inset-0 w-full h-full object-cover object-top opacity-85"
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.8) 100%)" }}
+            />
 
-      {/* ══════════════════════════ MOBILE ══════════════════════════ */}
-      <div className="md:hidden">
-        {/* Backdrop banner */}
-        <div className="relative w-full overflow-hidden" style={{ aspectRatio: "4/3", background: "#1c1c1c" }}>
-          <img
-            src={IMG(movie.poster)}
-            alt={movie.title}
-            className="absolute inset-0 w-full h-full object-cover object-top"
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.55) 100%)" }}
-          />
-
-          <button
-            onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center text-white"
-            style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(6px)" }}
-          >
-            <ArrowLeft size={16} />
-          </button>
-
-          <button className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-white"
-            style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(6px)" }}>
-            <Share2 size={14} />
-          </button>
-
-          {movie.trailerLink && (
             <button
-              onClick={() => setShowTrailer(true)}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-2 rounded-full whitespace-nowrap"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.35)", backdropFilter: "blur(6px)" }}
+              onClick={() => navigate(-1)}
+              className="absolute top-4 left-4 w-9 h-9 rounded-full flex items-center justify-center text-white backdrop-blur-md bg-black/40 border border-white/20"
             >
-              <Play size={11} fill="white" className="text-white" />
-              <span className="text-[12px] font-semibold text-white">Watch Trailer</span>
+              <ArrowLeft size={18} />
             </button>
-          )}
-        </div>
 
-        {/* Info panel */}
-        <div className="bg-white px-4 pt-5 pb-5">
-          <div className="flex items-start gap-2 flex-wrap">
-            <h1 className="text-[22px] font-bold tracking-tight text-gray-900 leading-tight flex-1 min-w-0">
-              {movie.title}
-            </h1>
-            <OfferBadge type="movies" id={movie._id} genre={movie.genre} />
-          </div>
-
-          <p className="mt-2 text-gray-500 text-[13px] flex flex-wrap items-center gap-x-1.5">
-            {movie.certificate && (
-              <span className="font-semibold text-gray-700">{movie.certificate}</span>
+            {movie.trailerLink && (
+              <button
+                onClick={() => setShowTrailer(true)}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap backdrop-blur-md bg-white/20 border border-white/40 shadow-lg"
+              >
+                <Play size={13} fill="white" className="text-white" />
+                <span className="text-[12.5px] font-black text-white">Watch Official Trailer</span>
+              </button>
             )}
-            {movie.certificate && langLbl && <span className="text-gray-300">|</span>}
-            {langLbl && <span>{langLbl}</span>}
-            {(movie.certificate || langLbl) && movie.duration && <span className="text-gray-300">|</span>}
-            {movie.duration && (
-              <span>{Math.floor(movie.duration / 60)}h {movie.duration % 60}m</span>
-            )}
-          </p>
-
-          {genres.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {genres.map((g) => (
-                <span
-                  key={g}
-                  className="text-[11px] font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200"
-                >
-                  {g}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-3 flex items-center gap-3 flex-wrap">
-            {releaseLine && <p className="text-gray-400 text-[13px]">{releaseLine}</p>}
-            <span className="flex items-center gap-1 text-gray-400 text-[13px]">
-              <Star size={12} fill="#f0545c" className="text-[#f0545c]" />
-              <span className="font-bold text-gray-800">{movie.rating ?? "—"}/10</span>
-              <span>· {formatVotes(votes)} votes</span>
-            </span>
           </div>
 
-          {movie.formats?.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {movie.formats.map((f) => (
-                <span
-                  key={f}
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded border border-gray-200 text-gray-500 bg-gray-50"
-                >
-                  {f}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ══════════════════════════ DESKTOP ══════════════════════════ */}
-      <div className="relative overflow-hidden hidden md:block" style={{ background: "#1c1c1c" }}>
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url(${IMG(movie.poster)})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center 15%",
-            filter: "brightness(0.22) saturate(1.4)",
-            transform: "scale(1.06)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(100deg, rgba(15,15,15,0.97) 0%, rgba(15,15,15,0.88) 45%, rgba(15,15,15,0.55) 100%)" }}
-        />
-        <div
-          className="absolute bottom-0 left-0 right-0 h-14"
-          style={{ background: "linear-gradient(to bottom, transparent, #ffffff)" }}
-        />
-
-        <button className="absolute top-6 right-16 flex items-center gap-1.5 text-white/60 hover:text-white text-[13px] transition-colors z-10 font-medium">
-          <Share2 size={14} /> Share
-        </button>
-
-        <div className="relative z-10 flex items-center gap-12 px-16 py-14 max-w-6xl mx-auto">
-          {/* poster column — now on the left */}
-          <div className="flex-shrink-0 hidden lg:block" style={{ width: 230 }}>
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10" style={{ aspectRatio: "2/3" }}>
-              <img src={IMG(movie.poster)} alt={movie.title} className="w-full h-full object-cover" />
-              <div
-                className="absolute inset-0"
-                style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.35) 100%)" }}
-              />
-              {movie.trailerLink && (
-                <button
-                  onClick={() => setShowTrailer(true)}
-                  className="absolute inset-0 flex items-center justify-center group"
-                >
-                  <span
-                    className="w-16 h-16 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                    style={{ background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.5)", backdropFilter: "blur(6px)" }}
-                  >
-                    <Play size={22} fill="white" className="text-white ml-1" />
-                  </span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* text column — now on the right */}
-          <div className="flex-1 min-w-0 flex flex-col gap-3">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-white text-[34px] font-bold tracking-tight leading-tight">
+          <div className="bg-white px-5 pt-5 pb-6 border-b border-gray-100">
+            <div className="flex items-start gap-2 flex-wrap">
+              <h1 className="text-[24px] font-black tracking-tight text-gray-900 leading-tight flex-1 min-w-0">
                 {movie.title}
               </h1>
-              <OfferBadge type="movies" id={movie._id} genre={movie.genre} size="md" />
+              <OfferBadge type="movies" id={movie._id} genre={movie.genre} />
             </div>
 
-            <p className="text-white/55 text-[13px] flex flex-wrap items-center gap-x-2">
-              {movie.certificate && <span className="text-white/75 font-semibold">{movie.certificate}</span>}
-              {movie.certificate && langLbl && <span>|</span>}
+            <p className="mt-2 text-gray-500 text-[13px] font-medium flex flex-wrap items-center gap-x-2">
+              {movie.certificate && <span className="font-bold text-gray-800">{movie.certificate}</span>}
+              {movie.certificate && langLbl && <span className="text-gray-300">•</span>}
               {langLbl && <span>{langLbl}</span>}
-              {(movie.certificate || langLbl) && movie.duration && <span>|</span>}
+              {(movie.certificate || langLbl) && movie.duration && <span className="text-gray-300">•</span>}
               {movie.duration && <span>{Math.floor(movie.duration / 60)}h {movie.duration % 60}m</span>}
             </p>
 
             {genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-1">
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {genres.map((g) => (
                   <span
                     key={g}
-                    className="text-[11px] font-semibold px-3 py-1 rounded-full text-white/70 border border-white/15"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
+                    className="text-[11px] font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200/80"
                   >
                     {g}
                   </span>
@@ -797,164 +563,254 @@ function MovieDetail({ movie }) {
               </div>
             )}
 
-            <div className="flex items-center gap-4 flex-wrap mt-1">
-              {releaseLine && <span className="text-white/45 text-[13px]">{releaseLine}</span>}
-              <span className="flex items-center gap-1.5 text-[13px]">
-                <Star size={13} fill="#f0545c" className="text-[#f0545c]" />
-                <span className="text-white font-bold">{movie.rating ?? "—"}/10</span>
-                <span className="text-white/40">{formatVotes(votes)} Votes</span>
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
+              {releaseLine && <p className="text-gray-400 text-[13px] font-medium">{releaseLine}</p>}
+              <span className="flex items-center gap-1.5 text-gray-500 text-[13px] font-bold">
+                <Star size={13} fill="#facc15" className="text-[#facc15]" />
+                <span className="text-gray-900 font-black">{movie.rating ?? "—"}/10</span>
+                <span className="text-gray-400 font-medium">({formatVotes(votes)} votes)</span>
               </span>
             </div>
+          </div>
+        </div>
 
-            {movie.formats?.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {movie.formats.map((f) => (
-                  <span
-                    key={f}
-                    className="text-[11px] font-semibold px-3 py-1 rounded border border-white/20 text-white/55 tracking-wide"
+        {/* ══════════════════════════ DESKTOP HERO ══════════════════════════ */}
+        <div className="relative overflow-hidden hidden md:block bg-[#0c0d12]">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${IMG(movie.poster)})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center 20%",
+              filter: "brightness(0.2) saturate(1.4) blur(2px)",
+              transform: "scale(1.08)",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(100deg, rgba(12,13,18,0.98) 0%, rgba(12,13,18,0.88) 45%, rgba(12,13,18,0.45) 100%)" }}
+          />
+          <div
+            className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+            style={{ background: "linear-gradient(to bottom, transparent, #f8fafc)" }}
+          />
+
+          <div className="relative z-10 flex items-center gap-12 px-8 lg:px-16 py-14 max-w-7xl mx-auto">
+            {/* Poster Card */}
+            <div className="flex-shrink-0" style={{ width: 240 }}>
+              <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/20 group" style={{ aspectRatio: "2/3" }}>
+                <img src={IMG(movie.poster)} alt={movie.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div
+                  className="absolute inset-0"
+                  style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.5) 100%)" }}
+                />
+                {movie.trailerLink && (
+                  <button
+                    onClick={() => setShowTrailer(true)}
+                    className="absolute inset-0 flex items-center justify-center group/play"
+                    aria-label="Play Trailer"
                   >
-                    {f}
-                  </span>
-                ))}
+                    <span
+                      className="w-16 h-16 rounded-full flex items-center justify-center transition-transform group-hover/play:scale-110 bg-[#f0545c] text-white shadow-xl shadow-[#f0545c]/50"
+                    >
+                      <Play size={22} fill="white" className="ml-1" />
+                    </span>
+                  </button>
+                )}
               </div>
-            )}
+            </div>
 
-            <div className="flex items-center gap-3 mt-2 flex-wrap">
-              <PrimaryCta />
-              {status === "upcoming" && (
-                <div className="inline-flex items-center gap-3 bg-white/5 border border-white/12 rounded-xl px-4 py-2.5">
-                  <CalendarDays size={16} className="text-orange-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">Releasing On</p>
-                    <p className="text-white font-semibold text-[13px] mt-0.5">{formatDate(movie.releaseDate)}</p>
-                  </div>
+            {/* Movie Info */}
+            <div className="flex-1 min-w-0 flex flex-col gap-3.5">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-white text-[38px] font-black tracking-tight leading-tight drop-shadow-md">
+                  {movie.title}
+                </h1>
+                <OfferBadge type="movies" id={movie._id} genre={movie.genre} size="md" />
+              </div>
+
+              <p className="text-white/60 text-[13.5px] font-medium flex flex-wrap items-center gap-x-2.5">
+                {movie.certificate && <span className="text-white/90 font-black px-2 py-0.5 rounded bg-white/10 border border-white/10">{movie.certificate}</span>}
+                {langLbl && <span>{langLbl}</span>}
+                {movie.duration && (
+                  <>
+                    <span className="text-white/30">•</span>
+                    <span>{Math.floor(movie.duration / 60)}h {movie.duration % 60}m</span>
+                  </>
+                )}
+              </p>
+
+              {genres.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {genres.map((g) => (
+                    <span
+                      key={g}
+                      className="text-[11.5px] font-bold px-3.5 py-1 rounded-full text-white/80 border border-white/15 backdrop-blur-md bg-white/10 shadow-2xs"
+                    >
+                      {g}
+                    </span>
+                  ))}
                 </div>
               )}
-              <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} />
-              <WatchlistButton movieId={movie._id} />
+
+              <div className="flex items-center gap-4 flex-wrap mt-1">
+                {releaseLine && <span className="text-white/50 text-[13px] font-medium">{releaseLine}</span>}
+                <span className="flex items-center gap-1.5 text-[13.5px]">
+                  <Star size={14} fill="#facc15" className="text-[#facc15]" />
+                  <span className="text-white font-black">{movie.rating ?? "—"}/10</span>
+                  <span className="text-white/50 font-medium">({formatVotes(votes)} votes)</span>
+                </span>
+              </div>
+
+              {movie.formats?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {movie.formats.map((f) => (
+                    <span
+                      key={f}
+                      className="text-[10.5px] font-black px-2.5 py-1 rounded-lg border border-white/20 text-white/70 tracking-wider uppercase bg-white/5"
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3.5 mt-3 flex-wrap">
+                <PrimaryCta />
+                {status === "upcoming" && (
+                  <div className="inline-flex items-center gap-3 bg-white/10 border border-white/15 rounded-2xl px-4 py-2.5 backdrop-blur-md">
+                    <CalendarDays size={18} className="text-orange-400 flex-shrink-0" />
+                    <div>
+                      <p className="text-white/40 text-[10px] uppercase tracking-widest font-extrabold">Releasing On</p>
+                      <p className="text-white font-bold text-[13px] mt-0.5">{formatDate(movie.releaseDate)}</p>
+                    </div>
+                  </div>
+                )}
+                <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} />
+                <WatchlistButton movieId={movie._id} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Body sections (unchanged) ── */}
-      <div className="bg-white">
-        <div className="px-4 md:px-16 py-6 md:py-8 border-b border-gray-100 max-w-6xl mx-auto">
-          <SectionTitle>About the movie</SectionTitle>
-          <p className="text-gray-500 text-[13px] md:text-[14px] leading-relaxed">
-            {movie.description}
-          </p>
+        {/* ── Content Details Sections ── */}
+        <div className="max-w-6xl mx-auto px-4 md:px-12 py-8 space-y-8">
+          
+          {/* About */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-2xs">
+            <SectionTitle>About the Movie</SectionTitle>
+            <p className="text-gray-600 text-[14px] md:text-[15px] leading-relaxed">
+              {movie.description}
+            </p>
+          </div>
+
+          {/* Cast */}
+          {movie.cast?.length > 0 && (
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-2xs">
+              <SectionTitle>Lead Cast</SectionTitle>
+              <CastSlider data={movie.cast} />
+            </div>
+          )}
+
+          {/* Crew */}
+          {movie.crew?.length > 0 && (
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-2xs">
+              <SectionTitle>Crew Members</SectionTitle>
+              <CrewSlider data={groupCrew(movie.crew)} />
+            </div>
+          )}
+
+          {/* Similar */}
+          {movie.similarMovies?.length > 0 && (
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-2xs">
+              <div className="flex items-center justify-between mb-5">
+                <SectionTitle noMargin>Recommended Similar Titles</SectionTitle>
+              </div>
+              <SimilarMovies movies={movie.similarMovies} />
+            </div>
+          )}
         </div>
 
-        {movie.cast?.length > 0 && (
-          <div className="px-4 md:px-16 py-6 md:py-8 border-b border-gray-100 max-w-6xl mx-auto">
-            <SectionTitle>Cast</SectionTitle>
-            <CastSlider data={movie.cast} />
-          </div>
+        {/* Mobile floating action spacer */}
+        <div className="md:hidden" style={{ height: "calc(90px + env(safe-area-inset-bottom, 0px))" }} />
+
+        {/* Age Gate */}
+        {showAgeGate && (
+          <AgeGatePopup
+            onConfirm={() => { setShowAgeGate(false); navigate(`/movie/${movie._id}/book`); }}
+            onBack={() => setShowAgeGate(false)}
+          />
         )}
 
-        {movie.crew?.length > 0 && (
-          <div className="px-4 md:px-16 py-6 md:py-8 border-b border-gray-100 max-w-6xl mx-auto">
-            <SectionTitle>Crew</SectionTitle>
-            <CrewSlider data={groupCrew(movie.crew)} />
-          </div>
-        )}
-
-        {movie.similarMovies?.length > 0 && (
-          <div className="px-4 md:px-16 py-6 md:py-8 max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-5">
-              <SectionTitle noMargin>You might also like</SectionTitle>
-              <button className="text-[#f0545c] text-[13px] font-semibold flex items-center gap-0.5 hover:underline">
-                View All <ChevronRight size={14} />
-              </button>
-            </div>
-            <SimilarMovies movies={movie.similarMovies} />
-          </div>
-        )}
-      </div>
-
-      {/* Reserves room above the floating mobile action bar */}
-      <div className="md:hidden" style={{ height: "calc(88px + env(safe-area-inset-bottom, 0px))" }} />
-
-      {showAgeGate && (
-        <AgeGatePopup
-          onConfirm={() => { setShowAgeGate(false); navigate(`/movie/${movie._id}/book`); }}
-          onBack={() => setShowAgeGate(false)}
-        />
-      )}
-
-      {/* ── Trailer modal ── */}
-      {showTrailer && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-3 md:p-4">
-          <div className="relative w-full max-w-4xl">
-            <button
-              onClick={() => setShowTrailer(false)}
-              className="absolute -top-9 right-0 text-white/60 hover:text-white flex items-center gap-1.5 text-[13px] transition-colors"
+        {/* Trailer Modal */}
+        {showTrailer && (
+          <div
+            className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center z-50 p-4"
+            onClick={() => setShowTrailer(false)}
+          >
+            <div
+              className="relative w-full max-w-4xl"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X size={14} /> Close
-            </button>
-            <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
-              <iframe
-                className="w-full aspect-video"
-                src={getYoutubeEmbed(movie.trailerLink)}
-                title="Trailer"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              />
+              <div className="flex items-center justify-between pb-3">
+                <span className="text-[14px] font-bold text-white flex items-center gap-2">
+                  <Play size={14} className="text-[#f0545c]" fill="#f0545c" /> {movie.title} - Trailer
+                </span>
+                <button
+                  onClick={() => setShowTrailer(false)}
+                  className="text-white/70 hover:text-white flex items-center gap-1.5 text-[13px] font-bold px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <X size={15} /> Close
+                </button>
+              </div>
+              <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/20 bg-black">
+                <iframe
+                  className="w-full aspect-video block"
+                  src={getYoutubeEmbed(movie.trailerLink)}
+                  title="Trailer"
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                />
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Mobile Floating Bar */}
+        <div
+          className="md:hidden fixed left-4 right-4 z-40 flex items-center gap-2.5 backdrop-blur-2xl bg-white/95 p-2 rounded-2xl border border-gray-200/90 shadow-[0_12px_36px_rgba(0,0,0,0.18)]"
+          style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
+        >
+          <PrimaryCta wide />
+          <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} mobile light pill />
+          <WatchlistButton movieId={movie._id} mobile light pill />
         </div>
-      )}
-
-      {/* ── Floating action bar — mobile only ── */}
-      {/* Each control carries its own background/shadow — no shared white
-          card behind the row, so they read as distinct floating pills. */}
-      <div
-        className="md:hidden fixed left-4 right-4 z-40 flex items-center gap-2.5"
-        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))" }}
-      >
-        {/* Primary CTA — wider, stands out */}
-        <PrimaryCta wide />
-
-        {/* Secondary actions — smaller, pill-shaped, alongside the primary */}
-        <VoteButton voted={voted} votes={votes} status={status} onVote={handleVote} mobile light pill />
-        <WatchlistButton movieId={movie._id} mobile light pill />
       </div>
+
+      <Footer />
     </div>
   );
 }
 
-// ─── Sub-components (unchanged from original) ─────────────────────────────────
-
 function VoteButton({ voted, votes, status, onVote, mobile, light = false, pill = false }) {
   const isUpcoming  = status === "upcoming";
-  const activeColor = isUpcoming ? "rgba(234,88,12,0.85)" : "rgba(240,84,92,0.85)";
-  const activeBorder= isUpcoming ? "rgba(234,88,12,0.5)"  : "rgba(240,84,92,0.5)";
-
-  const idle = light
-    ? { borderColor: "#e5e5e5", color: "#525252", background: "#fff" }
-    : { borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.65)", background: "rgba(255,255,255,0.07)" };
-
-  const shape = pill ? "rounded-full" : "rounded-xl";
+  const shape = pill ? "rounded-full" : "rounded-2xl";
 
   return (
     <button
       onClick={onVote}
       disabled={voted}
-      className={`flex items-center justify-center gap-1.5 font-semibold text-[13px] transition-all border flex-shrink-0 ${shape} ${
-        pill ? "w-11 h-11" : mobile ? "px-3 py-2.5" : "px-5 py-2.5"
+      className={`flex items-center justify-center gap-2 font-bold text-[13px] transition-all border flex-shrink-0 shadow-md ${shape} ${
+        pill ? "w-11 h-11" : mobile ? "px-3.5 py-2.5" : "px-6 py-3"
+      } ${
+        voted
+          ? "bg-[#f0545c] text-white border-[#f0545c]"
+          : light
+          ? "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+          : "backdrop-blur-md bg-white/10 hover:bg-white/20 border-white/20 text-white"
       }`}
-      style={{
-        borderColor: voted ? activeBorder            : idle.borderColor,
-        color:       voted ? "#fff"                  : idle.color,
-        background:  voted ? activeColor             : idle.background,
-        cursor:      voted ? "default"               : "pointer",
-        minWidth:    pill ? undefined : mobile ? 44 : undefined,
-        boxShadow:   pill ? "0 8px 24px rgba(0,0,0,0.16)" : undefined,
-        border:      pill ? "none" : undefined,
-      }}
     >
-      <ThumbsUp size={13} fill={voted ? "#fff" : "none"} />
+      <ThumbsUp size={14} fill={voted ? "#fff" : "none"} />
       {!mobile && !pill && (
         <span>
           {isUpcoming
@@ -969,8 +825,7 @@ function VoteButton({ voted, votes, status, onVote, mobile, light = false, pill 
 function SectionTitle({ children, noMargin }) {
   return (
     <h2
-      className={`text-[15px] md:text-[16px] font-bold text-gray-900 ${noMargin ? "" : "mb-4 md:mb-5"}`}
-      style={{ letterSpacing: "-0.01em" }}
+      className={`text-[17px] md:text-[19px] font-black text-gray-900 ${noMargin ? "" : "mb-4 md:mb-5"}`}
     >
       {children}
     </h2>
@@ -982,14 +837,15 @@ function SliderArrow({ dir, top, onClick }) {
     <button
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
-      className="absolute z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"
+      className="absolute z-10 w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all transform hover:scale-110 active:scale-95"
       style={{
-        [dir === "left" ? "left" : "right"]: -12,
+        [dir === "left" ? "left" : "right"]: -14,
         top,
         transform: "translateY(-50%)",
       }}
+      aria-label={dir === "left" ? "Previous" : "Next"}
     >
-      {dir === "left" ? <ChevronLeft size={13} /> : <ChevronRight size={13} />}
+      {dir === "left" ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
     </button>
   );
 }
@@ -1020,31 +876,30 @@ function CastSlider({ data }) {
   }, [data]);
 
   return (
-    <div className="relative">
+    <div className="relative group/slider">
       {canLeft && (
         <SliderArrow
           dir="left"
-          top={65}
+          top={75}
           onClick={() => ref.current?.scrollBy({ left: -400, behavior: "smooth" })}
         />
       )}
       {canRight && (
         <SliderArrow
           dir="right"
-          top={65}
+          top={75}
           onClick={() => ref.current?.scrollBy({ left: 400, behavior: "smooth" })}
         />
       )}
       <div
         ref={ref}
-        className="flex gap-3 md:gap-4 overflow-x-auto pb-1"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth"
       >
         {data.map((item, i) => (
-          <div key={i} className="flex-shrink-0 w-[100px] md:w-[130px] group cursor-default">
+          <div key={i} className="flex-shrink-0 w-[110px] sm:w-[135px] group cursor-default">
             <div
-              className="relative rounded-xl overflow-hidden bg-gray-100 shadow-sm"
-              style={{ aspectRatio: "3/4", border: "1px solid rgba(0,0,0,0.06)" }}
+              className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm border border-gray-100"
+              style={{ aspectRatio: "3/4" }}
             >
               <img
                 src={IMG(item.image)}
@@ -1052,14 +907,11 @@ function CastSlider({ data }) {
                 className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <p className="mt-1.5 text-[12px] md:text-[13px] font-bold text-gray-900 leading-tight line-clamp-1">
+            <p className="mt-2 text-[13px] font-bold text-gray-900 leading-tight line-clamp-1">
               {item.name}
             </p>
             {item.role && (
-              <p
-                className="mt-0.5 text-[10px] md:text-[11px] font-medium italic line-clamp-1 leading-snug"
-                style={{ color: "#8a3a3e" }}
-              >
+              <p className="mt-0.5 text-[11px] font-medium text-gray-500 line-clamp-1">
                 as {item.role}
               </p>
             )}
@@ -1096,55 +948,47 @@ function CrewSlider({ data }) {
   }, [data]);
 
   return (
-    <div className="relative">
+    <div className="relative group/slider">
       {canLeft && (
         <SliderArrow
           dir="left"
-          top={60}
+          top={70}
           onClick={() => ref.current?.scrollBy({ left: -400, behavior: "smooth" })}
         />
       )}
       {canRight && (
         <SliderArrow
           dir="right"
-          top={60}
+          top={70}
           onClick={() => ref.current?.scrollBy({ left: 400, behavior: "smooth" })}
         />
       )}
       <div
         ref={ref}
-        className="flex gap-3 md:gap-4 overflow-x-auto pb-1"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth"
       >
         {data.map((item, i) => (
-          <CrewCard key={i} item={item} />
+          <div key={i} className="flex-shrink-0 w-[125px] sm:w-[150px] rounded-2xl overflow-hidden border border-gray-100 shadow-2xs bg-white group hover:shadow-md transition-all cursor-default">
+            <div className="relative overflow-hidden bg-gray-100" style={{ aspectRatio: "1/1" }}>
+              <img
+                src={IMG(item.image)}
+                alt={item.name}
+                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="p-3">
+              <p className="text-[13px] font-bold text-gray-900 line-clamp-1 leading-tight">
+                {item.name}
+              </p>
+              <p
+                className="mt-0.5 text-[11px] font-semibold text-[#f0545c] line-clamp-1"
+                title={item.roles.join(" · ")}
+              >
+                {item.roles.join(" · ")}
+              </p>
+            </div>
+          </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function CrewCard({ item }) {
-  return (
-    <div className="flex-shrink-0 w-[120px] md:w-[148px] rounded-2xl overflow-hidden border border-gray-100 shadow-sm bg-white group hover:shadow-md transition-all cursor-default">
-      <div className="relative overflow-hidden bg-gray-100" style={{ aspectRatio: "1/1" }}>
-        <img
-          src={IMG(item.image)}
-          alt={item.name}
-          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      <div className="px-2.5 md:px-3 pt-2 pb-2.5">
-        <p className="text-[12px] md:text-[13px] font-bold text-gray-900 line-clamp-1 leading-tight">
-          {item.name}
-        </p>
-        <p
-          className="mt-0.5 text-[10px] md:text-[11px] font-medium line-clamp-1 leading-snug"
-          style={{ color: "#f0545c" }}
-          title={item.roles.join(" · ")}
-        >
-          {item.roles.join(" · ")}
-        </p>
       </div>
     </div>
   );
@@ -1176,43 +1020,42 @@ function SimilarMovies({ movies }) {
   }, [movies]);
 
   return (
-    <div className="relative">
+    <div className="relative group/slider">
       {canLeft && (
         <SliderArrow
           dir="left"
-          top={85}
+          top={90}
           onClick={() => ref.current?.scrollBy({ left: -400, behavior: "smooth" })}
         />
       )}
       {canRight && (
         <SliderArrow
           dir="right"
-          top={85}
+          top={90}
           onClick={() => ref.current?.scrollBy({ left: 400, behavior: "smooth" })}
         />
       )}
       <div
         ref={ref}
-        className="flex gap-3 md:gap-4 overflow-x-auto pb-1"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth"
       >
         {movies.map((m, i) => (
-          <a key={i} href={`/movie/${m._id}`} className="flex-shrink-0 w-[120px] md:w-[148px] group no-underline">
-            <div className="relative rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+          <a key={i} href={`/movie/${m._id}`} className="flex-shrink-0 w-[130px] sm:w-[155px] group no-underline card-hover-lift">
+            <div className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm" style={{ aspectRatio: "2/3" }}>
               <img
                 src={IMG(m.poster)}
                 alt={m.title}
-                className="w-full h-[160px] md:h-[200px] object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div
-                className="absolute bottom-0 left-0 right-0 py-1.5 text-center text-[9px] md:text-[10px] font-bold tracking-wide uppercase"
+                className="absolute bottom-0 left-0 right-0 py-1 text-center text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm"
                 style={{
                   background:
                     m.status === "streaming"
-                      ? "rgba(99,102,241,0.85)"
+                      ? "rgba(99,102,241,0.9)"
                       : m.status === "released"
-                      ? "rgba(0,0,0,0.65)"
-                      : "rgba(234,88,12,0.85)",
+                      ? "rgba(240,84,92,0.9)"
+                      : "rgba(234,88,12,0.9)",
                   color: "#fff",
                 }}
               >
@@ -1223,10 +1066,10 @@ function SimilarMovies({ movies }) {
                   : formatDateShort(m.releaseDate)}
               </div>
             </div>
-            <p className="mt-1.5 text-[12px] md:text-[13px] font-semibold text-gray-900 line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+            <p className="mt-2 text-[13px] font-bold text-gray-900 line-clamp-1 group-hover:text-[#f0545c] transition-colors">
               {m.title}
             </p>
-            <p className="text-[11px] md:text-[12px] text-gray-400 mt-0.5">{m.genre}</p>
+            <p className="text-[11.5px] font-medium text-gray-400 mt-0.5">{m.genre}</p>
           </a>
         ))}
       </div>

@@ -1,12 +1,14 @@
-import { Twitter, Instagram, Youtube } from "lucide-react";
+import { Twitter, Instagram, Youtube, Heart, ShieldCheck, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import nowLogo from "../assets/now-logo-mark.png";
 
 const NAV = [
-  { label: "Movies", to: "/movies" },
-  { label: "Cinemas", to: "/cinemas" },
+  { label: "Movies", to: "/now-showing" },
+  { label: "Shows", to: "/web-shows" },
+  { label: "Events", to: "/events" },
+  { label: "Play Arenas", to: "/play" },
   { label: "Offers", to: "/offers" },
-  { label: "About", to: "/about" },
+  { label: "About Us", to: "/about" },
   { label: "Contact", to: "/contact" },
 ];
 
@@ -19,241 +21,94 @@ const SOCIALS = [
 export default function Footer() {
   return (
     <footer
-      style={{
-        fontFamily: "'Outfit', sans-serif",
-        background: "#f7f6f4",
-        color: "#1a1917",
-      }}
+      className="relative overflow-hidden bg-[#0c0d12] text-white border-t border-white/10"
+      style={{ fontFamily: "'Outfit', sans-serif" }}
     >
-      {/* Top accent */}
+      {/* Top Accent Gradient Line */}
       <div
+        className="h-[2px] w-full"
         style={{
-          height: 2,
-          background:
-            "linear-gradient(90deg, transparent 0%, #f0545c 18%, #f0545c 82%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, #f0545c 20%, #f0545c 80%, transparent 100%)",
         }}
       />
 
+      {/* Ambient background glow */}
       <div
-        className="mx-auto px-6 md:px-16"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[180px] pointer-events-none opacity-20"
         style={{
-          maxWidth: 1200,
+          background: "radial-gradient(circle, #f0545c 0%, transparent 70%)",
+          filter: "blur(70px)",
         }}
-      >
-        {/* Main footer row */}
-        <div
-          className="flex flex-col md:flex-row md:items-center justify-between gap-8"
-          style={{
-            padding: "42px 0 34px",
-            borderBottom: "1px solid #e5e2de",
-          }}
-        >
-          {/* Brand */}
-          <Link
-            to="/"
-            aria-label="NOW Home"
-            style={{
-              width: 220,
-              flexShrink: 0,
-              textDecoration: "none",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <img
-              src={nowLogo}
-              alt="NOW"
-              style={{
-                display: "block",
-                width: 150,
-                height: "auto",
-                objectFit: "contain",
-              }}
-            />
+      />
 
-            {/* Tagline SVG - kept as one centered lockup */}
-            <svg
-              viewBox="0 0 260 40"
-              width="260"
-              height="40"
-              role="img"
-              aria-label="Your World of Entertainment"
-              style={{
-                display: "block",
-                marginTop: 6,
-                overflow: "visible",
-              }}
-            >
-              <text
-                x="130"
-                y="21"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="17"
-                fontWeight="700"
-                fontFamily="'Caveat', 'Segoe Script', cursive"
-                letterSpacing="0.2px"
-              >
-                <tspan fill="#1a1917">Your World of </tspan>
-                <tspan fill="#f0545c">Entertainment</tspan>
-              </text>
-
-              {/* Underline positioned only beneath Entertainment */}
-              <path
-                d="M140 31 C164 34, 200 34, 236 30"
-                fill="none"
-                stroke="#f0545c"
-                strokeWidth="1.5"
-                strokeLinecap="round"
+      <div className="max-w-7xl mx-auto px-6 md:px-14 relative z-10">
+        
+        {/* Main Footer Header Row */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 py-10 md:py-12 border-b border-white/10">
+          
+          {/* Brand & Tagline */}
+          <div className="flex flex-col items-start gap-3">
+            <Link to="/" aria-label="NOW Home" className="flex items-center gap-3 group">
+              <img
+                src={nowLogo}
+                alt="NOW"
+                className="h-[36px] w-auto object-contain brightness-110 transition-transform duration-200 group-hover:scale-105"
               />
-            </svg>
-          </Link>
+            </Link>
 
-          {/* Description */}
-          <div
-            style={{
-              maxWidth: 330,
-              flex: "1 1 auto",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: 13,
-                lineHeight: 1.7,
-                color: "#918d87",
-                letterSpacing: "0.01em",
-              }}
-            >
-              Book tickets, discover showtimes & explore the world of cinema,
-              events and plays.
+            <p className="text-[13px] text-gray-400 max-w-sm leading-relaxed">
+              Your premier destination for movie ticket reservations, live concerts, stage plays, and sports venue bookings across top cities.
             </p>
           </div>
 
-          {/* Socials */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexShrink: 0,
-            }}
-          >
-            {SOCIALS.map(({ Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                aria-label={label}
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#ffffff",
-                  border: "1px solid #e1ddd8",
-                  color: "#9e9a94",
-                  transition:
-                    "background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease",
-                  textDecoration: "none",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#fff0f0";
-                  e.currentTarget.style.borderColor = "#f0545c";
-                  e.currentTarget.style.color = "#f0545c";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "#ffffff";
-                  e.currentTarget.style.borderColor = "#e1ddd8";
-                  e.currentTarget.style.color = "#9e9a94";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                <Icon size={15} strokeWidth={1.8} />
-              </a>
-            ))}
+          {/* Social Links & Trust Badge */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="flex items-center gap-2">
+              {SOCIALS.map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all transform hover:-translate-y-1 shadow-sm"
+                >
+                  <Icon size={16} strokeWidth={2} />
+                </a>
+              ))}
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-[12px] font-semibold">
+              <ShieldCheck size={16} className="text-[#f0545c]" />
+              <span>Certified Booking Partner</span>
+            </div>
           </div>
         </div>
 
-        {/* Bottom row */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-          style={{
-            padding: "20px 0 24px",
-          }}
-        >
-          {/* Navigation */}
-          <nav
-            aria-label="Footer navigation"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-              rowGap: 6,
-            }}
-          >
+        {/* Footer Navigation & Copyright */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 py-7 text-[13px]">
+          {/* Navigation Links */}
+          <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-y-2 gap-x-1">
             {NAV.map(({ label, to }, i) => (
-              <span
-                key={label}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
+              <span key={label} className="flex items-center">
                 <Link
                   to={to}
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#89857f",
-                    textDecoration: "none",
-                    padding: "4px 9px",
-                    borderRadius: 6,
-                    transition: "color 0.15s ease",
-                    letterSpacing: "0.01em",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#1a1917";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "#89857f";
-                  }}
+                  className="font-medium text-gray-400 hover:text-white px-2.5 py-1 rounded-lg hover:bg-white/5 transition-colors"
                 >
                   {label}
                 </Link>
-
                 {i < NAV.length - 1 && (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      color: "#d2cec9",
-                      fontSize: 11,
-                      userSelect: "none",
-                    }}
-                  >
-                    /
-                  </span>
+                  <span className="text-white/20 select-none">•</span>
                 )}
               </span>
             ))}
           </nav>
 
-          {/* Copyright */}
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: "#b4b0aa",
-              letterSpacing: "0.02em",
-              whiteSpace: "nowrap",
-            }}
-          >
-            © {new Date().getFullYear()} NOW. All rights reserved.
-          </p>
+          {/* Copyright & Disclaimer */}
+          <div className="flex items-center gap-1.5 text-gray-500 text-[12.5px]">
+            <span>© {new Date().getFullYear()} NOW Entertainment Ltd.</span>
+            <span>Made with passion for cinema fans</span>
+          </div>
         </div>
+
       </div>
     </footer>
   );

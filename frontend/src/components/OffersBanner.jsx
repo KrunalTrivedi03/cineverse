@@ -63,10 +63,10 @@ export default function OffersBanner() {
     <section className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 pt-8 md:pt-10">
       <div className="flex items-end justify-between mb-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
             Promotions &amp; Benefits
           </h2>
-          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
             Special offers and banking discounts applied at checkout
           </p>
         </div>
@@ -75,14 +75,14 @@ export default function OffersBanner() {
         <div className="hidden md:flex items-center gap-1.5">
           <button
             onClick={() => swiperRef.current?.slidePrev()}
-            className="w-8 h-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 hover:text-black hover:border-neutral-300 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#161a28]/80 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:border-[#f0545c] hover:bg-[#f0545c]/20 transition-all cursor-pointer"
             aria-label="Previous Offer"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={() => swiperRef.current?.slideNext()}
-            className="w-8 h-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 hover:text-black hover:border-neutral-300 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#161a28]/80 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:border-[#f0545c] hover:bg-[#f0545c]/20 transition-all cursor-pointer"
             aria-label="Next Offer"
           >
             <ChevronRight size={16} />
@@ -90,7 +90,7 @@ export default function OffersBanner() {
         </div>
       </div>
 
-      <div className="relative rounded-2xl overflow-hidden shadow-sm border border-neutral-100 group">
+      <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/[0.08] group">
         <Swiper
           onSwiper={(s) => (swiperRef.current = s)}
           onSlideChange={(s) => setActiveIdx(s.realIndex)}
@@ -135,7 +135,7 @@ export default function OffersBanner() {
 
                   <Link
                     to={offer.to}
-                    className="inline-flex items-center gap-1.5 flex-shrink-0 text-xs font-semibold px-4 py-2.5 rounded-xl bg-white hover:bg-neutral-50 text-neutral-900 transition-all shadow-xs self-start sm:self-center"
+                    className="inline-flex items-center gap-1.5 flex-shrink-0 text-xs font-semibold px-4 py-2.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-all shadow-md self-start sm:self-center"
                   >
                     <span>{offer.cta}</span>
                     <ArrowRight size={13} />
@@ -152,16 +152,16 @@ export default function OffersBanner() {
         {PERKS.map(({ icon: Icon, label, desc }) => (
           <div
             key={label}
-            className="flex items-center gap-3 bg-white border border-neutral-200/80 rounded-xl p-3 shadow-2xs"
+            className="flex items-center gap-3 bg-[#11131e]/80 backdrop-blur-md border border-white/[0.08] rounded-xl p-3 shadow-lg hover:border-white/20 transition-all"
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-neutral-100 text-neutral-700">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.06] text-[#f0545c]">
               <Icon size={15} />
             </div>
             <div className="min-w-0">
-              <span className="text-xs font-semibold text-neutral-800 leading-tight block truncate">
+              <span className="text-xs font-semibold text-white leading-tight block truncate">
                 {label}
               </span>
-              <span className="text-[11px] text-neutral-400 block truncate">
+              <span className="text-[11px] text-slate-400 block truncate">
                 {desc}
               </span>
             </div>

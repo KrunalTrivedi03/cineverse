@@ -21,13 +21,17 @@ const SOCIALS = [
 export default function Footer() {
   return (
     <footer
-      className="relative overflow-hidden bg-[#0c0d12] text-white border-t border-white/10"
+      className="relative overflow-hidden bg-[#07080d] text-white border-t border-white/[0.08]"
       style={{ fontFamily: "'Outfit', sans-serif" }}
     >
+      {/* Ambient background glows */}
+      <div className="absolute top-0 left-1/4 w-[400px] h-[150px] bg-[radial-gradient(ellipse_at_top,_rgba(240,84,92,0.12)_0%,_transparent_70%)] pointer-events-none blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-[350px] h-[120px] bg-[radial-gradient(ellipse_at_bottom,_rgba(139,92,246,0.1)_0%,_transparent_70%)] pointer-events-none blur-3xl" />
+
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         
         {/* Main Footer Header Row */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-10 md:py-12 border-b border-white/10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-10 md:py-12 border-b border-white/[0.08]">
           
           {/* Brand & Tagline */}
           <div className="flex flex-col items-start gap-2.5">
@@ -39,7 +43,7 @@ export default function Footer() {
               />
             </Link>
 
-            <p className="text-xs sm:text-sm text-neutral-400 max-w-sm leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-400 max-w-sm leading-relaxed">
               Ticket reservations for movies, live concerts, stage performances, and sports turfs across premier venues.
             </p>
           </div>
@@ -52,29 +56,29 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-9 h-9 rounded-lg flex items-center justify-center bg-white/5 border border-white/10 text-neutral-400 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/[0.05] border border-white/10 text-slate-400 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all"
                 >
                   <Icon size={15} />
                 </a>
               ))}
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-neutral-300 text-xs font-medium">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 text-slate-300 text-xs font-medium">
               <ShieldCheck size={14} className="text-[#f0545c]" />
               <span>Official Ticket Partner</span>
             </div>
           </div>
         </div>
 
-        {/* Footer Navigation & Copyright (with safe pb-24 on mobile for bottom navigation) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 pb-24 md:pb-6 text-xs text-neutral-500">
+        {/* Footer Navigation & Copyright (with safe pb-28 on mobile for bottom navigation) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 pb-28 md:pb-6 text-xs text-slate-500">
           {/* Navigation Links */}
           <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-y-2 gap-x-1">
             {NAV.map(({ label, to }, i) => (
               <span key={label} className="flex items-center">
                 <Link
                   to={to}
-                  className="text-neutral-400 hover:text-white px-2 py-1 transition-colors"
+                  className="text-slate-400 hover:text-white px-2 py-1 transition-colors"
                 >
                   {label}
                 </Link>

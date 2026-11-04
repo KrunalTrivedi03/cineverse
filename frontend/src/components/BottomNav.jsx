@@ -54,9 +54,9 @@ export default function BottomNav() {
     <nav
       aria-label="Mobile Navigation"
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden flex justify-center pointer-events-none pb-3 px-4"
-      style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
+      style={{ paddingBottom: "max(14px, env(safe-area-inset-bottom))" }}
     >
-      <div className="pointer-events-auto flex items-center justify-around gap-1 w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] p-1.5 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)]">
+      <div className="pointer-events-auto flex items-center justify-around gap-1 w-full max-w-sm rounded-2xl bg-[#0d0f19]/92 backdrop-blur-2xl border border-white/10 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_24px_rgba(240,84,92,0.18)]">
         {items.map((item) => {
           const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
 
@@ -65,21 +65,23 @@ export default function BottomNav() {
               key={item.key}
               onClick={() => navigate(item.to)}
               className={`relative flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-200 cursor-pointer flex-1 ${
-                active ? "text-[#f0545c]" : "text-neutral-500 hover:text-neutral-800"
+                active
+                  ? "text-[#f0545c] bg-white/[0.06] shadow-[0_2px_12px_rgba(240,84,92,0.2)]"
+                  : "text-slate-400 hover:text-white"
               }`}
             >
               <item.icon
-                size={19}
-                strokeWidth={active ? 2.3 : 1.7}
-                className="transition-transform duration-200"
+                size={18}
+                strokeWidth={active ? 2.4 : 1.8}
+                className={`transition-transform duration-200 ${active ? "scale-105" : ""}`}
               />
               <span className={`text-[10px] tracking-tight mt-1 transition-all ${
-                active ? "font-bold text-[#f0545c]" : "font-medium text-neutral-500"
+                active ? "font-bold text-[#f0545c]" : "font-medium text-slate-400"
               }`}>
                 {item.label}
               </span>
               {active && (
-                <span className="w-1 h-1 rounded-full bg-[#f0545c] mt-0.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#f0545c] shadow-[0_0_8px_#f0545c] mt-0.5" />
               )}
             </button>
           );

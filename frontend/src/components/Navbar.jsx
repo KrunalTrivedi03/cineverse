@@ -192,7 +192,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="w-full sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-gray-200/70 transition-all">
+      <nav className="w-full sticky top-0 z-50 backdrop-blur-2xl bg-[#0a0b10]/90 border-b border-white/[0.08] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[64px] flex items-center justify-between gap-4">
           
           {/* Logo & Brand */}
@@ -269,13 +269,13 @@ export default function Navbar() {
             {/* Minimalist Search Input */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="hidden md:flex items-center justify-between gap-3 bg-gray-100/80 hover:bg-gray-100 border border-gray-200/60 hover:border-gray-300 transition-all rounded-full px-3.5 py-1.5 text-[13px] text-gray-500 hover:text-gray-700 w-52 lg:w-60 group cursor-pointer"
+              className="hidden md:flex items-center justify-between gap-3 bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 hover:border-white/20 transition-all rounded-full px-3.5 py-1.5 text-[13px] text-white/50 hover:text-white w-52 lg:w-60 group cursor-pointer"
             >
               <div className="flex items-center gap-2 truncate">
-                <Search size={14} className="text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+                <Search size={14} className="text-white/40 group-hover:text-white/70 transition-colors flex-shrink-0" />
                 <span className="truncate">Search movies, shows...</span>
               </div>
-              <span className="text-[10px] font-mono text-gray-400 bg-white group-hover:bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 shadow-2xs">
+              <span className="text-[10px] font-mono text-white/50 bg-white/10 group-hover:bg-white/15 px-1.5 py-0.5 rounded border border-white/10 shadow-2xs">
                 /
               </span>
             </button>
@@ -283,23 +283,23 @@ export default function Navbar() {
             {/* City Selector */}
             <button
               onClick={() => setCityModal(true)}
-              className="hidden md:flex items-center gap-1.5 text-[13px] font-semibold text-gray-700 hover:text-gray-950 px-2.5 py-1.5 rounded-xl hover:bg-gray-100/70 transition-all cursor-pointer"
+              className="hidden md:flex items-center gap-1.5 text-[13px] font-semibold text-white/80 hover:text-white px-2.5 py-1.5 rounded-xl hover:bg-white/[0.06] transition-all cursor-pointer"
             >
               <MapPin
                 size={14}
                 className="flex-shrink-0 text-[#f0545c]"
               />
               <span className="truncate max-w-[100px]">{selectedCity || "Select City"}</span>
-              <ChevronDown size={12} className="text-gray-400" />
+              <ChevronDown size={12} className="text-white/40" />
             </button>
 
             {/* Subtle Divider */}
-            <div className="hidden md:block w-px h-4 bg-gray-200/90" />
+            <div className="hidden md:block w-px h-4 bg-white/10" />
 
             {/* Mobile search & city icons */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="md:hidden w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors"
+              className="md:hidden w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Search"
             >
               <Search size={15} />
@@ -307,7 +307,7 @@ export default function Navbar() {
 
             <button
               onClick={() => setCityModal(true)}
-              className="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-[12px] font-semibold hover:text-gray-900 transition-colors"
+              className="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.06] text-white/80 text-[12px] font-semibold hover:text-white transition-colors"
               aria-label="Select city"
             >
               <MapPin
@@ -330,19 +330,19 @@ export default function Navbar() {
               <div className="md:hidden relative" ref={mobileProfileRef}>
                 <button
                   onClick={() => setMobileProfileOpen((p) => !p)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 ring-2 ring-[#f0545c]/20 shadow-2xs"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 ring-2 ring-[#f0545c]/30 shadow-2xs"
                   aria-label="Account"
                 >
                   {(userInfo.username?.[0] || "U").toUpperCase()}
                 </button>
 
                 {mobileProfileOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white/98 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="px-4 py-3.5 border-b border-gray-100 bg-gray-50/80">
-                      <p className="text-[14px] font-bold text-gray-900 capitalize truncate">
+                  <div className="absolute right-0 top-[calc(100%+8px)] bg-[#0e111a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-white">
+                    <div className="px-4 py-3.5 border-b border-white/10 bg-white/[0.02]">
+                      <p className="text-[14px] font-bold text-white capitalize truncate">
                         {userInfo.username || "User"}
                       </p>
-                      <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                      <p className="text-[11px] text-white/40 truncate mt-0.5">
                         {userInfo.email || ""}
                       </p>
                     </div>
@@ -363,10 +363,10 @@ export default function Navbar() {
                         Account & Settings
                       </ProfileLink>
                     </div>
-                    <div className="border-t border-gray-100 px-1.5 py-1.5 bg-red-50/30">
+                    <div className="border-t border-white/10 px-1.5 py-1.5 bg-red-500/10">
                       <button
                         onClick={logout}
-                        className="w-full flex items-center gap-2 text-[13px] font-semibold text-red-500 hover:bg-red-50 transition-colors px-3 py-2 rounded-xl"
+                        className="w-full flex items-center gap-2 text-[13px] font-semibold text-red-400 hover:bg-red-500/10 transition-colors px-3 py-2 rounded-xl"
                       >
                         <LogOut size={14} /> Logout
                       </button>
@@ -388,26 +388,26 @@ export default function Navbar() {
               <div className="hidden md:block relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen((p) => !p)}
-                  className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-gray-100/70 border border-transparent hover:border-gray-200/80 transition-all cursor-pointer"
+                  className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all cursor-pointer"
                 >
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 shadow-2xs"
                   >
                     {(userInfo.username?.[0] || "U").toUpperCase()}
                   </div>
-                  <span className="text-[13px] font-semibold text-gray-800 capitalize max-w-[100px] truncate">
+                  <span className="text-[13px] font-semibold text-white/90 capitalize max-w-[100px] truncate">
                     {userInfo.username || "Account"}
                   </span>
-                  <ChevronDown size={12} className="text-gray-400" />
+                  <ChevronDown size={12} className="text-white/40" />
                 </button>
 
                 {profileOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] bg-white/98 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="px-4 py-3.5 border-b border-gray-100 bg-gray-50/70">
-                      <p className="text-[14px] font-bold text-gray-900 capitalize truncate">
+                  <div className="absolute right-0 top-[calc(100%+8px)] bg-[#0e111a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl w-56 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-white">
+                    <div className="px-4 py-3.5 border-b border-white/10 bg-white/[0.02]">
+                      <p className="text-[14px] font-bold text-white capitalize truncate">
                         {userInfo.username || "User"}
                       </p>
-                      <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                      <p className="text-[11px] text-white/40 truncate mt-0.5">
                         {userInfo.email || ""}
                       </p>
                     </div>
@@ -428,10 +428,10 @@ export default function Navbar() {
                         Account & Settings
                       </ProfileLink>
                     </div>
-                    <div className="border-t border-gray-100 px-1.5 py-1.5 bg-red-50/30">
+                    <div className="border-t border-white/10 px-1.5 py-1.5 bg-red-500/10">
                       <button
                         onClick={logout}
-                        className="w-full flex items-center gap-2 text-[13px] font-semibold text-red-500 hover:bg-red-50 transition-colors px-3 py-2 rounded-xl"
+                        className="w-full flex items-center gap-2 text-[13px] font-semibold text-red-400 hover:bg-red-500/10 transition-colors px-3 py-2 rounded-xl"
                       >
                         <LogOut size={14} /> Logout
                       </button>
@@ -780,13 +780,13 @@ function NavLink({ to, children, active }) {
       to={to}
       className={`group relative h-[64px] flex items-center px-3.5 text-[14px] font-medium transition-colors ${
         active
-          ? "text-gray-950 font-semibold"
-          : "text-gray-600 hover:text-gray-950"
+          ? "text-white font-bold"
+          : "text-white/60 hover:text-white"
       }`}
     >
       <span>{children}</span>
       {active && (
-        <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#f0545c] rounded-full" />
+        <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#f0545c] shadow-[0_0_10px_#f0545c] rounded-full" />
       )}
     </Link>
   );
@@ -801,20 +801,20 @@ function NavDropdown({ label, children, activePaths = [] }) {
       <button
         className={`flex items-center gap-1 px-3.5 h-full text-[14px] font-medium transition-colors cursor-pointer ${
           isActive
-            ? "text-gray-950 font-semibold"
-            : "text-gray-600 hover:text-gray-950"
+            ? "text-white font-bold"
+            : "text-white/60 hover:text-white"
         }`}
       >
         <span>{label}</span>
-        <ChevronDown size={12} className="text-gray-400 group-hover:text-gray-700 transition-transform duration-200 group-hover:rotate-180" />
+        <ChevronDown size={12} className="text-white/40 group-hover:text-white/80 transition-transform duration-200 group-hover:rotate-180" />
         {isActive && (
-          <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#f0545c] rounded-full" />
+          <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#f0545c] shadow-[0_0_10px_#f0545c] rounded-full" />
         )}
       </button>
 
       {/* Floating Dropdown Card */}
       <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 z-50">
-        <div className="bg-white/98 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-xl w-60 p-2 space-y-0.5">
+        <div className="bg-[#0e111a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl w-60 p-2 space-y-0.5 text-white">
           {children}
         </div>
       </div>
@@ -826,17 +826,17 @@ function DropItem({ icon, label, desc, to }) {
   return (
     <Link
       to={to}
-      className="flex items-start gap-3 p-2.5 rounded-xl text-gray-700 hover:bg-[#f0545c]/5 hover:text-[#f0545c] transition-all group/item"
+      className="flex items-start gap-3 p-2.5 rounded-xl text-white/80 hover:bg-white/[0.08] hover:text-white transition-all group/item"
     >
-      <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover/item:bg-[#f0545c]/10 text-gray-500 group-hover/item:text-[#f0545c] flex items-center justify-center flex-shrink-0 transition-colors mt-0.5">
+      <div className="w-8 h-8 rounded-lg bg-white/[0.06] group-hover/item:bg-[#f0545c]/20 text-white/70 group-hover/item:text-[#f0545c] flex items-center justify-center flex-shrink-0 transition-colors mt-0.5">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[13px] font-bold text-gray-900 group-hover/item:text-[#f0545c] leading-tight transition-colors">
+        <p className="text-[13px] font-bold text-white group-hover/item:text-[#f0545c] leading-tight transition-colors">
           {label}
         </p>
         {desc && (
-          <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-1">
+          <p className="text-[11px] text-white/40 mt-0.5 line-clamp-1">
             {desc}
           </p>
         )}
@@ -850,7 +850,7 @@ function ProfileLink({ to, children, onClick }) {
     <Link
       to={to}
       onClick={onClick}
-      className="flex items-center px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-100/80 hover:text-[#f0545c] rounded-xl transition-all"
+      className="flex items-center px-3 py-2 text-[13px] font-semibold text-white/80 hover:bg-white/[0.08] hover:text-white rounded-xl transition-all"
     >
       {children}
     </Link>

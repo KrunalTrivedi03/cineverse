@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search, X, Music2, Moon, Mic2, Building, Drama, GraduationCap,
-  Trophy, ChevronLeft, ChevronRight, Sparkles, Flame,
+  Trophy, ChevronLeft, ChevronRight, Sparkles, Flame, Loader2,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
@@ -174,12 +174,9 @@ export default function ExploreEvents() {
           ) : (
             <>
               {loading ? (
-                <div className="flex items-center justify-center py-28">
-                  <div className="flex gap-2.5">
-                    {[0, 1, 2].map((i) => (
-                      <span key={i} className="w-3 h-3 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                    ))}
-                  </div>
+                <div className="flex flex-col items-center justify-center py-28 gap-3">
+                  <Loader2 size={28} className="animate-spin text-[#f0545c]" />
+                  <span className="text-[13px] font-semibold text-gray-400">Discovering live events...</span>
                 </div>
               ) : (
                 <>
@@ -187,10 +184,9 @@ export default function ExploreEvents() {
                   <section className="mb-12">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0545c]/10 text-[#f0545c] text-[11px] font-extrabold uppercase tracking-widest mb-1.5 border border-[#f0545c]/20">
-                          <Sparkles size={11} />
-                          <span>Curated Experiences</span>
-                        </div>
+                        <p className="text-[11px] font-bold text-[#f0545c] uppercase tracking-wider mb-1">
+                          Curated Experiences
+                        </p>
                         <h2 className="text-[20px] sm:text-[24px] font-black text-gray-900 tracking-tight">
                           Explore by Category
                         </h2>

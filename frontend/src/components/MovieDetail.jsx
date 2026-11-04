@@ -452,14 +452,13 @@ function MovieDetail({ movie }) {
       return (
         <button
           onClick={goToBooking}
-          className={`flex items-center justify-center gap-2 text-white font-black transition-all shadow-[0_8px_25px_-4px_rgba(240,84,92,0.5)] hover:shadow-[0_12px_32px_-4px_rgba(240,84,92,0.7)] hover:-translate-y-0.5 active:translate-y-0 ${
+          className={`flex items-center justify-center gap-2 text-white font-bold transition-all bg-[#f0545c] hover:bg-[#e03a43] shadow-sm hover:shadow active:scale-[0.98] ${
             wide
-              ? "flex-1 py-3.5 rounded-2xl text-[14px]"
+              ? "flex-1 py-3.5 rounded-xl text-[14px]"
               : mobile
               ? "flex-1 py-3 rounded-xl text-[13px]"
-              : "px-9 py-3 rounded-2xl text-[14.5px]"
+              : "px-8 py-3 rounded-xl text-[14.5px]"
           }`}
-          style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
         >
           <Ticket size={wide ? 18 : mobile ? 15 : 17} />
           <span>Book Tickets</span>

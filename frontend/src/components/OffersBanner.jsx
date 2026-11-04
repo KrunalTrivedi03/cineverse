@@ -5,16 +5,16 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import {
-  Wallet, Ticket, Sparkles, Percent, Gift, ArrowRight,
-  ChevronLeft, ChevronRight, Zap, Tag, ShieldCheck,
+  Percent, Gift, Ticket, ArrowRight,
+  ChevronLeft, ChevronRight, Tag, ShieldCheck,
 } from "lucide-react";
 import { fetchBannerOffers, IMG, themeGradient, formatDiscountLabel } from "../utils/offers";
 
 const PERKS = [
-  { icon: Percent, label: "Best price guarantee", desc: "No hidden booking fees" },
-  { icon: Gift, label: "Exclusive member perks", desc: "Unlock rewards & coupons" },
-  { icon: Ticket, label: "Instant m-tickets", desc: "Direct barcode access" },
-  { icon: ShieldCheck, label: "100% secure checkout", desc: "Encrypted transactions" },
+  { icon: Percent, label: "Price Guarantee", desc: "Standard booking rates" },
+  { icon: Gift, label: "Member Rewards", desc: "Exclusive promotional perks" },
+  { icon: Ticket, label: "Digital Passes", desc: "Instant mobile entry barcodes" },
+  { icon: ShieldCheck, label: "Secure Payments", desc: "PCI-DSS certified gateway" },
 ];
 
 function normalizeBackendOffer(offer) {
@@ -22,14 +22,13 @@ function normalizeBackendOffer(offer) {
     id: offer._id,
     icon: Tag,
     badge: formatDiscountLabel(offer),
-    badgeIcon: Zap,
-    eyebrow: offer.subtitle || "Exclusive Deal",
+    eyebrow: offer.subtitle || "Featured Promotion",
     title: offer.title,
     desc: offer.description || "",
-    cta: offer.ctaText || "Claim Offer",
+    cta: offer.ctaText || "Claim Perk",
     to: offer.ctaLink || "/offers",
     bg: themeGradient(offer.theme),
-    accent: "#7a1c22",
+    accent: "#b91c1c",
     image: offer.image ? IMG(offer.image) : null,
   };
 }
@@ -47,40 +46,43 @@ export default function OffersBanner() {
         if (cancelled) return;
         setOffers(data && data.length > 0 ? data.map(normalizeBackendOffer) : []);
       })
-      .catch(() => { if (!cancelled) setOffers([]); })
-      .finally(() => { if (!cancelled) setLoaded(true); });
-    return () => { cancelled = true; };
+      .catch(() => {
+        if (!cancelled) setOffers([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!loaded || offers.length === 0) return null;
 
-  const OFFERS = offers;
-
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-8 md:px-14 pt-8 md:pt-12">
+    <section className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 pt-8 md:pt-10">
       <div className="flex items-end justify-between mb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0545c]/10 text-[#f0545c] text-[11px] font-extrabold uppercase tracking-widest mb-1.5 border border-[#f0545c]/20">
-            <Sparkles size={11} />
-            <span>Special Promotions</span>
-          </div>
-          <h2 className="text-[20px] sm:text-[24px] font-black text-gray-900 tracking-tight">
-            Deals &amp; Exclusive Perks
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
+            Promotions &amp; Benefits
           </h2>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+            Special offers and banking discounts applied at checkout
+          </p>
         </div>
 
         {/* Desktop slider navigation arrows */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-1.5">
           <button
             onClick={() => swiperRef.current?.slidePrev()}
-            className="w-9 h-9 rounded-full bg-white border border-gray-200/90 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all shadow-xs active:scale-95"
+            className="w-8 h-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 hover:text-black hover:border-neutral-300 transition-colors cursor-pointer"
             aria-label="Previous Offer"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={() => swiperRef.current?.slideNext()}
-            className="w-9 h-9 rounded-full bg-white border border-gray-200/90 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all shadow-xs active:scale-95"
+            className="w-8 h-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 hover:text-black hover:border-neutral-300 transition-colors cursor-pointer"
             aria-label="Next Offer"
           >
             <ChevronRight size={16} />
@@ -88,101 +90,61 @@ export default function OffersBanner() {
         </div>
       </div>
 
-      <div className="relative rounded-3xl overflow-hidden shadow-xl border border-white/20 group">
+      <div className="relative rounded-2xl overflow-hidden shadow-sm border border-neutral-100 group">
         <Swiper
           onSwiper={(s) => (swiperRef.current = s)}
           onSlideChange={(s) => setActiveIdx(s.realIndex)}
           modules={[Autoplay, Pagination]}
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           loop
-          speed={800}
+          speed={700}
           className="w-full"
         >
-          {OFFERS.map((offer) => {
-            const Icon = offer.icon;
-            const BadgeIcon = offer.badgeIcon;
-            return (
-              <SwiperSlide key={offer.id}>
-                <div
-                  className="relative overflow-hidden"
-                  style={{ background: offer.bg, minHeight: 145 }}
-                >
-                  {offer.image && (
-                    <img
-                      src={offer.image}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay pointer-events-none"
-                    />
-                  )}
-
-                  {/* Shimmer Ambient Glow */}
-                  <div
-                    className="absolute -right-10 -top-16 w-56 h-56 rounded-full pointer-events-none opacity-40"
-                    style={{ background: "radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)" }}
+          {offers.map((offer) => (
+            <SwiperSlide key={offer.id}>
+              <div
+                className="relative overflow-hidden"
+                style={{ background: offer.bg, minHeight: 130 }}
+              >
+                {offer.image && (
+                  <img
+                    src={offer.image}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover opacity-15 mix-blend-overlay pointer-events-none"
                   />
+                )}
 
-                  {/* Decorative Ghost Icon */}
-                  <Icon
-                    size={130}
-                    strokeWidth={0.8}
-                    className="absolute -right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:block text-white/10"
-                  />
-
-                  <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 h-full px-6 sm:px-10 py-6">
-                    <div className="min-w-0">
-                      {/* Badge Pill */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <span
-                          className="inline-flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wider px-3 py-1 rounded-full text-white backdrop-blur-md shadow-sm border border-white/25"
-                          style={{ background: "rgba(255,255,255,0.22)" }}
-                        >
-                          <BadgeIcon size={12} />
-                          <span>{offer.badge}</span>
-                        </span>
-                        <span className="text-[11.5px] font-bold text-white/80 tracking-wide hidden sm:inline">
-                          {offer.eyebrow}
-                        </span>
-                      </div>
-
-                      <h3 className="text-white font-black text-[20px] sm:text-[26px] leading-tight mb-1 max-w-lg tracking-tight drop-shadow-sm">
-                        {offer.title}
-                      </h3>
-                      <p className="text-white/85 text-[13px] sm:text-[14px] max-w-sm sm:max-w-md leading-relaxed hidden sm:block">
-                        {offer.desc}
-                      </p>
+                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 h-full px-6 sm:px-8 py-5">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white/20 text-white backdrop-blur-md">
+                        {offer.badge}
+                      </span>
+                      <span className="text-xs text-white/80 font-medium hidden sm:inline">
+                        {offer.eyebrow}
+                      </span>
                     </div>
 
-                    <Link
-                      to={offer.to}
-                      className="inline-flex items-center gap-2 flex-shrink-0 text-[13px] font-extrabold px-6 py-3 rounded-2xl bg-white hover:bg-white/90 transition-all duration-200 active:scale-95 hover:shadow-lg whitespace-nowrap self-start sm:self-center"
-                      style={{ color: offer.accent || "#b91c1c", boxShadow: "0 8px 24px rgba(0,0,0,0.18)" }}
-                    >
-                      <span>{offer.cta}</span>
-                      <ArrowRight size={14} />
-                    </Link>
+                    <h3 className="text-white font-bold text-lg sm:text-xl leading-tight mb-1 max-w-lg tracking-tight">
+                      {offer.title}
+                    </h3>
+                    <p className="text-white/80 text-xs max-w-md line-clamp-1 hidden sm:block">
+                      {offer.desc}
+                    </p>
                   </div>
-                </div>
-              </SwiperSlide>
-            );
-          })}
-        </Swiper>
 
-        {/* Slide Progress Dots */}
-        <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-          {OFFERS.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => swiperRef.current?.slideToLoop(i)}
-              className="transition-all duration-300 rounded-full"
-              style={{
-                width: i === activeIdx ? 20 : 6,
-                height: 6,
-                background: i === activeIdx ? "#fff" : "rgba(255,255,255,0.4)",
-              }}
-              aria-label={`Slide ${i + 1}`}
-            />
+                  <Link
+                    to={offer.to}
+                    className="inline-flex items-center gap-1.5 flex-shrink-0 text-xs font-semibold px-4 py-2.5 rounded-xl bg-white hover:bg-neutral-50 text-neutral-900 transition-all shadow-xs self-start sm:self-center"
+                  >
+                    <span>{offer.cta}</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </div>
 
       {/* Perks Strip */}
@@ -190,18 +152,16 @@ export default function OffersBanner() {
         {PERKS.map(({ icon: Icon, label, desc }) => (
           <div
             key={label}
-            className="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5 hover:border-gray-200 hover:shadow-md transition-all shadow-2xs group"
+            className="flex items-center gap-3 bg-white border border-neutral-200/80 rounded-xl p-3 shadow-2xs"
           >
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#f0545c]/10 text-[#f0545c] group-hover:scale-110 transition-transform"
-            >
-              <Icon size={16} />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-neutral-100 text-neutral-700">
+              <Icon size={15} />
             </div>
             <div className="min-w-0">
-              <span className="text-[12.5px] font-bold text-gray-800 leading-tight block truncate">
+              <span className="text-xs font-semibold text-neutral-800 leading-tight block truncate">
                 {label}
               </span>
-              <span className="text-[11px] font-medium text-gray-400 block truncate">
+              <span className="text-[11px] text-neutral-400 block truncate">
                 {desc}
               </span>
             </div>

@@ -203,9 +203,6 @@ export default function Navbar() {
                 alt="NOW"
                 className="h-[28px] md:h-[32px] w-auto object-contain transition-transform duration-200 group-hover:scale-105"
               />
-              <span className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-[#f0545c]/10 text-[#f0545c] rounded-md border border-[#f0545c]/20">
-                LIVE
-              </span>
             </div>
           </Link>
 
@@ -331,8 +328,7 @@ export default function Navbar() {
             {!token ? (
               <Link
                 to="/login"
-                className="md:hidden flex items-center justify-center w-9 h-9 rounded-full text-white flex-shrink-0 shadow-md shadow-[#f0545c]/25 active:scale-95 transition-transform"
-                style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-[#f0545c] hover:bg-[#e03a43] text-white flex-shrink-0 shadow-sm active:scale-95 transition-all"
                 aria-label="Sign in"
               >
                 <User size={15} />
@@ -341,8 +337,7 @@ export default function Navbar() {
               <div className="md:hidden relative" ref={mobileProfileRef}>
                 <button
                   onClick={() => setMobileProfileOpen((p) => !p)}
-                  className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] font-bold flex-shrink-0 ring-2 ring-[#f0545c]/30 shadow-md shadow-[#f0545c]/20"
-                  style={{ background: "linear-gradient(135deg, #f0545c 0%, #d94048 100%)" }}
+                  className="flex items-center justify-center w-9 h-9 rounded-full bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0 ring-2 ring-[#f0545c]/20 shadow-sm"
                   aria-label="Account"
                 >
                   {(userInfo.username?.[0] || "U").toUpperCase()}
@@ -392,8 +387,7 @@ export default function Navbar() {
             {!token ? (
               <Link
                 to="/login"
-                className="hidden md:inline-flex items-center gap-2 text-[13px] font-bold text-white px-5 py-2 rounded-full transition-all duration-200 shadow-md shadow-[#f0545c]/25 hover:shadow-lg hover:shadow-[#f0545c]/40 hover:-translate-y-0.5 active:translate-y-0"
-                style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
+                className="hidden md:inline-flex items-center gap-2 text-[13px] font-semibold text-white px-4 py-2 rounded-full bg-[#f0545c] hover:bg-[#e03a43] transition-all duration-150 shadow-sm hover:shadow"
               >
                 <span>Sign In</span>
                 <ArrowRight size={13} />
@@ -405,8 +399,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200/90 transition-all rounded-full pl-1.5 pr-3 py-1 shadow-2xs hover:border-[#f0545c]/30"
                 >
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[12px] font-extrabold flex-shrink-0 shadow-sm"
-                    style={{ background: "linear-gradient(135deg, #f0545c 0%, #d94048 100%)" }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center bg-[#f0545c] text-white text-[12px] font-bold flex-shrink-0"
                   >
                     {(userInfo.username?.[0] || "U").toUpperCase()}
                   </div>

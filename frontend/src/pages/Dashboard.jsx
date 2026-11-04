@@ -4,9 +4,9 @@ import Navbar from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
 import Footer from "../components/Footer";
 import {
-  User, Film, Bookmark, Ticket, Calendar, Dumbbell,
-  Settings, Clock, Sparkles, ChevronRight, MapPin,
-  TrendingUp, CreditCard,
+  Film, Bookmark, Calendar, Dumbbell,
+  Settings, ChevronRight, MapPin,
+  CreditCard,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -36,120 +36,101 @@ export default function Dashboard() {
   const city = localStorage.getItem("selectedCity") || "Not selected";
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 flex flex-col justify-between">
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 flex flex-col justify-between">
       <div>
         <Navbar />
         <BottomNav />
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           
-          {/* Welcome VIP Card */}
-          <div
-            className="relative overflow-hidden rounded-3xl p-6 sm:p-10 text-white mb-10 shadow-xl"
-            style={{
-              background: "linear-gradient(135deg, #111422 0%, #1f2338 60%, #2a2238 100%)",
-            }}
-          >
-            {/* Ambient Coral Glow */}
-            <div
-              className="absolute -right-16 -bottom-16 w-64 h-64 rounded-full pointer-events-none opacity-25"
-              style={{ background: "radial-gradient(circle, #f0545c 0%, transparent 70%)" }}
-            />
-
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-4 sm:gap-5">
-                <div
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-white text-[24px] sm:text-[30px] font-black shadow-lg flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #f0545c 0%, #d94048 100%)" }}
-                >
+          {/* Welcome Card */}
+          <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8 bg-[#0c0d12] text-white mb-8 border border-white/10 shadow-lg">
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center text-white text-xl sm:text-2xl font-bold bg-[#f0545c] shadow-md flex-shrink-0">
                   {(user?.username?.[0] || "U").toUpperCase()}
                 </div>
 
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-[11px] font-extrabold uppercase tracking-wider mb-2 backdrop-blur-md border border-white/15">
-                    <Sparkles size={11} className="text-[#f0545c]" />
-                    <span>NOW Premier Member</span>
-                  </div>
-
-                  <h1 className="text-[26px] sm:text-[34px] font-black tracking-tight leading-tight">
-                    Welcome back{user?.username ? `, ${user.username}` : ""}!
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                    {user?.username ? `Welcome, ${user.username}` : "Welcome to NOW"}
                   </h1>
-                  <p className="text-white/60 text-[13px] sm:text-[14px] mt-1">
-                    {user?.email || "Manage your bookings, watchlist, and personalized experiences."}
+                  <p className="text-neutral-400 text-xs sm:text-sm mt-0.5">
+                    {user?.email || "Manage your bookings, watchlist, and personalized entertainment."}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div>
                 <Link
                   to="/settings"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-[13px] font-bold backdrop-blur-md transition-all active:scale-95"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-semibold backdrop-blur-md transition-colors"
                 >
-                  <Settings size={15} />
-                  <span>Profile Settings</span>
+                  <Settings size={14} />
+                  <span>Account Settings</span>
                 </Link>
               </div>
             </div>
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-2xs hover:shadow-md transition-all">
-              <div className="flex items-center justify-between text-gray-400 mb-2">
-                <span className="text-[12px] font-bold uppercase tracking-wider">Watchlist</span>
-                <Bookmark size={18} className="text-[#f0545c]" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs">
+              <div className="flex items-center justify-between text-neutral-400 mb-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">Watchlist</span>
+                <Bookmark size={16} className="text-[#f0545c]" />
               </div>
-              <p className="text-[28px] font-black text-gray-900 leading-none">{watchlistCount}</p>
-              <p className="text-[12px] text-gray-400 mt-1 font-medium">Saved titles to watch</p>
+              <p className="text-2xl font-bold text-neutral-900 leading-none">{watchlistCount}</p>
+              <p className="text-xs text-neutral-400 mt-1">Saved titles</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-2xs hover:shadow-md transition-all">
-              <div className="flex items-center justify-between text-gray-400 mb-2">
-                <span className="text-[12px] font-bold uppercase tracking-wider">Current City</span>
-                <MapPin size={18} className="text-[#f0545c]" />
+            <div className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs">
+              <div className="flex items-center justify-between text-neutral-400 mb-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">City</span>
+                <MapPin size={16} className="text-[#f0545c]" />
               </div>
-              <p className="text-[22px] font-black text-gray-900 leading-tight truncate">{city}</p>
-              <p className="text-[12px] text-gray-400 mt-1 font-medium">Active screening zone</p>
+              <p className="text-xl font-bold text-neutral-900 leading-tight truncate">{city}</p>
+              <p className="text-xs text-neutral-400 mt-1">Active screening region</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-2xs hover:shadow-md transition-all">
-              <div className="flex items-center justify-between text-gray-400 mb-2">
-                <span className="text-[12px] font-bold uppercase tracking-wider">Experiences</span>
-                <Calendar size={18} className="text-purple-500" />
+            <div className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs">
+              <div className="flex items-center justify-between text-neutral-400 mb-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">Live Passes</span>
+                <Calendar size={16} className="text-neutral-700" />
               </div>
-              <p className="text-[22px] font-black text-gray-900 leading-tight">Live &amp; Turf</p>
-              <p className="text-[12px] text-gray-400 mt-1 font-medium">Concerts &amp; sports slots</p>
+              <p className="text-xl font-bold text-neutral-900 leading-tight">Concerts</p>
+              <p className="text-xs text-neutral-400 mt-1">Events and experiences</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-2xs hover:shadow-md transition-all">
-              <div className="flex items-center justify-between text-gray-400 mb-2">
-                <span className="text-[12px] font-bold uppercase tracking-wider">Payments</span>
-                <CreditCard size={18} className="text-emerald-500" />
+            <div className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs">
+              <div className="flex items-center justify-between text-neutral-400 mb-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">Turfs</span>
+                <Dumbbell size={16} className="text-neutral-700" />
               </div>
-              <p className="text-[22px] font-black text-gray-900 leading-tight">QuickPay</p>
-              <p className="text-[12px] text-gray-400 mt-1 font-medium">Instant ticket checkout</p>
+              <p className="text-xl font-bold text-neutral-900 leading-tight">Play Arenas</p>
+              <p className="text-xs text-neutral-400 mt-1">Instant slot booking</p>
             </div>
           </div>
 
           {/* Quick Hub Portals */}
-          <h2 className="text-[20px] font-black text-gray-900 tracking-tight mb-5">
-            Your Entertainment Hub
+          <h2 className="text-lg font-bold text-neutral-900 tracking-tight mb-4">
+            Quick Portals
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
             {/* Movies card */}
             <div
               onClick={() => navigate("/now-showing")}
-              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-2xs hover:shadow-xl transition-all cursor-pointer group card-hover-lift"
+              className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs hover:border-neutral-300 transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#f0545c]/10 text-[#f0545c] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Film size={22} />
+              <div className="w-10 h-10 rounded-lg bg-red-50 text-[#f0545c] flex items-center justify-center mb-3">
+                <Film size={20} />
               </div>
-              <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
                 <span>Browse Movies</span>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-[#f0545c] transition-colors" />
+                <ChevronRight size={15} className="text-neutral-400 group-hover:text-[#f0545c] transition-colors" />
               </h3>
-              <p className="text-[13px] text-gray-500 mt-1 leading-relaxed">
+              <p className="text-xs text-neutral-500 mt-1">
                 Explore in-cinema releases, IMAX showtimes, and OTT streaming titles.
               </p>
             </div>
@@ -157,84 +138,84 @@ export default function Dashboard() {
             {/* Watchlist card */}
             <div
               onClick={() => navigate("/watchlist")}
-              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-2xs hover:shadow-xl transition-all cursor-pointer group card-hover-lift"
+              className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs hover:border-neutral-300 transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Bookmark size={22} />
+              <div className="w-10 h-10 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center mb-3">
+                <Bookmark size={20} />
               </div>
-              <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-amber-600 transition-colors flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
                 <span>My Watchlist</span>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-amber-600 transition-colors" />
+                <ChevronRight size={15} className="text-neutral-400 group-hover:text-[#f0545c] transition-colors" />
               </h3>
-              <p className="text-[13px] text-gray-500 mt-1 leading-relaxed">
-                Review your saved movies, mark finished titles, and organize favorites.
+              <p className="text-xs text-neutral-500 mt-1">
+                Review your saved titles, mark finished movies, and organize favorites.
               </p>
             </div>
 
             {/* Live Events card */}
             <div
               onClick={() => navigate("/my-event-bookings")}
-              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-2xs hover:shadow-xl transition-all cursor-pointer group card-hover-lift"
+              className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs hover:border-neutral-300 transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Calendar size={22} />
+              <div className="w-10 h-10 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center mb-3">
+                <Calendar size={20} />
               </div>
-              <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-purple-600 transition-colors flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
                 <span>Event Bookings</span>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-purple-600 transition-colors" />
+                <ChevronRight size={15} className="text-neutral-400 group-hover:text-[#f0545c] transition-colors" />
               </h3>
-              <p className="text-[13px] text-gray-500 mt-1 leading-relaxed">
-                View your confirmed concert passes, comedy show tickets and QR codes.
+              <p className="text-xs text-neutral-500 mt-1">
+                View your confirmed concert passes, comedy show tickets and entry QR codes.
               </p>
             </div>
 
             {/* Play Bookings card */}
             <div
               onClick={() => navigate("/play/my-bookings")}
-              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-2xs hover:shadow-xl transition-all cursor-pointer group card-hover-lift"
+              className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs hover:border-neutral-300 transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Dumbbell size={22} />
+              <div className="w-10 h-10 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center mb-3">
+                <Dumbbell size={20} />
               </div>
-              <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-emerald-600 transition-colors flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
                 <span>Play Bookings</span>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-emerald-600 transition-colors" />
+                <ChevronRight size={15} className="text-neutral-400 group-hover:text-[#f0545c] transition-colors" />
               </h3>
-              <p className="text-[13px] text-gray-500 mt-1 leading-relaxed">
-                Check your reserved turf courts, badminton slots, and game schedules.
+              <p className="text-xs text-neutral-500 mt-1">
+                Check your reserved turf courts, badminton slots, and venue directions.
               </p>
             </div>
 
             {/* Transactions card */}
             <div
               onClick={() => navigate("/transactions")}
-              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-2xs hover:shadow-xl transition-all cursor-pointer group card-hover-lift"
+              className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs hover:border-neutral-300 transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <CreditCard size={22} />
+              <div className="w-10 h-10 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center mb-3">
+                <CreditCard size={20} />
               </div>
-              <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
                 <span>Order History</span>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-blue-600 transition-colors" />
+                <ChevronRight size={15} className="text-neutral-400 group-hover:text-[#f0545c] transition-colors" />
               </h3>
-              <p className="text-[13px] text-gray-500 mt-1 leading-relaxed">
-                Download invoice receipts, track payment statuses, and review refunds.
+              <p className="text-xs text-neutral-500 mt-1">
+                Download invoice receipts, track payment statuses, and review bookings.
               </p>
             </div>
 
             {/* Settings card */}
             <div
               onClick={() => navigate("/settings")}
-              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-2xs hover:shadow-xl transition-all cursor-pointer group card-hover-lift"
+              className="bg-white rounded-xl p-5 border border-neutral-200/80 shadow-2xs hover:border-neutral-300 transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Settings size={22} />
+              <div className="w-10 h-10 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center mb-3">
+                <Settings size={20} />
               </div>
-              <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-gray-900 transition-colors flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-[#f0545c] transition-colors flex items-center justify-between">
                 <span>Account Preferences</span>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-900 transition-colors" />
+                <ChevronRight size={15} className="text-neutral-400 group-hover:text-[#f0545c] transition-colors" />
               </h3>
-              <p className="text-[13px] text-gray-500 mt-1 leading-relaxed">
+              <p className="text-xs text-neutral-500 mt-1">
                 Update password, manage email notifications, and set default location.
               </p>
             </div>

@@ -247,12 +247,10 @@ export default function BookTickets() {
   const resetFilters = () => { setFilterTime(""); setFilterPrice(""); setSearchCinema(""); };
 
   if (!movie) return (
-    <div className="flex items-center justify-center h-screen bg-[#f8fafc]">
-      <div className="flex items-center gap-2">
-        {[0,1,2].map((i) => (
-          <span key={i} className="w-3 h-3 rounded-full bg-[#f0545c] animate-bounce"
-            style={{ animationDelay: `${i * 0.15}s` }} />
-        ))}
+    <div className="flex items-center justify-center min-h-screen bg-[#f8fafc]">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 size={28} className="animate-spin text-[#f0545c]" />
+        <span className="text-[13px] font-semibold text-gray-400">Loading movie showtimes...</span>
       </div>
     </div>
   );
@@ -324,7 +322,7 @@ export default function BookTickets() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 pb-24">
 
         {/* ── Dates Horizontal Bar ── */}
         <div className="mb-6">

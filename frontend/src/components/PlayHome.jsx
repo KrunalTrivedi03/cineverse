@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import * as Icons from "lucide-react";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "./DistrictSelector";
 import { IMG } from "../utils/eventHelpers";
-import { ChevronRight, ChevronLeft, MapPin, Dumbbell, Trophy, Sparkles } from "lucide-react";
+import { ChevronRight, ChevronLeft, MapPin } from "lucide-react";
 
 export default function PlayHome() {
   const [venues, setVenues] = useState([]);
@@ -16,15 +15,22 @@ export default function PlayHome() {
   const district = getSelectedDistrict();
 
   const fetchVenues = useCallback(() => {
-    if (!district.id) { setVenues([]); setLoading(false); return; }
+    if (!district.id) {
+      setVenues([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    api.get(`/play/venues?district=${district.id}`)
+    api
+      .get(`/play/venues?district=${district.id}`)
       .then((r) => setVenues((r.data || []).slice(0, 10)))
       .catch(() => setVenues([]))
       .finally(() => setLoading(false));
   }, [district.id]);
 
-  useEffect(() => { fetchVenues(); }, [fetchVenues]);
+  useEffect(() => {
+    fetchVenues();
+  }, [fetchVenues]);
 
   useEffect(() => {
     const handler = () => fetchVenues();
@@ -35,8 +41,8 @@ export default function PlayHome() {
   const checkScroll = () => {
     const el = sliderRef.current;
     if (!el) return;
-    setCanLeft(el.scrollLeft > 4);
-    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+    setCanLeft(el.scrollLeft > 6);
+    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 6);
   };
 
   useEffect(() => {
@@ -52,20 +58,23 @@ export default function PlayHome() {
   }, [venues]);
 
   const scroll = (dir) =>
-    sliderRef.current?.scrollBy({ left: dir === "left" ? -880 : 880, behavior: "smooth" });
+    sliderRef.current?.scrollBy({
+      left: dir === "left" ? -720 : 720,
+      behavior: "smooth",
+    });
 
   if (loading) {
     return (
-      <section className="w-full px-4 sm:px-8 md:px-14 py-10 md:py-14 bg-[#f8fafc] border-b border-gray-100">
+      <section className="w-full px-4 sm:px-8 md:px-12 py-10 md:py-12 bg-neutral-50/60 border-t border-neutral-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader count={0} />
-          <div className="flex gap-5 overflow-hidden">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[210px] sm:w-[230px] animate-pulse">
-                <div className="rounded-2xl bg-gray-200" style={{ aspectRatio: "4/3" }} />
-                <div className="mt-3 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+          <div className="flex gap-4 overflow-hidden">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-[200px] sm:w-[220px] animate-pulse">
+                <div className="rounded-xl bg-neutral-200 aspect-[4/3]" />
+                <div className="mt-2.5 space-y-1.5">
+                  <div className="h-4 bg-neutral-200 rounded w-3/4" />
+                  <div className="h-3 bg-neutral-200 rounded w-1/2" />
                 </div>
               </div>
             ))}
@@ -78,21 +87,43 @@ export default function PlayHome() {
   if (venues.length === 0) return null;
 
   return (
-    <section className="w-full px-4 sm:px-8 md:px-14 py-10 md:py-14 bg-[#f8fafc] border-b border-gray-100">
+    <section className="w-full px-4 sm:px-8 md:px-12 py-10 md:py-12 bg-neutral-50/60 border-t border-neutral-100">
       <div className="max-w-7xl mx-auto">
         <SectionHeader count={venues.length} onSeeAll={() => navigate("/play")} />
 
         <div className="relative group/slider">
-          {canLeft && <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -18, top: "42%" }} />}
+          {canLeft && (
+            <button
+              onClick={() => scroll("left")}
+              aria-label="Scroll left"
+              className="absolute -left-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white/95 shadow-md border border-black/[0.08] flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          )}
+
           <div
             ref={sliderRef}
-            className="flex gap-5 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
+            className="flex gap-4 sm:gap-5 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
           >
             {venues.map((v) => (
-              <VenueCard key={v._id} venue={v} onClick={() => navigate(`/play/venues/${v._id}`)} />
+              <VenueCard
+                key={v._id}
+                venue={v}
+                onClick={() => navigate(`/play/venues/${v._id}`)}
+              />
             ))}
           </div>
-          {canRight && <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -18, top: "42%" }} />}
+
+          {canRight && (
+            <button
+              onClick={() => scroll("right")}
+              aria-label="Scroll right"
+              className="absolute -right-3 top-1/2 -translate-y-8 z-10 w-9 h-9 rounded-full bg-white/95 shadow-md border border-black/[0.08] flex items-center justify-center text-neutral-700 hover:text-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            >
+              <ChevronRight size={18} />
+            </button>
+          )}
         </div>
       </div>
     </section>
@@ -101,28 +132,22 @@ export default function PlayHome() {
 
 function SectionHeader({ count, onSeeAll }) {
   return (
-    <div className="flex items-end justify-between mb-8">
+    <div className="flex items-end justify-between mb-6">
       <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[11px] font-extrabold uppercase tracking-widest mb-2 border border-emerald-500/20">
-          <Dumbbell size={12} />
-          <span>Turfs &amp; Arenas</span>
-        </div>
-        <h2 className="text-[22px] sm:text-[26px] font-black text-gray-900 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
           Sports &amp; Play Arenas
         </h2>
-        {count > 0 && (
-          <p className="text-[13px] text-gray-500 mt-1 font-medium">
-            {count} court{count !== 1 ? "s" : ""} &amp; recreational venue{count !== 1 ? "s" : ""} ready for booking
-          </p>
-        )}
+        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+          Courts and turfs available for instant slot booking
+        </p>
       </div>
       {onSeeAll && (
         <button
-          className="flex items-center gap-1 text-[#f0545c] hover:text-[#d94048] text-[13.5px] font-bold group transition-all"
+          className="flex items-center gap-1 text-sm font-semibold text-[#f0545c] hover:text-[#d94048] transition-colors group cursor-pointer"
           onClick={onSeeAll}
         >
-          <span>Explore All Sports</span>
-          <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+          <span>See All</span>
+          <ChevronRight size={16} className="transition-transform group-hover:translate-x-0.5" />
         </button>
       )}
     </div>
@@ -130,78 +155,53 @@ function SectionHeader({ count, onSeeAll }) {
 }
 
 function VenueCard({ venue, onClick }) {
-  const activities = venue.courtActivities?.length ? venue.courtActivities : (venue.activities || []);
+  const activities = venue.courtActivities?.length
+    ? venue.courtActivities
+    : venue.activities || [];
+
   return (
     <div
-      className="flex-shrink-0 w-[220px] sm:w-[240px] cursor-pointer group card-hover-lift"
+      className="flex-shrink-0 w-[200px] sm:w-[220px] md:w-[240px] cursor-pointer group"
       onClick={onClick}
     >
-      <div
-        className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-2xl transition-all duration-300 border border-gray-100"
-        style={{ aspectRatio: "4/3" }}
-      >
+      <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-neutral-100 ring-1 ring-black/[0.06] transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
         {venue.images?.[0] ? (
           <img
             src={IMG(venue.images[0])}
             alt={venue.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-900 to-slate-900">
-            <Dumbbell size={28} className="text-white/40" />
+          <div className="w-full h-full flex items-center justify-center bg-neutral-200 text-neutral-400 text-xs font-semibold">
+            {venue.name}
           </div>
         )}
 
-        {/* Pricing tag */}
         {venue.startingPrice != null && (
-          <div
-            className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 px-3 py-2"
-            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)" }}
-          >
-            <span className="text-white font-black text-[12.5px]">
-              ₹{venue.startingPrice} onwards
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-6 flex items-end">
+            <span className="text-xs font-bold text-white">
+              ₹{venue.startingPrice} <span className="font-normal text-[10px] text-white/70">onwards</span>
             </span>
           </div>
         )}
       </div>
 
-      <div className="mt-3 px-1">
-        <h3 className="text-[14.5px] font-bold text-gray-900 leading-snug line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+      <div className="mt-2.5 px-0.5">
+        <h3 className="text-sm font-semibold text-neutral-900 truncate group-hover:text-[#f0545c] transition-colors">
           {venue.name}
         </h3>
-        <p className="text-[12px] font-medium text-gray-400 mt-0.5 flex items-center gap-1 truncate">
-          <MapPin size={11} className="flex-shrink-0" /> {venue.district?.name || "Local District"}
+        <p className="text-xs text-neutral-500 mt-0.5 truncate flex items-center gap-1">
+          <MapPin size={11} className="flex-shrink-0 text-neutral-400" />
+          <span>{venue.district?.name || "Local District"}</span>
         </p>
+
         {activities.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {activities.slice(0, 2).map((a) => {
-              const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Trophy;
-              return (
-                <span
-                  key={a._id}
-                  className="flex items-center gap-1 text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 border border-emerald-500/20"
-                >
-                  <IconComp size={10} /> {a.name}
-                </span>
-              );
-            })}
-          </div>
+          <p className="text-[11px] text-neutral-400 mt-0.5 truncate">
+            {activities.map((a) => a.name).join(" · ")}
+          </p>
         )}
       </div>
     </div>
-  );
-}
-
-function ArrowBtn({ dir, onClick, style }) {
-  return (
-    <button
-      onClick={onClick}
-      onMouseDown={(e) => e.preventDefault()}
-      className="absolute z-10 w-10 h-10 rounded-full bg-white/95 backdrop-blur-md border border-gray-200/90 shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all transform hover:scale-110 active:scale-95"
-      style={{ ...style, transform: "translateY(-50%)" }}
-      aria-label={dir === "left" ? "Previous" : "Next"}
-    >
-      {dir === "left" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-    </button>
   );
 }

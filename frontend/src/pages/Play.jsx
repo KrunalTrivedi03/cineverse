@@ -100,7 +100,7 @@ export default function Play() {
         <Navbar />
         <BottomNav />
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24">
           {/* Header */}
           <div className="mb-8">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[11px] font-extrabold uppercase tracking-widest mb-2 border border-emerald-500/20">

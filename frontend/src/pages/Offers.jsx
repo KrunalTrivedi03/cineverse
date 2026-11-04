@@ -224,18 +224,13 @@ export default function Offers() {
         <div className="absolute -right-20 top-10 w-96 h-96 rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto px-5 md:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 mb-5">
-            <Sparkles size={13} className="text-[#f0545c] animate-pulse" />
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#f0545c]">
-              Special Offers &amp; Perks
-            </span>
-          </div>
+          <p className="text-[11px] font-bold text-[#f0545c] uppercase tracking-wider mb-3">
+            Special Offers &amp; Perks
+          </p>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] text-white">
             Unlock exclusive <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#f0545c] via-[#ff767d] to-[#ff9aa0] bg-clip-text text-transparent">
-              entertainment savings
-            </span>
+            <span>entertainment savings</span>
           </h1>
 
           <p className="text-white/60 text-[14px] sm:text-[16px] max-w-xl mx-auto mt-4 leading-relaxed font-normal">
@@ -285,7 +280,7 @@ export default function Offers() {
       </section>
 
       {/* Offers Grid */}
-      <section className="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-16">
+      <section className="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-16 pb-24">
         {loading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (

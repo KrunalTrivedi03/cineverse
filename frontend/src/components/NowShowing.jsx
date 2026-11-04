@@ -342,7 +342,7 @@ export default function NowShowing() {
         <Navbar />
         <BottomNav />
 
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10 flex gap-7 items-start">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10 pb-24 md:pb-10 flex gap-7 items-start">
 
           {/* Desktop Filter Sidebar */}
           <aside className="w-[260px] flex-shrink-0 hidden md:flex flex-col gap-3.5 sticky top-[80px]">

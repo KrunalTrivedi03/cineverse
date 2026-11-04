@@ -320,7 +320,7 @@ export default function UpcomingMoviesPage() {
 
       <BottomNav />
 
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 py-5 md:py-7 pb-16 flex gap-5 md:gap-6 items-start">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 py-5 md:py-7 pb-24 md:pb-16 flex gap-5 md:gap-6 items-start">
 
         {/* ── Desktop Sidebar ── */}
         <aside className="w-[228px] flex-shrink-0 hidden md:flex flex-col gap-2.5 sticky top-[76px]">

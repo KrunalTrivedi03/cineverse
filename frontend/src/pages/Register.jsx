@@ -131,8 +131,7 @@ export default function Register() {
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
             <img src={nowLogo} alt="NOW" className="h-9 w-auto brightness-110" />
-            <div className="flex items-center gap-1.5 text-[12px] font-black uppercase tracking-wider text-[#f0545c]">
-              <Sparkles size={12} />
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#f0545c]">
               <span>Join The Entertainment Experience</span>
             </div>
           </div>
@@ -247,9 +246,9 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-[14.5px] text-white transition-all shadow-md shadow-[#f0545c]/30 hover:shadow-lg hover:shadow-[#f0545c]/50 active:scale-[0.98]"
+              className="mt-2 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-[14.5px] text-white transition-all shadow-sm hover:shadow active:scale-[0.98]"
               style={{
-                background: loading ? "#9ca3af" : "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)",
+                background: loading ? "#9ca3af" : "#f0545c",
                 cursor: loading ? "not-allowed" : "pointer",
               }}
             >

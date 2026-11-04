@@ -286,7 +286,7 @@ export default function WebShowDetails() {
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-24 sm:-mt-32 relative z-20 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-24 sm:-mt-32 relative z-20 pb-24">
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
           {/* Main Poster Card */}
           <div className="w-36 sm:w-56 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gray-900 flex-shrink-0 self-start">
@@ -301,9 +301,8 @@ export default function WebShowDetails() {
           <div className="flex-1 pt-1 sm:pt-20 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <span
-                className="inline-flex items-center gap-1 text-[11px] font-black tracking-wider uppercase px-3 py-1 rounded-full bg-red-50 text-[#f0545c]"
+                className="text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full bg-red-50 text-[#f0545c] border border-red-100/60"
               >
-                <Sparkles size={11} />
                 {show.category === "trending-series" ? "Trending Series" : "Web Original"}
               </span>
             </div>

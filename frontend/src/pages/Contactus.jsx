@@ -105,12 +105,9 @@ export default function ContactUs() {
             style={{ background: "radial-gradient(circle, #f0545c 0%, transparent 70%)" }}
           />
           <div className="relative max-w-4xl mx-auto px-6 md:px-8 pt-16 pb-20 md:pt-20 md:pb-24 text-center z-10">
-            <div className="inline-flex items-center gap-1.5 mb-4 px-3.5 py-1.5 rounded-full border border-[#f0545c]/30 backdrop-blur-md bg-[#f0545c]/15">
-              <MessageCircle size={12} className="text-[#f0545c]" />
-              <span className="text-[11px] font-black uppercase tracking-widest text-[#ff737b]">
-                Contact Support &amp; Concierge
-              </span>
-            </div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#f0545c] mb-3">
+              Contact Support &amp; Concierge
+            </p>
             <h1 className="text-white font-black text-[32px] sm:text-[42px] md:text-[50px] leading-[1.1] tracking-tight">
               We're Here to <span className="text-[#f0545c]">Help You</span>
             </h1>
@@ -140,7 +137,7 @@ export default function ContactUs() {
         </section>
 
         {/* ══ FORM + MAP ════════════════════════════════════ */}
-        <section className="max-w-6xl mx-auto px-6 md:px-8 py-14 md:py-20">
+        <section className="max-w-6xl mx-auto px-6 md:px-8 py-14 md:py-20 pb-24 md:pb-20">
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 md:gap-10 items-start">
             
             {/* Form Container */}
@@ -230,8 +227,7 @@ export default function ContactUs() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="mt-2 inline-flex items-center justify-center gap-2 text-white font-bold text-[14.5px] px-8 py-3.5 rounded-2xl transition-all shadow-md shadow-[#f0545c]/30 hover:shadow-lg hover:shadow-[#f0545c]/50 active:scale-[0.98] disabled:opacity-60"
-                  style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
+                  className="mt-2 inline-flex items-center justify-center gap-2 text-white font-bold text-[14.5px] px-8 py-3.5 rounded-2xl transition-all bg-[#f0545c] hover:bg-[#e03a43] shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-60"
                 >
                   {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={15} />}
                   <span>{submitting ? "Sending Query..." : "Send Message"}</span>

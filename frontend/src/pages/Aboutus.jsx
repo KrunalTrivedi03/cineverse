@@ -80,12 +80,9 @@ export default function Aboutus() {
             style={{ background: "radial-gradient(circle, #f0545c 0%, transparent 70%)" }}
           />
           <div className="relative max-w-5xl mx-auto px-6 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 text-center z-10">
-            <div className="inline-flex items-center gap-1.5 mb-5 px-3.5 py-1.5 rounded-full border border-[#f0545c]/30 backdrop-blur-md bg-[#f0545c]/15">
-              <Sparkles size={12} className="text-[#f0545c]" />
-              <span className="text-[11px] font-black uppercase tracking-widest text-[#ff737b]">
-                About NOW Entertainment
-              </span>
-            </div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#f0545c] mb-3">
+              About NOW Entertainment
+            </p>
             <h1 className="text-white font-black text-[34px] sm:text-[46px] md:text-[56px] leading-[1.08] tracking-tight max-w-3xl mx-auto">
               One Unified Hub, <span className="text-[#f0545c]">Every Experience</span>
             </h1>
@@ -217,8 +214,7 @@ export default function Aboutus() {
             </p>
             <Link
               to="/"
-              className="relative z-10 inline-flex items-center gap-2 font-black text-[14px] px-8 py-3.5 rounded-2xl text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
-              style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
+              className="relative z-10 inline-flex items-center gap-2 font-bold text-[14px] px-8 py-3.5 rounded-2xl text-white bg-[#f0545c] hover:bg-[#e03a43] shadow-md hover:shadow-lg active:scale-95 transition-all"
             >
               <span>Explore Top Shows</span>
               <ArrowRight size={16} />

@@ -12,13 +12,11 @@ import { getSelectedDistrict } from "../components/DistrictSelector";
 import {
   X, Play, Clock, CalendarDays, Film, Globe, ShieldCheck, Ticket,
   PartyPopper, MapPin, Dumbbell, Trophy, ChevronLeft, ChevronRight,
-  Sparkles,
 } from "lucide-react";
 import OffersBanner from "../components/OffersBanner";
 import BottomNav from "../components/BottomNav";
 
-/* ─── Helpers ─────────────────────────────────────────── */
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
+const IMG = (path) => (!path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`);
 
 const isLatestMovie = (m) =>
   m.status === "streaming" || (m.status === "released" && m.isInCinemas);
@@ -49,7 +47,6 @@ const getYoutubeEmbed = (url) => {
   return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : null;
 };
 
-/* Movie doc -> hero slide */
 function movieToSlide(m) {
   return {
     type: "movie",
@@ -73,7 +70,6 @@ function movieToSlide(m) {
   };
 }
 
-/* Upcoming Event doc -> hero slide */
 function eventToSlide(ev) {
   const sched = ev.nextSchedule;
   return {
@@ -97,7 +93,6 @@ function eventToSlide(ev) {
   };
 }
 
-/* Play venue doc -> hero slide */
 function venueToSlide(v) {
   const activityNames = (v.courtActivities || v.activities || []).map((a) => a.name).slice(0, 3).join(" · ");
   return {
@@ -131,7 +126,6 @@ function buildSlideOrder(movies, events, plays) {
   return out;
 }
 
-/* ─── Home ────────────────────────────────────────────── */
 export default function Home() {
   const [slides, setSlides] = useState([]);
   const [trailerUrl, setTrailerUrl] = useState(null);
@@ -214,54 +208,35 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0e0f14] text-slate-100 selection:bg-[#f0545c] selection:text-white">
+    <div className="min-h-screen bg-white text-neutral-900 selection:bg-[#f0545c] selection:text-white">
       <Navbar />
       <BottomNav />
 
       {/* ══ HERO BANNER ═══════════════════════════════════ */}
       <div
-        className="relative overflow-hidden"
-        style={{ background: "#0a0b10" }}
+        className="relative overflow-hidden bg-[#0c0d12]"
         onMouseEnter={() => (pausedRef.current = true)}
         onMouseLeave={() => (pausedRef.current = false)}
       >
         {loading ? (
           <div
-            className="w-full flex flex-col items-center justify-center gap-3"
-            style={{ height: "clamp(460px, 60vw, 640px)", background: "#0e1017" }}
+            className="w-full flex items-center justify-center bg-[#0c0d12]"
+            style={{ height: "clamp(420px, 55vw, 580px)" }}
           >
-            <div className="flex gap-2.5">
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="w-3 h-3 rounded-full animate-bounce"
-                  style={{
-                    background: "linear-gradient(135deg, #f0545c 0%, #ff8088 100%)",
-                    animationDelay: `${i * 0.15}s`,
-                    boxShadow: "0 0 12px rgba(240,84,92,0.6)",
-                  }}
-                />
-              ))}
-            </div>
-            <span className="text-[12px] font-bold tracking-widest uppercase text-white/40">
-              Loading Premiere Spotlights
-            </span>
+            <div className="w-6 h-6 border-2 border-white/20 border-t-[#f0545c] rounded-full animate-spin" />
           </div>
         ) : slides.length === 0 ? (
           <div
-            className="w-full flex flex-col items-center justify-center gap-2.5 text-center px-6"
-            style={{ height: "clamp(360px, 42vw, 480px)", background: "#0e1017" }}
+            className="w-full flex flex-col items-center justify-center gap-2 text-center px-6 bg-[#0c0d12]"
+            style={{ height: "clamp(340px, 40vw, 440px)" }}
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/30 mb-1 border border-white/10">
-              <Sparkles size={22} />
-            </div>
-            <p className="text-white/80 text-[16px] font-bold">Nothing to feature here yet</p>
-            <p className="text-white/40 text-[13px] max-w-sm">
-              Check back soon, or choose a district to explore local live events and sports arenas.
+            <p className="text-white text-sm font-semibold">No featured premieres right now</p>
+            <p className="text-neutral-500 text-xs max-w-sm">
+              Explore showtimes by choosing your city or district above.
             </p>
           </div>
         ) : (
-          <div className="relative w-full overflow-hidden" style={{ height: "clamp(460px, 62vw, 640px)" }}>
+          <div className="relative w-full overflow-hidden" style={{ height: "clamp(440px, 55vw, 600px)" }}>
             {slides.map((item, i) => (
               <div
                 key={item.key}
@@ -270,8 +245,7 @@ export default function Home() {
                   opacity: i === activeIdx ? 1 : 0,
                   zIndex: i === activeIdx ? 2 : 1,
                   pointerEvents: i === activeIdx ? "auto" : "none",
-                  transition: "opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease",
-                  transform: i === activeIdx ? "scale(1)" : "scale(1.03)",
+                  transition: "opacity 0.7s ease",
                 }}
                 aria-hidden={i !== activeIdx}
               >
@@ -284,56 +258,45 @@ export default function Home() {
               <>
                 <button
                   onClick={prevSlide}
-                  className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full items-center justify-center backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 text-white shadow-xl transition-all hover:scale-110 active:scale-95 group"
+                  className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full items-center justify-center bg-black/40 hover:bg-black/70 border border-white/10 text-white transition-all cursor-pointer"
                   aria-label="Previous Slide"
                 >
-                  <ChevronLeft size={20} className="transition-transform group-hover:-translate-x-0.5" />
+                  <ChevronLeft size={18} />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full items-center justify-center backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 text-white shadow-xl transition-all hover:scale-110 active:scale-95 group"
+                  className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full items-center justify-center bg-black/40 hover:bg-black/70 border border-white/10 text-white transition-all cursor-pointer"
                   aria-label="Next Slide"
                 >
-                  <ChevronRight size={20} className="transition-transform group-hover:translate-x-0.5" />
+                  <ChevronRight size={18} />
                 </button>
               </>
             )}
 
-            {/* Bottom Controls / Slide Navigation Bar */}
+            {/* Bottom Dots Indicator */}
             {slides.length > 1 && !loading && (
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 backdrop-blur-xl bg-black/40 px-4 py-2 rounded-full border border-white/10 shadow-2xl">
-                <span className="text-[11px] font-mono font-bold text-white/50 tracking-wider">
-                  0{activeIdx + 1}
-                </span>
-
-                <div className="flex items-center gap-1.5">
-                  {slides.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goTo(i)}
-                      className="transition-all duration-300 rounded-full relative overflow-hidden"
-                      style={{
-                        width: i === activeIdx ? 28 : 8,
-                        height: 7,
-                        background: i === activeIdx ? "#f0545c" : "rgba(255,255,255,0.25)",
-                        boxShadow: i === activeIdx ? "0 0 10px rgba(240,84,92,0.7)" : "none",
-                      }}
-                      aria-label={`Go to slide ${i + 1}`}
-                    />
-                  ))}
-                </div>
-
-                <span className="text-[11px] font-mono font-bold text-white/30 tracking-wider">
-                  0{slides.length}
-                </span>
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    className="rounded-full transition-all duration-300 cursor-pointer"
+                    style={{
+                      width: i === activeIdx ? 24 : 6,
+                      height: 5,
+                      background: i === activeIdx ? "#f0545c" : "rgba(255,255,255,0.3)",
+                    }}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                ))}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* ══ MAIN BODY CONTENT (MODERN LIGHT BACKGROUND) ══════════════ */}
-      <div className="bg-[#f8f9fb] text-gray-900 border-t border-white/10 transition-colors">
+      {/* ══ MAIN BODY CONTENT ══════════════════════════════ */}
+      <div>
         <OffersBanner />
         <LatestMovies />
         <ComingSoon />
@@ -347,31 +310,30 @@ export default function Home() {
       {/* ══ TRAILER MODAL ═════════════════════════════════ */}
       {trailerUrl && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(12px)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
           onClick={closeTrailer}
         >
           <div
             className="relative w-full max-w-4xl"
             onClick={(e) => e.stopPropagation()}
-            style={{ animation: "scaleUp 0.24s cubic-bezier(.16,1,.3,1) both" }}
           >
             <div className="flex items-center justify-between pb-3">
-              <span className="flex items-center gap-2 text-[13px] font-bold text-white/80 uppercase tracking-wider">
-                <Play size={14} className="text-[#f0545c]" fill="#f0545c" /> Official Preview Trailer
+              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                Official Trailer
               </span>
               <button
                 onClick={closeTrailer}
-                className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10"
+                className="flex items-center gap-1 text-neutral-400 hover:text-white text-xs font-medium px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
               >
-                <X size={15} /> Close
+                <X size={14} /> Close
               </button>
             </div>
             
-            <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/20 bg-black">
+            <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black aspect-video">
               <iframe
                 width="100%"
-                className="aspect-video block"
+                height="100%"
+                className="w-full h-full block"
                 src={trailerUrl}
                 title="Trailer"
                 allow="autoplay; fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -379,165 +341,109 @@ export default function Home() {
               />
             </div>
           </div>
-          <style>{`
-            @keyframes scaleUp {
-              from { opacity: 0; transform: scale(0.92); }
-              to   { opacity: 1; transform: scale(1); }
-            }
-          `}</style>
         </div>
       )}
     </div>
   );
 }
 
-/* ─── Single Hero Slide (Movie / Event / Play) ────────── */
 function HeroSlide({ item, onPlay }) {
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Blurred Cinematic Backdrop */}
+      {/* Blurred Backdrop */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: item.background ? `url(${item.background})` : undefined,
-          background: item.background ? undefined : "linear-gradient(135deg,#0a0b10,#1a1c26)",
-          backgroundSize: "cover",
-          backgroundPosition: "center 25%",
-          filter: "brightness(0.25) saturate(1.4) blur(1px)",
-          transform: "scale(1.08)",
+          filter: "brightness(0.3) blur(2px)",
+          transform: "scale(1.05)",
         }}
       />
 
-      {/* Multi-layered Left Vignette Overlay */}
+      {/* Subtle Vignette Scrim */}
       <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(100deg, rgba(10,11,16,0.98) 0%, rgba(10,11,16,0.85) 45%, rgba(10,11,16,0.25) 100%)",
-        }}
+        className="absolute inset-0 bg-gradient-to-r from-[#0c0d12] via-[#0c0d12]/80 to-transparent"
       />
-
-      {/* Ambient Radial Coral Glow */}
       <div
-        className="absolute -top-32 -left-32 w-96 h-96 rounded-full pointer-events-none opacity-25"
-        style={{
-          background: "radial-gradient(circle, #f0545c 0%, transparent 70%)",
-          filter: "blur(50px)",
-        }}
-      />
-
-      {/* Bottom transition into content */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-28 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, transparent, #0a0b10 85%, #f8f9fb 100%)" }}
+        className="absolute inset-0 bg-gradient-to-t from-[#0c0d12] via-transparent to-transparent"
       />
 
       {/* Slide Content */}
-      <div className="relative z-10 h-full flex items-center px-6 md:px-14 lg:px-20 max-w-7xl mx-auto">
-        <div className="flex items-center gap-10 md:gap-14 lg:gap-16 w-full">
+      <div className="relative z-10 h-full flex items-center px-6 md:px-12 lg:px-16 max-w-7xl mx-auto">
+        <div className="flex items-center gap-10 lg:gap-14 w-full">
 
-          {/* Left: Text & Actions */}
-          <div className="flex-1 min-w-0 text-white">
-            
-            {/* Tag pill with glow */}
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold tracking-widest uppercase px-3.5 py-1.5 rounded-full mb-4 border border-[#f0545c]/35 backdrop-blur-md bg-[#f0545c]/15 text-[#ff6e75] shadow-[0_0_15px_rgba(240,84,92,0.25)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f0545c] animate-ping" />
-              <span>{item.tag}</span>
-            </div>
+          {/* Left: Info */}
+          <div className="flex-1 min-w-0 text-white max-w-2xl">
+            <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-neutral-400 mb-2">
+              {item.tag}
+            </span>
 
             <h1
-              className="font-black leading-[1.08] mb-3.5 tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] line-clamp-2"
-              style={{ fontSize: "clamp(30px, 5vw, 56px)" }}
+              className="font-bold leading-tight mb-3 tracking-tight text-white line-clamp-2"
+              style={{ fontSize: "clamp(26px, 4.5vw, 48px)" }}
             >
               {item.title}
             </h1>
 
-            {/* Meta Row: Badges with Icons */}
+            {/* Metadata Line */}
             {item.meta?.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 text-white/70 text-[12.5px] font-semibold mb-4">
-                {item.meta.map((m, i) => {
-                  const MetaIcon = m.icon;
-                  return (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg backdrop-blur-md bg-white/10 border border-white/10 text-white/85 text-[12px] shadow-xs"
-                    >
-                      <MetaIcon size={13} className="text-[#f0545c]" />
-                      <span>{m.label}</span>
-                    </span>
-                  );
-                })}
+              <div className="flex flex-wrap items-center gap-2 text-neutral-300 text-xs font-medium mb-3">
+                {item.meta.map((m, i) => (
+                  <span key={i} className="flex items-center gap-1">
+                    {i > 0 && <span className="text-neutral-600 mr-1">•</span>}
+                    <span>{m.label}</span>
+                  </span>
+                ))}
               </div>
             )}
 
             {/* Description */}
             {item.description && (
-              <p
-                className="text-white/65 leading-relaxed mb-7 line-clamp-2 md:line-clamp-3 text-[14px] md:text-[15px]"
-                style={{ maxWidth: 520 }}
-              >
+              <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed mb-6 line-clamp-2 md:line-clamp-3 max-w-xl">
                 {item.description}
               </p>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3.5">
+            {/* CTA Buttons */}
+            <div className="flex items-center gap-3">
               <Link
                 to={item.primaryCta.to}
-                className="flex items-center gap-2.5 font-bold px-7 py-3 rounded-2xl text-[14px] text-white transition-all shadow-[0_8px_25px_-4px_rgba(240,84,92,0.5)] hover:shadow-[0_12px_32px_-4px_rgba(240,84,92,0.7)] hover:-translate-y-0.5 active:translate-y-0"
-                style={{ background: "linear-gradient(135deg, #f0545c 0%, #e03a43 100%)" }}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#f0545c] hover:bg-[#d94048] transition-colors shadow-sm cursor-pointer"
               >
-                <item.primaryCta.icon size={16} />
                 <span>{item.primaryCta.label}</span>
               </Link>
 
               {item.trailer && (
                 <button
                   onClick={onPlay}
-                  className="flex items-center gap-2 font-bold px-6 py-3 rounded-2xl text-[14px] transition-all backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 text-white/90 hover:text-white shadow-md active:scale-95 group"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/10 transition-colors cursor-pointer"
                 >
-                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <Play size={11} fill="white" className="ml-0.5" />
-                  </div>
+                  <Play size={14} fill="white" />
                   <span>Watch Trailer</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Right: Floating Cinema Poster */}
+          {/* Right: Clean Cinema Poster */}
           {item.poster && (
-            <div className="flex-shrink-0 hidden sm:block">
+            <div className="flex-shrink-0 hidden md:block w-48 lg:w-56">
               <Link
                 to={item.posterLink}
-                className="relative group cursor-pointer block transform transition-all duration-300 hover:-translate-y-2"
-                style={{ width: "clamp(150px, 15vw, 220px)" }}
+                className="relative block rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer aspect-[2/3]"
               >
-                <div className="relative rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/15 ring-1 ring-white/10">
-                  <img
-                    src={item.poster}
-                    alt={item.title}
-                    className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    style={{ aspectRatio: "2/3" }}
-                  />
-
-                  {/* Play Overlay if Trailer is available */}
-                  {item.trailer && (
-                    <div
-                      className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/45 backdrop-blur-[2px]"
-                    >
-                      <div className="w-13 h-13 rounded-full flex items-center justify-center bg-[#f0545c] text-white shadow-xl shadow-[#f0545c]/50 transform transition-transform group-hover:scale-110">
-                        <Play size={20} fill="white" className="ml-0.5" />
-                      </div>
+                <img
+                  src={item.poster}
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                {item.trailer && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center bg-[#f0545c] text-white shadow-lg">
+                      <Play size={16} fill="white" className="ml-0.5" />
                     </div>
-                  )}
-                </div>
-
-                {/* Floating Poster Badge */}
-                <div
-                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10.5px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-lg backdrop-blur-md bg-black/85 text-white border border-white/20 group-hover:border-[#f0545c]/50 group-hover:text-[#ff787f] transition-colors"
-                >
-                  {item.posterBadge}
-                </div>
+                  </div>
+                )}
               </Link>
             </div>
           )}

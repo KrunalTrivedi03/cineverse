@@ -3,94 +3,88 @@ import { Film, Bookmark, CalendarDays, PlayCircle, Tv } from "lucide-react";
 
 const ACCENT = "#f0545c";
 
-const ITEMS = [
-  { key: "movies", label: "Movies", icon: Film, to: "/", match: ["/", "/now-showing", "/coming-soon", "/movie"] },
-  { key: "shows", label: "Shows", icon: Tv, to: "/web-shows", match: ["/web-shows"] },
-  { key: "watchlist", label: "Watchlist", icon: Bookmark, to: "/watchlist", match: ["/watchlist"] },
-  { key: "events", label: "Events", icon: CalendarDays, to: "/events", match: ["/events", "/event"] },
-  { key: "play", label: "Play", icon: PlayCircle, to: "/play", match: ["/play"] },
+const NAV_ITEMS = [
+  { key: "movies", label: "Movies", icon: Film, to: "/" },
+  { key: "shows", label: "Shows", icon: Tv, to: "/web-shows" },
+  { key: "watchlist", label: "Watchlist", icon: Bookmark, to: "/watchlist" },
+  { key: "events", label: "Events", icon: CalendarDays, to: "/events" },
+  { key: "play", label: "Play", icon: PlayCircle, to: "/play" },
 ];
 
-const NAV_CLEARANCE_PX = 86;
-
-function isPathActive(pathname, matchList) {
-  return matchList.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
-}
+/**
+ * Pages where BottomNav MUST NEVER be shown because they either:
+ *  1. Have their own sticky checkout/booking bars (e.g. MovieDetail, SeatSelection, BookingReview, BookTickets)
+ *  2. Are dedicated fullscreen flows (Login, Register, Success, Verify)
+ *  3. Cause layout/footer obstruction
+ */
+const HIDDEN_PREFIXES = [
+  "/movie/",
+  "/events/",
+  "/play/venues/",
+  "/play/venues",
+  "/web-shows/",
+  "/booking",
+  "/seats",
+  "/login",
+  "/register",
+  "/oauth-success",
+  "/verify-",
+  "/about",
+  "/contact",
+  "/offers",
+];
 
 export default function BottomNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem("accessToken");
-  const items = ITEMS.filter((item) => item.key !== "watchlist" || isAuthenticated);
+
+  // Determine if this route should hide the bottom navigation
+  const shouldHide =
+    HIDDEN_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    pathname.includes("/book") ||
+    pathname.includes("/slots") ||
+    pathname.includes("/seats");
+
+  if (shouldHide) return null;
+
+  const items = NAV_ITEMS.filter((item) => item.key !== "watchlist" || isAuthenticated);
 
   return (
-    <>
-      <style>{`
-        @media (max-width: 1023px) {
-          body { padding-bottom: ${NAV_CLEARANCE_PX}px; }
-        }
-      `}</style>
+    <nav
+      aria-label="Mobile Navigation"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden flex justify-center pointer-events-none pb-3 px-4"
+      style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
+    >
+      <div className="pointer-events-auto flex items-center justify-around gap-1 w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] p-1.5 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)]">
+        {items.map((item) => {
+          const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
 
-      {/* Modern gradient ambient backdrop blur mask */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-30 lg:hidden pointer-events-none"
-        style={{
-          height: 110,
-          background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.95) 100%)",
-        }}
-      />
-
-      <nav
-        className="fixed left-0 right-0 z-40 lg:hidden flex justify-center px-4"
-        style={{ bottom: "calc(16px + env(safe-area-inset-bottom))" }}
-      >
-        <div
-          className="flex items-center gap-1 rounded-full border border-gray-200/80 px-3 py-1.5 backdrop-blur-2xl bg-white/90 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.16),0_2px_10px_rgba(0,0,0,0.06)]"
-        >
-          {items.map((item) => {
-            const active = isPathActive(pathname, item.match);
-
-            return (
-              <button
-                key={item.key}
-                onClick={() => navigate(item.to)}
-                aria-current={active ? "page" : undefined}
-                className="relative flex flex-col items-center justify-center gap-1 px-3 py-1.5 rounded-full group transition-transform active:scale-90"
-                style={{ WebkitTapHighlightColor: "transparent" }}
-              >
-                <span
-                  className="relative flex items-center justify-center rounded-full transition-all duration-300"
-                  style={{
-                    width: 38,
-                    height: 28,
-                    background: active ? "rgba(240,84,92,0.12)" : "transparent",
-                  }}
-                >
-                  <item.icon
-                    size={18}
-                    strokeWidth={active ? 2.4 : 1.9}
-                    style={{ color: active ? ACCENT : "#6b7280" }}
-                    className="transition-all duration-200"
-                  />
-                  {active && (
-                    <span
-                      className="absolute -bottom-0.5 w-1.5 h-1.5 rounded-full bg-[#f0545c]"
-                      style={{ boxShadow: "0 0 6px #f0545c" }}
-                    />
-                  )}
-                </span>
-
-                <span
-                  className="text-[10px] font-bold leading-none transition-colors duration-200 tracking-tight"
-                  style={{ color: active ? ACCENT : "#6b7280" }}
-                >
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-    </>
+          return (
+            <button
+              key={item.key}
+              onClick={() => navigate(item.to)}
+              className={`relative flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-200 cursor-pointer flex-1 ${
+                active ? "text-[#f0545c]" : "text-neutral-500 hover:text-neutral-800"
+              }`}
+            >
+              <item.icon
+                size={19}
+                strokeWidth={active ? 2.3 : 1.7}
+                className="transition-transform duration-200"
+              />
+              <span className={`text-[10px] tracking-tight mt-1 transition-all ${
+                active ? "font-bold text-[#f0545c]" : "font-medium text-neutral-500"
+              }`}>
+                {item.label}
+              </span>
+              {active && (
+                <span className="w-1 h-1 rounded-full bg-[#f0545c] mt-0.5" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

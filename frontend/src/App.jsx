@@ -1,51 +1,65 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Watchlist from "./pages/Watchlist";
 import AdminRoutes from "./routes/AdminRoutes";
-import VerifyEmail from "./pages/VerifyEmail";
-import OtpVerification from "./pages/OtpVerification";
-import MovieDetail from "./components/MovieDetail";
-import NowShowing from "./components/NowShowing";
-import BookTickets from "./components/BookTickets";
-import SeatSelection from "./components/SeatSelection";
-import UpcomingMoviesPage from "./components/UpcomingMoviesPage";
-import BookingSuccess from "./components/BookingSuccess";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import ExploreEvents from "./pages/ExploreEvents";
-import EventDetail from "./pages/EventDetail";
-import CategoryEvents from "./pages/CategoryEvents";
-import DistrictEvents from "./pages/DistrictEvents";
-import ArtistDetail from "./pages/ArtistDetail";
-import BookEventTickets from "./pages/BookEventTickets";
-import EventSeatSelection from "./pages/EventSeatSelection";
-import TicketQuantitySelection from "./pages/TicketQuantitySelection";
-import EventBookingSuccess from "./pages/EventBookingSuccess";
-import MyEventBookings from "./pages/MyEventBookings";
-import OAuthSuccess from "./pages/OAuthSuccess";
-import Play from "./pages/Play";
-import PlayVenues from "./pages/PlayVenues";
-import PlayVenueDetail from "./pages/PlayVenueDetail";
-import PlaySlotSelection from "./pages/PlaySlotSelection";
-import PlayBookingSuccess from "./pages/PlayBookingSuccess";
-import MyPlayBookings from "./pages/MyPlayBookings";
-import TransactionHistory from "./pages/TransactionHistory";
-import Aboutus from "./pages/Aboutus";
-import ContactUs from "./pages/Contactus";
-import Offers from "./pages/Offers";
-import BookingReview from "./pages/BookingReview";
-import WebShowDetails from "./pages/WebShowDetails";
-import WebShowsListing from "./pages/WebShowsListing";
+
+// Core initial landing page (direct or lazy)
+import Home from "./pages/Home";
+
+// Lazy-load pages to maximize site speed and minimize bundle weight
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Watchlist = lazy(() => import("./pages/Watchlist"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const OtpVerification = lazy(() => import("./pages/OtpVerification"));
+const MovieDetail = lazy(() => import("./components/MovieDetail"));
+const NowShowing = lazy(() => import("./components/NowShowing"));
+const BookTickets = lazy(() => import("./components/BookTickets"));
+const SeatSelection = lazy(() => import("./components/SeatSelection"));
+const UpcomingMoviesPage = lazy(() => import("./components/UpcomingMoviesPage"));
+const BookingSuccess = lazy(() => import("./components/BookingSuccess"));
+const Settings = lazy(() => import("./pages/Settings"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ExploreEvents = lazy(() => import("./pages/ExploreEvents"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
+const CategoryEvents = lazy(() => import("./pages/CategoryEvents"));
+const DistrictEvents = lazy(() => import("./pages/DistrictEvents"));
+const ArtistDetail = lazy(() => import("./pages/ArtistDetail"));
+const BookEventTickets = lazy(() => import("./pages/BookEventTickets"));
+const EventSeatSelection = lazy(() => import("./pages/EventSeatSelection"));
+const TicketQuantitySelection = lazy(() => import("./pages/TicketQuantitySelection"));
+const EventBookingSuccess = lazy(() => import("./pages/EventBookingSuccess"));
+const MyEventBookings = lazy(() => import("./pages/MyEventBookings"));
+const OAuthSuccess = lazy(() => import("./pages/OAuthSuccess"));
+const Play = lazy(() => import("./pages/Play"));
+const PlayVenues = lazy(() => import("./pages/PlayVenues"));
+const PlayVenueDetail = lazy(() => import("./pages/PlayVenueDetail"));
+const PlaySlotSelection = lazy(() => import("./pages/PlaySlotSelection"));
+const PlayBookingSuccess = lazy(() => import("./pages/PlayBookingSuccess"));
+const MyPlayBookings = lazy(() => import("./pages/MyPlayBookings"));
+const TransactionHistory = lazy(() => import("./pages/TransactionHistory"));
+const Aboutus = lazy(() => import("./pages/Aboutus"));
+const ContactUs = lazy(() => import("./pages/Contactus"));
+const Offers = lazy(() => import("./pages/Offers"));
+const BookingReview = lazy(() => import("./pages/BookingReview"));
+const WebShowDetails = lazy(() => import("./pages/WebShowDetails"));
+const WebShowsListing = lazy(() => import("./pages/WebShowsListing"));
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-[#f0545c] animate-spin" />
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
-    <>
+    <Suspense fallback={<PageLoader />}>
       <Routes>
-
         <Route path="*" element={<NotFound />} />
 
         <Route path="/" element={<Home />} />
@@ -55,11 +69,9 @@ export default function App() {
         <Route path="/oauth-success" element={<OAuthSuccess />} />
 
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
-
         <Route path="/verify-otp" element={<OtpVerification />} />
 
         <Route path="/movie/:id" element={<MovieDetail />} />
-
         <Route path="/now-showing" element={<NowShowing />} />
         <Route path="/coming-soon" element={<UpcomingMoviesPage />} />
 
@@ -109,7 +121,6 @@ export default function App() {
         />
 
         <Route path="/movie/:id/book" element={<BookTickets />} />
-
         <Route path="/movie/:id/seats" element={<SeatSelection />} />
         <Route path="/booking/review" element={<BookingReview />} />
         <Route path="/booking/success" element={<BookingSuccess />} />
@@ -136,6 +147,6 @@ export default function App() {
 
         {AdminRoutes()}
       </Routes>
-    </>
+    </Suspense>
   );
 }

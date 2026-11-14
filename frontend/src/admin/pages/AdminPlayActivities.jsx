@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
-import * as Icons from "lucide-react";
+import { getSportIcon, renderSportIcon, SPORT_ICONS } from "../../utils/sportIcons";
 import {
   Search, Trash2, Plus, Loader2, CheckCircle2, AlertCircle, X, Edit,
   Trophy, Eye, EyeOff, ImagePlus,
@@ -63,7 +63,7 @@ function ActivityFormModal({ mode = "add", initial = null, onSave, onCancel, sav
   const [imagePreview, setImagePreview] = useState(mode === "edit" ? initial?.image || "" : "");
   const [error, setError] = useState("");
 
-  const IconPreview = form.icon && Icons[form.icon] ? Icons[form.icon] : null;
+
 
   const onPickImage = (e) => {
     const file = e.target.files?.[0];
@@ -131,7 +131,7 @@ function ActivityFormModal({ mode = "add", initial = null, onSave, onCancel, sav
             <div className="flex items-center gap-2">
               <input value={form.icon} onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value }))} placeholder="e.g. Trophy, Volleyball" className={inp} />
               <div className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center flex-shrink-0">
-                {IconPreview ? <IconPreview size={18} style={{ color: "#f0545c" }} /> : <span className="text-[10px] text-gray-300">?</span>}
+                {form.icon ? renderSportIcon(form.icon, { size: 18, style: { color: "#f0545c" } }) : <span className="text-[10px] text-gray-300">?</span>}
               </div>
             </div>
             <p className="text-[11px] text-gray-400 mt-1">Used only when no image is uploaded. Must match a lucide-react component name exactly.</p>
@@ -291,7 +291,7 @@ export default function AdminPlayActivities() {
                 </tr>
               ) : (
                 filtered.map((a, index) => {
-                  const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : DEFAULT_SPORT_ICON;
+                  const IconComp = getSportIcon(a.icon);
                   return (
                     <tr key={a._id} className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
                       <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{index + 1}</td>

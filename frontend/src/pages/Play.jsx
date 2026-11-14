@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as Icons from "lucide-react";
+import { getSportIcon } from "../utils/sportIcons";
 import {
   Dumbbell, MapPin, IndianRupee, SlidersHorizontal, X, Building2, Navigation, ChevronDown,
 } from "lucide-react";
@@ -101,7 +101,7 @@ export default function Play() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{OUTFIT_IMPORT}</style>
+
       <Navbar />
 
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 40px" }}>
@@ -143,7 +143,7 @@ export default function Play() {
               <>
                 <div className="grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(112px, 1fr))" }}>
                   {activities.map((a, i) => {
-                    const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Dumbbell;
+                    const IconComp = getSportIcon(a.icon);
                     const tint = TILE_TINTS[i % TILE_TINTS.length];
                     return (
                       <button

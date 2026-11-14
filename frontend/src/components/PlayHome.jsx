@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import * as Icons from "lucide-react";
+import { getSportIcon } from "../utils/sportIcons";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "./DistrictSelector";
 import { IMG } from "../utils/eventHelpers";
@@ -161,7 +161,7 @@ function VenueCard({ venue, onClick }) {
         {activities.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">
             {activities.slice(0, 2).map((a) => {
-              const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Trophy;
+              const IconComp = getSportIcon(a.icon);
               return (
                 <span key={a._id} className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
                   style={{ background: "rgba(240,84,92,0.08)", color: "#c0353b" }}>

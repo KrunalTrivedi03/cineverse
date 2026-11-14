@@ -97,7 +97,7 @@ export default function PlayVenues() {
   if (!activityId || !city.id) {
     return (
       <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
-        <style>{OUTFIT_IMPORT}</style>
+
         <Navbar />
         <BottomNav />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
@@ -112,7 +112,7 @@ export default function PlayVenues() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{OUTFIT_IMPORT}</style>
+
       <Navbar />
       <BottomNav />
 

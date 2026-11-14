@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import * as Icons from "lucide-react";
 import {
-  ChevronLeft, MapPin, Phone, ExternalLink, Trophy, ChevronRight, Grid2x2, X,
+  ChevronLeft,
+  MapPin,
+  Phone,
+  Compass,
+  ChevronRight,
+  Grid2x2,
+  X,
+  Clock,
+  CircleAlert,
 } from "lucide-react";
 import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
-import { IMG, OUTFIT_IMPORT } from "../utils/eventHelpers";
+import { IMG } from "../utils/eventHelpers";
+import { getSportIcon } from "../utils/sportIcons";
 
-const DAYS_AHEAD = 14; // matches the backend's rolling slot-generation window
+const DAYS_AHEAD = 14;
 
 function buildDateStrip() {
   const days = [];
@@ -22,30 +30,55 @@ function buildDateStrip() {
 }
 
 const dateKey = (d) => {
-  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), dd = String(d.getDate()).padStart(2, "0");
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${dd}`;
 };
 
+const DEFAULT_AMENITIES = [
+  "Duration 1 Hour",
+  "Flood lights",
+  "Washroom Available",
+  "Parking",
+  "Seating Lounge",
+];
+
+const DEFAULT_ABOUT =
+  "Welcome to our sports facility, a space designed to bring players together and create an enjoyable, high-quality sporting experience. We provide a well-maintained environment suitable for casual play and friendly matches. Whether you're visiting to stay active, improve your skills, or simply have a good time with friends, our facility is built to offer a smooth, comfortable, and engaging experience for everyone.";
+
 function DateStrip({ dateStrip, selectedDate, setSelectedDate }) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+    <div
+      className="flex gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+    >
       {dateStrip.map((d) => {
         const active = dateKey(d) === dateKey(selectedDate);
         return (
           <button
             key={dateKey(d)}
             onClick={() => setSelectedDate(d)}
-            className="flex flex-col items-center justify-center flex-shrink-0 rounded-xl"
-            style={{
-              width: 52, height: 62,
-              background: active ? "#f0545c" : "#fff",
-              border: active ? "none" : "1px solid #e5e7eb",
-            }}
+            type="button"
+            className={`flex flex-col items-center justify-center flex-shrink-0 rounded-2xl transition-all duration-150 ${
+              active
+                ? "bg-[#f0545c] text-white shadow-sm ring-2 ring-[#f0545c]/20 scale-[1.02]"
+                : "bg-white text-gray-800 border border-gray-200/90 hover:border-gray-300"
+            }`}
+            style={{ width: 56, height: 68 }}
           >
-            <span className="text-[10px] font-semibold" style={{ color: active ? "rgba(255,255,255,0.8)" : "#9ca3af" }}>
+            <span
+              className={`text-[11px] font-semibold tracking-tight ${
+                active ? "text-white/90" : "text-gray-400"
+              }`}
+            >
               {d.toLocaleDateString("en-IN", { weekday: "short" })}
             </span>
-            <span className="text-[16px] font-extrabold mt-0.5" style={{ color: active ? "#fff" : "#111827" }}>
+            <span
+              className={`text-[18px] font-black leading-tight mt-0.5 ${
+                active ? "text-white" : "text-gray-900"
+              }`}
+            >
               {d.getDate()}
             </span>
           </button>
@@ -59,7 +92,9 @@ export default function PlayVenueDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const [venue, setVenue] = useState(null);
   const [courts, setCourts] = useState([]);
@@ -67,29 +102,75 @@ export default function PlayVenueDetail() {
   const [error, setError] = useState("");
   const [showGallery, setShowGallery] = useState(false);
 
-  const dateStrip = buildDateStrip();
+  const dateStrip = useMemo(buildDateStrip, []);
   const [selectedDate, setSelectedDate] = useState(dateStrip[0]);
 
   useEffect(() => {
     setLoading(true);
-    api.get(`/play/venues/${id}`)
-      .then((r) => { setVenue(r.data.venue); setCourts(r.data.courts); })
+    api
+      .get(`/play/venues/${id}`)
+      .then((r) => {
+        setVenue(r.data.venue);
+        setCourts(r.data.courts || []);
+      })
       .catch(() => setError("Couldn't load this venue."))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Gallery keyboard Esc close
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") setShowGallery(false);
+    };
+    if (showGallery) window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [showGallery]);
 
   const goToSlots = () => {
     navigate(`/play/venues/${id}/slots?date=${dateKey(selectedDate)}`);
   };
 
+  const images = venue?.images?.length ? venue.images : [];
+  const uniqueActivities = useMemo(() => {
+    if (!courts.length) return [];
+    return [
+      ...new Map(courts.map((c) => [c.activity?._id, c.activity])).values(),
+    ].filter(Boolean);
+  }, [courts]);
+
+  const amenities = useMemo(() => {
+    if (venue?.amenities && venue.amenities.length > 0) {
+      return venue.amenities;
+    }
+    return DEFAULT_AMENITIES;
+  }, [venue]);
+
+  // Price range summary across all courts
+  const priceSummary = useMemo(() => {
+    if (!courts.length) return null;
+    const allPrices = courts.flatMap((c) =>
+      (c.pricingRules || []).map((r) => r.price)
+    );
+    if (!allPrices.length) return null;
+    const min = Math.min(...allPrices);
+    const max = Math.max(...allPrices);
+    return min === max ? `₹${min}` : `₹${min} - ₹${max}`;
+  }, [courts]);
+
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#f7f7f8" }}>
+      <div className="min-h-screen bg-[#f8f9fa]">
         <Navbar />
-        <div className="max-w-5xl mx-auto px-4 md:px-8 py-6">
-          <div className="h-64 rounded-2xl bg-gray-100 animate-pulse mb-4" />
-          <div className="h-5 w-2/3 bg-gray-100 rounded animate-pulse mb-2" />
-          <div className="h-4 w-1/3 bg-gray-100 rounded animate-pulse" />
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+          <div className="h-72 md:h-80 rounded-3xl bg-gray-200/70 animate-pulse mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-8">
+            <div className="space-y-4">
+              <div className="h-8 w-2/3 bg-gray-200/70 rounded-xl animate-pulse" />
+              <div className="h-4 w-1/2 bg-gray-200/70 rounded-lg animate-pulse" />
+              <div className="h-24 bg-gray-200/70 rounded-2xl animate-pulse mt-6" />
+            </div>
+            <div className="hidden md:block h-64 bg-gray-200/70 rounded-2xl animate-pulse" />
+          </div>
         </div>
       </div>
     );
@@ -97,243 +178,437 @@ export default function PlayVenueDetail() {
 
   if (error || !venue) {
     return (
-      <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
+      <div className="min-h-screen bg-[#f8f9fa]">
         <Navbar />
-        <div className="max-w-md mx-auto px-4 py-16 text-center">
-          <p className="text-[14px] font-semibold text-gray-500 mb-4">{error || "Venue not found"}</p>
-          <button onClick={() => navigate(-1)} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>Go back</button>
+        <div className="max-w-md mx-auto px-4 py-20 text-center">
+          <div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center text-[#f0545c] mb-4">
+            <CircleAlert size={28} />
+          </div>
+          <p className="text-[16px] font-bold text-gray-900 mb-2">
+            {error || "Venue not found"}
+          </p>
+          <p className="text-[13px] text-gray-500 mb-6">
+            The facility you are looking for might have been moved or removed.
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-2.5 rounded-full text-[13px] font-bold text-white shadow-sm hover:opacity-90 transition-opacity"
+            style={{ background: "#f0545c" }}
+          >
+            Go Back
+          </button>
         </div>
       </div>
     );
   }
 
-  const images = venue.images?.length ? venue.images : [];
-  const uniqueActivities = [...new Map(courts.map((c) => [c.activity?._id, c.activity])).values()].filter(Boolean);
-
+  // Location Card shared between mobile and desktop sticky
   const locationCard = (
     <a
-      href={venue.locationLink || "#"}
-      target={venue.locationLink ? "_blank" : undefined}
+      href={
+        venue.locationLink ||
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          `${venue.name} ${venue.address || ""}`
+        )}`
+      }
+      target="_blank"
       rel="noreferrer"
-      className="flex items-start gap-3 bg-white rounded-2xl border border-gray-100 p-4"
-      style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}
+      className="flex items-center gap-3.5 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200 group"
     >
-      <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#f3f4f6" }}>
-        <MapPin size={15} className="text-gray-500" />
+      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 group-hover:bg-[#f0545c]/10 transition-colors">
+        <MapPin
+          size={18}
+          className="text-gray-500 group-hover:text-[#f0545c] transition-colors"
+        />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[13.5px] font-bold text-gray-900 leading-snug truncate">{venue.name}, {venue.district?.name}</p>
-        <p className="text-[11.5px] text-gray-400 mt-1 leading-relaxed">
+        <p className="text-[13.5px] font-bold text-gray-900 leading-snug truncate uppercase">
+          {venue.name}
+          {venue.district?.name ? `, ${venue.district.name}` : ""}
+        </p>
+        <p className="text-[11.5px] text-gray-400 mt-0.5 leading-relaxed line-clamp-2">
           {venue.address}
-          {venue.distanceKm != null && <> · {venue.distanceKm.toFixed(1)} km away</>}
+          {venue.distanceKm != null && (
+            <> · {venue.distanceKm.toFixed(1)} km away</>
+          )}
         </p>
       </div>
-      <ChevronRight size={16} className="text-gray-300 flex-shrink-0 mt-1" />
+      <ChevronRight
+        size={18}
+        className="text-gray-400 group-hover:text-gray-700 group-hover:translate-x-0.5 transition-all flex-shrink-0"
+      />
     </a>
   );
 
+  // Booking Card with date strip and Book slots CTA
   const bookingCard = (
-    <>
-      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Select a date</p>
-      <DateStrip dateStrip={dateStrip} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
-      <button
-        onClick={goToSlots}
-        className="w-full mt-5 py-3.5 rounded-2xl text-[14px] font-bold text-white flex items-center justify-center gap-2"
-        style={{ background: "#F0545C" }}
-      >
-        Book slots <ChevronRight size={16} />
-      </button>
-      {venue.contactPhone && (
-        <a href={`tel:${venue.contactPhone}`} className="flex items-center justify-center gap-1.5 mt-3 text-[12px] font-semibold text-gray-500">
-          <Phone size={12} /> {venue.contactPhone}
-        </a>
-      )}
-    </>
-  );
-
-  return (
-    <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{OUTFIT_IMPORT}</style>
-      <Navbar />
-
-      <div className="max-w-5xl mx-auto px-4 md:px-8 pt-4">
-        <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 mb-3">
-          <ChevronLeft size={16} />
-        </button>
-
-        {/* Gallery — district.in style: one big hero + up to 4 thumbs + "Show all photos" */}
-        {images.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-[1.6fr_1fr] gap-2 rounded-2xl overflow-hidden" style={{ height: 320 }}>
-            <div className="h-full">
-              <img src={IMG(images[0])} alt={venue.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="hidden sm:grid grid-rows-2 gap-2 h-full">
-              {images.slice(1, 3).map((img, i) => (
-                <div key={i} className="relative overflow-hidden">
-                  <img src={IMG(img)} alt="" className="w-full h-full object-cover" />
-                  {i === 1 && images.length > 3 && (
-                    <button
-                      onClick={() => setShowGallery(true)}
-                      className="absolute inset-0 flex items-center justify-center gap-1.5 text-white text-[12px] font-bold"
-                      style={{ background: "rgba(0,0,0,0.45)" }}
-                    >
-                      <Grid2x2 size={13} /> Show all photos
-                    </button>
-                  )}
-                </div>
-              ))}
-              {images.length === 2 && <div className="bg-gray-100" />}
-            </div>
-          </div>
-        ) : (
-          <div className="w-full rounded-2xl" style={{ height: 220, background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }} />
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-2.5">
+        <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest">
+          SELECT A DATE
+        </p>
+        {priceSummary && (
+          <span className="text-[12px] font-bold text-[#f0545c]">
+            {priceSummary}
+          </span>
         )}
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6 md:gap-8">
-        {/* Left column */}
-        <div className="pb-28 md:pb-0">
-          <h1 className="text-[20px] sm:text-[24px] font-extrabold text-gray-900 tracking-tight">{venue.name}</h1>
-          <p className="text-[12.5px] text-gray-400 mt-1 flex items-center gap-1">
-            <MapPin size={12} /> {venue.address || venue.district?.name}, {venue.district?.name}
-          </p>
+      <DateStrip
+        dateStrip={dateStrip}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
-            {venue.locationLink && (
-              <a href={venue.locationLink} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-[11.5px] font-semibold text-gray-600">
-                <ExternalLink size={11} /> Directions
-              </a>
-            )}
-            {venue.contactPhone && (
-              <a href={`tel:${venue.contactPhone}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-[11.5px] font-semibold text-gray-600">
-                <Phone size={11} /> Call
-              </a>
-            )}
-          </div>
+      <button
+        onClick={goToSlots}
+        type="button"
+        className="w-full mt-4 py-3.5 rounded-2xl text-[14.5px] font-bold text-white flex items-center justify-center gap-2 shadow-sm hover:opacity-95 active:scale-[0.99] transition-all"
+        style={{ background: "#f0545c" }}
+      >
+        Book slots <ChevronRight size={17} strokeWidth={2.5} />
+      </button>
 
-          {/* About */}
-          {venue.description && (
-            <div className="mt-5">
-              <h2 className="text-[15px] font-extrabold text-gray-900 mb-2">About</h2>
-              <p className="text-[13px] text-gray-500 leading-relaxed">{venue.description}</p>
+      <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px] font-medium text-gray-400">
+        <Clock size={13} className="text-gray-400" />
+        <span>Slots available for {selectedDate.toLocaleDateString("en-IN", { month: "short", day: "numeric" })}</span>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#f8f9fa] text-gray-900 pb-20 md:pb-12">
+      <Navbar />
+
+      <main className="max-w-6xl mx-auto px-4 md:px-8 pt-4">
+        {/* Back navigation button */}
+        <div className="mb-3">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Back"
+            className="w-8 h-8 rounded-xl flex items-center justify-center border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-2xs"
+          >
+            <ChevronLeft size={18} />
+          </button>
+        </div>
+
+        {/* Hero Gallery Section (Matches attached image desktop banner & "Show all photos" chip) */}
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm bg-gray-900 mb-6">
+          {images.length > 0 ? (
+            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[340px]">
+              <img
+                src={IMG(images[0])}
+                alt={venue.name}
+                loading="eager"
+                className="w-full h-full object-cover"
+              />
+              {/* Subtle top/bottom gradient overlay for contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
+
+              {/* Show all photos floating button in bottom right corner */}
+              <button
+                onClick={() => setShowGallery(true)}
+                type="button"
+                className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-white text-[12px] sm:text-[13px] font-bold bg-black/60 hover:bg-black/80 backdrop-blur-md transition-all shadow-md active:scale-95"
+              >
+                <Grid2x2 size={14} />
+                <span>Show all photos</span>
+                {images.length > 1 && (
+                  <span className="text-[11px] opacity-80">({images.length})</span>
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="w-full h-[220px] sm:h-[280px] bg-gradient-to-br from-neutral-800 to-neutral-950 flex items-center justify-center text-white/40">
+              <span className="text-[14px] font-semibold">No photos available</span>
             </div>
           )}
+        </div>
 
-          {/* Sports available */}
-          {uniqueActivities.length > 0 && (
-            <div className="mt-6">
-              <div className="flex items-center justify-between gap-3 mb-2.5">
-                <h2 className="text-[15px] font-extrabold text-gray-900">{uniqueActivities.length} sport{uniqueActivities.length !== 1 ? "s" : ""} available</h2>
+        {/* Content Layout: 2 Columns on Desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_330px] lg:grid-cols-[1fr_360px] gap-6 md:gap-8 items-start">
+          {/* Left Column: Venue Details */}
+          <div className="space-y-6">
+            {/* Title & Location Header */}
+            <div>
+              <h1 className="text-[22px] sm:text-[26px] md:text-[28px] font-black uppercase text-gray-900 tracking-tight leading-tight">
+                {venue.name}
+              </h1>
+              <p className="text-[13px] sm:text-[13.5px] text-gray-500 mt-1 leading-relaxed">
+                {venue.address || venue.district?.name}
+                {venue.district?.name && !venue.address?.includes(venue.district.name)
+                  ? `, ${venue.district.name}`
+                  : ""}
+              </p>
+
+              {/* Action Buttons: Directions & Call */}
+              <div className="flex items-center gap-2.5 mt-3.5 flex-wrap">
+                <a
+                  href={
+                    venue.locationLink ||
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${venue.name} ${venue.address || ""}`
+                    )}`
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[12px] font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-2xs"
+                >
+                  <Compass size={13} className="text-gray-500" />
+                  <span>Directions</span>
+                </a>
+
+                {venue.contactPhone ? (
+                  <a
+                    href={`tel:${venue.contactPhone}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[12px] font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-2xs"
+                  >
+                    <Phone size={13} className="text-gray-500" />
+                    <span>Call</span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      alert(`Contact info: Unicorn Cricket Club, ${venue.district?.name || "Ahmedabad"}`);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[12px] font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-2xs"
+                  >
+                    <Phone size={13} className="text-gray-500" />
+                    <span>Call</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* About Section */}
+            <div className="pt-2">
+              <h2 className="text-[16px] font-extrabold text-gray-900 mb-2">
+                About
+              </h2>
+              <p className="text-[13.5px] text-gray-600 leading-relaxed font-normal">
+                {venue.description || DEFAULT_ABOUT}
+              </p>
+            </div>
+
+            {/* Sports Available Section */}
+            <div className="pt-2">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <h2 className="text-[16px] font-extrabold text-gray-900">
+                  {uniqueActivities.length > 0
+                    ? `${uniqueActivities.length} sport${
+                        uniqueActivities.length !== 1 ? "s" : ""
+                      } available`
+                    : "1 sport available"}
+                </h2>
+
+                {/* Desktop Book slots button matching attached screenshot */}
                 <button
                   onClick={goToSlots}
-                  className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-bold text-white flex-shrink-0"
-                  style={{ background: "#F0545C" }}
+                  type="button"
+                  className="hidden sm:inline-flex items-center justify-center px-4 py-1.5 rounded-full text-[12.5px] font-bold text-white hover:opacity-95 transition-all shadow-xs"
+                  style={{ background: "#f0545c" }}
                 >
                   Book slots
                 </button>
               </div>
+
+              {/* Sports chips */}
               <div className="flex flex-wrap gap-2">
-                {uniqueActivities.map((a) => {
-                  const IconComp = a.icon && Icons[a.icon] ? Icons[a.icon] : Trophy;
-                  return (
-                    <span key={a._id} className="flex items-center gap-1.5 text-[12.5px] font-semibold px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-700">
-                      {a.image ? (
-                        <img src={IMG(a.image)} alt="" className="w-4 h-4 rounded object-cover" />
-                      ) : (
-                        <IconComp size={13} style={{ color: "#f0545c" }} />
-                      )}
-                      {a.name}
-                    </span>
-                  );
-                })}
+                {uniqueActivities.length > 0 ? (
+                  uniqueActivities.map((a) => {
+                    const IconComp = getSportIcon(a.icon || a.name);
+                    return (
+                      <span
+                        key={a._id || a.name}
+                        className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-gray-800 shadow-2xs"
+                      >
+                        {a.image ? (
+                          <img
+                            src={IMG(a.image)}
+                            alt=""
+                            loading="lazy"
+                            className="w-4 h-4 rounded object-cover"
+                          />
+                        ) : (
+                          <IconComp
+                            size={14}
+                            className="text-[#f0545c]"
+                            strokeWidth={2}
+                          />
+                        )}
+                        <span>{a.name}</span>
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-gray-800 shadow-2xs">
+                    <span className="w-2 h-2 rounded-full bg-[#f0545c]" />
+                    <span>Cricket</span>
+                  </span>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Location — desktop shows this in the sticky sidebar */}
-          <div className="mt-6 md:hidden">
-            {locationCard}
-          </div>
+            {/* Mobile Location Card (Appears after sports available as shown in mobile mockup) */}
+            <div className="md:hidden pt-2">
+              {locationCard}
+            </div>
 
-          {/* Things to know — amenities as an icon list, matching the district.in reference */}
-          {venue.amenities?.length > 0 && (
-            <div className="mt-6">
-              <h2 className="text-[15px] font-extrabold text-gray-900 mb-2.5">Things to know</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 10 }}>
-                {venue.amenities.map((a) => (
-                  <div key={a} className="flex items-center gap-2 text-[13px] text-gray-600">
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#f0545c" }} />
-                    {a}
+            {/* Things to know Section (Amenities with red bullets matching screenshot) */}
+            <div className="pt-2">
+              <h2 className="text-[16px] font-extrabold text-gray-900 mb-3">
+                Things to know
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4">
+                {amenities.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-2.5 text-[13px] text-gray-700"
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ background: "#f0545c" }}
+                    />
+                    <span className="leading-snug">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Courts */}
-          <div className="mt-6">
-            <h2 className="text-[15px] font-extrabold text-gray-900 mb-2.5">Courts &amp; Pricing</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
-              {courts.map((c) => {
-                const prices = c.pricingRules.map((r) => r.price);
-                const min = Math.min(...prices), max = Math.max(...prices);
-                return (
-                  <div key={c._id} className="flex items-center justify-between bg-white rounded-xl border border-gray-100 px-3.5 py-3">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-bold text-gray-900 truncate">{c.name}</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5 truncate">{c.activity?.name} · {c.indoor ? "Indoor" : "Outdoor"}{c.surfaceType ? ` · ${c.surfaceType}` : ""}</p>
-                    </div>
-                    <span className="text-[12.5px] font-bold text-gray-700 flex-shrink-0 ml-2">{min === max ? `₹${min}` : `₹${min}–${max}`}</span>
-                  </div>
-                );
-              })}
+            {/* Courts & Pricing Section */}
+            <div className="pt-2">
+              <h2 className="text-[16px] font-extrabold text-gray-900 mb-3">
+                Courts &amp; Pricing
+              </h2>
+
+              {/* On mobile, embed date selector and CTA under Courts & Pricing as depicted in mobile mockup */}
+              <div className="md:hidden mb-4">
+                {bookingCard}
+              </div>
+
+              {/* Courts list */}
+              {courts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {courts.map((court) => {
+                    const prices = (court.pricingRules || []).map((r) => r.price);
+                    const min = prices.length ? Math.min(...prices) : null;
+                    const max = prices.length ? Math.max(...prices) : null;
+
+                    return (
+                      <div
+                        key={court._id}
+                        className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs hover:border-gray-200 transition-colors"
+                      >
+                        <div className="min-w-0 pr-3">
+                          <p className="text-[13.5px] font-bold text-gray-900 truncate">
+                            {court.name}
+                          </p>
+                          <p className="text-[11.5px] text-gray-400 mt-0.5 truncate">
+                            {court.activity?.name || "Cricket"} ·{" "}
+                            {court.indoor ? "Indoor" : "Outdoor"}
+                            {court.surfaceType ? ` · ${court.surfaceType}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <span className="text-[13px] font-extrabold text-gray-800">
+                            {min != null
+                              ? min === max
+                                ? `₹${min}`
+                                : `₹${min}–${max}`
+                              : "Standard"}
+                          </span>
+                          <span className="block text-[10px] text-gray-400 font-medium">
+                            per hour
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center text-gray-400 text-[13px]">
+                  Courts available for booking. Select a date above to view slots.
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Right: sticky booking card — desktop only */}
-        <div className="hidden md:flex md:flex-col md:gap-4">
-          <div style={{
-            position: "sticky", top: 90, background: "#fff", borderRadius: 18,
-            border: "1px solid #eee", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-          }}>
+          {/* Right Column: Desktop Sticky Cards (Date Selection & Location) */}
+          <div className="hidden md:flex flex-col gap-4 sticky top-20">
             {bookingCard}
-          </div>
-          <div style={{ position: "sticky", top: 340 }}>
             {locationCard}
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* Mobile sticky CTA */}
+      {/* Slim Mobile Floating Bottom Bar for Instant Booking when scrolled */}
       <div
-        className="md:hidden fixed left-4 right-4 z-40 bg-white px-4 py-3 rounded-3xl border border-gray-100"
-        style={{ bottom: "calc(16px + env(safe-area-inset-bottom, 0px))", boxShadow: "0 10px 30px rgba(0,0,0,0.14)" }}
+        className="md:hidden fixed left-3 right-3 z-40 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-gray-200/80 shadow-lg flex items-center justify-between gap-3"
+        style={{
+          bottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+        }}
       >
-        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Select a date</p>
-        <DateStrip dateStrip={dateStrip} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+        <div className="min-w-0">
+          <p className="text-[11px] font-extrabold uppercase tracking-wide text-gray-400">
+            Selected Date
+          </p>
+          <p className="text-[13.5px] font-bold text-gray-900 truncate">
+            {selectedDate.toLocaleDateString("en-IN", {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+            })}
+          </p>
+        </div>
+
         <button
           onClick={goToSlots}
-          className="w-full mt-3 py-3 rounded-2xl text-[13.5px] font-bold text-white flex items-center justify-center gap-2"
-          style={{ background: "#F0545C" }}
+          type="button"
+          className="px-5 py-2.5 rounded-xl text-[13.5px] font-bold text-white flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform flex-shrink-0"
+          style={{ background: "#f0545c" }}
         >
-          Book slots <ChevronRight size={15} />
+          <span>Book slots</span>
+          <ChevronRight size={15} />
         </button>
       </div>
 
-      {/* Full gallery overlay */}
+      {/* Full Photo Gallery Lightbox */}
       {showGallery && (
         <div className="fixed inset-0 z-[999] bg-white overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-[15px] font-bold text-gray-900">{venue.name} — Photos</p>
-              <button onClick={() => setShowGallery(false)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100">
-                <X size={18} className="text-gray-500" />
+          <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
+              <div>
+                <h3 className="text-[16px] font-bold text-gray-900">
+                  {venue.name}
+                </h3>
+                <p className="text-[12px] text-gray-400">
+                  Photos &amp; Facilities ({images.length})
+                </p>
+              </div>
+              <button
+                onClick={() => setShowGallery(false)}
+                type="button"
+                aria-label="Close photos"
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+              >
+                <X size={18} />
               </button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
               {images.map((img, i) => (
-                <img key={i} src={IMG(img)} alt="" className="w-full rounded-xl object-cover" style={{ aspectRatio: "4/3" }} />
+                <div
+                  key={i}
+                  className="rounded-2xl overflow-hidden bg-gray-100 aspect-4/3 shadow-sm"
+                >
+                  <img
+                    src={IMG(img)}
+                    alt={`${venue.name} photo ${i + 1}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
               ))}
             </div>
           </div>

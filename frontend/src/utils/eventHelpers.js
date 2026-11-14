@@ -1,4 +1,14 @@
-export const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
+export const IMG = (path) => {
+  if (!path) return null;
+  if (path.startsWith("http")) {
+    if (path.includes("res.cloudinary.com") && !path.includes("/f_auto")) {
+      return path.replace("/image/upload/", "/image/upload/f_auto,q_auto/");
+    }
+    return path;
+  }
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `https://res.cloudinary.com/duhc0vvqz/image/upload/f_auto,q_auto${cleanPath}`;
+};
 
 export const fmt12 = (t) => {
   if (!t) return "";
@@ -54,5 +64,5 @@ export const SEAT_CAT = {
   General: { color: "#059669", light: "rgba(5,150,105,0.07)",  border: "rgba(5,150,105,0.22)",  pillText: "#065f46" },
 };
 
-export const OUTFIT_IMPORT =
-  "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');";
+// Outfit font is loaded in index.html; keep as empty string to prevent duplicate network render-blocking
+export const OUTFIT_IMPORT = "";

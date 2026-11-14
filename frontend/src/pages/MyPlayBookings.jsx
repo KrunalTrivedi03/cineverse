@@ -64,7 +64,7 @@ export default function MyPlayBookings() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{OUTFIT_IMPORT}</style>
+
       <Navbar />
       <BottomNav />
 

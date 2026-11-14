@@ -281,7 +281,6 @@ export default function PlaySlotSelection() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{OUTFIT_IMPORT}</style>
       <Navbar />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 140px" }}>

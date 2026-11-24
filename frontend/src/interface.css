@@ -405,8 +405,7 @@
 .now-platform-stat { display: grid; place-content: center; min-height: 5.25rem; padding: .5rem .25rem; border-radius: .85rem; background: #f2fafb; text-align: center; }
 .now-platform-stat p { color: var(--now-reef-900); font-size: clamp(1.15rem, 3vw, 1.95rem); font-weight: 800; line-height: 1.2; font-variant-numeric: tabular-nums; }
 .now-platform-stat span { margin-top: .35rem; color: var(--color-gray-600); font-size: clamp(.65rem, 1.4vw, .8rem); }
-@media (min-width: 640px) { .now-platform-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .now-platform-stats { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (min-width: 768px) { .now-platform-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 .now-catalog-card, .now-catalog-body { display: flex; flex-direction: column; min-width: 0; }
 .now-catalog-body { flex: 1; gap: .28rem; }

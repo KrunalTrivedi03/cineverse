@@ -54,9 +54,7 @@ const HIGHLIGHTS = [
 
 const STATS = [
   ["bookings", "Confirmed bookings"],
-  ["movies", "Movies listed"],
-  ["events", "Upcoming & live events"],
-  ["playVenues", "Play venues"],
+  ["listings", "Movies, events & play venues"],
   ["cities", "Cities"],
   ["averageMovieRating", "Average movie rating"],
 ];
@@ -75,6 +73,11 @@ export default function Aboutus() {
       .catch(() => { if (!controller.signal.aborted) setStatsStatus("error"); });
     return () => controller.abort();
   }, []);
+
+  const listingCounts = stats ? [stats.movies, stats.events, stats.playVenues] : [];
+  const totalListings = listingCounts.length && listingCounts.every(Number.isFinite)
+    ? listingCounts.reduce((total, count) => total + count, 0)
+    : null;
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "var(--now-ui-font)" }}>
@@ -111,7 +114,7 @@ export default function Aboutus() {
       <section className="max-w-6xl mx-auto px-5 md:px-8 -mt-10 md:-mt-12 relative z-10">
         <div className="now-platform-stats" aria-busy={statsStatus === "loading"}>
           {STATS.map(([key, label]) => {
-            const value = stats?.[key];
+            const value = key === "listings" ? totalListings : stats?.[key];
             const rating = key === "averageMovieRating";
             return (
               <div key={key} className="now-platform-stat">

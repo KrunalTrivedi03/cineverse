@@ -45,10 +45,10 @@ const CAT = {
     pillText: "#5b21b6",
   },
   Premium: {
-    color: "#f0545c",
-    light: "rgba(240,84,92,0.07)",
-    border: "rgba(240,84,92,0.22)",
-    glow: "rgba(240,84,92,0.18)",
+    color: "#106579",
+    light: "rgba(16,101,121,0.07)",
+    border: "rgba(16,101,121,0.22)",
+    glow: "rgba(16,101,121,0.18)",
     pillText: "#be123c",
   },
   Classic: {
@@ -146,7 +146,7 @@ function SeatCountSelector({ max, onSelect, layoutData }) {
           >
             <div
               className="w-[7px] h-[7px] rounded-full flex-shrink-0"
-              style={{ background: "#f0545c" }}
+              style={{ background: "#106579" }}
             />
             NOW
           </div>
@@ -167,8 +167,8 @@ function SeatCountSelector({ max, onSelect, layoutData }) {
               className="w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] rounded-xl flex items-center justify-center text-[13px] sm:text-[14px] transition-all flex-shrink-0"
               style={{
                 border:
-                  count === n ? "2px solid #f0545c" : "1.5px solid #e5e7eb",
-                background: count === n ? "#f0545c" : "#fff",
+                  count === n ? "2px solid #106579" : "1.5px solid #e4e4e7",
+                background: count === n ? "#106579" : "#fff",
                 color: count === n ? "#fff" : "#111",
                 fontWeight: count === n ? 700 : 500,
               }}
@@ -282,9 +282,9 @@ function PaymentMethodPicker({ wallet, payMethod, setPayMethod }) {
           onClick={() => wallet?.eligible && setPayMethod("wallet")}
           className="w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left"
           style={{
-            borderColor: payMethod === "wallet" ? "#f0545c" : "#e5e7eb",
+            borderColor: payMethod === "wallet" ? "#106579" : "#e4e4e7",
             background:
-              payMethod === "wallet" ? "rgba(240,84,92,0.04)" : "#fafafa",
+              payMethod === "wallet" ? "rgba(16,101,121,0.04)" : "#fafafa",
             opacity: wallet?.eligible ? 1 : 0.45,
             cursor: wallet?.eligible ? "pointer" : "not-allowed",
           }}
@@ -293,12 +293,12 @@ function PaymentMethodPicker({ wallet, payMethod, setPayMethod }) {
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
               background:
-                payMethod === "wallet" ? "rgba(240,84,92,0.1)" : "#f3f4f6",
+                payMethod === "wallet" ? "rgba(16,101,121,0.1)" : "#f3f4f6",
             }}
           >
             <Wallet
               size={16}
-              style={{ color: payMethod === "wallet" ? "#f0545c" : "#9ca3af" }}
+              style={{ color: payMethod === "wallet" ? "#106579" : "#9ca3af" }}
             />
           </div>
           <div className="flex-1 min-w-0">
@@ -317,7 +317,7 @@ function PaymentMethodPicker({ wallet, payMethod, setPayMethod }) {
           {payMethod === "wallet" && wallet?.eligible && (
             <CheckCircle
               size={15}
-              style={{ color: "#f0545c", flexShrink: 0 }}
+              style={{ color: "#106579", flexShrink: 0 }}
             />
           )}
         </button>
@@ -326,22 +326,22 @@ function PaymentMethodPicker({ wallet, payMethod, setPayMethod }) {
           onClick={() => setPayMethod("razorpay")}
           className="w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left"
           style={{
-            borderColor: payMethod === "razorpay" ? "#f0545c" : "#e5e7eb",
+            borderColor: payMethod === "razorpay" ? "#106579" : "#e4e4e7",
             background:
-              payMethod === "razorpay" ? "rgba(240,84,92,0.04)" : "#fafafa",
+              payMethod === "razorpay" ? "rgba(16,101,121,0.04)" : "#fafafa",
           }}
         >
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
               background:
-                payMethod === "razorpay" ? "rgba(240,84,92,0.1)" : "#f3f4f6",
+                payMethod === "razorpay" ? "rgba(16,101,121,0.1)" : "#f3f4f6",
             }}
           >
             <CreditCard
               size={16}
               style={{
-                color: payMethod === "razorpay" ? "#f0545c" : "#9ca3af",
+                color: payMethod === "razorpay" ? "#106579" : "#9ca3af",
               }}
             />
           </div>
@@ -356,7 +356,7 @@ function PaymentMethodPicker({ wallet, payMethod, setPayMethod }) {
           {payMethod === "razorpay" && (
             <CheckCircle
               size={15}
-              style={{ color: "#f0545c", flexShrink: 0 }}
+              style={{ color: "#106579", flexShrink: 0 }}
             />
           )}
         </button>
@@ -902,7 +902,7 @@ export default function SeatSelection() {
             {/* Mobile: compact single line */}
             <div className="flex md:hidden items-center gap-1.5 mt-0.5 flex-wrap">
               <span className="text-[10px] text-gray-400 flex items-center gap-0.5 truncate max-w-[140px]">
-                <MapPin size={8} style={{ color: "#f0545c", flexShrink: 0 }} />
+                <MapPin size={8} style={{ color: "#106579", flexShrink: 0 }} />
                 {theatre?.name}
               </span>
               <span className="text-gray-200 text-[9px]">·</span>
@@ -913,9 +913,9 @@ export default function SeatSelection() {
                 <span
                   className="flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
                   style={{
-                    background: "rgba(240,84,92,0.08)",
-                    color: "#f0545c",
-                    border: "1px solid rgba(240,84,92,0.2)",
+                    background: "rgba(16,101,121,0.08)",
+                    color: "#106579",
+                    border: "1px solid rgba(16,101,121,0.2)",
                   }}
                 >
                   <Monitor size={7} /> {screen}
@@ -926,7 +926,7 @@ export default function SeatSelection() {
             {/* Desktop: full meta row */}
             <div className="hidden md:flex items-center gap-2 flex-wrap mt-0.5">
               <span className="text-[11px] text-gray-400 flex items-center gap-1">
-                <MapPin size={9} style={{ color: "#f0545c" }} /> {theatre?.name}
+                <MapPin size={9} style={{ color: "#106579" }} /> {theatre?.name}
               </span>
               <span className="text-gray-200">·</span>
               <span className="text-[11px] text-gray-400 flex items-center gap-1">
@@ -940,9 +940,9 @@ export default function SeatSelection() {
                 <span
                   className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
                   style={{
-                    background: "rgba(240,84,92,0.08)",
-                    color: "#f0545c",
-                    border: "1px solid rgba(240,84,92,0.2)",
+                    background: "rgba(16,101,121,0.08)",
+                    color: "#106579",
+                    border: "1px solid rgba(16,101,121,0.2)",
                   }}
                 >
                   <Monitor size={8} /> {screen}
@@ -958,9 +958,9 @@ export default function SeatSelection() {
               style={{
                 background: urgentCountdown
                   ? "#fff1f2"
-                  : "rgba(240,84,92,0.07)",
-                border: `1px solid ${urgentCountdown ? "#fecdd3" : "rgba(240,84,92,0.2)"}`,
-                color: urgentCountdown ? "#dc2626" : "#f0545c",
+                  : "rgba(16,101,121,0.07)",
+                border: `1px solid ${urgentCountdown ? "#fecdd3" : "rgba(16,101,121,0.2)"}`,
+                color: urgentCountdown ? "#dc2626" : "#106579",
                 fontFamily: "'DM Mono', monospace",
               }}
             >
@@ -975,15 +975,15 @@ export default function SeatSelection() {
               title="Change seat count"
               className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-xl text-[11px] md:text-[12px] font-semibold flex-shrink-0 transition-all border"
               style={{
-                background: "rgba(240,84,92,0.06)",
-                borderColor: "rgba(240,84,92,0.2)",
-                color: "#f0545c",
+                background: "rgba(16,101,121,0.06)",
+                borderColor: "rgba(16,101,121,0.2)",
+                color: "#106579",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(240,84,92,0.12)")
+                (e.currentTarget.style.background = "rgba(16,101,121,0.12)")
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "rgba(240,84,92,0.06)")
+                (e.currentTarget.style.background = "rgba(16,101,121,0.06)")
               }
             >
               <Ticket size={11} />
@@ -1002,16 +1002,16 @@ export default function SeatSelection() {
             <div
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center"
               style={{
-                background: "rgba(240,84,92,0.07)",
-                border: "1.5px solid rgba(240,84,92,0.15)",
+                background: "rgba(16,101,121,0.07)",
+                border: "1.5px solid rgba(16,101,121,0.15)",
               }}
             >
-              <Film size={24} style={{ color: "#f0545c" }} />
+              <Film size={24} style={{ color: "#106579" }} />
             </div>
             <Loader2
               size={18}
               className="animate-spin"
-              style={{ color: "#f0545c" }}
+              style={{ color: "#106579" }}
             />
             <p className="text-[13px] sm:text-[14px] text-gray-400 font-medium">
               Loading seats…
@@ -1024,11 +1024,11 @@ export default function SeatSelection() {
             <div
               className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5"
               style={{
-                background: "rgba(240,84,92,0.06)",
-                border: "1.5px solid rgba(240,84,92,0.12)",
+                background: "rgba(16,101,121,0.06)",
+                border: "1.5px solid rgba(16,101,121,0.12)",
               }}
             >
-              <Monitor size={30} style={{ color: "rgba(240,84,92,0.4)" }} />
+              <Monitor size={30} style={{ color: "rgba(16,101,121,0.4)" }} />
             </div>
             <p className="text-[17px] font-bold text-gray-400">
               Seat layout not configured
@@ -1047,9 +1047,9 @@ export default function SeatSelection() {
                   width: "55%",
                   height: "4px",
                   background:
-                    "linear-gradient(to right, transparent, rgba(240,84,92,0.5), transparent)",
+                    "linear-gradient(to right, transparent, rgba(16,101,121,0.5), transparent)",
                   borderRadius: "0 0 60% 60%",
-                  boxShadow: "0 6px 20px rgba(240,84,92,0.1)",
+                  boxShadow: "0 6px 20px rgba(16,101,121,0.1)",
                 }}
               />
               <p className="text-[10px] font-bold tracking-[0.25em] uppercase mt-3 text-gray-400 flex items-center gap-1.5">
@@ -1131,7 +1131,7 @@ export default function SeatSelection() {
                                   shadow = "none";
                                 } else if (isBkd) {
                                   bg = "#f3f4f6";
-                                  border = "#e5e7eb";
+                                  border = "#e4e4e7";
                                   color = "#d1d5db";
                                   opacity = 1;
                                   shadow = "none";
@@ -1149,13 +1149,13 @@ export default function SeatSelection() {
                                   shadow = `0 4px 12px ${c.glow}`;
                                 } else if (atMax) {
                                   bg = "#f9fafb";
-                                  border = "#e5e7eb";
+                                  border = "#e4e4e7";
                                   color = "#d1d5db";
                                   opacity = 0.55;
                                   shadow = "none";
                                 } else {
                                   bg = "#fff";
-                                  border = "#e5e7eb";
+                                  border = "#e4e4e7";
                                   color = "#374151";
                                   opacity = 1;
                                   shadow = "none";
@@ -1170,7 +1170,7 @@ export default function SeatSelection() {
                                         >
                                           <div
                                             className="w-0.5 h-4 rounded-full"
-                                            style={{ background: "#e5e7eb" }}
+                                            style={{ background: "#e4e4e7" }}
                                           />
                                           <span
                                             className="text-[8px] font-bold mt-0.5 rotate-90 whitespace-nowrap"
@@ -1183,7 +1183,7 @@ export default function SeatSelection() {
                                           </span>
                                           <div
                                             className="w-0.5 h-4 rounded-full"
-                                            style={{ background: "#e5e7eb" }}
+                                            style={{ background: "#e4e4e7" }}
                                           />
                                         </div>
                                       )}
@@ -1242,7 +1242,7 @@ export default function SeatSelection() {
                                           !(atMax && !isSel)
                                         ) {
                                           e.currentTarget.style.borderColor =
-                                            "#e5e7eb";
+                                            "#e4e4e7";
                                           e.currentTarget.style.background =
                                             "#fff";
                                           e.currentTarget.style.color =
@@ -1281,14 +1281,14 @@ export default function SeatSelection() {
                           className="h-px flex-1"
                           style={{
                             background:
-                              "repeating-linear-gradient(90deg, #e5e7eb 0, #e5e7eb 6px, transparent 6px, transparent 12px)",
+                              "repeating-linear-gradient(90deg, #e4e4e7 0, #e4e4e7 6px, transparent 6px, transparent 12px)",
                           }}
                         />
                         <div
                           className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase"
                           style={{
                             background: "#f9fafb",
-                            border: "1px solid #e5e7eb",
+                            border: "1px solid #e4e4e7",
                             color: "#9ca3af",
                           }}
                         >
@@ -1298,7 +1298,7 @@ export default function SeatSelection() {
                           className="h-px flex-1"
                           style={{
                             background:
-                              "repeating-linear-gradient(90deg, #e5e7eb 0, #e5e7eb 6px, transparent 6px, transparent 12px)",
+                              "repeating-linear-gradient(90deg, #e4e4e7 0, #e4e4e7 6px, transparent 6px, transparent 12px)",
                           }}
                         />
                       </div>
@@ -1311,10 +1311,10 @@ export default function SeatSelection() {
             {/* Legend */}
             <div className="flex flex-wrap items-center justify-center gap-5 mt-12 pt-6 border-t border-gray-100">
               {[
-                { bg: "#fff", border: "#e5e7eb", label: "Available" },
+                { bg: "#fff", border: "#e4e4e7", label: "Available" },
                 {
                   bg: "#f3f4f6",
-                  border: "#e5e7eb",
+                  border: "#e4e4e7",
                   label: "Booked",
                   isBooked: true,
                 },
@@ -1428,15 +1428,15 @@ export default function SeatSelection() {
                   disabled={targetCount !== null && selected.length < targetCount}
                   className="flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl text-[13px] sm:text-[14px] font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
                   style={{
-                    background: "#f0545c",
-                    boxShadow: "0 4px 16px rgba(240,84,92,0.35)",
+                    background: "#106579",
+                    boxShadow: "0 4px 16px rgba(16,101,121,0.35)",
                   }}
                   onMouseEnter={(e) => {
                     if (!e.currentTarget.disabled)
-                      e.currentTarget.style.background = "#d94048";
+                      e.currentTarget.style.background = "#125467";
                   }}
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "#f0545c")
+                    (e.currentTarget.style.background = "#106579")
                   }
                 >
                   <Ticket size={15} />

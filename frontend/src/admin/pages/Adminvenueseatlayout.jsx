@@ -10,7 +10,7 @@ import {
 const CATEGORIES = ["VIP", "Premium", "General"];
 const CAT_COLORS = {
   VIP:     { bg: "rgba(139,92,246,0.1)", text: "#7c3aed", border: "rgba(139,92,246,0.3)" },
-  Premium: { bg: "rgba(240,84,92,0.1)",  text: "#f0545c", border: "rgba(240,84,92,0.3)"  },
+  Premium: { bg: "rgba(16,101,121,0.1)",  text: "#106579", border: "rgba(16,101,121,0.3)"  },
   General: { bg: "rgba(16,185,129,0.1)", text: "#059669", border: "rgba(16,185,129,0.3)" },
 };
 
@@ -153,9 +153,9 @@ export default function AdminVenueSeatLayout() {
             <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Seat Layout</h1>
             <p className="text-[13px] text-gray-400 mt-0.5">{venueName || "…"}</p>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ background: "rgba(240,84,92,0.08)" }}>
-            <Armchair size={15} style={{ color: "#f0545c" }} />
-            <span className="text-[13px] font-bold" style={{ color: "#f0545c" }}>{totalSeats} total seats</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ background: "rgba(16,101,121,0.08)" }}>
+            <Armchair size={15} style={{ color: "#106579" }} />
+            <span className="text-[13px] font-bold" style={{ color: "#106579" }}>{totalSeats} total seats</span>
           </div>
         </div>
 
@@ -181,9 +181,9 @@ export default function AdminVenueSeatLayout() {
                     <div key={row._id} className="flex items-center gap-2 py-2.5 group">
                       {isEditing ? (
                         <>
-                          <input value={editForm.row} onChange={(e) => setEditForm((p) => ({ ...p, row: e.target.value }))} className={inp + " w-14"} style={{ borderColor: "#e5e7eb" }} placeholder="Row" />
-                          <input type="number" value={editForm.seats} min="1" max="50" onChange={(e) => setEditForm((p) => ({ ...p, seats: e.target.value }))} className={inp + " w-16"} style={{ borderColor: "#e5e7eb" }} placeholder="Seats" />
-                          <select value={editForm.category} onChange={(e) => setEditForm((p) => ({ ...p, category: e.target.value }))} className={inp + " flex-1"} style={{ borderColor: "#e5e7eb" }}>
+                          <input value={editForm.row} onChange={(e) => setEditForm((p) => ({ ...p, row: e.target.value }))} className={inp + " w-14"} style={{ borderColor: "#e4e4e7" }} placeholder="Row" />
+                          <input type="number" value={editForm.seats} min="1" max="50" onChange={(e) => setEditForm((p) => ({ ...p, seats: e.target.value }))} className={inp + " w-16"} style={{ borderColor: "#e4e4e7" }} placeholder="Seats" />
+                          <select value={editForm.category} onChange={(e) => setEditForm((p) => ({ ...p, category: e.target.value }))} className={inp + " flex-1"} style={{ borderColor: "#e4e4e7" }}>
                             {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                           </select>
                           <button onClick={() => handleSaveEdit(row._id)} disabled={editBusy === row._id}
@@ -216,20 +216,20 @@ export default function AdminVenueSeatLayout() {
                 <div className="flex items-start gap-2 flex-wrap">
                   <div>
                     <input value={addForm.row} onChange={(e) => { setAddForm((p) => ({ ...p, row: e.target.value })); setAddErr((p) => ({ ...p, row: "" })); }}
-                      placeholder="Row label (A)" onKeyDown={(e) => e.key === "Enter" && handleAddRow()} className={inp + " w-28"} style={{ borderColor: addErr.row ? "#f0545c" : "#e5e7eb" }} />
+                      placeholder="Row label (A)" onKeyDown={(e) => e.key === "Enter" && handleAddRow()} className={inp + " w-28"} style={{ borderColor: addErr.row ? "#106579" : "#e4e4e7" }} />
                     {addErr.row && <p className="text-[10px] text-red-500 mt-0.5">{addErr.row}</p>}
                   </div>
                   <div>
                     <input type="number" value={addForm.seats} min="1" max="50"
                       onChange={(e) => { setAddForm((p) => ({ ...p, seats: e.target.value })); setAddErr((p) => ({ ...p, seats: "" })); }}
-                      placeholder="Seats" onKeyDown={(e) => e.key === "Enter" && handleAddRow()} className={inp + " w-20"} style={{ borderColor: addErr.seats ? "#f0545c" : "#e5e7eb" }} />
+                      placeholder="Seats" onKeyDown={(e) => e.key === "Enter" && handleAddRow()} className={inp + " w-20"} style={{ borderColor: addErr.seats ? "#106579" : "#e4e4e7" }} />
                     {addErr.seats && <p className="text-[10px] text-red-500 mt-0.5">{addErr.seats}</p>}
                   </div>
-                  <select value={addForm.category} onChange={(e) => setAddForm((p) => ({ ...p, category: e.target.value }))} className={inp} style={{ borderColor: "#e5e7eb" }}>
+                  <select value={addForm.category} onChange={(e) => setAddForm((p) => ({ ...p, category: e.target.value }))} className={inp} style={{ borderColor: "#e4e4e7" }}>
                     {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <button onClick={handleAddRow} disabled={addBusy}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white disabled:opacity-50" style={{ background: "#f0545c" }}>
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white disabled:opacity-50" style={{ background: "#106579" }}>
                     {addBusy ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Add Row
                   </button>
                 </div>
@@ -245,7 +245,7 @@ export default function AdminVenueSeatLayout() {
             </div>
             <div className="p-5">
               <div className="flex flex-col items-center mb-6">
-                <div className="w-3/4 h-1.5 rounded-b-full opacity-40" style={{ background: "linear-gradient(to right, transparent, #f0545c, transparent)" }} />
+                <div className="w-3/4 h-1.5 rounded-b-full opacity-40" style={{ background: "linear-gradient(to right, transparent, #106579, transparent)" }} />
                 <p className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase mt-1.5">STAGE</p>
               </div>
               {layout.length === 0 ? (

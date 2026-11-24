@@ -62,7 +62,7 @@ export default function MyEventBookings({ toast }) {
           {[0, 1, 2].map((i) => (
             <span 
               key={i} 
-              className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" 
+              className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce"
               style={{ animationDelay: `${i * 0.15}s` }} 
             />
           ))}
@@ -74,15 +74,15 @@ export default function MyEventBookings({ toast }) {
   if (!bookings.length) {
     return (
       <div className="fade-in bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-24 text-center">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.07)" }}>
-          <Ticket size={28} style={{ color: "#f0545c", opacity: 0.6 }} />
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.07)" }}>
+          <Ticket size={28} style={{ color: "#106579", opacity: 0.6 }} />
         </div>
         <p className="text-[16px] font-bold text-gray-700 mb-1">No event tickets found</p>
         <p className="text-[13px] text-gray-400">Your live concert passes and event bookings appear here.</p>
         <button 
           onClick={() => navigate("/events")} 
           className="mt-5 flex items-center gap-2 text-[13px] font-bold text-white px-6 py-2.5 rounded-xl active:scale-95 transition-transform" 
-          style={{ background: "#f0545c" }}
+          style={{ background: "#106579" }}
         >
           Explore Live Events <ArrowRight size={14} />
         </button>
@@ -123,7 +123,7 @@ export default function MyEventBookings({ toast }) {
                 </div>
                 <span 
                   className="flex-shrink-0 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"
-                  style={{ background: "rgba(240,84,92,0.09)", color: "#f0545c" }}
+                  style={{ background: "rgba(16,101,121,0.09)", color: "#106579" }}
                 >
                   {b.event?.category || "Live"}
                 </span>

@@ -39,7 +39,7 @@ export default function OfferBadge({ type, id, genre, price, size = "sm", classN
   return (
     <span
       className={`inline-flex items-center gap-1 font-extrabold rounded-full text-white shadow-sm ${pad} ${className}`}
-      style={{ background: "#f0545c" }}
+      style={{ background: "#106579" }}
       title={offer.title}
     >
       <Tag size={size === "md" ? 11 : 9} />

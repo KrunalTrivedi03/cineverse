@@ -63,7 +63,7 @@ export default function MyPlayBookings() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
 
       <Navbar />
       <BottomNav />
@@ -84,8 +84,8 @@ export default function MyPlayBookings() {
               onClick={() => setTab(t.id)}
               className="px-4 py-2 rounded-full text-[12.5px] font-semibold"
               style={tab === t.id
-                ? { background: "#f0545c", color: "#fff" }
-                : { background: "#fff", color: "#6b7280", border: "1px solid #e5e7eb" }}
+                ? { background: "#106579", color: "#fff" }
+                : { background: "#fff", color: "#6b7280", border: "1px solid #e4e4e7" }}
             >
               {t.label}
             </button>
@@ -96,15 +96,15 @@ export default function MyPlayBookings() {
           <div className="flex justify-center py-16"><Loader2 size={22} className="animate-spin text-gray-300" /></div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.07)" }}>
-              <Trophy size={28} style={{ color: "#f0545c", opacity: 0.6 }} />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.07)" }}>
+              <Trophy size={28} style={{ color: "#106579", opacity: 0.6 }} />
             </div>
             <p className="text-[15px] font-bold text-gray-700 mb-1">
               {tab === "upcoming" ? "No upcoming bookings" : "No past bookings"}
             </p>
             <p className="text-[13px] text-gray-400">Your slot bookings will show up here.</p>
             {tab === "upcoming" && (
-              <button onClick={() => navigate("/play")} className="mt-5 flex items-center gap-2 text-[13px] font-bold text-white px-6 py-2.5 rounded-xl active:scale-95 transition-transform" style={{ background: "#f0545c" }}>
+              <button onClick={() => navigate("/play")} className="mt-5 flex items-center gap-2 text-[13px] font-bold text-white px-6 py-2.5 rounded-xl active:scale-95 transition-transform" style={{ background: "#106579" }}>
                 Book a Slot <ArrowRight size={14} />
               </button>
             )}
@@ -163,7 +163,7 @@ export default function MyPlayBookings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm px-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-[340px]">
             <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-              <X size={18} style={{ color: "#f0545c" }} />
+              <X size={18} style={{ color: "#106579" }} />
             </div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-1">Cancel Booking</h3>
             <p className="text-[13px] text-gray-500 mb-5">
@@ -173,7 +173,7 @@ export default function MyPlayBookings() {
               <button onClick={() => setConfirmBooking(null)} disabled={!!cancellingId} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">
                 Keep Booking
               </button>
-              <button onClick={handleCancel} disabled={!!cancellingId} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+              <button onClick={handleCancel} disabled={!!cancellingId} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#106579" }}>
                 {cancellingId && <Loader2 size={13} className="animate-spin" />} Cancel & Refund
               </button>
             </div>

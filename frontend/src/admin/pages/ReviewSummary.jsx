@@ -90,9 +90,9 @@ function ReleaseInfoCard({ movie }) {
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: "rgba(240,84,92,0.09)" }}
+          style={{ background: "rgba(16,101,121,0.09)" }}
         >
-          <Radio size={16} style={{ color: "#f0545c" }} />
+          <Radio size={16} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900">
           Release Information
@@ -127,9 +127,9 @@ function ReleaseInfoCard({ movie }) {
                   key={fmt}
                   className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold border"
                   style={{
-                    background: "rgba(240,84,92,0.08)",
-                    color: "#f0545c",
-                    borderColor: "rgba(240,84,92,0.25)",
+                    background: "rgba(16,101,121,0.08)",
+                    color: "#106579",
+                    borderColor: "rgba(16,101,121,0.25)",
                   }}
                 >
                   {fmt}
@@ -181,7 +181,7 @@ function PersonCard({ person, subtitle, baseUrl }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-2xl font-bold" style={{ color: "#f0545c", opacity: 0.4 }}>
+            <span className="text-2xl font-bold" style={{ color: "#106579", opacity: 0.4 }}>
               {initials}
             </span>
           </div>
@@ -202,14 +202,14 @@ function SectionHeader({ icon: Icon, title, count }) {
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: "rgba(240,84,92,0.09)" }}>
-          <Icon size={16} style={{ color: "#f0545c" }} />
+          style={{ background: "rgba(16,101,121,0.09)" }}>
+          <Icon size={16} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900">{title}</h3>
       </div>
       {count != null && (
         <span className="text-[12px] font-semibold px-2.5 py-1 rounded-full"
-          style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}>
+          style={{ background: "rgba(16,101,121,0.08)", color: "#106579" }}>
           {count}
         </span>
       )}
@@ -325,8 +325,8 @@ export default function ReviewSummary() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(240,84,92,0.09)" }}>
-                <Film size={16} style={{ color: "#f0545c" }} />
+                style={{ background: "rgba(16,101,121,0.09)" }}>
+                <Film size={16} style={{ color: "#106579" }} />
               </div>
               <h3 className="text-[15px] font-bold text-gray-900">Movie Details</h3>
             </div>
@@ -435,8 +435,8 @@ export default function ReviewSummary() {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(240,84,92,0.09)" }}>
-                  <Clapperboard size={16} style={{ color: "#f0545c" }} />
+                  style={{ background: "rgba(16,101,121,0.09)" }}>
+                  <Clapperboard size={16} style={{ color: "#106579" }} />
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-900">Trailer</h3>
               </div>
@@ -455,7 +455,7 @@ export default function ReviewSummary() {
                     </div>
                   </div>
                   <div className="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full text-white"
-                    style={{ background: "#f0545c" }}>
+                    style={{ background: "#106579" }}>
                     Official Trailer
                   </div>
                 </div>

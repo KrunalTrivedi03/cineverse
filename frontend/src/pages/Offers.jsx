@@ -65,7 +65,7 @@ function OfferCard({ offer }) {
           <button
             onClick={copyCode}
             className="flex items-center justify-between gap-2 border border-dashed rounded-xl px-3.5 py-2.5 text-[13px] font-bold w-full"
-            style={{ borderColor: "#f0545c", color: "#f0545c" }}
+            style={{ borderColor: "#106579", color: "#106579" }}
           >
             <span className="tracking-widest">{offer.code}</span>
             {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -97,7 +97,7 @@ function OfferCard({ offer }) {
         <Link
           to={offer.applicableTo === "events" ? "/events" : "/"}
           className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-bold pt-2"
-          style={{ color: "#f0545c" }}
+          style={{ color: "#106579" }}
         >
           {offer.ctaText || "Explore now"} <ArrowRight size={13} />
         </Link>
@@ -134,19 +134,19 @@ export default function Offers() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: "#14141a" }}>
-        <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full pointer-events-none" style={{ background: "rgba(240,84,92,0.16)" }} />
+      <section className="now-light-banner relative overflow-hidden">
+        <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full pointer-events-none" style={{ background: "rgba(16,101,121,0.16)" }} />
         <div className="relative max-w-4xl mx-auto px-5 md:px-8 pt-14 pb-14 md:pt-18 md:pb-16 text-center">
-          <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full" style={{ background: "rgba(240,84,92,0.15)" }}>
-            <Sparkles size={12} style={{ color: "#f0545c" }} />
-            <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+          <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full" style={{ background: "rgba(16,101,121,0.15)" }}>
+            <Sparkles size={12} style={{ color: "#106579" }} />
+            <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
               Offers & Deals
             </span>
           </div>
-          <h1 className="text-white font-black text-[28px] sm:text-[38px] md:text-[42px] leading-[1.1] tracking-tight">
-            Every deal, <span style={{ color: "#f0545c" }}>in one place</span>
+          <h1 className="text-gray-900 font-black text-[28px] sm:text-[38px] md:text-[42px] leading-[1.1] tracking-tight">
+            Every deal, <span style={{ color: "#106579" }}>in one place</span>
           </h1>
-          <p className="text-white/60 text-[14px] max-w-lg mx-auto mt-4 leading-relaxed">
+          <p className="text-gray-600 text-[14px] max-w-lg mx-auto mt-4 leading-relaxed">
             Live offers on movies and events, applied automatically at checkout — no codes to hunt down.
           </p>
         </div>
@@ -154,19 +154,19 @@ export default function Offers() {
 
       {/* Tabs */}
       <section className="max-w-6xl mx-auto px-5 md:px-8 -mt-7 relative z-10">
-        <div className="inline-flex bg-white border border-gray-100 shadow-lg rounded-2xl p-1.5 gap-1">
+        <div className="grid w-full grid-cols-3 rounded-2xl border border-gray-200 bg-white p-1.5 shadow-sm sm:inline-flex sm:w-auto sm:gap-1">
           {TABS.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
-              onClick={() => setTab(key)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all"
+              onClick={() => setTab(key)} aria-pressed={tab === key}
+              className="flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-xl px-1 text-xs font-bold transition-colors sm:gap-1.5 sm:px-4 sm:text-sm"
               style={
                 tab === key
-                  ? { background: "#f0545c", color: "#fff" }
+                  ? { background: "#106579", color: "#fff" }
                   : { background: "transparent", color: "#6b7280" }
               }
             >
-              <Icon size={14} /> {label}
+              <Icon size={14} className="hidden shrink-0 min-[360px]:block" /> {label}
             </button>
           ))}
         </div>
@@ -188,8 +188,8 @@ export default function Offers() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
-              <Tag size={24} style={{ color: "#f0545c" }} />
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.08)" }}>
+              <Tag size={24} style={{ color: "#106579" }} />
             </div>
             <p className="text-[15px] font-bold text-gray-700">No live offers right now</p>
             <p className="text-[13px] text-gray-400 mt-1 max-w-xs">

@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosAdmin from "../../api/axiosAdmin";
@@ -27,21 +28,21 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ title, description, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={title} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">{title}</h3>
         <p className="text-[13px] text-gray-500 mb-5">{description}</p>
         <div className="flex gap-2">
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
-          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -92,12 +93,12 @@ function VenueFormModal({ mode = "add", initial = null, cities, districts, onSav
   const inp = "w-full px-4 py-2.5 rounded-xl border text-[13px] text-gray-800 placeholder-gray-300 outline-none transition-all";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "venue"} maxWidth={520} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[520px] max-h-[90vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Building2 size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <Building2 size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Venue" : "Add New Venue"}</h3>
@@ -109,23 +110,23 @@ function VenueFormModal({ mode = "add", initial = null, cities, districts, onSav
 
         <div className="overflow-y-auto flex-1 px-6 py-4 flex flex-col gap-4">
           <div>
-            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Venue Name <span style={{ color: "#f0545c" }}>*</span></label>
-            <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Jio World Garden" className={inp} style={{ borderColor: errors.name ? "#f0545c" : "#e5e7eb" }} />
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Venue Name <span style={{ color: "#106579" }}>*</span></label>
+            <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Jio World Garden" className={inp} style={{ borderColor: errors.name ? "#106579" : "#e4e4e7" }} />
             {errors.name && <p className="text-[11px] text-red-500 mt-1">{errors.name}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span style={{ color: "#f0545c" }}>*</span></label>
-              <select value={form.city} onChange={(e) => set("city", e.target.value)} className={inp + " cursor-pointer"} style={{ borderColor: errors.city ? "#f0545c" : "#e5e7eb" }}>
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span style={{ color: "#106579" }}>*</span></label>
+              <select value={form.city} onChange={(e) => set("city", e.target.value)} className={inp + " cursor-pointer"} style={{ borderColor: errors.city ? "#106579" : "#e4e4e7" }}>
                 <option value="">Select city…</option>
                 {cities.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
               {errors.city && <p className="text-[11px] text-red-500 mt-1">{errors.city}</p>}
             </div>
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">District <span style={{ color: "#f0545c" }}>*</span></label>
-              <select value={form.district} onChange={(e) => set("district", e.target.value)} className={inp + " cursor-pointer"} style={{ borderColor: errors.district ? "#f0545c" : "#e5e7eb" }}>
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">District <span style={{ color: "#106579" }}>*</span></label>
+              <select value={form.district} onChange={(e) => set("district", e.target.value)} className={inp + " cursor-pointer"} style={{ borderColor: errors.district ? "#106579" : "#e4e4e7" }}>
                 <option value="">Select district…</option>
                 {districtOptions.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}
               </select>
@@ -135,22 +136,22 @@ function VenueFormModal({ mode = "add", initial = null, cities, districts, onSav
 
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Address</label>
-            <input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Full address" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Full address" className={inp} style={{ borderColor: "#e4e4e7" }} />
           </div>
 
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Google Maps Link</label>
-            <input value={form.locationLink} onChange={(e) => set("locationLink", e.target.value)} placeholder="https://maps.google.com/…" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.locationLink} onChange={(e) => set("locationLink", e.target.value)} placeholder="https://maps.google.com/…" className={inp} style={{ borderColor: "#e4e4e7" }} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Capacity</label>
-              <input type="number" value={form.capacity} onChange={(e) => set("capacity", e.target.value)} placeholder="e.g. 500" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="number" value={form.capacity} onChange={(e) => set("capacity", e.target.value)} placeholder="e.g. 500" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
             <div className="flex items-end pb-2.5">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={form.hasSeating} onChange={(e) => set("hasSeating", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+                <input type="checkbox" checked={form.hasSeating} onChange={(e) => set("hasSeating", e.target.checked)} className="w-4 h-4 accent-now-accent" />
                 <span className="text-[13px] font-medium text-gray-700 flex items-center gap-1"><Armchair size={13} /> Has seat layout</span>
               </label>
             </div>
@@ -158,7 +159,7 @@ function VenueFormModal({ mode = "add", initial = null, cities, districts, onSav
 
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Amenities (comma-separated)</label>
-            <input value={form.amenities} onChange={(e) => set("amenities", e.target.value)} placeholder="Parking, Food Court, Wheelchair Access" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.amenities} onChange={(e) => set("amenities", e.target.value)} placeholder="Parking, Food Court, Wheelchair Access" className={inp} style={{ borderColor: "#e4e4e7" }} />
           </div>
         </div>
 
@@ -166,12 +167,12 @@ function VenueFormModal({ mode = "add", initial = null, cities, districts, onSav
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Add Venue"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -266,7 +267,7 @@ export default function AdminVenues() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Add Venue
           </button>
         </div>
@@ -276,7 +277,7 @@ export default function AdminVenues() {
             { label: "Total Venues", value: venues.length, color: "#6366f1", bg: "rgba(99,102,241,0.08)" },
             { label: "Seated Venues", value: venues.filter((v) => v.hasSeating).length, color: "#10b981", bg: "rgba(16,185,129,0.08)" },
             { label: "General Admission", value: venues.filter((v) => !v.hasSeating).length, color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
-            { label: "Search Results", value: search ? filtered.length : "—", color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+            { label: "Search Results", value: search ? filtered.length : "—", color: "#106579", bg: "rgba(16,101,121,0.08)" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -323,8 +324,8 @@ export default function AdminVenues() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <Building2 size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <Building2 size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No venues found</p>
                   </td>
@@ -335,8 +336,8 @@ export default function AdminVenues() {
                     <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{index + 1}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
-                          <Building2 size={16} style={{ color: "#f0545c" }} />
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,101,121,0.08)" }}>
+                          <Building2 size={16} style={{ color: "#106579" }} />
                         </div>
                         <div>
                           <p className="text-[13px] font-semibold text-gray-900">{v.name}</p>

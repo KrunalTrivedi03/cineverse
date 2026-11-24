@@ -61,13 +61,13 @@ const MENU = [
     ],
   },
   { name: "Offers",      icon: Tag,             path: "/admin/offers"      },
-  { name: "Shows",       icon: Tv,              path: "/admin/web-shows"   },
+  { name: "Web Shows",   icon: Tv,              path: "/admin/web-shows"   },
   { name: "Users",       icon: Users,           path: "/admin/users"       },
   { name: "Roles",       icon: ShieldCheck,     path: "/admin/roles"       },
   { name: "Permissions", icon: KeyRound,        path: "/admin/permissions" },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onNavigate }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useContext(AdminAuthContext);
@@ -82,7 +82,7 @@ export default function AdminSidebar() {
     ? userInfo.username.slice(0, 2).toUpperCase()
     : "AD";
 
-  const [openGroups, setOpenGroups] = useState(["Booking Management"]);
+  const [openGroups, setOpenGroups] = useState(() => MENU.filter((item) => item.children?.some((child) => location.pathname.startsWith(child.path))).map((item) => item.name));
 
   const toggleGroup = (name) =>
     setOpenGroups((prev) =>
@@ -91,18 +91,19 @@ export default function AdminSidebar() {
 
   const handleLogout = () => {
     logout(); // clears adminAccessToken + adminInfo and revokes the server-side session
+    onNavigate?.();
     navigate("/admin/login");
   };
 
   return (
     <aside
-      className="w-[240px] h-screen fixed left-0 top-0 flex flex-col bg-white border-r border-gray-100"
+      className="admin-sidebar flex flex-col bg-white border-r border-gray-200"
       style={{ fontFamily: "'Outfit', sans-serif", boxShadow: "1px 0 0 #f3f4f6" }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');`}</style>
       <div className="px-5 py-4 border-b border-gray-100">
-        <Link to="/admin/dashboard" className="flex flex-col items-center gap-1 max-w-full">
-          <img
+        <Link to="/admin/dashboard" onClick={onNavigate} className="flex flex-col items-center gap-1 max-w-full">
+          <img className="now-brand-mark"
             src={nowLogo}
             alt="NOW"
             style={{
@@ -124,7 +125,7 @@ export default function AdminSidebar() {
             }}
           >
             <span style={{ color: "#1a1917" }}>Your World of </span>
-            <span style={{ color: "#f0545c" }}>Entertainment</span>
+            <span style={{ color: "#106579" }}>Entertainment</span>
           </p>
           <p className="text-[10px] text-gray-400 font-medium tracking-wide mt-0.5 text-center">
             ADMIN PANEL
@@ -136,7 +137,7 @@ export default function AdminSidebar() {
         <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2.5 border border-gray-100">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             {initials}
           </div>
@@ -151,7 +152,7 @@ export default function AdminSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav aria-label="Administration" className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">
           Main Menu
         </p>
@@ -167,30 +168,30 @@ export default function AdminSidebar() {
               return (
                 <div key={item.name}>
                   <button
-                    onClick={() => toggleGroup(item.name)}
+                    onClick={() => toggleGroup(item.name)} aria-expanded={isOpen}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150"
                     style={{
-                      background: anyChildActive ? "rgba(240,84,92,0.08)" : "transparent",
-                      color: anyChildActive ? "#f0545c" : "#4b5563",
+                      background: anyChildActive ? "rgba(16,101,121,0.08)" : "transparent",
+                      color: anyChildActive ? "#106579" : "#4b5563",
                     }}
                     onMouseEnter={(e) => {
                       if (!anyChildActive) e.currentTarget.style.background = "#f9fafb";
                     }}
                     onMouseLeave={(e) => {
                       if (!anyChildActive) e.currentTarget.style.background =
-                        anyChildActive ? "rgba(240,84,92,0.08)" : "transparent";
+                        anyChildActive ? "rgba(16,101,121,0.08)" : "transparent";
                     }}
                   >
                     <Icon
                       size={16}
-                      style={{ color: anyChildActive ? "#f0545c" : "#9ca3af" }}
+                      style={{ color: anyChildActive ? "#106579" : "#9ca3af" }}
                       className="flex-shrink-0"
                     />
                     <span className="flex-1 text-left">{item.name}</span>
                     <ChevronRight
                       size={13}
                       style={{
-                        color: anyChildActive ? "#f0545c" : "#9ca3af",
+                        color: anyChildActive ? "#106579" : "#9ca3af",
                         transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
                         transition: "transform 0.2s",
                       }}
@@ -204,11 +205,11 @@ export default function AdminSidebar() {
                         return (
                           <Link
                             key={name}
-                            to={path}
+                            to={path} onClick={onNavigate} aria-current={active ? "page" : undefined}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl text-[12.5px] font-medium transition-all duration-150"
                             style={{
-                              background: active ? "rgba(240,84,92,0.08)" : "transparent",
-                              color: active ? "#f0545c" : "#6b7280",
+                              background: active ? "rgba(16,101,121,0.08)" : "transparent",
+                              color: active ? "#106579" : "#6b7280",
                             }}
                             onMouseEnter={(e) => {
                               if (!active) e.currentTarget.style.background = "#f9fafb";
@@ -219,12 +220,12 @@ export default function AdminSidebar() {
                           >
                             <CIcon
                               size={14}
-                              style={{ color: active ? "#f0545c" : "#9ca3af" }}
+                              style={{ color: active ? "#106579" : "#9ca3af" }}
                               className="flex-shrink-0"
                             />
                             <span className="flex-1">{name}</span>
                             {active && (
-                              <ChevronRight size={12} style={{ color: "#f0545c" }} />
+                              <ChevronRight size={12} style={{ color: "#106579" }} />
                             )}
                           </Link>
                         );
@@ -240,11 +241,11 @@ export default function AdminSidebar() {
             return (
               <Link
                 key={name}
-                to={path}
+                to={path} onClick={onNavigate} aria-current={active ? "page" : undefined}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150"
                 style={{
-                  background: active ? "rgba(240,84,92,0.08)" : "transparent",
-                  color: active ? "#f0545c" : "#4b5563",
+                  background: active ? "rgba(16,101,121,0.08)" : "transparent",
+                  color: active ? "#106579" : "#4b5563",
                 }}
                 onMouseEnter={(e) => {
                   if (!active) e.currentTarget.style.background = "#f9fafb";
@@ -256,18 +257,18 @@ export default function AdminSidebar() {
                 <span
                   className="absolute left-0 w-0.5 h-5 rounded-r-full transition-all"
                   style={{
-                    background: active ? "#f0545c" : "transparent",
+                    background: active ? "#106579" : "transparent",
                     opacity: active ? 1 : 0,
                   }}
                 />
                 <Icon
                   size={16}
-                  style={{ color: active ? "#f0545c" : "#9ca3af" }}
+                  style={{ color: active ? "#106579" : "#9ca3af" }}
                   className="flex-shrink-0 transition-colors"
                 />
                 <span className="flex-1">{name}</span>
                 {active && (
-                  <ChevronRight size={13} style={{ color: "#f0545c" }} className="flex-shrink-0" />
+                  <ChevronRight size={13} style={{ color: "#106579" }} className="flex-shrink-0" />
                 )}
               </Link>
             );
@@ -277,11 +278,11 @@ export default function AdminSidebar() {
 
       <div className="px-3 py-4 border-t border-gray-100">
         <Link
-          to="/admin/change-password"
+          to="/admin/change-password" onClick={onNavigate}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 mb-0.5"
           style={{
-            background: location.pathname.startsWith("/admin/change-password") ? "rgba(240,84,92,0.08)" : "transparent",
-            color: location.pathname.startsWith("/admin/change-password") ? "#f0545c" : "#4b5563",
+            background: location.pathname.startsWith("/admin/change-password") ? "rgba(16,101,121,0.08)" : "transparent",
+            color: location.pathname.startsWith("/admin/change-password") ? "#106579" : "#4b5563",
           }}
           onMouseEnter={(e) => {
             if (!location.pathname.startsWith("/admin/change-password")) e.currentTarget.style.background = "#f9fafb";
@@ -290,7 +291,7 @@ export default function AdminSidebar() {
             if (!location.pathname.startsWith("/admin/change-password")) e.currentTarget.style.background = "transparent";
           }}
         >
-          <Lock size={16} className="flex-shrink-0" style={{ color: location.pathname.startsWith("/admin/change-password") ? "#f0545c" : "#9ca3af" }} />
+          <Lock size={16} className="flex-shrink-0" style={{ color: location.pathname.startsWith("/admin/change-password") ? "#106579" : "#9ca3af" }} />
           Change Password
         </Link>
 

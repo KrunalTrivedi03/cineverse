@@ -281,7 +281,7 @@ export default function AdminLogin() {
         }
         .input-field::placeholder { color: rgba(255,255,255,0.4); }
         .input-field:focus {
-          border-color: rgba(240,84,92,0.7);
+          border-color: rgba(16,101,121,0.7);
           background: rgba(255,255,255,0.10);
         }
         .otp-input::placeholder { color: rgba(255,255,255,0.25); }
@@ -321,9 +321,9 @@ export default function AdminLogin() {
           <div className="flex flex-col items-center mb-8 fade-up fade-up-1">
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
-              style={{ background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.25)" }}
+              style={{ background: "rgba(16,101,121,0.15)", border: "1px solid rgba(16,101,121,0.25)" }}
             >
-              <Film size={26} style={{ color: "#f0545c" }} />
+              <Film size={26} style={{ color: "#106579" }} />
             </div>
             <h1 className="text-[22px] font-bold text-white tracking-tight">NOW</h1>
             <p className="text-[12px] text-gray-500 mt-1 font-medium tracking-widest uppercase">
@@ -334,7 +334,7 @@ export default function AdminLogin() {
           {error && (
             <div
               className="mb-5 px-4 py-3 rounded-xl text-[13px] font-medium flex items-center gap-2 fade-up"
-              style={{ background: "rgba(240,84,92,0.12)", color: "#f87171", border: "1px solid rgba(240,84,92,0.2)" }}
+              style={{ background: "rgba(16,101,121,0.12)", color: "#f87171", border: "1px solid rgba(16,101,121,0.2)" }}
             >
               <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
               {error}
@@ -390,7 +390,7 @@ export default function AdminLogin() {
                   onClick={openForgotPassword}
                   className="text-[12px] font-semibold transition-colors"
                   style={{ color: "#9ca3af" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#f0545c")}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#106579")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#9ca3af")}
                 >
                   Forgot password?
@@ -402,11 +402,11 @@ export default function AdminLogin() {
                 disabled={loading}
                 className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-all fade-up fade-up-4 flex items-center justify-center gap-2"
                 style={{
-                  background: loading ? "rgba(240,84,92,0.5)" : "#f0545c",
+                  background: loading ? "rgba(16,101,121,0.5)" : "#106579",
                   cursor: loading ? "not-allowed" : "pointer",
                 }}
                 onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#d94040"; }}
-                onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#f0545c"; }}
+                onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#106579"; }}
               >
                 {loading ? (
                   <>
@@ -430,9 +430,9 @@ export default function AdminLogin() {
               <div className="flex flex-col items-center text-center mb-6 fade-up fade-up-1">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.25)" }}
+                  style={{ background: "rgba(16,101,121,0.15)", border: "1px solid rgba(16,101,121,0.25)" }}
                 >
-                  <ShieldCheck size={22} style={{ color: "#f0545c" }} />
+                  <ShieldCheck size={22} style={{ color: "#106579" }} />
                 </div>
                 <p className="text-[14px] font-semibold text-white">Verify it's you</p>
                 <p className="text-[12px] text-gray-500 mt-1">
@@ -452,7 +452,7 @@ export default function AdminLogin() {
                     onChange={(e) => loginOtpHandlers.onChange(e.target.value, i)}
                     onKeyDown={(e) => loginOtpHandlers.onKeyDown(e, i)}
                     className="otp-input input-field text-center text-[18px] font-bold"
-                    style={{ width: 44, height: 52, padding: 0, borderColor: digit ? "rgba(240,84,92,0.7)" : "rgba(255,255,255,0.15)" }}
+                    style={{ width: 44, height: 52, padding: 0, borderColor: digit ? "rgba(16,101,121,0.7)" : "rgba(255,255,255,0.15)" }}
                     placeholder="·"
                   />
                 ))}
@@ -471,7 +471,7 @@ export default function AdminLogin() {
                   onClick={resendOtp}
                   disabled={timer > 0 || resending}
                   className="flex items-center gap-1.5 text-[12px] font-semibold transition-colors"
-                  style={{ color: timer > 0 || resending ? "rgba(255,255,255,0.25)" : "#f0545c", cursor: timer > 0 || resending ? "not-allowed" : "pointer" }}
+                  style={{ color: timer > 0 || resending ? "rgba(255,255,255,0.25)" : "#106579", cursor: timer > 0 || resending ? "not-allowed" : "pointer" }}
                 >
                   <RotateCcw size={12} /> {resending ? "Sending..." : "Resend"}
                 </button>
@@ -482,7 +482,7 @@ export default function AdminLogin() {
                 onClick={submitOtp}
                 disabled={!isOtpComplete || otpLoading}
                 className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-all fade-up fade-up-4 flex items-center justify-center gap-2"
-                style={{ background: isOtpComplete && !otpLoading ? "#f0545c" : "rgba(240,84,92,0.35)", cursor: isOtpComplete && !otpLoading ? "pointer" : "not-allowed" }}
+                style={{ background: isOtpComplete && !otpLoading ? "#106579" : "rgba(16,101,121,0.35)", cursor: isOtpComplete && !otpLoading ? "pointer" : "not-allowed" }}
               >
                 {otpLoading ? "Verifying..." : (<><ShieldCheck size={15} /> Verify & Sign In</>)}
               </button>
@@ -503,9 +503,9 @@ export default function AdminLogin() {
               <div className="flex flex-col items-center text-center mb-6 fade-up fade-up-1">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.25)" }}
+                  style={{ background: "rgba(16,101,121,0.15)", border: "1px solid rgba(16,101,121,0.25)" }}
                 >
-                  <Mail size={20} style={{ color: "#f0545c" }} />
+                  <Mail size={20} style={{ color: "#106579" }} />
                 </div>
                 <p className="text-[14px] font-semibold text-white">Reset your password</p>
                 <p className="text-[12px] text-gray-500 mt-1">
@@ -532,7 +532,7 @@ export default function AdminLogin() {
                 type="submit"
                 disabled={forgotLoading}
                 className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-all fade-up fade-up-3 flex items-center justify-center gap-2"
-                style={{ background: forgotLoading ? "rgba(240,84,92,0.5)" : "#f0545c", cursor: forgotLoading ? "not-allowed" : "pointer" }}
+                style={{ background: forgotLoading ? "rgba(16,101,121,0.5)" : "#106579", cursor: forgotLoading ? "not-allowed" : "pointer" }}
               >
                 {forgotLoading ? "Sending..." : (<><Mail size={15} /> Send Reset Code</>)}
               </button>
@@ -553,9 +553,9 @@ export default function AdminLogin() {
               <div className="flex flex-col items-center text-center mb-6 fade-up fade-up-1">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.25)" }}
+                  style={{ background: "rgba(16,101,121,0.15)", border: "1px solid rgba(16,101,121,0.25)" }}
                 >
-                  <ShieldCheck size={22} style={{ color: "#f0545c" }} />
+                  <ShieldCheck size={22} style={{ color: "#106579" }} />
                 </div>
                 <p className="text-[14px] font-semibold text-white">Enter reset code</p>
                 <p className="text-[12px] text-gray-500 mt-1">
@@ -575,7 +575,7 @@ export default function AdminLogin() {
                     onChange={(e) => resetOtpHandlers.onChange(e.target.value, i)}
                     onKeyDown={(e) => resetOtpHandlers.onKeyDown(e, i)}
                     className="otp-input input-field text-center text-[18px] font-bold"
-                    style={{ width: 44, height: 52, padding: 0, borderColor: digit ? "rgba(240,84,92,0.7)" : "rgba(255,255,255,0.15)" }}
+                    style={{ width: 44, height: 52, padding: 0, borderColor: digit ? "rgba(16,101,121,0.7)" : "rgba(255,255,255,0.15)" }}
                     placeholder="·"
                   />
                 ))}
@@ -594,7 +594,7 @@ export default function AdminLogin() {
                   onClick={resendResetCode}
                   disabled={resetTimer > 0 || forgotLoading}
                   className="flex items-center gap-1.5 text-[12px] font-semibold transition-colors"
-                  style={{ color: resetTimer > 0 || forgotLoading ? "rgba(255,255,255,0.25)" : "#f0545c", cursor: resetTimer > 0 || forgotLoading ? "not-allowed" : "pointer" }}
+                  style={{ color: resetTimer > 0 || forgotLoading ? "rgba(255,255,255,0.25)" : "#106579", cursor: resetTimer > 0 || forgotLoading ? "not-allowed" : "pointer" }}
                 >
                   <RotateCcw size={12} /> {forgotLoading ? "Sending..." : "Resend"}
                 </button>
@@ -605,7 +605,7 @@ export default function AdminLogin() {
                 onClick={submitResetOtp}
                 disabled={!isResetOtpComplete || forgotLoading}
                 className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-all fade-up fade-up-4 flex items-center justify-center gap-2"
-                style={{ background: isResetOtpComplete && !forgotLoading ? "#f0545c" : "rgba(240,84,92,0.35)", cursor: isResetOtpComplete && !forgotLoading ? "pointer" : "not-allowed" }}
+                style={{ background: isResetOtpComplete && !forgotLoading ? "#106579" : "rgba(16,101,121,0.35)", cursor: isResetOtpComplete && !forgotLoading ? "pointer" : "not-allowed" }}
               >
                 {forgotLoading ? "Verifying..." : (<><ShieldCheck size={15} /> Verify Code</>)}
               </button>
@@ -626,9 +626,9 @@ export default function AdminLogin() {
               <div className="flex flex-col items-center text-center mb-6 fade-up fade-up-1">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.25)" }}
+                  style={{ background: "rgba(16,101,121,0.15)", border: "1px solid rgba(16,101,121,0.25)" }}
                 >
-                  <Lock size={20} style={{ color: "#f0545c" }} />
+                  <Lock size={20} style={{ color: "#106579" }} />
                 </div>
                 <p className="text-[14px] font-semibold text-white">Set a new password</p>
                 <p className="text-[12px] text-gray-500 mt-1">
@@ -695,7 +695,7 @@ export default function AdminLogin() {
                 disabled={!rulesPassed || !passwordsMatch || forgotLoading}
                 className="w-full mt-5 py-3 rounded-xl text-[14px] font-bold text-white transition-all fade-up fade-up-4 flex items-center justify-center gap-2"
                 style={{
-                  background: rulesPassed && passwordsMatch && !forgotLoading ? "#f0545c" : "rgba(240,84,92,0.35)",
+                  background: rulesPassed && passwordsMatch && !forgotLoading ? "#106579" : "rgba(16,101,121,0.35)",
                   cursor: rulesPassed && passwordsMatch && !forgotLoading ? "pointer" : "not-allowed",
                 }}
               >

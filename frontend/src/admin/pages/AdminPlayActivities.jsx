@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -31,10 +32,10 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ activity, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete activity?"} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete Activity</h3>
         <p className="text-[13px] text-gray-500 mb-5">
@@ -44,12 +45,12 @@ function ConfirmModal({ activity, onConfirm, onCancel, busy }) {
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
           <button onClick={onConfirm} disabled={busy}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -85,12 +86,12 @@ function ActivityFormModal({ mode = "add", initial = null, onSave, onCancel, sav
   const inp = "w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] text-gray-800 placeholder-gray-300 outline-none";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "activity"} maxWidth={420} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[420px] max-h-[90vh] overflow-y-auto" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <DEFAULT_SPORT_ICON size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <DEFAULT_SPORT_ICON size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Activity" : "Add New Activity"}</h3>
@@ -104,7 +105,7 @@ function ActivityFormModal({ mode = "add", initial = null, onSave, onCancel, sav
           {error && <div className="px-3 py-2 rounded-lg text-[12px] font-medium bg-red-50 text-red-600 border border-red-100">{error}</div>}
 
           <div>
-            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Name <span style={{ color: "#f0545c" }}>*</span></label>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Name <span style={{ color: "#106579" }}>*</span></label>
             <input value={form.name} onChange={(e) => { setForm((p) => ({ ...p, name: e.target.value })); setError(""); }} placeholder="e.g. Badminton" className={inp} autoFocus />
           </div>
 
@@ -131,7 +132,7 @@ function ActivityFormModal({ mode = "add", initial = null, onSave, onCancel, sav
             <div className="flex items-center gap-2">
               <input value={form.icon} onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value }))} placeholder="e.g. Trophy, Volleyball" className={inp} />
               <div className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center flex-shrink-0">
-                {form.icon ? renderSportIcon(form.icon, { size: 18, style: { color: "#f0545c" } }) : <span className="text-[10px] text-gray-300">?</span>}
+                {form.icon ? renderSportIcon(form.icon, { size: 18, style: { color: "#106579" } }) : <span className="text-[10px] text-gray-300">?</span>}
               </div>
             </div>
             <p className="text-[11px] text-gray-400 mt-1">Used only when no image is uploaded. Must match a lucide-react component name exactly.</p>
@@ -147,12 +148,12 @@ function ActivityFormModal({ mode = "add", initial = null, onSave, onCancel, sav
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Add Activity"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -249,7 +250,7 @@ export default function AdminPlayActivities() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Add Activity
           </button>
         </div>
@@ -283,8 +284,8 @@ export default function AdminPlayActivities() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <DEFAULT_SPORT_ICON size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <DEFAULT_SPORT_ICON size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No activities found</p>
                   </td>
@@ -297,8 +298,8 @@ export default function AdminPlayActivities() {
                       <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{index + 1}</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: "rgba(240,84,92,0.08)" }}>
-                            {a.image ? <img src={IMG(a.image)} alt="" className="w-full h-full object-cover" /> : <IconComp size={16} style={{ color: "#f0545c" }} />}
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: "rgba(16,101,121,0.08)" }}>
+                            {a.image ? <img src={IMG(a.image)} alt="" className="w-full h-full object-cover" /> : <IconComp size={16} style={{ color: "#106579" }} />}
                           </div>
                           <p className="text-[13px] font-semibold text-gray-900">{a.name}</p>
                         </div>

@@ -1,8 +1,11 @@
+import Dialog from "../../components/Dialog";
+import CityLogo from "../../components/CityLogo";
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
 import {
   Search,
+  ImagePlus,
   Trash2,
   MapPin,
   Plus,
@@ -42,7 +45,7 @@ function Toast({ toast, onClose }) {
 /* ── Confirm Modal ──────────────────────────────────────── */
 function ConfirmModal({ city, onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete city?"} maxWidth={340} onDismiss={onCancel} dismissOnBackdrop={false}>
       <div
         className="bg-white rounded-2xl shadow-xl p-6 w-[340px]"
         style={{ fontFamily: "'Outfit', sans-serif" }}
@@ -51,7 +54,7 @@ function ConfirmModal({ city, onConfirm, onCancel }) {
           className="w-10 h-10 rounded-full flex items-center justify-center mb-4"
           style={{ background: "#fff1f2" }}
         >
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete City</h3>
         <p className="text-[13px] text-gray-500 mb-5">
@@ -68,15 +71,15 @@ function ConfirmModal({ city, onConfirm, onCancel }) {
           <button
             onClick={onConfirm}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#e04048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
           >
             Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -85,7 +88,7 @@ function AddCityModal({ onAdd, onCancel, adding }) {
   const [name, setName] = useState("");
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Add city"} maxWidth={380} onDismiss={() => { if (!adding) onCancel(); }} dismissOnBackdrop={false}>
       <div
         className="bg-white rounded-2xl shadow-xl p-6 w-[380px]"
         style={{ fontFamily: "'Outfit', sans-serif" }}
@@ -93,9 +96,9 @@ function AddCityModal({ onAdd, onCancel, adding }) {
         <div className="flex items-center gap-3 mb-5">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(240,84,92,0.08)" }}
+            style={{ background: "rgba(16,101,121,0.08)" }}
           >
-            <MapPin size={18} style={{ color: "#f0545c" }} />
+            <MapPin size={18} style={{ color: "#106579" }} />
           </div>
           <div>
             <h3 className="text-[15px] font-bold text-gray-900">Add New City</h3>
@@ -115,8 +118,8 @@ function AddCityModal({ onAdd, onCancel, adding }) {
           autoFocus
           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] text-gray-800 placeholder-gray-300 outline-none transition-all mb-5"
           style={{ fontFamily: "'Outfit', sans-serif" }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-          onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "#e4e4e7")}
         />
 
         <div className="flex gap-2">
@@ -130,21 +133,22 @@ function AddCityModal({ onAdd, onCancel, adding }) {
             onClick={() => name.trim() && onAdd(name.trim())}
             disabled={adding || !name.trim()}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e04048"; }}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
           >
             {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
             Add City
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
 /* ── Action Button ──────────────────────────────────────── */
 const COLOR_MAP = {
+  teal: { bg: "#e8fbfc", text: "#106579", hover: "#cbfafb" },
   red: { bg: "#fff1f2", text: "#dc2626", hover: "#fee2e2" },
 };
 
@@ -153,9 +157,9 @@ function ActionBtn({ onClick, color, title, children, disabled }) {
   return (
     <button
       onClick={onClick}
-      title={title}
+      title={title} aria-label={title}
       disabled={disabled}
-      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-40"
+      className="grid size-11 shrink-0 place-items-center rounded-xl transition-colors disabled:opacity-40"
       style={{ background: c.bg, color: c.text }}
       onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = c.hover; }}
       onMouseLeave={(e) => (e.currentTarget.style.background = c.bg)}
@@ -175,6 +179,7 @@ export default function AdminCities() {
   const [deletingId, setDeletingId]     = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [confirmCity, setConfirmCity]   = useState(null);
+  const [logoCity, setLogoCity] = useState(null);
   const [toast, setToast]               = useState(null);
 
   const showToast = (message, type = "success") => setToast({ message, type });
@@ -262,9 +267,9 @@ export default function AdminCities() {
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            style={{ background: "#106579" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
           >
             <Plus size={15} /> Add City
           </button>
@@ -276,7 +281,7 @@ export default function AdminCities() {
             { label: "Total Cities",   value: cities.length,                    color: "#6366f1", bg: "rgba(99,102,241,0.08)"  },
             { label: "Active Cities",  value: cities.length,                    color: "#10b981", bg: "rgba(16,185,129,0.08)"  },
             { label: "Search Results", value: search ? filtered.length : "—",  color: "#f59e0b", bg: "rgba(245,158,11,0.08)"  },
-            { label: "Last Added",     value: lastAdded,                        color: "#f0545c", bg: "rgba(240,84,92,0.08)"   },
+            { label: "Last Added",     value: lastAdded,                        color: "#106579", bg: "rgba(16,101,121,0.08)"   },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
@@ -327,13 +332,13 @@ export default function AdminCities() {
 
         {/* ── Table ── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full">
+          <table className="now-admin-cities w-full">
             <thead>
               <tr className="border-b border-gray-100">
                 {["#", "City Name", "City ID", "Actions"].map((h) => (
                   <th
                     key={h}
-                    className="py-3 px-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest"
+                    scope="col" className="py-3 px-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest sm:px-4"
                   >
                     {h}
                   </th>
@@ -361,9 +366,9 @@ export default function AdminCities() {
                   <td colSpan={4} className="py-16 text-center">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
-                      style={{ background: "rgba(240,84,92,0.08)" }}
+                      style={{ background: "rgba(16,101,121,0.08)" }}
                     >
-                      <MapPin size={22} style={{ color: "#f0545c" }} />
+                      <MapPin size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No cities found</p>
                     <p className="text-[12px] text-gray-300 mt-0.5">
@@ -381,15 +386,10 @@ export default function AdminCities() {
                       {index + 1}
                     </td>
 
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: "rgba(240,84,92,0.08)" }}
-                        >
-                          <MapPin size={14} style={{ color: "#f0545c" }} />
-                        </div>
-                        <p className="text-[13px] font-semibold text-gray-900">{city.name}</p>
+                    <td className="py-3 px-2 sm:px-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <CityLogo src={city.logoUrl} />
+                        <p className="min-w-0 break-words text-[13px] font-semibold text-gray-900">{city.name}</p>
                       </div>
                     </td>
 
@@ -399,7 +399,11 @@ export default function AdminCities() {
                       </span>
                     </td>
 
-                    <td className="py-4 px-4">
+                    <td className="py-3 px-2 sm:px-4">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                      <ActionBtn onClick={() => setLogoCity(city)} color="teal" title={city.logoUrl ? "Replace city logo" : "Add city logo"}>
+                        <ImagePlus size={16} />
+                      </ActionBtn>
                       <ActionBtn
                         onClick={() => setConfirmCity(city)}
                         disabled={deletingId === city._id}
@@ -410,6 +414,7 @@ export default function AdminCities() {
                           ? <Loader2 size={14} className="animate-spin" />
                           : <Trash2 size={14} />}
                       </ActionBtn>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -437,6 +442,13 @@ export default function AdminCities() {
           adding={adding}
         />
       )}
+      {logoCity && (
+        <CityLogoForm city={logoCity} onClose={() => setLogoCity(null)} onSaved={(updated) => {
+          setCities((current) => current.map((city) => city._id === updated._id ? updated : city));
+          setLogoCity(null);
+          showToast("City logo updated");
+        }} />
+      )}
       {confirmCity && (
         <ConfirmModal
           city={confirmCity}
@@ -452,3 +464,67 @@ export default function AdminCities() {
 }
 
 
+
+function CityLogoForm({ city, onClose, onSaved }) {
+  const [logo, setLogo] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!preview) return;
+    return () => URL.revokeObjectURL(preview);
+  }, [preview]);
+
+  function selectLogo(event) {
+    const file = event.target.files?.[0];
+    setError("");
+    setLogo(null);
+    setPreview("");
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
+      setError("Choose a PNG, JPEG, or WebP image up to 2 MB.");
+      event.target.value = "";
+      return;
+    }
+    setLogo(file);
+    setPreview(URL.createObjectURL(file));
+  }
+
+  async function upload(event) {
+    event.preventDefault();
+    if (!logo || saving) return;
+    setSaving(true);
+    setError("");
+    const data = new FormData();
+    data.append("logo", logo);
+    try {
+      const result = await axiosAdmin.put("/cities/admin/" + city._id + "/logo", data);
+      onSaved(result.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Couldn?t save the city logo.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog label={"Logo for " + city.name} onDismiss={() => { if (!saving) onClose(); }}>
+      <form className="p-5 sm:p-7" onSubmit={upload}>
+        <div className="flex items-center gap-3">
+          <CityLogo src={preview || city.logoUrl} />
+          <div><h2 className="text-xl font-bold">{city.name} logo</h2><p className="text-sm text-gray-500">Shown in the city picker.</p></div>
+        </div>
+        <label htmlFor="city-logo-file" className="mt-5 block text-sm font-semibold">Logo image</label>
+        <input id="city-logo-file" type="file" accept="image/png,image/jpeg,image/webp" onChange={selectLogo}
+          disabled={saving} aria-describedby="city-logo-requirements" className="now-logo-file mt-2 w-full" />
+        <p className="mt-2 text-xs text-gray-500" id="city-logo-requirements">PNG, JPEG, or WebP, up to 2 MB.</p>
+        {error && <p className="mt-2 text-sm font-medium text-red-700" role="alert">{error}</p>}
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
+          <button type="button" onClick={onClose} disabled={saving} className="now-secondary">Cancel</button>
+          <button type="submit" disabled={saving || !logo} className="now-primary">{saving ? "Uploading?" : "Save logo"}</button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}

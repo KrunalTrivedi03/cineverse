@@ -1,3 +1,5 @@
+import { CircleAlert, CircleCheck, LoaderCircle } from "lucide-react";
+import StatusPanel from "../components/StatusPanel";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -28,24 +30,13 @@ export default function VerifyEmail() {
     verifyEmail();
   }, [token, navigate]);
 
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {status === "verifying" && <h2>🔄 Verifying your email...</h2>}
-      {status === "success" && (
-        <div>
-          <h2>✅ Email verified successfully!</h2>
-          <p>Redirecting to login...</p>
-        </div>
-      )}
-      {status === "error" && (
-        <div>
-          <h2>❌ Verification failed</h2>
-          <p>The link may be expired or invalid.</p>
-        </div>
-      )}
-    </div>
-  );
+  if (status === "verifying") {
+    return <StatusPanel icon={LoaderCircle} title="Verifying your email" busy><p>Please wait a moment.</p></StatusPanel>;
+  }
+
+  if (status === "success") {
+    return <StatusPanel icon={CircleCheck} title="Email verified"><p>Taking you to sign in.</p></StatusPanel>;
+  }
+
+  return <StatusPanel icon={CircleAlert} title="Verification failed"><p>The link may have expired or is invalid.</p></StatusPanel>;
 }
-
-
-

@@ -261,7 +261,7 @@ export default function PlaySlotSelection() {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
         <div className="flex gap-2">
-          {[0, 1, 2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
+          {[0, 1, 2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
         </div>
       </div>
     );
@@ -269,18 +269,18 @@ export default function PlaySlotSelection() {
 
   if (error) {
     return (
-      <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
           <p className="text-[14px] font-semibold text-gray-500 mb-4">{error}</p>
-          <button onClick={() => navigate(-1)} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>Go back</button>
+          <button onClick={() => navigate(-1)} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#106579" }}>Go back</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
       <Navbar />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 140px" }}>
@@ -303,7 +303,7 @@ export default function PlaySlotSelection() {
                 key={dateKey(d)}
                 onClick={() => changeDate(d)}
                 className="flex flex-col items-center justify-center flex-shrink-0 rounded-xl"
-                style={{ width: 52, height: 62, background: active ? "#f0545c" : "#fff", border: active ? "none" : "1px solid #e5e7eb" }}
+                style={{ width: 52, height: 62, background: active ? "#106579" : "#fff", border: active ? "none" : "1px solid #e4e4e7" }}
               >
                 <span className="text-[10px] font-semibold" style={{ color: active ? "rgba(255,255,255,0.7)" : "#9ca3af" }}>
                   {d.toLocaleDateString("en-IN", { weekday: "short" })}
@@ -321,7 +321,7 @@ export default function PlaySlotSelection() {
               {hasAnySlots ? "No pitches available for this duration" : "No slots for this date"}
             </p>
             {hasAnySlots && durationMinutes > 60 && (
-              <button onClick={() => setDuration(durationMinutes - DURATION_STEP)} className="mt-3 text-[12.5px] font-bold" style={{ color: "#f0545c" }}>
+              <button onClick={() => setDuration(durationMinutes - DURATION_STEP)} className="mt-3 text-[12.5px] font-bold" style={{ color: "#106579" }}>
                 Try a shorter duration
               </button>
             )}
@@ -334,7 +334,7 @@ export default function PlaySlotSelection() {
                 <p className="text-[13.5px] font-bold text-gray-900">Duration</p>
                 <p className="text-[11.5px] text-gray-400">Duration of the slots</p>
               </div>
-              <div className="flex items-center gap-3 rounded-full px-1.5 py-1.5" style={{ background: "#f0545c" }}>
+              <div className="flex items-center gap-3 rounded-full px-1.5 py-1.5" style={{ background: "#106579" }}>
                 <button
                   onClick={() => setDuration(durationMinutes - DURATION_STEP)}
                   disabled={durationMinutes <= 60}
@@ -365,10 +365,10 @@ export default function PlaySlotSelection() {
                     key={r.key}
                     onClick={() => pickRange(r)}
                     className="flex flex-col items-start rounded-xl px-3.5 py-3 text-left"
-                    style={{ background: "#fff", border: active ? "2px solid #f0545c" : "1px solid #e5e7eb" }}
+                    style={{ background: "#fff", border: active ? "2px solid #106579" : "1px solid #e4e4e7" }}
                   >
                     <span className="text-[13.5px] font-bold text-gray-900">{r.startTime} - {r.endTime}</span>
-                    <span className="text-[11px] font-semibold mt-0.5" style={{ color: "#f0545c" }}>
+                    <span className="text-[11px] font-semibold mt-0.5" style={{ color: "#106579" }}>
                       {r.pitches.length} pitch{r.pitches.length !== 1 ? "es" : ""}
                     </span>
                   </button>
@@ -390,7 +390,7 @@ export default function PlaySlotSelection() {
                         key={p.slotIds.join(",")}
                         onClick={() => togglePitch(p)}
                         className="flex items-center gap-3.5 bg-white rounded-2xl border px-4 py-3.5 text-left"
-                        style={{ borderColor: isSelected ? "#f0545c" : "#e5e7eb" }}
+                        style={{ borderColor: isSelected ? "#106579" : "#e4e4e7" }}
                       >
                         <div className="w-14 h-14 rounded-xl flex-shrink-0 overflow-hidden" style={{ background: "linear-gradient(135deg,#1c1c1c,#2d2d2d)" }}>
                           {venueImage && <img src={IMG(venueImage)} alt={p.courtName} className="w-full h-full object-cover" />}
@@ -404,7 +404,7 @@ export default function PlaySlotSelection() {
                         </div>
                         <div
                           className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{ background: isSelected ? "#f0545c" : "#fff", border: isSelected ? "none" : "1.5px solid #d1d5db" }}
+                          style={{ background: isSelected ? "#106579" : "#fff", border: isSelected ? "none" : "1.5px solid #d1d5db" }}
                         >
                           {isSelected && <Check size={13} color="#fff" strokeWidth={3} />}
                         </div>
@@ -430,7 +430,7 @@ export default function PlaySlotSelection() {
               onClick={handleProceed}
               disabled={locking}
               className="px-6 py-3 rounded-xl text-[13.5px] font-bold text-white flex items-center gap-2 disabled:opacity-60"
-              style={{ background: "#f0545c" }}
+              style={{ background: "#106579" }}
             >
               {locking ? <Loader2 size={14} className="animate-spin" /> : null} Proceed
             </button>

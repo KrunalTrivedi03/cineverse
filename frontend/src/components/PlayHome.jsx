@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getSportIcon } from "../utils/sportIcons";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "./DistrictSelector";
@@ -88,7 +88,7 @@ export default function PlayHome() {
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {venues.map((v) => (
-            <VenueCard key={v._id} venue={v} onClick={() => navigate(`/play/venues/${v._id}`)} />
+            <VenueCard key={v._id} venue={v} />
           ))}
         </div>
         {canRight && <ArrowBtn dir="right" onClick={() => scroll("right")} style={{ right: -16, top: "38%" }} />}
@@ -102,10 +102,10 @@ function SectionHeader({ count, onSeeAll }) {
     <div className="flex items-end justify-between mb-6">
       <div>
         <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(240,84,92,0.12)" }}>
-            <Dumbbell size={10} style={{ color: "#f0545c" }} />
+          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(16,101,121,0.12)" }}>
+            <Dumbbell size={10} style={{ color: "#106579" }} />
           </span>
-          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
             Get moving
           </p>
         </div>
@@ -116,7 +116,7 @@ function SectionHeader({ count, onSeeAll }) {
       </div>
       {onSeeAll && (
         <button
-          className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
+          className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
           onClick={onSeeAll}
         >
           See All <ChevronRight size={15} />
@@ -126,15 +126,16 @@ function SectionHeader({ count, onSeeAll }) {
   );
 }
 
-function VenueCard({ venue, onClick }) {
+function VenueCard({ venue }) {
   const activities = venue.courtActivities?.length ? venue.courtActivities : (venue.activities || []);
   return (
-    <div className="flex-shrink-0 w-[220px] cursor-pointer group snap-start" onClick={onClick}>
+    <Link to={`/play/venues/${venue._id}`} className="now-card flex-shrink-0 w-[220px] group snap-start rounded-2xl p-1.5">
       <div className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-shadow group-hover:shadow-lg" style={{ aspectRatio: "4/3" }}>
         {venue.images?.[0] ? (
           <img
             src={IMG(venue.images[0])}
-            alt={venue.name}
+            alt=""
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -152,7 +153,7 @@ function VenueCard({ venue, onClick }) {
       </div>
 
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors">
           {venue.name}
         </h3>
         <p className="text-[11.5px] text-gray-400 mt-0.5 flex items-center gap-1 truncate">
@@ -164,7 +165,7 @@ function VenueCard({ venue, onClick }) {
               const IconComp = getSportIcon(a.icon);
               return (
                 <span key={a._id} className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(240,84,92,0.08)", color: "#c0353b" }}>
+                  style={{ background: "rgba(16,101,121,0.08)", color: "#c0353b" }}>
                   <IconComp size={9} /> {a.name}
                 </span>
               );
@@ -172,13 +173,14 @@ function VenueCard({ venue, onClick }) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 
 function ArrowBtn({ dir, onClick, style }) {
   return (
     <button
+      aria-label={dir === "left" ? "Previous venues" : "Next venues"}
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
       className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"

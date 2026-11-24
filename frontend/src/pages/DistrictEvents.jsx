@@ -42,7 +42,7 @@ export default function DistrictEvents() {
             className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
             <ChevronLeft size={16} />
           </button>
-          <MapPin size={16} color="#f0545c" />
+          <MapPin size={16} color="#106579" />
           <h1 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#111" }}>
             Events in {district?.name || "…"}
           </h1>
@@ -54,7 +54,7 @@ export default function DistrictEvents() {
           <div className="flex items-center justify-center py-24">
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
-                <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
               ))}
             </div>
           </div>

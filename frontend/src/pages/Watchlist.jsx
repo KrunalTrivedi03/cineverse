@@ -33,9 +33,9 @@ const STATUS = {
   },
   watching: {
     icon: PlayCircle,
-    color: "#f0545c",
-    bg: "rgba(240,84,92,0.08)",
-    border: "rgba(240,84,92,0.2)",
+    color: "#106579",
+    bg: "rgba(16,101,121,0.08)",
+    border: "rgba(16,101,121,0.2)",
     label: "Watching",
   },
   favorites: {
@@ -112,10 +112,10 @@ function MovieCard({ movie, onRemove, onStatusChange }) {
         <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
           <button
             className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onClick={(e) => { e.stopPropagation(); navigate(`/movie/${movie.id}`); }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
             title="View movie"
           >
             <PlayCircle size={18} className="text-white" />
@@ -243,7 +243,7 @@ export default function Watchlist() {
   return (
     <div
       className="min-h-screen"
-      style={{ fontFamily: "'Outfit', sans-serif", background: "#f5f5f5" }}
+      style={{ fontFamily: "'Outfit', sans-serif", background: "#fafafb" }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
@@ -256,7 +256,7 @@ export default function Watchlist() {
           <div>
             <p
               className="text-[11px] font-bold uppercase tracking-widest mb-1.5"
-              style={{ color: "#f0545c" }}
+              style={{ color: "#106579" }}
             >
               Your Collection
             </p>
@@ -270,9 +270,9 @@ export default function Watchlist() {
 
           <div
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-white self-start sm:self-auto"
-            style={{ border: "1px solid #e5e7eb" }}
+            style={{ border: "1px solid #e4e4e7" }}
           >
-            <Bookmark size={13} style={{ color: "#f0545c" }} />
+            <Bookmark size={13} style={{ color: "#106579" }} />
             <span className="text-[13px] font-semibold text-gray-600">
               {movies.length} {movies.length === 1 ? "title" : "titles"} saved
             </span>
@@ -281,7 +281,7 @@ export default function Watchlist() {
 
         <div
           className="flex items-center gap-1 p-1 rounded-2xl mb-8 w-fit bg-white overflow-x-auto max-w-full"
-          style={{ border: "1px solid #e5e7eb", scrollbarWidth: "none" }}
+          style={{ border: "1px solid #e4e4e7", scrollbarWidth: "none" }}
         >
           {TABS.map(({ id, label }) => {
             const isActive = activeTab === id;
@@ -292,7 +292,7 @@ export default function Watchlist() {
                 className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
                 style={
                   isActive
-                    ? { background: "#f0545c", color: "#fff" }
+                    ? { background: "#106579", color: "#fff" }
                     : { background: "transparent", color: "#6b7280" }
                 }
                 onMouseEnter={(e) => {
@@ -326,7 +326,7 @@ export default function Watchlist() {
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
-                  className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce"
+                  className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce"
                   style={{ animationDelay: `${i * 0.15}s` }}
                 />
               ))}
@@ -339,7 +339,7 @@ export default function Watchlist() {
             <p className="text-[15px] font-semibold text-gray-700 mb-1">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-3 text-[13px] font-semibold text-[#f0545c] hover:underline"
+              className="mt-3 text-[13px] font-semibold text-now-accent hover:underline"
             >
               Try again
             </button>
@@ -352,7 +352,7 @@ export default function Watchlist() {
               className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-white"
               style={{ border: "1px solid #fce7e7" }}
             >
-              <Bookmark size={30} style={{ color: "#f0545c", opacity: 0.45 }} />
+              <Bookmark size={30} style={{ color: "#106579", opacity: 0.45 }} />
             </div>
             <h3 className="text-[20px] font-bold text-gray-800 mb-2">
               {activeTab === "all" ? "Nothing here yet" : `No ${activeTab} titles`}

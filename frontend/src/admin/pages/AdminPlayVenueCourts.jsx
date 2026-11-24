@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosAdmin from "../../api/axiosAdmin";
@@ -46,10 +47,10 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ court, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete court?"} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete Court</h3>
         <p className="text-[13px] text-gray-500 mb-5">
@@ -57,12 +58,12 @@ function ConfirmModal({ court, onConfirm, onCancel, busy }) {
         </p>
         <div className="flex gap-2">
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
-          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -153,12 +154,12 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
   const inp = "w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] text-gray-800 placeholder-gray-300 outline-none";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "court"} maxWidth={620} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[620px] max-h-[92vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Grid3x3 size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <Grid3x3 size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Court" : "Add Court"}</h3>
@@ -173,14 +174,14 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Activity <span style={{ color: "#f0545c" }}>*</span></label>
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Activity <span style={{ color: "#106579" }}>*</span></label>
               <select value={form.activity} onChange={(e) => { set("activity", e.target.value); setError(""); }} className={inp + " cursor-pointer"}>
                 <option value="">Select activity…</option>
                 {activities.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Court Name <span style={{ color: "#f0545c" }}>*</span></label>
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Court Name <span style={{ color: "#106579" }}>*</span></label>
               <input value={form.name} onChange={(e) => { set("name", e.target.value); setError(""); }} placeholder="e.g. Court 1" className={inp} />
             </div>
           </div>
@@ -196,7 +197,7 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
             </div>
             <div className="flex items-end pb-2.5">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={form.indoor} onChange={(e) => set("indoor", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+                <input type="checkbox" checked={form.indoor} onChange={(e) => set("indoor", e.target.checked)} className="w-4 h-4 accent-now-accent" />
                 <span className="text-[13px] font-medium text-gray-700">Indoor</span>
               </label>
             </div>
@@ -224,8 +225,8 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider">Pricing Rules <span style={{ color: "#f0545c" }}>*</span></label>
-              <button onClick={addRule} className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: "#f0545c" }}>
+              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider">Pricing Rules <span style={{ color: "#106579" }}>*</span></label>
+              <button onClick={addRule} className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: "#106579" }}>
                 <Plus size={12} /> Add Rule
               </button>
             </div>
@@ -241,7 +242,7 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
 
           {mode === "edit" && (
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+              <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-now-accent" />
               <span className="text-[13px] font-medium text-gray-700">Court is active (bookable)</span>
             </label>
           )}
@@ -251,12 +252,12 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Add Court"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -355,8 +356,8 @@ export default function AdminPlayVenueCourts() {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
-              <Building2 size={20} style={{ color: "#f0545c" }} />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,101,121,0.08)" }}>
+              <Building2 size={20} style={{ color: "#106579" }} />
             </div>
             <div>
               <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">{loading ? "Loading…" : venue?.name}</h1>
@@ -365,7 +366,7 @@ export default function AdminPlayVenueCourts() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Add Court
           </button>
         </div>
@@ -376,8 +377,8 @@ export default function AdminPlayVenueCourts() {
           </div>
         ) : courts.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-16 text-center">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-              <Grid3x3 size={22} style={{ color: "#f0545c" }} />
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+              <Grid3x3 size={22} style={{ color: "#106579" }} />
             </div>
             <p className="text-[14px] font-semibold text-gray-400">No courts yet</p>
             <p className="text-[12px] text-gray-400 mt-1">Add a court to start generating bookable slots.</p>

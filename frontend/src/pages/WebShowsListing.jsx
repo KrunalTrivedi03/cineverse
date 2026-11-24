@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
 
-const ACCENT = "#f0545c";
+const ACCENT = "#106579";
 
 const CATEGORY_LABELS = {
   "trending-series": "Trending Series",
@@ -200,7 +200,7 @@ export default function WebShowsListing({ category }) {
         <div className="relative px-4 sm:px-6 pt-10 pb-8 sm:pt-14 sm:pb-10 max-w-7xl mx-auto">
           <div
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold mb-3"
-            style={{ background: "rgba(240,84,92,0.16)", color: "#ff8a90" }}
+            style={{ background: "rgba(16,101,121,0.16)", color: "#ff8a90" }}
           >
             <Tv size={12} /> Shows &amp; Originals
           </div>
@@ -229,7 +229,7 @@ export default function WebShowsListing({ category }) {
                   style={
                     active
                       ? { background: ACCENT, color: "white", borderColor: ACCENT }
-                      : { background: "white", color: "#374151", borderColor: "#e5e7eb" }
+                      : { background: "white", color: "#374151", borderColor: "#e4e4e7" }
                   }
                 >
                   <f.icon size={13} />

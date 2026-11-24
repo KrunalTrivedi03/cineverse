@@ -1,3 +1,4 @@
+import Dialog from "./Dialog";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axiosInstance";
@@ -54,7 +55,7 @@ function FilterSection({ title, children, onClear, hasActive }) {
         {hasActive && (
           <button
             onClick={(e) => { e.stopPropagation(); onClear(); }}
-            className="text-[11px] font-semibold text-[#f0545c] bg-transparent border-none cursor-pointer"
+            className="text-[11px] font-semibold text-now-accent bg-transparent border-none cursor-pointer"
           >
             Clear
           </button>
@@ -76,7 +77,7 @@ function SideChip({ label, active, onClick }) {
       className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer transition-all border"
       style={
         active
-          ? { borderColor: "rgba(240,84,92,0.45)", background: "rgba(240,84,92,0.07)", color: "#f0545c" }
+          ? { borderColor: "rgba(16,101,121,0.45)", background: "rgba(16,101,121,0.07)", color: "#106579" }
           : { borderColor: "#ebebeb", background: "white", color: "#555" }
       }
     >
@@ -92,7 +93,7 @@ function LangPill({ label, active, onClick }) {
       className="px-4 py-1.5 rounded-full text-[12.5px] font-semibold cursor-pointer transition-all border flex-shrink-0 whitespace-nowrap"
       style={
         active
-          ? { borderColor: "#f0545c", background: "#f0545c", color: "#fff" }
+          ? { borderColor: "#106579", background: "#106579", color: "#fff" }
           : { borderColor: "#e0e0e0", background: "white", color: "#444" }
       }
     >
@@ -129,7 +130,7 @@ function NowShowingBanner({ movies }) {
         <div className="flex items-center gap-2.5">
           <span
             className="text-[9.5px] font-extrabold tracking-widest uppercase px-2 py-0.5 rounded-full border"
-            style={{ background: "rgba(240,84,92,0.09)", color: "#f0545c", borderColor: "rgba(240,84,92,0.18)" }}
+            style={{ background: "rgba(16,101,121,0.09)", color: "#106579", borderColor: "rgba(16,101,121,0.18)" }}
           >
             Live
           </span>
@@ -140,7 +141,7 @@ function NowShowingBanner({ movies }) {
         <Link
           to="/now-showing"
           className="flex items-center gap-1 text-[12px] md:text-[12.5px] font-bold flex-shrink-0 no-underline hover:opacity-70 transition-opacity"
-          style={{ color: "#f0545c" }}
+          style={{ color: "#106579" }}
         >
           <span className="hidden sm:inline">Explore Now Showing</span>
           <span className="sm:hidden">Explore</span>
@@ -166,12 +167,8 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
   if (!open) return null;
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[#f4f4f4] rounded-t-2xl overflow-y-auto"
-        style={{ maxHeight: "85vh" }}
-      >
+    <Dialog variant="sheet" label="Filter movies" onDismiss={onClose}>
+      <div className="bg-gray-50">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
@@ -184,12 +181,12 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
             {activeCount > 0 && (
               <button
                 onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [] })}
-                className="text-[12px] font-semibold text-[#f0545c]"
+                className="text-[12px] font-semibold text-now-accent"
               >
                 Clear All ({activeCount})
               </button>
             )}
-            <button onClick={onClose}>
+            <button aria-label="Close filters" className="grid size-10 place-items-center rounded-lg hover:bg-gray-50" onClick={onClose}>
               <X size={20} className="text-gray-500" />
             </button>
           </div>
@@ -233,13 +230,13 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
           <button
             onClick={onClose}
             className="w-full py-3 rounded-2xl text-[14px] font-bold text-white mt-1"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             {activeCount > 0 ? `Apply ${activeCount} Filter${activeCount !== 1 ? "s" : ""}` : "Apply Filters"}
           </button>
         </div>
       </div>
-    </>
+    </Dialog>
   );
 }
 
@@ -309,7 +306,7 @@ export default function UpcomingMoviesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f4f4]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-now-canvas" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
         ::-webkit-scrollbar { display: none; }
@@ -332,7 +329,7 @@ export default function UpcomingMoviesPage() {
             {activeCount > 0 && (
               <button
                 onClick={clearAll}
-                className="flex items-center gap-1 text-[11px] font-bold text-[#f0545c] bg-transparent border-none cursor-pointer"
+                className="flex items-center gap-1 text-[11px] font-bold text-now-accent bg-transparent border-none cursor-pointer"
               >
                 <X size={11} /> Clear all
               </button>
@@ -382,7 +379,7 @@ export default function UpcomingMoviesPage() {
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-[18px] md:text-[22px] font-extrabold text-gray-900 tracking-tight m-0">
                 Coming Soon in{" "}
-                <span style={{ color: "#f0545c" }}>{city}</span>
+                <span style={{ color: "#106579" }}>{city}</span>
               </h1>
               <MapPin size={15} className="text-gray-300" />
             </div>
@@ -393,14 +390,14 @@ export default function UpcomingMoviesPage() {
               className="flex md:hidden items-center gap-1.5 px-3 py-2 rounded-xl border text-[13px] font-semibold bg-white transition-all flex-shrink-0"
               style={
                 activeCount > 0
-                  ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
-                  : { borderColor: "#e5e7eb", color: "#374151" }
+                  ? { borderColor: "rgba(16,101,121,0.4)", color: "#106579", background: "rgba(16,101,121,0.05)" }
+                  : { borderColor: "#e4e4e7", color: "#374151" }
               }
             >
               <SlidersHorizontal size={14} />
               Filters
               {activeCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#f0545c] text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="w-4 h-4 rounded-full bg-now-accent text-white text-[10px] font-bold flex items-center justify-center">
                   {activeCount}
                 </span>
               )}
@@ -429,7 +426,7 @@ export default function UpcomingMoviesPage() {
                 <span
                   key={v}
                   className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border"
-                  style={{ borderColor: "rgba(240,84,92,0.25)", background: "rgba(240,84,92,0.07)", color: "#f0545c" }}
+                  style={{ borderColor: "rgba(16,101,121,0.25)", background: "rgba(16,101,121,0.07)", color: "#106579" }}
                 >
                   {v}
                   <button
@@ -438,7 +435,7 @@ export default function UpcomingMoviesPage() {
                       else if (filters.certificate.includes(v)) toggleFilter("certificate", v);
                       else toggleFilter("format", v);
                     }}
-                    className="bg-transparent border-none cursor-pointer text-[#f0545c] flex"
+                    className="bg-transparent border-none cursor-pointer text-now-accent flex"
                   >
                     <X size={10} />
                   </button>
@@ -464,8 +461,8 @@ export default function UpcomingMoviesPage() {
           {!loading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center px-4">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4"
-                style={{ background: "rgba(240,84,92,0.07)" }}>
-                <CalendarDays size={26} style={{ color: "#f0545c", opacity: 0.4 }} />
+                style={{ background: "rgba(16,101,121,0.07)" }}>
+                <CalendarDays size={26} style={{ color: "#106579", opacity: 0.4 }} />
               </div>
               <p className="text-[14px] md:text-[15px] font-bold text-gray-400 m-0">
                 {activeCount > 0 ? "No movies match your filters" : `No upcoming movies in ${city}`}
@@ -477,7 +474,7 @@ export default function UpcomingMoviesPage() {
                 <button
                   onClick={clearAll}
                   className="mt-4 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white border-none cursor-pointer"
-                  style={{ background: "#f0545c" }}
+                  style={{ background: "#106579" }}
                 >
                   Clear Filters
                 </button>
@@ -558,7 +555,7 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
 
         <span
           className="absolute top-2 right-2 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full"
-          style={{ background: "rgba(240,84,92,0.9)", color: "#fff" }}
+          style={{ background: "rgba(16,101,121,0.9)", color: "#fff" }}
         >
           Upcoming
         </span>
@@ -586,7 +583,7 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
       <div className="mt-2 md:mt-2.5 pl-0.5">
         <h3
           className="text-[12.5px] md:text-[13.5px] font-bold m-0 leading-tight overflow-hidden text-ellipsis whitespace-nowrap transition-colors duration-150"
-          style={{ color: hovered ? "#f0545c" : "#111" }}
+          style={{ color: hovered ? "#106579" : "#111" }}
         >
           {movie.title}
         </h3>
@@ -607,7 +604,7 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
 
         {movie.rating && (
           <div className="flex items-center gap-1 mt-1">
-            <Star size={10} fill="#f0545c" color="#f0545c" />
+            <Star size={10} fill="#106579" color="#106579" />
             <span className="text-[11px] font-bold" style={{ color: "#555" }}>{movie.rating}/10</span>
             <span className="text-[10.5px]" style={{ color: "#ccc" }}>· {formatVotes(movie.votes)} votes</span>
           </div>
@@ -617,11 +614,11 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
           onClick={(e) => onNotify(e, movie._id)}
           className="mt-2 md:mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 md:py-2 rounded-xl text-[11px] md:text-[11.5px] font-bold cursor-pointer transition-all border"
           style={{
-            borderColor: isNotified ? "#f0545c" : "rgba(240,84,92,0.3)",
-            background: isNotified ? "#f0545c" : "white",
-            color: isNotified ? "#fff" : "#f0545c",
+            borderColor: isNotified ? "#106579" : "rgba(16,101,121,0.3)",
+            background: isNotified ? "#106579" : "white",
+            color: isNotified ? "#fff" : "#106579",
           }}
-          onMouseEnter={(e) => { if (!isNotified) e.currentTarget.style.background = "rgba(240,84,92,0.06)"; }}
+          onMouseEnter={(e) => { if (!isNotified) e.currentTarget.style.background = "rgba(16,101,121,0.06)"; }}
           onMouseLeave={(e) => { if (!isNotified) e.currentTarget.style.background = "white"; }}
         >
           <BellPlus size={11} />

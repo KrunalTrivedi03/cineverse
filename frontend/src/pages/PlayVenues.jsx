@@ -102,7 +102,7 @@ export default function PlayVenues() {
         <BottomNav />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
           <p className="text-[14px] font-semibold text-gray-500 mb-4">Select a city from the navbar and an activity first.</p>
-          <button onClick={() => navigate("/play")} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>
+          <button onClick={() => navigate("/play")} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#106579" }}>
             Go to Play
           </button>
         </div>
@@ -132,7 +132,7 @@ export default function PlayVenues() {
           <button
             onClick={() => setShowFilters(true)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 bg-white"
-            style={{ borderColor: "#e5e7eb", color: "#374151" }}
+            style={{ borderColor: "#e4e4e7", color: "#374151" }}
           >
             <SlidersHorizontal size={13} /> Filters
           </button>
@@ -141,8 +141,8 @@ export default function PlayVenues() {
             disabled={!coords}
             className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap disabled:opacity-40"
             style={under5km
-              ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
-              : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+              ? { background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.3)" }
+              : { background: "#fff", color: "#6b7280", borderColor: "#e4e4e7" }}
           >
             Under 5 km
           </button>
@@ -184,7 +184,7 @@ export default function PlayVenues() {
                   onClick={() => { setSort(o.id); setShowFilters(false); }}
                   disabled={o.id === "distance" && !coords}
                   className="flex items-center justify-between px-3 py-3 rounded-xl text-[13.5px] font-medium disabled:opacity-40"
-                  style={{ background: sort === o.id ? "rgba(240,84,92,0.06)" : "transparent", color: sort === o.id ? "#f0545c" : "#374151" }}
+                  style={{ background: sort === o.id ? "rgba(16,101,121,0.06)" : "transparent", color: sort === o.id ? "#106579" : "#374151" }}
                 >
                   {o.label}
                   {o.id === "distance" && <Navigation size={13} className="text-gray-300" />}

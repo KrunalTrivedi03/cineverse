@@ -80,8 +80,8 @@ export default function Dashboard() {
       label: "Total Users",
       value: users.length,
       icon: Users,
-      color: "#f0545c",
-      bg: "rgba(240,84,92,0.08)",
+      color: "#106579",
+      bg: "rgba(16,101,121,0.08)",
       delta: "Registered",
     },
     {
@@ -262,7 +262,7 @@ function TableCard({ title, icon, onViewAll, loading, children }) {
         <button
           onClick={onViewAll}
           className="flex items-center gap-1 text-[12px] font-semibold transition-colors"
-          style={{ color: "#f0545c" }}
+          style={{ color: "#106579" }}
           onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
           onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
         >

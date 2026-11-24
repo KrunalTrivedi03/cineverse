@@ -174,13 +174,13 @@ export default function TicketQuantitySelection() {
   if (loading || !event) return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
-        {[0, 1, 2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
+        {[0, 1, 2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
 
@@ -229,7 +229,7 @@ export default function TicketQuantitySelection() {
                     onClick={() => setCount(t.name, 1, t.available)}
                     disabled={soldOut || count >= t.available || count >= 10 || (totalQty > 0 && !qty[t.name])}
                     className="w-8 h-8 rounded-lg border flex items-center justify-center disabled:opacity-30"
-                    style={{ borderColor: "#f0545c", color: "#f0545c" }}
+                    style={{ borderColor: "#106579", color: "#106579" }}
                   >
                     <Plus size={13} />
                   </button>
@@ -253,7 +253,7 @@ export default function TicketQuantitySelection() {
             </div>
             <button onClick={openCheckout} disabled={!totalQty}
               className="px-6 py-2.5 rounded-xl font-bold text-[13px] text-white flex items-center gap-2 disabled:opacity-50"
-              style={{ background: "#f0545c" }}>
+              style={{ background: "#106579" }}>
               Proceed
             </button>
           </div>

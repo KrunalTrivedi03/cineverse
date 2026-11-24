@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
 import { ChevronRight, ChevronLeft, Star, ThumbsUp, MonitorPlay, Tv } from "lucide-react";
 
@@ -35,7 +35,7 @@ const STATUS_BADGE = {
 const getBadge = (movie) => {
   if (movie.status === "released") {
     return movie.isInCinemas
-      ? { label: "In Cinemas", bg: "rgba(240,84,92,0.88)", color: "#fff" }
+      ? { label: "In Cinemas", bg: "rgba(16,101,121,0.88)", color: "#fff" }
       : { label: "Not Showing", bg: "rgba(107,114,128,0.85)", color: "#fff" };
   }
   return STATUS_BADGE[movie.status] || STATUS_BADGE.upcoming;
@@ -154,7 +154,7 @@ useEffect(() => {
           </h2>
           <p className="text-[13px] text-gray-400 mt-0.5">Handpicked for you this week</p>
         </div>
-        <button className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all" 
+        <button className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline transition-all"
         onClick={() => navigate("/now-showing")}>
           See All <ChevronRight size={15} />
         </button>
@@ -163,8 +163,8 @@ useEffect(() => {
       {movies.length === 0 && (
         <div className="flex flex-col items-center justify-center py-14 text-center">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
-            style={{ background: "rgba(240,84,92,0.07)" }}>
-            <Tv size={26} style={{ color: "#f0545c", opacity: 0.4 }} />
+            style={{ background: "rgba(16,101,121,0.07)" }}>
+            <Tv size={26} style={{ color: "#106579", opacity: 0.4 }} />
           </div>
           <p className="text-[15px] font-bold text-gray-400">No movies in {city}</p>
           <p className="text-[12px] text-gray-300 mt-1">Try selecting a different city from the navbar</p>
@@ -178,7 +178,7 @@ useEffect(() => {
           )}
           <div
             ref={sliderRef}
-            className="flex gap-4 overflow-x-auto pb-1"
+            className="now-media-rail flex gap-4 overflow-x-auto px-1 pt-1 pb-2"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {movies.map((movie) => (
@@ -187,7 +187,6 @@ useEffect(() => {
                 movie={movie}
                 isVoted={voted.has(movie.id)}
                 onVote={handleVote}
-                onClick={() => navigate(`/movie/${movie.id}`)}
               />
             ))}
           </div>
@@ -200,14 +199,12 @@ useEffect(() => {
   );
 }
 
-function MovieCard({ movie, isVoted, onVote, onClick }) {
+function MovieCard({ movie, isVoted, onVote }) {
   const badge = getBadge(movie);
 
   return (
-    <div
-      className="flex-shrink-0 w-[200px] cursor-pointer group"
-      onClick={onClick}
-    >
+    <article className="now-media-card now-card flex-shrink-0 w-[200px] rounded-2xl p-1.5 group">
+      <Link className="now-card-link" to={`/movie/${movie.id}`} aria-label={movie.title} />
       <div
         className="relative rounded-xl overflow-hidden bg-gray-100 shadow-sm"
         style={{ aspectRatio: "2/3" }}
@@ -215,6 +212,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
         <img
           src={IMG(movie.poster)}
           alt={movie.title}
+          loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
 
@@ -252,7 +250,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
           <div className="absolute bottom-10 left-0 right-0 flex justify-center">
             <span
               className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(240,84,92,0.85)", color: "#fff" }}
+              style={{ background: "rgba(16,101,121,0.85)", color: "#fff" }}
             >
               <Tv size={9} /> Now Showing
             </span>
@@ -268,8 +266,8 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
         >
           <Star
             size={12}
-            fill="#f0545c"
-            className="text-[#f0545c] flex-shrink-0"
+            fill="#106579"
+            className="text-now-accent flex-shrink-0"
           />
           <span className="text-white font-bold text-[12px]">
             {movie.rating}/10
@@ -281,7 +279,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
       </div>
 
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors">
           {movie.title}
         </h3>
 
@@ -308,34 +306,34 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
 
         {movie.status === "released" && (
           <button
-            onClick={(e) => onVote(e, movie.id)}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+            onClick={(e) => onVote(e, movie.id)} aria-pressed={isVoted}
+            className="relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
               borderColor: isVoted
-                ? "rgba(240,84,92,0.5)"
-                : "rgba(240,84,92,0.3)",
-              color: isVoted ? "#fff" : "#f0545c",
-              background: isVoted ? "#f0545c" : "rgba(240,84,92,0.05)",
+                ? "rgba(16,101,121,0.5)"
+                : "rgba(16,101,121,0.3)",
+              color: isVoted ? "#fff" : "#106579",
+              background: isVoted ? "#106579" : "rgba(16,101,121,0.05)",
             }}
             onMouseEnter={(e) => {
               if (!isVoted)
-                e.currentTarget.style.background = "rgba(240,84,92,0.1)";
+                e.currentTarget.style.background = "rgba(16,101,121,0.1)";
             }}
             onMouseLeave={(e) => {
               if (!isVoted)
-                e.currentTarget.style.background = "rgba(240,84,92,0.05)";
+                e.currentTarget.style.background = "rgba(16,101,121,0.05)";
             }}
           >
             <ThumbsUp size={12} fill={isVoted ? "#fff" : "none"} />
-            {isVoted ? "Interested" : "Interested"}
+            {isVoted ? "Marked interested" : "Interested"}
           </button>
         )}
 
         {/* ── CTA: Interested (upcoming — no booking yet, just vote) ── */}
         {movie.status === "upcoming" && (
           <button
-            onClick={(e) => onVote(e, movie.id)}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+            onClick={(e) => onVote(e, movie.id)} aria-pressed={isVoted}
+            className="relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
               borderColor: isVoted
                 ? "rgba(234,88,12,0.5)"
@@ -359,9 +357,9 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
 
         {/* ── CTA: Watch Now (streaming) ── */}
         {movie.status === "streaming" && (
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+          <Link
+            to={`/movie/${movie.id}`}
+            className="relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
               borderColor: "rgba(99,102,241,0.3)",
               color: "#6366f1",
@@ -375,10 +373,10 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
             }
           >
             <MonitorPlay size={12} /> Watch Now
-          </button>
+          </Link>
         )}
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -386,6 +384,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
 function ArrowBtn({ dir, onClick, style }) {
   return (
     <button
+      aria-label={dir === "left" ? "Previous movies" : "Next movies"}
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
       className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"

@@ -1,3 +1,4 @@
+import Dialog from "../components/Dialog";
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -62,7 +63,7 @@ function DateStrip({ dateStrip, selectedDate, setSelectedDate }) {
             type="button"
             className={`flex flex-col items-center justify-center flex-shrink-0 rounded-2xl transition-all duration-150 ${
               active
-                ? "bg-[#f0545c] text-white shadow-sm ring-2 ring-[#f0545c]/20 scale-[1.02]"
+                ? "bg-now-accent text-white shadow-sm ring-2 ring-now-accent/20 scale-[1.02]"
                 : "bg-white text-gray-800 border border-gray-200/90 hover:border-gray-300"
             }`}
             style={{ width: 56, height: 68 }}
@@ -101,6 +102,7 @@ export default function PlayVenueDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showGallery, setShowGallery] = useState(false);
+  const [showContact, setShowContact] = useState(false);
 
   const dateStrip = useMemo(buildDateStrip, []);
   const [selectedDate, setSelectedDate] = useState(dateStrip[0]);
@@ -117,14 +119,7 @@ export default function PlayVenueDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Gallery keyboard Esc close
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "Escape") setShowGallery(false);
-    };
-    if (showGallery) window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [showGallery]);
+
 
   const goToSlots = () => {
     navigate(`/play/venues/${id}/slots?date=${dateKey(selectedDate)}`);
@@ -159,7 +154,7 @@ export default function PlayVenueDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa]">
+      <div className="min-h-screen bg-now-canvas">
         <Navbar />
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
           <div className="h-72 md:h-80 rounded-3xl bg-gray-200/70 animate-pulse mb-6" />
@@ -178,10 +173,10 @@ export default function PlayVenueDetail() {
 
   if (error || !venue) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa]">
+      <div className="min-h-screen bg-now-canvas">
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center text-[#f0545c] mb-4">
+          <div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center text-now-accent mb-4">
             <CircleAlert size={28} />
           </div>
           <p className="text-[16px] font-bold text-gray-900 mb-2">
@@ -193,7 +188,7 @@ export default function PlayVenueDetail() {
           <button
             onClick={() => navigate(-1)}
             className="px-6 py-2.5 rounded-full text-[13px] font-bold text-white shadow-sm hover:opacity-90 transition-opacity"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             Go Back
           </button>
@@ -215,10 +210,10 @@ export default function PlayVenueDetail() {
       rel="noreferrer"
       className="flex items-center gap-3.5 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200 group"
     >
-      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 group-hover:bg-[#f0545c]/10 transition-colors">
+      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 group-hover:bg-now-accent/10 transition-colors">
         <MapPin
           size={18}
-          className="text-gray-500 group-hover:text-[#f0545c] transition-colors"
+          className="text-gray-500 group-hover:text-now-accent transition-colors"
         />
       </div>
       <div className="min-w-0 flex-1">
@@ -248,7 +243,7 @@ export default function PlayVenueDetail() {
           SELECT A DATE
         </p>
         {priceSummary && (
-          <span className="text-[12px] font-bold text-[#f0545c]">
+          <span className="text-[12px] font-bold text-now-accent">
             {priceSummary}
           </span>
         )}
@@ -264,7 +259,7 @@ export default function PlayVenueDetail() {
         onClick={goToSlots}
         type="button"
         className="w-full mt-4 py-3.5 rounded-2xl text-[14.5px] font-bold text-white flex items-center justify-center gap-2 shadow-sm hover:opacity-95 active:scale-[0.99] transition-all"
-        style={{ background: "#f0545c" }}
+        style={{ background: "#106579" }}
       >
         Book slots <ChevronRight size={17} strokeWidth={2.5} />
       </button>
@@ -277,7 +272,7 @@ export default function PlayVenueDetail() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-gray-900 pb-20 md:pb-12">
+    <div className="min-h-screen bg-now-canvas text-gray-900 pb-20 md:pb-12">
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-4 md:px-8 pt-4">
@@ -369,13 +364,11 @@ export default function PlayVenueDetail() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      alert(`Contact info: Unicorn Cricket Club, ${venue.district?.name || "Ahmedabad"}`);
-                    }}
+                    onClick={() => setShowContact(true)}
                     className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[12px] font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-2xs"
                   >
                     <Phone size={13} className="text-gray-500" />
-                    <span>Call</span>
+                    <span>Contact info</span>
                   </button>
                 )}
               </div>
@@ -407,7 +400,7 @@ export default function PlayVenueDetail() {
                   onClick={goToSlots}
                   type="button"
                   className="hidden sm:inline-flex items-center justify-center px-4 py-1.5 rounded-full text-[12.5px] font-bold text-white hover:opacity-95 transition-all shadow-xs"
-                  style={{ background: "#f0545c" }}
+                  style={{ background: "#106579" }}
                 >
                   Book slots
                 </button>
@@ -433,7 +426,7 @@ export default function PlayVenueDetail() {
                         ) : (
                           <IconComp
                             size={14}
-                            className="text-[#f0545c]"
+                            className="text-now-accent"
                             strokeWidth={2}
                           />
                         )}
@@ -443,7 +436,7 @@ export default function PlayVenueDetail() {
                   })
                 ) : (
                   <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-gray-800 shadow-2xs">
-                    <span className="w-2 h-2 rounded-full bg-[#f0545c]" />
+                    <span className="w-2 h-2 rounded-full bg-now-accent" />
                     <span>Cricket</span>
                   </span>
                 )}
@@ -468,7 +461,7 @@ export default function PlayVenueDetail() {
                   >
                     <span
                       className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ background: "#f0545c" }}
+                      style={{ background: "#106579" }}
                     />
                     <span className="leading-snug">{item}</span>
                   </div>
@@ -566,16 +559,26 @@ export default function PlayVenueDetail() {
           onClick={goToSlots}
           type="button"
           className="px-5 py-2.5 rounded-xl text-[13.5px] font-bold text-white flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform flex-shrink-0"
-          style={{ background: "#f0545c" }}
+          style={{ background: "#106579" }}
         >
           <span>Book slots</span>
           <ChevronRight size={15} />
         </button>
       </div>
 
+      {showContact && (
+        <Dialog label="Venue contact information" onDismiss={() => setShowContact(false)}>
+          <div className="p-5 sm:p-7">
+            <h2 className="text-xl font-bold">Venue contact information</h2>
+            <p className="mt-2 text-sm text-gray-500">Unicorn Cricket Club, {venue.district?.name || "Ahmedabad"}</p>
+            <button type="button" className="now-primary mt-5" onClick={() => setShowContact(false)}>Done</button>
+          </div>
+        </Dialog>
+      )}
+
       {/* Full Photo Gallery Lightbox */}
       {showGallery && (
-        <div className="fixed inset-0 z-[999] bg-white overflow-y-auto">
+        <Dialog variant="gallery" label={venue.name + " photos"} onDismiss={() => setShowGallery(false)}>
           <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
               <div>
@@ -612,7 +615,7 @@ export default function PlayVenueDetail() {
               ))}
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
     </div>
   );

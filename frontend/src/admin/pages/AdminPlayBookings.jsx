@@ -73,7 +73,7 @@ export default function AdminPlayBookings() {
           {[
             { label: "Total Bookings", value: stats.total, color: "#6366f1" },
             { label: "Confirmed", value: stats.confirmed, color: "#10b981" },
-            { label: "Revenue", value: `₹${stats.revenue.toLocaleString("en-IN")}`, color: "#f0545c" },
+            { label: "Revenue", value: `₹${stats.revenue.toLocaleString("en-IN")}`, color: "#106579" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -117,8 +117,8 @@ export default function AdminPlayBookings() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <Dumbbell size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <Dumbbell size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No bookings found</p>
                   </td>

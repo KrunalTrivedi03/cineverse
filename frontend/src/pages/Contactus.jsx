@@ -89,7 +89,7 @@ export default function ContactUs() {
     "w-full px-4 py-3 rounded-xl border text-[13.5px] text-gray-800 placeholder-gray-400 outline-none transition-all bg-gray-50 focus:bg-white";
 
   const borderFor = (field) =>
-    errors[field] ? { borderColor: "#f0545c" } : { borderColor: "#e5e7eb" };
+    errors[field] ? { borderColor: "#106579" } : { borderColor: "#e4e4e7" };
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -97,22 +97,22 @@ export default function ContactUs() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: "#14141a" }}>
+      <section className="now-light-banner relative overflow-hidden">
         <div
           className="absolute -right-20 -top-20 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background: "rgba(240,84,92,0.16)" }}
+          style={{ background: "rgba(16,101,121,0.16)" }}
         />
         <div className="relative max-w-4xl mx-auto px-5 md:px-8 pt-14 pb-16 md:pt-20 md:pb-20 text-center">
-          <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full" style={{ background: "rgba(240,84,92,0.15)" }}>
-            <MessageCircle size={12} style={{ color: "#f0545c" }} />
-            <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+          <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full" style={{ background: "rgba(16,101,121,0.15)" }}>
+            <MessageCircle size={12} style={{ color: "#106579" }} />
+            <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
               Get in touch
             </span>
           </div>
-          <h1 className="text-white font-black text-[30px] sm:text-[40px] md:text-[46px] leading-[1.1] tracking-tight">
-            We'd love to <span style={{ color: "#f0545c" }}>hear from you</span>
+          <h1 className="text-gray-900 font-black text-[30px] sm:text-[40px] md:text-[46px] leading-[1.1] tracking-tight">
+            We'd love to <span style={{ color: "#106579" }}>hear from you</span>
           </h1>
-          <p className="text-white/60 text-[14px] sm:text-[15px] max-w-lg mx-auto mt-4 leading-relaxed">
+          <p className="text-gray-600 text-[14px] sm:text-[15px] max-w-lg mx-auto mt-4 leading-relaxed">
             Questions about a booking, a partnership idea, or just feedback? Drop us a message and
             our team will get back to you soon.
           </p>
@@ -124,8 +124,8 @@ export default function ContactUs() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {CONTACT_INFO.map(({ icon: Icon, label, lines }) => (
             <div key={label} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                <Icon size={16} style={{ color: "#f0545c" }} />
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                <Icon size={16} style={{ color: "#106579" }} />
               </div>
               <p className="text-[13px] font-bold text-gray-900 mb-1">{label}</p>
               {lines.map((l) => (
@@ -160,7 +160,7 @@ export default function ContactUs() {
                     className={inputCls}
                     style={borderFor("name")}
                   />
-                  {errors.name && <p className="text-[11px] mt-1 font-medium" style={{ color: "#f0545c" }}>{errors.name}</p>}
+                  {errors.name && <p className="text-[11px] mt-1 font-medium" style={{ color: "#106579" }}>{errors.name}</p>}
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-gray-600 mb-1.5 block">Email</label>
@@ -172,7 +172,7 @@ export default function ContactUs() {
                     className={inputCls}
                     style={borderFor("email")}
                   />
-                  {errors.email && <p className="text-[11px] mt-1 font-medium" style={{ color: "#f0545c" }}>{errors.email}</p>}
+                  {errors.email && <p className="text-[11px] mt-1 font-medium" style={{ color: "#106579" }}>{errors.email}</p>}
                 </div>
               </div>
 
@@ -187,7 +187,7 @@ export default function ContactUs() {
                     className={inputCls}
                     style={borderFor("phone")}
                   />
-                  {errors.phone && <p className="text-[11px] mt-1 font-medium" style={{ color: "#f0545c" }}>{errors.phone}</p>}
+                  {errors.phone && <p className="text-[11px] mt-1 font-medium" style={{ color: "#106579" }}>{errors.phone}</p>}
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-gray-600 mb-1.5 block">Subject</label>
@@ -204,7 +204,7 @@ export default function ContactUs() {
                       </option>
                     ))}
                   </select>
-                  {errors.subject && <p className="text-[11px] mt-1 font-medium" style={{ color: "#f0545c" }}>{errors.subject}</p>}
+                  {errors.subject && <p className="text-[11px] mt-1 font-medium" style={{ color: "#106579" }}>{errors.subject}</p>}
                 </div>
               </div>
 
@@ -218,14 +218,14 @@ export default function ContactUs() {
                   className={`${inputCls} resize-none`}
                   style={borderFor("message")}
                 />
-                {errors.message && <p className="text-[11px] mt-1 font-medium" style={{ color: "#f0545c" }}>{errors.message}</p>}
+                {errors.message && <p className="text-[11px] mt-1 font-medium" style={{ color: "#106579" }}>{errors.message}</p>}
               </div>
 
               <button
                 type="submit"
                 disabled={submitting}
                 className="mt-2 inline-flex items-center justify-center gap-2 text-white font-bold text-[14px] px-6 py-3.5 rounded-xl transition-transform active:scale-[0.98] disabled:opacity-60"
-                style={{ background: "#f0545c" }}
+                style={{ background: "#106579" }}
               >
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={15} />}
                 {submitting ? "Sending..." : "Send message"}
@@ -256,7 +256,7 @@ export default function ContactUs() {
                     key={i}
                     href="#"
                     aria-label="Social link"
-                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all"
+                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
                   >
                     <Icon size={16} />
                   </a>

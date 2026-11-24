@@ -35,7 +35,7 @@ export default function ArtistDetail() {
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
         {[0, 1, 2].map((i) => (
-          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
     </div>
@@ -85,7 +85,7 @@ export default function ArtistDetail() {
                         style={{
                           width: 28, height: 28, borderRadius: "50%", display: "flex",
                           alignItems: "center", justifyContent: "center",
-                          background: "rgba(240,84,92,0.08)", color: "#f0545c",
+                          background: "rgba(16,101,121,0.08)", color: "#106579",
                         }}>
                         <Icon size={13} />
                       </a>
@@ -119,8 +119,8 @@ export default function ArtistDetail() {
                   {t.poster ? (
                     <img src={IMG(t.poster)} alt={t.title} style={{ width: 52, height: 38, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: 52, height: 38, borderRadius: 8, background: "rgba(240,84,92,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <Route size={16} color="#f0545c" />
+                    <div style={{ width: 52, height: 38, borderRadius: 8, background: "rgba(16,101,121,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Route size={16} color="#106579" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
@@ -129,7 +129,7 @@ export default function ArtistDetail() {
                       {(t.cities || []).slice(0, 3).join(" · ") || "Cities announced soon"}
                     </p>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#f0545c", flexShrink: 0 }}>{t.legCount || 0} stops</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#106579", flexShrink: 0 }}>{t.legCount || 0} stops</span>
                 </div>
               ))}
             </div>

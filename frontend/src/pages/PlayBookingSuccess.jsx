@@ -23,7 +23,7 @@ export default function PlayBookingSuccess() {
   const fee = booking.pricing?.convenienceFee || 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
       <BottomNav />
@@ -47,8 +47,8 @@ export default function PlayBookingSuccess() {
         <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", overflow: "hidden" }}>
 
           <div style={{ background: "#111827", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(240,84,92,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Trophy size={18} color="#f0545c" />
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(16,101,121,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Trophy size={18} color="#106579" />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>{booking.activityName}</p>
@@ -73,9 +73,9 @@ export default function PlayBookingSuccess() {
 
           {/* Dashed divider */}
           <div style={{ position: "relative", display: "flex", alignItems: "center", padding: "0 16px" }}>
-            <div style={{ position: "absolute", left: -12, width: 24, height: 24, borderRadius: "50%", background: "#f5f5f7" }} />
-            <div style={{ flex: 1, borderTop: "1.5px dashed #e5e7eb" }} />
-            <div style={{ position: "absolute", right: -12, width: 24, height: 24, borderRadius: "50%", background: "#f5f5f7" }} />
+            <div style={{ position: "absolute", left: -12, width: 24, height: 24, borderRadius: "50%", background: "#fafafb" }} />
+            <div style={{ flex: 1, borderTop: "1.5px dashed #e4e4e7" }} />
+            <div style={{ position: "absolute", right: -12, width: 24, height: 24, borderRadius: "50%", background: "#fafafb" }} />
           </div>
 
           {/* Slots + pricing */}
@@ -86,9 +86,9 @@ export default function PlayBookingSuccess() {
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
               {(booking.slots || []).map((s, i) => (
-                <div key={i} style={{ padding: "4px 10px", borderRadius: 8, background: "rgba(240,84,92,0.06)", border: "1px solid rgba(240,84,92,0.2)", display: "flex", alignItems: "center", gap: 4 }}>
-                  <ClockIcon size={10} color="#f0545c" />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#f0545c" }}>{s.startTime}–{s.endTime}</span>
+                <div key={i} style={{ padding: "4px 10px", borderRadius: 8, background: "rgba(16,101,121,0.06)", border: "1px solid rgba(16,101,121,0.2)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <ClockIcon size={10} color="#106579" />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#106579" }}>{s.startTime}–{s.endTime}</span>
                 </div>
               ))}
             </div>
@@ -104,15 +104,15 @@ export default function PlayBookingSuccess() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6, borderTop: "1px solid #f3f4f6", marginTop: 3 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>Total Paid</span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: "#f0545c" }}>₹{total?.toLocaleString("en-IN")}</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: "#106579" }}>₹{total?.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>
 
           <div style={{ borderTop: "1px solid #f3f4f6", padding: "9px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fafafa" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <Trophy size={12} color="#f0545c" />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>NOW Play</span>
+              <Trophy size={12} color="#106579" />
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#106579" }}>NOW Play</span>
             </div>
             <span style={{ fontSize: 9, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "monospace" }}>{ref}</span>
           </div>
@@ -124,7 +124,7 @@ export default function PlayBookingSuccess() {
             onClick={() => navigate("/play")}
             style={{
               flex: 1, padding: "12px 0", border: "none", cursor: "pointer",
-              borderRadius: 14, background: "#f0545c",
+              borderRadius: 14, background: "#106579",
               fontSize: 13, fontWeight: 700, color: "#fff",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               fontFamily: "'Outfit', sans-serif",
@@ -136,7 +136,7 @@ export default function PlayBookingSuccess() {
             style={{
               flex: 1, padding: "12px 0", cursor: "pointer",
               borderRadius: 14, background: "#fff",
-              border: "1.5px solid #e5e7eb",
+              border: "1.5px solid #e4e4e7",
               fontSize: 13, fontWeight: 700, color: "#374151",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               fontFamily: "'Outfit', sans-serif",

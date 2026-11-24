@@ -66,11 +66,11 @@ export default function OffersBanner() {
           <div className="flex items-center gap-1.5 mb-1">
             <span
               className="w-4.5 h-4.5 rounded-full flex items-center justify-center"
-              style={{ background: "rgba(240,84,92,0.12)" }}
+              style={{ background: "rgba(16,101,121,0.12)" }}
             >
-              <Sparkles size={10} style={{ color: "#f0545c" }} />
+              <Sparkles size={10} style={{ color: "#106579" }} />
             </span>
-            <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+            <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
               Offers for you
             </p>
           </div>
@@ -83,13 +83,13 @@ export default function OffersBanner() {
         <div className="hidden md:flex items-center gap-2">
           <button
             onClick={() => swiperRef.current?.slidePrev()}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all"
+            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
           >
             <ChevronLeft size={15} />
           </button>
           <button
             onClick={() => swiperRef.current?.slideNext()}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-[#f0545c] hover:border-[#f0545c] transition-all"
+            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
           >
             <ChevronRight size={15} />
           </button>
@@ -205,9 +205,9 @@ export default function OffersBanner() {
           >
             <div
               className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(240,84,92,0.08)" }}
+              style={{ background: "rgba(16,101,121,0.08)" }}
             >
-              <Icon size={13} style={{ color: "#f0545c" }} />
+              <Icon size={13} style={{ color: "#106579" }} />
             </div>
             <span className="text-[11.5px] font-semibold text-gray-700 leading-tight">{label}</span>
           </div>

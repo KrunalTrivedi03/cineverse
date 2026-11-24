@@ -1,16 +1,15 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MapPin, Star, Calendar } from "lucide-react";
 import { IMG, fmt12, fmtDate } from "../utils/eventHelpers";
 
 export default function EventCard({ event, width = 190 }) {
-  const navigate = useNavigate();
   const sched    = event.nextSchedule;
 
   return (
-    <div
-      onClick={() => navigate(`/events/${event._id}`)}
+    <Link
+      to={`/events/${event._id}`}
       style={{ width, flexShrink: 0, cursor: "pointer" }}
-      className="group"
+      className="now-card group block rounded-2xl p-1.5"
     >
       <div style={{
         position: "relative", width: "100%", aspectRatio: "3/4",
@@ -20,7 +19,8 @@ export default function EventCard({ event, width = 190 }) {
         {event.poster ? (
           <img
             src={IMG(event.poster)}
-            alt={event.title}
+            alt=""
+            loading="lazy"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             className="group-hover:scale-105 transition-transform duration-300"
           />
@@ -76,8 +76,8 @@ export default function EventCard({ event, width = 190 }) {
         )}
         {sched && (
           <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
-            <Calendar size={10} color="#f0545c" />
-            <span style={{ fontSize: 10, fontWeight: 600, color: "#f0545c" }}>
+            <Calendar size={10} color="#106579" />
+            <span style={{ fontSize: 10, fontWeight: 600, color: "#106579" }}>
               {fmtDate(sched.eventDate)}{sched.time ? ` · ${fmt12(sched.time)}` : ""}
             </span>
           </div>
@@ -91,6 +91,6 @@ export default function EventCard({ event, width = 190 }) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }

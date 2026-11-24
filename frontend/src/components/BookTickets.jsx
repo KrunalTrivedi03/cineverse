@@ -267,7 +267,7 @@ export default function BookTickets() {
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
         {[0,1,2].map((i) => (
-          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce"
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce"
             style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
@@ -275,7 +275,7 @@ export default function BookTickets() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
       `}</style>
@@ -311,7 +311,7 @@ export default function BookTickets() {
             </h1>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {movie.rating && <>
-                <Star size={11} fill="#f0545c" className="text-[#f0545c]" />
+                <Star size={11} fill="#106579" className="text-now-accent" />
                 <span className="text-[12px] font-semibold text-gray-600">{movie.rating}/10</span>
               </>}
               {movie.certificate && (
@@ -325,7 +325,7 @@ export default function BookTickets() {
           </div>
           {cityName && (
             <div className="hidden md:flex items-center gap-1 text-[13px] font-medium text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg flex-shrink-0">
-              <MapPin size={13} className="text-[#f0545c]" />
+              <MapPin size={13} className="text-now-accent" />
               {cityName}
             </div>
           )}
@@ -343,8 +343,8 @@ export default function BookTickets() {
               <button key={d.key} onClick={() => setSelectedDate(d.key)}
                 className="flex-shrink-0 flex flex-col items-center py-2 px-3 rounded-lg border text-center transition-all min-w-[64px]"
                 style={active
-                  ? { background: "#f0545c", borderColor: "#f0545c", color: "#fff" }
-                  : { background: "white", borderColor: "#e5e7eb", color: "#374151" }}>
+                  ? { background: "#106579", borderColor: "#106579", color: "#fff" }
+                  : { background: "white", borderColor: "#e4e4e7", color: "#374151" }}>
                 <span className="text-[9px] font-semibold uppercase tracking-wide opacity-80">{d.day}</span>
                 <span className="text-[18px] font-bold leading-none my-0.5">{d.date}</span>
                 <span className="text-[9px] font-medium opacity-75">{d.month}</span>
@@ -371,13 +371,13 @@ export default function BookTickets() {
               onClick={() => setShowLanguageModal(true)}
               className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold rounded-lg border transition-all active:scale-[0.98]"
               style={{
-                borderColor: selectedLanguage ? "#f0545c" : "#e5e7eb",
-                background: selectedLanguage ? "rgba(240, 84, 92, 0.08)" : "#ffffff",
-                color: selectedLanguage ? "#f0545c" : "#374151",
+                borderColor: selectedLanguage ? "#106579" : "#e4e4e7",
+                background: selectedLanguage ? "rgba(16,101,121, 0.08)" : "#ffffff",
+                color: selectedLanguage ? "#106579" : "#374151",
               }}>
-              <Globe size={13} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
+              <Globe size={13} className={selectedLanguage ? "text-now-accent" : "text-gray-400"} />
               <span>{selectedLanguage || "Language"}</span>
-              <ChevronDown size={14} className={selectedLanguage ? "text-[#f0545c]" : "text-gray-400"} />
+              <ChevronDown size={14} className={selectedLanguage ? "text-now-accent" : "text-gray-400"} />
             </button>
 
             <FilterDropdown label="Show Timing" value={filterTime}
@@ -395,7 +395,7 @@ export default function BookTickets() {
 
             {hasActiveFilters && (
               <button onClick={resetFilters}
-                className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#f0545c] transition-all ml-auto md:ml-0">
+                className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-now-accent transition-all ml-auto md:ml-0">
                 <RotateCcw size={12} /> Reset
               </button>
             )}
@@ -403,20 +403,20 @@ export default function BookTickets() {
         </div>
 
         {!cityId && (
-          <EmptyState icon={<MapPin size={26} style={{ color: "#f0545c", opacity: 0.5 }} />}
+          <EmptyState icon={<MapPin size={26} style={{ color: "#106579", opacity: 0.5 }} />}
             title="Select a city" sub="Choose your city from the top bar to see available shows" />
         )}
 
         {cityId && loadingShows && (
           <div className="flex items-center justify-center py-20 gap-3 text-gray-400">
-            <Loader2 size={20} className="animate-spin" style={{ color: "#f0545c" }} />
+            <Loader2 size={20} className="animate-spin" style={{ color: "#106579" }} />
             <span className="text-[14px] font-medium">Loading shows…</span>
           </div>
         )}
 
         {cityId && !loadingShows && (
           filteredGroups.length === 0 ? (
-            <EmptyState icon={<Ticket size={26} style={{ color: "#f0545c", opacity: 0.4 }} />}
+            <EmptyState icon={<Ticket size={26} style={{ color: "#106579", opacity: 0.4 }} />}
               title="No shows available"
               sub={hasActiveFilters
                 ? "Try adjusting your filters"
@@ -426,7 +426,7 @@ export default function BookTickets() {
               action={hasActiveFilters && (
                 <button onClick={resetFilters}
                   className="mt-4 px-5 py-2 rounded-lg text-[13px] font-semibold text-white transition-transform active:scale-95"
-                  style={{ background: "#f0545c" }}>
+                  style={{ background: "#106579" }}>
                   Reset Filters
                 </button>
               )}
@@ -470,7 +470,7 @@ function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick
         )}
 
         <div className="px-6 pt-6 pb-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#f0545c] bg-red-50 px-2.5 py-1 rounded-md">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-now-accent bg-red-50 px-2.5 py-1 rounded-md">
             Language Choice
           </span>
           <h2 className="text-[18px] font-extrabold text-gray-900 leading-tight mt-2">
@@ -489,7 +489,7 @@ function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick
                   onClick={() => setSelected(lang)}
                   className="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all hover:bg-gray-50"
                   style={{
-                    background: active ? "rgba(240, 84, 92, 0.03)" : "transparent"
+                    background: active ? "rgba(16,101,121, 0.03)" : "transparent"
                   }}
                 >
                   <div className="flex items-center gap-3">
@@ -497,7 +497,7 @@ function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick
                     <span 
                       className="w-6 h-6 rounded-full font-bold text-[12px] flex items-center justify-center flex-shrink-0 transition-all"
                       style={{
-                        background: active ? "#f0545c" : "#e5e7eb",
+                        background: active ? "#106579" : "#e4e4e7",
                         color: active ? "#ffffff" : "#4b5563"
                       }}
                     >
@@ -509,10 +509,10 @@ function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick
                   {/* Radio Indicator */}
                   <span
                     className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0"
-                    style={{ borderColor: active ? "#f0545c" : "#d1d5db" }}
+                    style={{ borderColor: active ? "#106579" : "#d1d5db" }}
                   >
                     {active && (
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#f0545c" }} />
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#106579" }} />
                     )}
                   </span>
                 </button>
@@ -526,7 +526,7 @@ function LanguageModal({ movie, languages, selectedLanguage, dismissible, onPick
             onClick={() => selected && onPick(selected)}
             disabled={!selected}
             className="w-full py-3 rounded-xl text-[14px] font-bold text-white shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             Apply Choice
           </button>
@@ -549,15 +549,15 @@ function FilterDropdown({ label, value, options, onChange }) {
         onChange={(e) => onChange(e.target.value)}
         className="appearance-none pl-3 pr-8 py-2 text-[13px] font-semibold border rounded-lg outline-none cursor-pointer transition-all"
         style={{
-          borderColor: value ? "rgba(240,84,92,0.5)" : "#e5e7eb",
-          color:       value ? "#f0545c" : "#374151",
-          background:  value ? "rgba(240,84,92,0.04)" : "white",
+          borderColor: value ? "rgba(16,101,121,0.5)" : "#e4e4e7",
+          color:       value ? "#106579" : "#374151",
+          background:  value ? "rgba(16,101,121,0.04)" : "white",
         }}>
         <option value="">{label}</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
       <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ color: value ? "#f0545c" : "#9ca3af" }} />
+        style={{ color: value ? "#106579" : "#9ca3af" }} />
     </div>
   );
 }
@@ -613,7 +613,7 @@ function TheatreCard({ group, movie, selectedDate, selectedLanguage }) {
             <h3 className="text-[15px] font-bold text-gray-900">{group.name}</h3>
             {group.locationLink && (
               <a href={group.locationLink} target="_blank" rel="noreferrer"
-                className="flex items-center gap-0.5 text-[11px] font-semibold text-[#f0545c] hover:underline"
+                className="flex items-center gap-0.5 text-[11px] font-semibold text-now-accent hover:underline"
                 onClick={(e) => e.stopPropagation()}>
                 <MapPin size={11} /> Directions
               </a>
@@ -670,11 +670,11 @@ function SlotButton({ slot, onClick }) {
 
   const scheme = {
     available: {
-      border:    hov ? "#f0545c" : "#adafb1",
+      border:    hov ? "#106579" : "#adafb1",
       bg:        hov ? "#fff8f8" : "#fff",
-      timeColor: hov ? "#f0545c" : "#111",
-      ampmColor: hov ? "#f0545c" : "#9ca3af",
-      subColor:  hov ? "#f0545c" : "#d1d5db",
+      timeColor: hov ? "#106579" : "#111",
+      ampmColor: hov ? "#106579" : "#9ca3af",
+      subColor:  hov ? "#106579" : "#d1d5db",
     },
     filling_fast: {
       border:    hov ? "#b45309" : "#fde68a",
@@ -759,7 +759,7 @@ function EmptyState({ icon, title, sub, action }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-        style={{ background: "rgba(240,84,92,0.07)" }}>
+        style={{ background: "rgba(16,101,121,0.07)" }}>
         {icon}
       </div>
       <p className="text-[16px] font-bold text-gray-400">{title}</p>

@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect, Fragment } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -54,10 +55,10 @@ function Toast({ toast, onClose }) {
 ───────────────────────────────────────── */
 function ConfirmModal({ title, description, onConfirm, onCancel, busy = false }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={title} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">{title}</h3>
         <p className="text-[13px] text-gray-500 mb-5">{description}</p>
@@ -65,15 +66,15 @@ function ConfirmModal({ title, description, onConfirm, onCancel, busy = false })
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50">Cancel</button>
           <button onClick={onConfirm} disabled={busy}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onMouseEnter={(e) => { if (!busy) e.currentTarget.style.background = "#e04048"; }}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             {busy && <Loader2 size={13} className="animate-spin" />}
             Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -183,14 +184,14 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "event schedule"} maxWidth={620} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[620px] max-h-[92vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <PartyPopper size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <PartyPopper size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Schedule" : "Add New Schedule"}</h3>
@@ -208,15 +209,15 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
           {/* Event */}
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-              Event <span style={{ color: "#f0545c" }}>*</span>
+              Event <span style={{ color: "#106579" }}>*</span>
             </label>
             <div className="relative">
               <PartyPopper size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
               <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
               <select value={form.event} onChange={(e) => setEvent(e.target.value)}
                 className={`w-full pl-9 pr-9 py-2.5 rounded-xl border text-[13px] outline-none appearance-none cursor-pointer transition-all ${errors.event ? "border-red-400" : "border-gray-200"} ${form.event ? "text-gray-800" : "text-gray-400"}`}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.event ? "#f87171" : "#e5e7eb")}>
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.event ? "#f87171" : "#e4e4e7")}>
                 <option value="">Select an event…</option>
                 {events.map((ev) => <option key={ev._id} value={ev._id}>{ev.title}</option>)}
               </select>
@@ -233,15 +234,15 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
           {/* Venue */}
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-              Venue <span style={{ color: "#f0545c" }}>*</span>
+              Venue <span style={{ color: "#106579" }}>*</span>
             </label>
             <div className="relative">
               <Building2 size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
               <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
               <select value={form.venue} onChange={(e) => set("venue", e.target.value)}
                 className={`w-full pl-9 pr-9 py-2.5 rounded-xl border text-[13px] outline-none appearance-none cursor-pointer transition-all ${errors.venue ? "border-red-400" : "border-gray-200"} ${form.venue ? "text-gray-800" : "text-gray-400"}`}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.venue ? "#f87171" : "#e5e7eb")}>
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.venue ? "#f87171" : "#e4e4e7")}>
                 <option value="">Select a venue…</option>
                 {venues.map((v) => (
                   <option key={v._id} value={v._id}>{v.name}{v.city?.name ? ` — ${v.city.name}` : ""}</option>
@@ -254,14 +255,14 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
           {/* Date */}
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-              Event Date <span style={{ color: "#f0545c" }}>*</span>
+              Event Date <span style={{ color: "#106579" }}>*</span>
             </label>
             <div className="relative">
               <CalendarDays size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
               <input type="date" value={form.eventDate} onChange={(e) => set("eventDate", e.target.value)}
                 className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-[13px] text-gray-800 outline-none transition-all ${errors.eventDate ? "border-red-400" : "border-gray-200"}`}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.eventDate ? "#f87171" : "#e5e7eb")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.eventDate ? "#f87171" : "#e4e4e7")}
               />
             </div>
             {errors.eventDate && <p className="text-[11px] text-red-500 mt-1">{errors.eventDate}</p>}
@@ -271,13 +272,13 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
-                Show Times <span style={{ color: "#f0545c" }}>*</span>
+                Show Times <span style={{ color: "#106579" }}>*</span>
               </label>
               <button onClick={addSlot}
                 className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-all"
-                style={{ color: "#f0545c", background: "rgba(240,84,92,0.08)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.14)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.08)")}>
+                style={{ color: "#106579", background: "rgba(16,101,121,0.08)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.14)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.08)")}>
                 <Plus size={12} /> Add Time
               </button>
             </div>
@@ -288,7 +289,7 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
               {slots.map((slot, i) => (
                 <div key={i} className="p-3 rounded-xl border border-gray-100 bg-gray-50 space-y-2.5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-white" style={{ background: "#f0545c" }}>
+                    <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-white" style={{ background: "#106579" }}>
                       {i + 1}
                     </div>
 
@@ -299,8 +300,8 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
                         <input type="time" value={slot.time}
                           onChange={(e) => updateSlot(i, "time", e.target.value)}
                           className={`w-full pl-8 pr-3 py-2 rounded-lg border text-[12.5px] text-gray-800 outline-none bg-white transition-all ${errors[`st${i}`] ? "border-red-400" : "border-gray-200"}`}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                          onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`st${i}`] ? "#f87171" : "#e5e7eb")}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                          onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`st${i}`] ? "#f87171" : "#e4e4e7")}
                         />
                       </div>
                       {errors[`st${i}`] && <p className="text-[10px] text-red-500 mt-0.5">{errors[`st${i}`]}</p>}
@@ -313,8 +314,8 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
                         <input type="time" value={slot.endTime} placeholder="End (optional)"
                           onChange={(e) => updateSlot(i, "endTime", e.target.value)}
                           className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-[12.5px] text-gray-800 outline-none bg-white transition-all"
-                          onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                          onBlur={(e)  => (e.currentTarget.style.borderColor = "#e5e7eb")}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                          onBlur={(e)  => (e.currentTarget.style.borderColor = "#e4e4e7")}
                         />
                       </div>
                     </div>
@@ -328,8 +329,8 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
                             value={slot.price}
                             onChange={(e) => updateSlot(i, "price", e.target.value)}
                             className={`w-full pl-7 pr-3 py-2 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-white transition-all ${errors[`sp${i}`] ? "border-red-400" : "border-gray-200"}`}
-                            onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                            onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`sp${i}`] ? "#f87171" : "#e5e7eb")}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                            onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`sp${i}`] ? "#f87171" : "#e4e4e7")}
                           />
                         </div>
                         {errors[`sp${i}`] && <p className="text-[10px] text-red-500 mt-0.5">{errors[`sp${i}`]}</p>}
@@ -342,7 +343,7 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
                         style={{ background: "#fff1f2" }}
                         onMouseEnter={(e) => (e.currentTarget.style.background = "#fee2e2")}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "#fff1f2")}>
-                        <X size={12} style={{ color: "#f0545c" }} />
+                        <X size={12} style={{ color: "#106579" }} />
                       </button>
                     )}
                   </div>
@@ -378,14 +379,14 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
                             <button onClick={() => removeTicketType(i, ti)}
                               className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
                               style={{ background: "#fff1f2" }}>
-                              <X size={10} style={{ color: "#f0545c" }} />
+                              <X size={10} style={{ color: "#106579" }} />
                             </button>
                           )}
                         </div>
                       ))}
                       <button onClick={() => addTicketType(i)}
                         className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg"
-                        style={{ color: "#f0545c", background: "rgba(240,84,92,0.06)" }}>
+                        style={{ color: "#106579", background: "rgba(16,101,121,0.06)" }}>
                         <Plus size={10} /> Add ticket type
                       </button>
                     </div>
@@ -409,15 +410,15 @@ function ScheduleFormModal({ mode = "add", initial = null, events, venues, onSav
           </button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e04048"; }}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : mode === "edit" ? <Edit size={14} /> : <Plus size={14} />}
             {mode === "edit" ? "Save Changes" : "Schedule Event"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -435,7 +436,7 @@ function TimesRow({ scheduleId, showTimes, bookingType, onRemoveTime }) {
             showTimes.map((t) => (
               <div key={t._id}
                 className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-100 bg-white text-[12px]">
-                <Clock size={11} style={{ color: "#f0545c" }} />
+                <Clock size={11} style={{ color: "#106579" }} />
                 <span className="font-semibold text-gray-700">{fmt12(t.time)}</span>
                 {t.endTime && <span className="text-gray-400">– {fmt12(t.endTime)}</span>}
                 <span className="text-gray-300">·</span>
@@ -456,7 +457,7 @@ function TimesRow({ scheduleId, showTimes, bookingType, onRemoveTime }) {
                   onClick={() => onRemoveTime(scheduleId, t._id)}
                   className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity w-4 h-4 rounded flex items-center justify-center hover:bg-red-50"
                   title="Remove this time slot">
-                  <X size={10} style={{ color: "#f0545c" }} />
+                  <X size={10} style={{ color: "#106579" }} />
                 </button>
               </div>
             ))
@@ -663,9 +664,9 @@ export default function AdminEventSchedules() {
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            style={{ background: "#106579" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             <Plus size={15} /> Add Schedule
           </button>
         </div>
@@ -676,7 +677,7 @@ export default function AdminEventSchedules() {
             { label: "Total Schedules", value: schedules.length, color: "#6366f1", },
             { label: "Upcoming",        value: upcoming,          color: "#10b981", },
             { label: "Completed",       value: past,              color: "#6b7280", },
-            { label: "Total Time Slots",value: totalSlots,        color: "#f0545c", },
+            { label: "Total Time Slots",value: totalSlots,        color: "#106579", },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -750,8 +751,8 @@ export default function AdminEventSchedules() {
               ) : paginatedSchedules.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <CalendarDays size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <CalendarDays size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No schedules found</p>
                     <p className="text-[12px] text-gray-300 mt-0.5">{search ? `No results for "${search}"` : "Add your first event schedule to get started"}</p>
@@ -768,8 +769,8 @@ export default function AdminEventSchedules() {
                       {/* Event */}
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
-                            {sch.event?.bookingType === "seated" ? <Armchair size={14} style={{ color: "#f0545c" }} /> : <Users2 size={14} style={{ color: "#f0545c" }} />}
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,101,121,0.08)" }}>
+                            {sch.event?.bookingType === "seated" ? <Armchair size={14} style={{ color: "#106579" }} /> : <Users2 size={14} style={{ color: "#106579" }} />}
                           </div>
                           <div className="min-w-0">
                             <p className="text-[13px] font-semibold text-gray-900 truncate max-w-[180px]">{sch.event?.title || "—"}</p>

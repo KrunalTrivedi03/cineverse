@@ -9,7 +9,7 @@ import Navbar from "../components/Navbar";
 import api from "../api/axiosInstance";
 import BottomNav from "../components/BottomNav";
 
-const ACCENT = "#f0545c";
+const ACCENT = "#106579";
 const IMG = (p) => (!p ? null : p.startsWith("http") ? p : `${import.meta.env.VITE_API_URL}${p}`);
 
 const STATUS_FILTERS = [
@@ -346,7 +346,7 @@ export default function TransactionHistory() {
         {/* Summary stats */}
         {!loading && !error && transactions.length > 0 && (
           <div className="flex flex-wrap gap-2.5 mb-6">
-            <StatChip icon={Receipt} label="Loaded" value={transactions.length} color={ACCENT} bg="rgba(240,84,92,0.08)" />
+            <StatChip icon={Receipt} label="Loaded" value={transactions.length} color={ACCENT} bg="rgba(16,101,121,0.08)" />
             <StatChip icon={CheckCircle2} label="Successful" value={successCount} color="#16a34a" bg="#f0fdf4" />
             <StatChip icon={Clock3} label="Pending" value={pendingCount} color="#d97706" bg="#fffbeb" />
             <StatChip icon={Wallet} label="Credited" value={`₹${creditTotal.toLocaleString("en-IN")}`} color="#0369a1" bg="#f0f9ff" />
@@ -388,7 +388,7 @@ export default function TransactionHistory() {
             <button
               onClick={() => fetchTransactions(1, false)}
               className="mt-3 flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-xl"
-              style={{ color: ACCENT, background: "rgba(240,84,92,0.08)" }}
+              style={{ color: ACCENT, background: "rgba(16,101,121,0.08)" }}
             >
               <RotateCcw size={13} /> Try again
             </button>
@@ -398,7 +398,7 @@ export default function TransactionHistory() {
         {/* Empty */}
         {!loading && !error && !transactions.length && (
           <div className="bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.07)" }}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.07)" }}>
               <Receipt size={28} style={{ color: ACCENT, opacity: 0.5 }} />
             </div>
             <p className="text-[16px] font-bold text-gray-700 mb-1">No transactions found</p>

@@ -33,8 +33,9 @@ const AdminPlayBookings = lazy(() => import("../admin/pages/AdminPlayBookings"))
 const WebAdminShows = lazy(() => import("../admin/pages/WebAdminShows"));
 
 const AdminLoader = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-[#f0545c] animate-spin" />
+  <div role="status" className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <span className="sr-only">Loading admin page</span>
+    <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-now-accent animate-spin" />
   </div>
 );
 

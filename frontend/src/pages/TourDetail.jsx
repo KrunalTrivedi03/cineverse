@@ -32,7 +32,7 @@ export default function TourDetail() {
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
         {[0, 1, 2].map((i) => (
-          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
     </div>
@@ -72,7 +72,7 @@ export default function TourDetail() {
         </button>
 
         <div className="max-w-5xl mx-auto px-4 md:px-8 absolute left-0 right-0" style={{ bottom: 16 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: "#f0545c", textTransform: "uppercase", letterSpacing: ".08em" }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: "#106579", textTransform: "uppercase", letterSpacing: ".08em" }}>
             {tour.category || "Tour"} · {stops.length} {stops.length === 1 ? "stop" : "stops"}
           </span>
           <h1 className="text-[22px] sm:text-[28px]" style={{ margin: "4px 0 6px", fontWeight: 800, color: "#fff", letterSpacing: "-.5px", lineHeight: 1.15 }}>
@@ -82,7 +82,7 @@ export default function TourDetail() {
             <p className="flex items-center gap-1.5 flex-wrap" style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>
               <Globe2 size={13} />
               {tour.cities.join(" · ")}
-              {tour.countries?.length > 1 && <span style={{ color: "#f0545c", fontWeight: 700 }}> ({tour.countries.join(", ")})</span>}
+              {tour.countries?.length > 1 && <span style={{ color: "#106579", fontWeight: 700 }}> ({tour.countries.join(", ")})</span>}
             </p>
           )}
         </div>
@@ -128,13 +128,13 @@ export default function TourDetail() {
             <p style={{ fontSize: 13, color: "#9ca3af" }}>No city stops have been announced yet — check back soon.</p>
           ) : (
             <div style={{ position: "relative", paddingLeft: 22 }}>
-              <div style={{ position: "absolute", left: 5, top: 6, bottom: 6, width: 2, background: "rgba(240,84,92,0.15)" }} />
+              <div style={{ position: "absolute", left: 5, top: 6, bottom: 6, width: 2, background: "rgba(16,101,121,0.15)" }} />
 
               {[...upcomingLegs, ...pastLegs].map((leg) => (
                 <div key={`${leg.event._id}-${leg.scheduleId || "na"}`} style={{ position: "relative", marginBottom: 18 }}>
                   <div style={{
                     position: "absolute", left: -22, top: 4, width: 12, height: 12, borderRadius: "50%",
-                    background: leg.isPast ? "#d1d5db" : "#f0545c", border: "2px solid #f7f7f8",
+                    background: leg.isPast ? "#d1d5db" : "#106579", border: "2px solid #f7f7f8",
                   }} />
                   <div
                     onClick={() => navigate(`/events/${leg.event._id}`)}
@@ -148,17 +148,17 @@ export default function TourDetail() {
                       <div className="min-w-0">
                         <p style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>{leg.event.title}</p>
                         <p className="flex items-center gap-1.5 flex-wrap mt-1" style={{ fontSize: 12, color: "#6b7280" }}>
-                          <MapPin size={12} color="#f0545c" />
+                          <MapPin size={12} color="#106579" />
                           {leg.venue ? `${leg.venue.name}, ${leg.city?.name || ""}` : "Venue TBA"}
                           {leg.city?.country && <span style={{ color: "#9ca3af" }}>· {leg.city.country}</span>}
                         </p>
                         <p className="flex items-center gap-1.5 mt-1" style={{ fontSize: 12, color: "#6b7280" }}>
-                          <Calendar size={12} color="#f0545c" /> {leg.eventDate ? fmtDateLong(leg.eventDate) : "Date TBA"}
+                          <Calendar size={12} color="#106579" /> {leg.eventDate ? fmtDateLong(leg.eventDate) : "Date TBA"}
                         </p>
                       </div>
                       {!leg.isPast && (
                         <span className="flex items-center gap-1 flex-shrink-0"
-                          style={{ fontSize: 11, fontWeight: 700, color: "#f0545c", background: "rgba(240,84,92,0.08)", padding: "5px 10px", borderRadius: 999 }}>
+                          style={{ fontSize: 11, fontWeight: 700, color: "#106579", background: "rgba(16,101,121,0.08)", padding: "5px 10px", borderRadius: 999 }}>
                           <Ticket size={12} /> Book
                         </span>
                       )}
@@ -180,16 +180,16 @@ export default function TourDetail() {
               Tour Snapshot
             </p>
             <div className="flex flex-col gap-3">
-              <SnapshotRow icon={<Globe2 size={14} color="#f0545c" />} label="Cities" value={tour.cities?.length || 0} />
-              <SnapshotRow icon={<MapPin size={14} color="#f0545c" />} label="Total Stops" value={stops.length} />
-              <SnapshotRow icon={<Calendar size={14} color="#f0545c" />} label="Status" value={tour.status} />
+              <SnapshotRow icon={<Globe2 size={14} color="#106579" />} label="Cities" value={tour.cities?.length || 0} />
+              <SnapshotRow icon={<MapPin size={14} color="#106579" />} label="Total Stops" value={stops.length} />
+              <SnapshotRow icon={<Calendar size={14} color="#106579" />} label="Status" value={tour.status} />
             </div>
 
             {tour.nextLeg && (
               <button
                 onClick={() => navigate(`/events/${tour.nextLeg.event._id}`)}
                 className="w-full mt-4 py-2.5 rounded-xl text-[13px] font-bold text-white"
-                style={{ background: "#f0545c" }}
+                style={{ background: "#106579" }}
               >
                 Book Next Stop
               </button>

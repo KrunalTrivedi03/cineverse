@@ -304,21 +304,21 @@ export default function EventSeatSelection() {
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
-        {[0, 1, 2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
+        {[0, 1, 2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
       </div>
     </div>
   );
 
   if (noLayout) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-center px-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
-        <Ticket size={22} color="#f0545c" />
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.08)" }}>
+        <Ticket size={22} color="#106579" />
       </div>
       <p className="text-[16px] font-bold text-gray-800">
         {bookingType === "general" ? "Ticket availability not configured" : "Seat layout not configured"}
       </p>
       <p className="text-[13px] text-gray-400 mt-1.5 max-w-xs">Please check back later or contact the organizer for updates on this show.</p>
-      <button onClick={() => navigate(-1)} className="mt-5 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#f0545c" }}>
+      <button onClick={() => navigate(-1)} className="mt-5 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "#106579" }}>
         Go Back
       </button>
     </div>
@@ -382,8 +382,8 @@ export default function EventSeatSelection() {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <CategoryIcon size={11} color="#f0545c" className="flex-shrink-0" />
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#f0545c" }}>{categoryLabel}</span>
+              <CategoryIcon size={11} color="#106579" className="flex-shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#106579" }}>{categoryLabel}</span>
             </div>
             <h1 className="text-[15px] font-bold text-gray-900 truncate leading-tight mt-0.5">{event?.title}</h1>
             <p className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2 flex-wrap">
@@ -393,9 +393,9 @@ export default function EventSeatSelection() {
           </div>
 
           {countdown != null && (
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl flex-shrink-0 ${urgentCountdown ? "es-countdown-urgent" : ""}`} style={{ background: urgentCountdown ? "#fff1f2" : "rgba(240,84,92,0.08)" }}>
-              <Timer size={13} color={urgentCountdown ? "#dc2626" : "#f0545c"} />
-              <span className="text-[13px] font-bold tabular-nums" style={{ color: urgentCountdown ? "#dc2626" : "#f0545c", fontFamily: "'DM Mono', monospace" }}>{fmtCountdown(countdown)}</span>
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl flex-shrink-0 ${urgentCountdown ? "es-countdown-urgent" : ""}`} style={{ background: urgentCountdown ? "#fff1f2" : "rgba(16,101,121,0.08)" }}>
+              <Timer size={13} color={urgentCountdown ? "#dc2626" : "#106579"} />
+              <span className="text-[13px] font-bold tabular-nums" style={{ color: urgentCountdown ? "#dc2626" : "#106579", fontFamily: "'DM Mono', monospace" }}>{fmtCountdown(countdown)}</span>
             </div>
           )}
         </div>
@@ -409,8 +409,8 @@ export default function EventSeatSelection() {
             <div className="flex flex-col items-center mb-10 mt-2">
               <div style={{
                 width: "55%", maxWidth: 420, height: 4, borderRadius: "0 0 60% 60%",
-                background: "linear-gradient(to right, transparent, rgba(240,84,92,0.5), transparent)",
-                boxShadow: "0 6px 20px rgba(240,84,92,0.1)",
+                background: "linear-gradient(to right, transparent, rgba(16,101,121,0.5), transparent)",
+                boxShadow: "0 6px 20px rgba(16,101,121,0.1)",
               }} />
               <p className="text-[10px] font-bold tracking-[0.25em] uppercase mt-3 text-gray-400 flex items-center gap-1.5">
                 <Monitor size={10} className="text-gray-300" /> STAGE THIS SIDE
@@ -458,7 +458,7 @@ export default function EventSeatSelection() {
                                   <div key={seatId} className="flex items-center">
                                     {aisleBreaks.includes(col - 1) && col > 1 && (
                                       <div className="flex flex-col items-center justify-center mx-2 select-none" style={{ width: 10 }}>
-                                        <div className="w-0.5 h-4 rounded-full" style={{ background: "#e5e7eb" }} />
+                                        <div className="w-0.5 h-4 rounded-full" style={{ background: "#e4e4e7" }} />
                                       </div>
                                     )}
                                     <button
@@ -469,7 +469,7 @@ export default function EventSeatSelection() {
                                       style={{
                                         fontFamily: "'DM Mono', monospace",
                                         cursor: isDisabled ? "not-allowed" : "pointer",
-                                        background: isDisabled ? "#e5e7eb" : isSel ? c.color : c.light,
+                                        background: isDisabled ? "#e4e4e7" : isSel ? c.color : c.light,
                                         borderColor: isDisabled ? "#d1d5db" : c.border,
                                         color: isDisabled ? "#9ca3af" : isSel ? "#fff" : c.pillText,
                                         boxShadow: isSel ? `0 4px 12px ${c.color}33` : "none",
@@ -489,9 +489,9 @@ export default function EventSeatSelection() {
 
                     {catIdx < categoryOrder.length - 1 && (
                       <div className="flex items-center gap-3 mt-6">
-                        <div className="h-px flex-1" style={{ background: "repeating-linear-gradient(90deg, #e5e7eb 0, #e5e7eb 6px, transparent 6px, transparent 12px)" }} />
+                        <div className="h-px flex-1" style={{ background: "repeating-linear-gradient(90deg, #e4e4e7 0, #e4e4e7 6px, transparent 6px, transparent 12px)" }} />
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
-                        <div className="h-px flex-1" style={{ background: "repeating-linear-gradient(90deg, #e5e7eb 0, #e5e7eb 6px, transparent 6px, transparent 12px)" }} />
+                        <div className="h-px flex-1" style={{ background: "repeating-linear-gradient(90deg, #e4e4e7 0, #e4e4e7 6px, transparent 6px, transparent 12px)" }} />
                       </div>
                     )}
                   </div>
@@ -502,11 +502,11 @@ export default function EventSeatSelection() {
             {/* Legend */}
             <div className="flex flex-wrap items-center justify-center gap-5 mt-12 pt-6 border-t border-gray-100">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-md border-2" style={{ background: "#fff", borderColor: "#e5e7eb" }} />
+                <div className="w-5 h-5 rounded-md border-2" style={{ background: "#fff", borderColor: "#e4e4e7" }} />
                 <span className="text-[11px] text-gray-400 font-medium">Available</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center" style={{ background: "#f3f4f6", borderColor: "#e5e7eb", opacity: 0.6 }}>
+                <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center" style={{ background: "#f3f4f6", borderColor: "#e4e4e7", opacity: 0.6 }}>
                   <X size={8} className="text-gray-300" />
                 </div>
                 <span className="text-[11px] text-gray-400 font-medium">Booked / Locked</span>
@@ -539,13 +539,13 @@ export default function EventSeatSelection() {
               {ticketTypes.map((t, idx) => {
                 const qty = ticketQty[t._id] || 0;
                 const soldOut = t.available === 0;
-                const accent = ["#f0545c", "#6366f1", "#059669", "#b45309"][idx % 4];
+                const accent = ["#106579", "#6366f1", "#059669", "#b45309"][idx % 4];
                 return (
                   <div
                     key={t._id}
                     className="bg-white rounded-2xl border overflow-hidden flex items-stretch transition-all"
                     style={{
-                      borderColor: qty > 0 ? accent : "#e5e7eb",
+                      borderColor: qty > 0 ? accent : "#e4e4e7",
                       boxShadow: qty > 0 ? `0 4px 14px ${accent}22` : "none",
                       opacity: soldOut ? 0.5 : 1,
                     }}
@@ -610,7 +610,7 @@ export default function EventSeatSelection() {
             </div>
             <button onClick={openCheckout} disabled={proceedDisabled}
               className="px-7 py-3 rounded-xl font-bold text-[13px] text-white flex items-center gap-2 transition-transform active:scale-95 disabled:opacity-50"
-              style={{ background: "#f0545c" }}>
+              style={{ background: "#106579" }}>
               Proceed
             </button>
           </div>
@@ -679,7 +679,7 @@ export default function EventSeatSelection() {
 
                   <button onClick={handleProceed} disabled={locking || loadingOrder}
                     className="w-full mt-5 py-3.5 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-60"
-                    style={{ background: "#f0545c" }}>
+                    style={{ background: "#106579" }}>
                     {locking || loadingOrder ? <Loader2 size={15} className="animate-spin" /> : null}
                     {locking ? "Locking…" : loadingOrder ? "Preparing…" : "Continue to Payment"}
                   </button>
@@ -704,22 +704,22 @@ export default function EventSeatSelection() {
                       <button onClick={() => setPayMethod("wallet")}
                         disabled={wallet.walletBalance < orderData.grandTotal}
                         className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-colors"
-                        style={{ borderColor: payMethod === "wallet" ? "#f0545c" : "#e5e7eb", background: payMethod === "wallet" ? "rgba(240,84,92,0.05)" : "#fff", opacity: wallet.walletBalance < orderData.grandTotal ? 0.5 : 1 }}>
+                        style={{ borderColor: payMethod === "wallet" ? "#106579" : "#e4e4e7", background: payMethod === "wallet" ? "rgba(16,101,121,0.05)" : "#fff", opacity: wallet.walletBalance < orderData.grandTotal ? 0.5 : 1 }}>
                         <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><Wallet size={15} /> NOW Wallet</span>
                         <span className="text-[12px] text-gray-400">₹{wallet.walletBalance}</span>
                       </button>
                     )}
                     <button onClick={() => setPayMethod("razorpay")}
                       className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-colors"
-                      style={{ borderColor: payMethod === "razorpay" ? "#f0545c" : "#e5e7eb", background: payMethod === "razorpay" ? "rgba(240,84,92,0.05)" : "#fff" }}>
+                      style={{ borderColor: payMethod === "razorpay" ? "#106579" : "#e4e4e7", background: payMethod === "razorpay" ? "rgba(16,101,121,0.05)" : "#fff" }}>
                       <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-800"><CreditCard size={15} /> Card / UPI / NetBanking</span>
-                      <CheckCircle2 size={16} className={payMethod === "razorpay" ? "text-[#f0545c]" : "text-gray-200"} />
+                      <CheckCircle2 size={16} className={payMethod === "razorpay" ? "text-now-accent" : "text-gray-200"} />
                     </button>
                   </div>
 
                   <button onClick={handleConfirm} disabled={paying}
                     className="w-full mt-5 py-3.5 rounded-xl font-bold text-[14px] text-white flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
-                    style={{ background: "#f0545c" }}>
+                    style={{ background: "#106579" }}>
                     {paying ? <Loader2 size={15} className="animate-spin" /> : <IndianRupee size={15} />}
                     {paying ? "Processing…" : `Pay ₹${orderData.grandTotal}`}
                   </button>

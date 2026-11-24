@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { consumeOAuthRedirect } from "../utils/authSession";
 
 const REDIRECT_MS = 1800;
-const ACCENT = "#f0545c";
+const ACCENT = "#106579";
 
 /* phase: "verifying" -> "success" | "error" */
 export default function OAuthSuccess() {
@@ -117,11 +117,11 @@ export default function OAuthSuccess() {
       {/* Decorative background blobs */}
       <div
         className="os-blob absolute -top-24 -right-24 w-72 h-72 rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(240,84,92,0.10) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(16,101,121,0.10) 0%, transparent 70%)" }}
       />
       <div
         className="os-blob-2 absolute -bottom-32 -left-20 w-80 h-80 rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(240,84,92,0.08) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(16,101,121,0.08) 0%, transparent 70%)" }}
       />
 
       <div

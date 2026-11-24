@@ -14,7 +14,7 @@ import {
 /* Role icon color — cycles by index */
 const ROLE_COLORS = [
   { bg: "rgba(99,102,241,0.1)",  text: "#6366f1" },
-  { bg: "rgba(240,84,92,0.1)",   text: "#f0545c" },
+  { bg: "rgba(16,101,121,0.1)",   text: "#106579" },
   { bg: "rgba(16,185,129,0.1)",  text: "#10b981" },
   { bg: "rgba(245,158,11,0.1)",  text: "#f59e0b" },
   { bg: "rgba(139,92,246,0.1)",  text: "#8b5cf6" },
@@ -85,9 +85,9 @@ export default function Roles() {
           </div>
           <button
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            style={{ background: "#106579" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
           >
             <Plus size={15} /> Add Role
           </button>

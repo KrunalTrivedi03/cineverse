@@ -95,15 +95,15 @@ export default function OfferCouponBox({ type, id, genre, amount, appliedOffer, 
           style={{ background: "#fff5f5" }}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Tag size={13} style={{ color: "#f0545c" }} className="flex-shrink-0" />
+            <Tag size={13} style={{ color: "#106579" }} className="flex-shrink-0" />
             <span className="text-[12.5px] font-semibold text-gray-800 truncate">
               {formatDiscountLabel(suggested)} · {suggested.title}
             </span>
           </div>
           {loading ? (
-            <Loader2 size={13} className="animate-spin flex-shrink-0" style={{ color: "#f0545c" }} />
+            <Loader2 size={13} className="animate-spin flex-shrink-0" style={{ color: "#106579" }} />
           ) : (
-            <span className="text-[11px] font-bold flex-shrink-0" style={{ color: "#f0545c" }}>
+            <span className="text-[11px] font-bold flex-shrink-0" style={{ color: "#106579" }}>
               APPLY
             </span>
           )}
@@ -132,21 +132,21 @@ export default function OfferCouponBox({ type, id, genre, amount, appliedOffer, 
             }}
             placeholder="Enter code"
             className="flex-1 px-3 py-2 rounded-lg border text-[12.5px] outline-none"
-            style={{ borderColor: error ? "#f0545c" : "#e5e7eb" }}
+            style={{ borderColor: error ? "#106579" : "#e4e4e7" }}
           />
           <button
             type="button"
             onClick={() => code.trim() && applyCode(code.trim())}
             disabled={loading || !code.trim()}
             className="px-4 py-2 rounded-lg text-[12px] font-bold text-white disabled:opacity-50 flex items-center justify-center min-w-[64px]"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             {loading ? <Loader2 size={13} className="animate-spin" /> : "Apply"}
           </button>
         </div>
       )}
       {error && (
-        <p className="px-3.5 pb-3 text-[11px] font-medium" style={{ color: "#f0545c" }}>
+        <p className="px-3.5 pb-3 text-[11px] font-medium" style={{ color: "#106579" }}>
           {error}
         </p>
       )}

@@ -75,7 +75,7 @@ function StyledInput({ className = "", ...props }) {
   return (
     <input
       className={`w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900
-        placeholder-gray-400 outline-none focus:border-[#f0545c] focus:ring-2 focus:ring-[#f0545c]/10
+        placeholder-gray-400 outline-none focus:border-now-accent focus:ring-2 focus:ring-now-accent/10
         transition-all ${className}`}
       {...props}
     />
@@ -86,7 +86,7 @@ function StyledSelect({ className = "", children, ...props }) {
   return (
     <select
       className={`w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900
-        outline-none focus:border-[#f0545c] focus:ring-2 focus:ring-[#f0545c]/10
+        outline-none focus:border-now-accent focus:ring-2 focus:ring-now-accent/10
         transition-all appearance-none cursor-pointer ${className}`}
       {...props}
     >
@@ -99,7 +99,7 @@ function StyledTextarea({ className = "", ...props }) {
   return (
     <textarea
       className={`w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900
-        placeholder-gray-400 outline-none focus:border-[#f0545c] focus:ring-2 focus:ring-[#f0545c]/10
+        placeholder-gray-400 outline-none focus:border-now-accent focus:ring-2 focus:ring-now-accent/10
         transition-all resize-none ${className}`}
       {...props}
     />
@@ -110,8 +110,8 @@ function SectionCard({ title, icon: Icon, children }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-          <Icon size={16} style={{ color: "#f0545c" }} />
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+          <Icon size={16} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900">{title}</h3>
       </div>
@@ -137,9 +137,9 @@ function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLas
         <button
           onClick={onSubmit}
           className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
-          style={{ background: "#f0545c" }}
+          style={{ background: "#106579" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
         >
           <Pencil size={15} /> {submitLabel}
         </button>
@@ -147,9 +147,9 @@ function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLas
         <button
           onClick={onNext}
           className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
-          style={{ background: "#f0545c" }}
+          style={{ background: "#106579" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
         >
           {nextLabel} <ArrowRight size={16} />
         </button>
@@ -166,8 +166,8 @@ function ToggleChip({ label, active, onClick, icon: Icon }) {
       className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold border transition-all"
       style={
         active
-          ? { background: "rgba(240,84,92,0.1)", color: "#f0545c", borderColor: "rgba(240,84,92,0.35)" }
-          : { background: "#f9fafb", color: "#6b7280", borderColor: "#e5e7eb" }
+          ? { background: "rgba(16,101,121,0.1)", color: "#106579", borderColor: "rgba(16,101,121,0.35)" }
+          : { background: "#f9fafb", color: "#6b7280", borderColor: "#e4e4e7" }
       }
     >
       {Icon && <Icon size={12} />}
@@ -424,7 +424,7 @@ export default function EditEvent() {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
                   style={
                     isActive
-                      ? { background: "rgba(240,84,92,0.09)", color: "#f0545c" }
+                      ? { background: "rgba(16,101,121,0.09)", color: "#106579" }
                       : isCompleted
                         ? { background: "transparent", color: "#10b981" }
                         : { background: "transparent", color: "#9ca3af" }
@@ -434,10 +434,10 @@ export default function EditEvent() {
                     className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border flex-shrink-0"
                     style={
                       isActive
-                        ? { background: "#f0545c", color: "#fff", borderColor: "#f0545c" }
+                        ? { background: "#106579", color: "#fff", borderColor: "#106579" }
                         : isCompleted
                           ? { background: "#10b981", color: "#fff", borderColor: "#10b981" }
-                          : { background: "transparent", color: "#d1d5db", borderColor: "#e5e7eb" }
+                          : { background: "transparent", color: "#d1d5db", borderColor: "#e4e4e7" }
                     }
                   >
                     {isCompleted ? "✓" : s.id}
@@ -445,7 +445,7 @@ export default function EditEvent() {
                   <span className="hidden sm:inline">{s.label}</span>
                 </button>
                 {idx < STEPS.length - 1 && (
-                  <div className="w-4 h-px mx-1" style={{ background: "#e5e7eb" }} />
+                  <div className="w-4 h-px mx-1" style={{ background: "#e4e4e7" }} />
                 )}
               </div>
             );
@@ -502,7 +502,7 @@ export default function EditEvent() {
                       <span
                         key={i}
                         className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-lg border"
-                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.25)" }}
+                        style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.25)" }}
                       >
                         {tag}
                         <button
@@ -538,12 +538,12 @@ export default function EditEvent() {
 
               <InputField icon={Image} label="Event Poster">
                 <div className="flex items-start gap-4">
-                  <label className="flex-1 flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-[#f0545c] hover:bg-[rgba(240,84,92,0.03)] transition-all group">
+                  <label className="flex-1 flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-now-accent hover:bg-[rgba(16,101,121,0.03)] transition-all group">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                      style={{ background: "rgba(240,84,92,0.09)" }}
+                      style={{ background: "rgba(16,101,121,0.09)" }}
                     >
-                      <Upload size={18} style={{ color: "#f0545c" }} />
+                      <Upload size={18} style={{ color: "#106579" }} />
                     </div>
                     <div className="text-center">
                       <p className="text-[13px] font-semibold text-gray-700">Click to upload poster</p>
@@ -653,8 +653,8 @@ export default function EditEvent() {
               {/* Featured Toggle */}
               <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/60">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                    <Star size={15} style={{ color: "#f0545c" }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                    <Star size={15} style={{ color: "#106579" }} />
                   </div>
                   <div>
                     <p className="text-[13px] font-semibold text-gray-900">Featured Event</p>
@@ -665,7 +665,7 @@ export default function EditEvent() {
                   type="button"
                   onClick={() => set("isFeatured", !form.isFeatured)}
                   className="relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0"
-                  style={{ background: form.isFeatured ? "#f0545c" : "#d1d5db" }}
+                  style={{ background: form.isFeatured ? "#106579" : "#d1d5db" }}
                 >
                   <span
                     className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200"
@@ -690,7 +690,7 @@ export default function EditEvent() {
                       <span
                         key={a._id}
                         className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-lg border"
-                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.25)" }}
+                        style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.25)" }}
                       >
                         {a.name}
                         <button
@@ -735,8 +735,8 @@ export default function EditEvent() {
                           <div
                             className="w-5 h-5 rounded-md flex items-center justify-center border flex-shrink-0"
                             style={active
-                              ? { background: "#f0545c", borderColor: "#f0545c" }
-                              : { background: "#fff", borderColor: "#e5e7eb" }}
+                              ? { background: "#106579", borderColor: "#106579" }
+                              : { background: "#fff", borderColor: "#e4e4e7" }}
                           >
                             {active && <CheckCircle2 size={13} className="text-white" />}
                           </div>
@@ -766,7 +766,7 @@ export default function EditEvent() {
                       <span
                         key={i}
                         className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-lg border"
-                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.25)" }}
+                        style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.25)" }}
                       >
                         {rule}
                         <button
@@ -835,12 +835,12 @@ export default function EditEvent() {
               </div>
 
               <InputField icon={Images} label="Gallery Images">
-                <label className="flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-[#f0545c] hover:bg-[rgba(240,84,92,0.03)] transition-all group">
+                <label className="flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-now-accent hover:bg-[rgba(16,101,121,0.03)] transition-all group">
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                    style={{ background: "rgba(240,84,92,0.09)" }}
+                    style={{ background: "rgba(16,101,121,0.09)" }}
                   >
-                    <Upload size={18} style={{ color: "#f0545c" }} />
+                    <Upload size={18} style={{ color: "#106579" }} />
                   </div>
                   <div className="text-center">
                     <p className="text-[13px] font-semibold text-gray-700">Click to upload gallery images</p>
@@ -882,8 +882,8 @@ export default function EditEvent() {
             {/* Event Details card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                  <PartyPopper size={16} style={{ color: "#f0545c" }} />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                  <PartyPopper size={16} style={{ color: "#106579" }} />
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-900">Event Details</h3>
               </div>
@@ -927,7 +927,7 @@ export default function EditEvent() {
                     {form.status && <StatusBadge status={form.status} />}
                     {form.isFeatured && (
                       <span className="flex items-center gap-1 text-[11px] font-semibold px-3 py-1 rounded-full border"
-                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.25)" }}>
+                        style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.25)" }}>
                         <Star size={10} /> Featured
                       </span>
                     )}
@@ -944,8 +944,8 @@ export default function EditEvent() {
             {/* Event Info card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                  <Radio size={16} style={{ color: "#f0545c" }} />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                  <Radio size={16} style={{ color: "#106579" }} />
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-900">Event Information</h3>
               </div>
@@ -985,14 +985,14 @@ export default function EditEvent() {
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                      <Mic2 size={16} style={{ color: "#f0545c" }} />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                      <Mic2 size={16} style={{ color: "#106579" }} />
                     </div>
                     <h3 className="text-[15px] font-bold text-gray-900">Artists</h3>
                   </div>
                   <span
                     className="text-[12px] font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}
+                    style={{ background: "rgba(16,101,121,0.08)", color: "#106579" }}
                   >
                     {selectedArtists.length}
                   </span>
@@ -1019,8 +1019,8 @@ export default function EditEvent() {
 
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                    <Building2 size={16} style={{ color: "#f0545c" }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                    <Building2 size={16} style={{ color: "#106579" }} />
                   </div>
                   <h3 className="text-[15px] font-bold text-gray-900">Organizer</h3>
                 </div>
@@ -1048,8 +1048,8 @@ export default function EditEvent() {
             {form.gallery.length > 0 && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                    <Images size={16} style={{ color: "#f0545c" }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                    <Images size={16} style={{ color: "#106579" }} />
                   </div>
                   <h3 className="text-[15px] font-bold text-gray-900">Gallery</h3>
                 </div>
@@ -1067,8 +1067,8 @@ export default function EditEvent() {
             {form.trailerLink && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-                    <PartyPopper size={16} style={{ color: "#f0545c" }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+                    <PartyPopper size={16} style={{ color: "#106579" }} />
                   </div>
                   <h3 className="text-[15px] font-bold text-gray-900">Trailer Preview</h3>
                 </div>
@@ -1085,7 +1085,7 @@ export default function EditEvent() {
                         <span className="text-xl ml-1 text-gray-900">▶</span>
                       </div>
                     </div>
-                    <div className="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full text-white" style={{ background: "#f0545c" }}>
+                    <div className="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full text-white" style={{ background: "#106579" }}>
                       Trailer
                     </div>
                   </div>

@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -25,10 +26,10 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ district, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete district?"} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete District</h3>
         <p className="text-[13px] text-gray-500 mb-5">
@@ -38,12 +39,12 @@ function ConfirmModal({ district, onConfirm, onCancel, busy }) {
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50">Cancel</button>
           <button onClick={onConfirm} disabled={busy}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -53,11 +54,11 @@ function AddDistrictModal({ cities, onAdd, onCancel, adding }) {
   const canSubmit = name.trim() && city;
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Add district"} maxWidth={380} onDismiss={() => { if (!adding) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[380px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
-            <MapPin size={18} style={{ color: "#f0545c" }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,101,121,0.08)" }}>
+            <MapPin size={18} style={{ color: "#106579" }} />
           </div>
           <div>
             <h3 className="text-[15px] font-bold text-gray-900">Add New District</h3>
@@ -65,7 +66,7 @@ function AddDistrictModal({ cities, onAdd, onCancel, adding }) {
           </div>
         </div>
 
-        <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span style={{ color: "#f0545c" }}>*</span></label>
+        <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span style={{ color: "#106579" }}>*</span></label>
         <select value={city} onChange={(e) => setCity(e.target.value)}
           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] text-gray-800 outline-none mb-4"
           style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -73,7 +74,7 @@ function AddDistrictModal({ cities, onAdd, onCancel, adding }) {
           {cities.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
         </select>
 
-        <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">District Name <span style={{ color: "#f0545c" }}>*</span></label>
+        <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">District Name <span style={{ color: "#106579" }}>*</span></label>
         <input type="text" placeholder="e.g. Bandra, Koramangala…" value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && canSubmit && onAdd(name.trim(), city)}
@@ -85,12 +86,12 @@ function AddDistrictModal({ cities, onAdd, onCancel, adding }) {
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">Cancel</button>
           <button onClick={() => canSubmit && onAdd(name.trim(), city)} disabled={adding || !canSubmit}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Add District
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -166,7 +167,7 @@ export default function AdminDistricts() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Add District
           </button>
         </div>
@@ -221,8 +222,8 @@ export default function AdminDistricts() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <MapPin size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <MapPin size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No districts found</p>
                   </td>
@@ -233,8 +234,8 @@ export default function AdminDistricts() {
                     <td className="py-4 px-4 text-[13px] text-gray-400 font-medium w-10">{index + 1}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
-                          <MapPin size={14} style={{ color: "#f0545c" }} />
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,101,121,0.08)" }}>
+                          <MapPin size={14} style={{ color: "#106579" }} />
                         </div>
                         <p className="text-[13px] font-semibold text-gray-900">{d.name}</p>
                       </div>

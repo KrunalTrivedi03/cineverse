@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -29,21 +30,21 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ offer, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete offer?"} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete Offer</h3>
         <p className="text-[13px] text-gray-500 mb-5">Delete <span className="font-semibold text-gray-800">"{offer.title}"</span>? This cannot be undone.</p>
         <div className="flex gap-2">
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
-          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -123,12 +124,12 @@ function OfferFormModal({ mode = "add", initial = null, onSave, onCancel, saving
   const label = "block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "offer"} maxWidth={560} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[560px] max-h-[90vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Tag size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <Tag size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Offer" : "Add New Offer"}</h3>
@@ -150,54 +151,54 @@ function OfferFormModal({ mode = "add", initial = null, onSave, onCancel, saving
           </div>
 
           <div>
-            <label className={label}>Title <span style={{ color: "#f0545c" }}>*</span></label>
-            <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Flat 20% off on all movies" className={inp} style={{ borderColor: errors.title ? "#f0545c" : "#e5e7eb" }} />
+            <label className={label}>Title <span style={{ color: "#106579" }}>*</span></label>
+            <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Flat 20% off on all movies" className={inp} style={{ borderColor: errors.title ? "#106579" : "#e4e4e7" }} />
             {errors.title && <p className="text-[11px] text-red-500 mt-1">{errors.title}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Subtitle / Badge</label>
-              <input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Limited Time" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Limited Time" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
             <div>
               <label className={label}>Coupon Code</label>
-              <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="Auto-applied if blank" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="Auto-applied if blank" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
 
           <div>
             <label className={label}>Description</label>
-            <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={2} placeholder="Short description…" className={inp} style={{ borderColor: "#e5e7eb", resize: "vertical" }} />
+            <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={2} placeholder="Short description…" className={inp} style={{ borderColor: "#e4e4e7", resize: "vertical" }} />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className={label}>Type</label>
-              <select value={form.discountType} onChange={(e) => set("discountType", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}>
+              <select value={form.discountType} onChange={(e) => set("discountType", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}>
                 <option value="percentage">Percentage</option>
                 <option value="flat">Flat (₹)</option>
               </select>
             </div>
             <div>
-              <label className={label}>Value <span style={{ color: "#f0545c" }}>*</span></label>
-              <input type="number" value={form.discountValue} onChange={(e) => set("discountValue", e.target.value)} placeholder="20" className={inp} style={{ borderColor: errors.discountValue ? "#f0545c" : "#e5e7eb" }} />
+              <label className={label}>Value <span style={{ color: "#106579" }}>*</span></label>
+              <input type="number" value={form.discountValue} onChange={(e) => set("discountValue", e.target.value)} placeholder="20" className={inp} style={{ borderColor: errors.discountValue ? "#106579" : "#e4e4e7" }} />
             </div>
             <div>
               <label className={label}>Max Cap (₹)</label>
-              <input type="number" value={form.maxDiscountAmount} onChange={(e) => set("maxDiscountAmount", e.target.value)} placeholder="Optional" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="number" value={form.maxDiscountAmount} onChange={(e) => set("maxDiscountAmount", e.target.value)} placeholder="Optional" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={label}>Valid From <span style={{ color: "#f0545c" }}>*</span></label>
-              <input type="date" value={form.validFrom} onChange={(e) => set("validFrom", e.target.value)} className={inp} style={{ borderColor: errors.validFrom ? "#f0545c" : "#e5e7eb" }} />
+              <label className={label}>Valid From <span style={{ color: "#106579" }}>*</span></label>
+              <input type="date" value={form.validFrom} onChange={(e) => set("validFrom", e.target.value)} className={inp} style={{ borderColor: errors.validFrom ? "#106579" : "#e4e4e7" }} />
               {errors.validFrom && <p className="text-[11px] text-red-500 mt-1">{errors.validFrom}</p>}
             </div>
             <div>
-              <label className={label}>Valid Till <span style={{ color: "#f0545c" }}>*</span></label>
-              <input type="date" value={form.validTill} onChange={(e) => set("validTill", e.target.value)} className={inp} style={{ borderColor: errors.validTill ? "#f0545c" : "#e5e7eb" }} />
+              <label className={label}>Valid Till <span style={{ color: "#106579" }}>*</span></label>
+              <input type="date" value={form.validTill} onChange={(e) => set("validTill", e.target.value)} className={inp} style={{ borderColor: errors.validTill ? "#106579" : "#e4e4e7" }} />
               {errors.validTill && <p className="text-[11px] text-red-500 mt-1">{errors.validTill}</p>}
             </div>
           </div>
@@ -205,7 +206,7 @@ function OfferFormModal({ mode = "add", initial = null, onSave, onCancel, saving
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Applies To</label>
-              <select value={form.applicableTo} onChange={(e) => set("applicableTo", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}>
+              <select value={form.applicableTo} onChange={(e) => set("applicableTo", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}>
                 <option value="all">All (Movies & Events)</option>
                 <option value="movies">Movies only</option>
                 <option value="events">Events only</option>
@@ -213,7 +214,7 @@ function OfferFormModal({ mode = "add", initial = null, onSave, onCancel, saving
             </div>
             <div>
               <label className={label}>Banner Theme</label>
-              <select value={form.theme} onChange={(e) => set("theme", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}>
+              <select value={form.theme} onChange={(e) => set("theme", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}>
                 {THEMES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
@@ -221,27 +222,27 @@ function OfferFormModal({ mode = "add", initial = null, onSave, onCancel, saving
 
           <div>
             <label className={label}>Terms & Conditions (one per line)</label>
-            <textarea value={form.termsAndConditions} onChange={(e) => set("termsAndConditions", e.target.value)} rows={3} placeholder={"Valid on select movies only\nCannot be combined with other offers"} className={inp} style={{ borderColor: "#e5e7eb", resize: "vertical" }} />
+            <textarea value={form.termsAndConditions} onChange={(e) => set("termsAndConditions", e.target.value)} rows={3} placeholder={"Valid on select movies only\nCannot be combined with other offers"} className={inp} style={{ borderColor: "#e4e4e7", resize: "vertical" }} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label}>CTA Text</label>
-              <input value={form.ctaText} onChange={(e) => set("ctaText", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input value={form.ctaText} onChange={(e) => set("ctaText", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
             <div>
               <label className={label}>CTA Link</label>
-              <input value={form.ctaLink} onChange={(e) => set("ctaLink", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input value={form.ctaLink} onChange={(e) => set("ctaLink", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
 
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+              <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-now-accent" />
               <span className="text-[13px] font-medium text-gray-700">Active</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.showOnBanner} onChange={(e) => set("showOnBanner", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+              <input type="checkbox" checked={form.showOnBanner} onChange={(e) => set("showOnBanner", e.target.checked)} className="w-4 h-4 accent-now-accent" />
               <span className="text-[13px] font-medium text-gray-700 flex items-center gap-1"><LayoutGrid size={13} /> Show on homepage banner</span>
             </label>
           </div>
@@ -251,12 +252,12 @@ function OfferFormModal({ mode = "add", initial = null, onSave, onCancel, saving
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Add Offer"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -348,7 +349,7 @@ export default function AdminOffers() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Add Offer
           </button>
         </div>
@@ -358,7 +359,7 @@ export default function AdminOffers() {
             { label: "Total Offers", value: offers.length, color: "#6366f1", bg: "rgba(99,102,241,0.08)" },
             { label: "Live Now",     value: offers.filter(isLive).length, color: "#16a34a", bg: "rgba(22,163,74,0.08)" },
             { label: "On Banner",    value: offers.filter((o) => o.showOnBanner).length, color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
-            { label: "Search Results", value: search ? filtered.length : "—", color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+            { label: "Search Results", value: search ? filtered.length : "—", color: "#106579", bg: "rgba(16,101,121,0.08)" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -392,8 +393,8 @@ export default function AdminOffers() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <Tag size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <Tag size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No offers found</p>
                   </td>
@@ -411,7 +412,7 @@ export default function AdminOffers() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="flex items-center gap-1 text-[12px] font-bold" style={{ color: "#f0545c" }}>
+                      <span className="flex items-center gap-1 text-[12px] font-bold" style={{ color: "#106579" }}>
                         <Percent size={11} /> {o.discountType === "percentage" ? `${o.discountValue}%` : `₹${o.discountValue}`}
                       </span>
                     </td>

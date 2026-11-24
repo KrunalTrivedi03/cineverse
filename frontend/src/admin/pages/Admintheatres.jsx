@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosAdmin from "../../api/axiosAdmin";
@@ -33,10 +34,10 @@ function Toast({ toast, onClose }) {
 ───────────────────────────────────────── */
 function ConfirmModal({ title, description, onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={title} maxWidth={340} onDismiss={onCancel} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">{title}</h3>
         <p className="text-[13px] text-gray-500 mb-5">{description}</p>
@@ -44,14 +45,14 @@ function ConfirmModal({ title, description, onConfirm, onCancel }) {
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">Cancel</button>
           <button onClick={onConfirm}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#e04048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -99,13 +100,13 @@ function TheatreFormModal({ mode = "add", initial = null, cities, onSave, onCanc
   const inp = "w-full px-4 py-2.5 rounded-xl border text-[13px] text-gray-800 placeholder-gray-300 outline-none transition-all";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "theatre"} maxWidth={520} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[520px] max-h-[90vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Building2 size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <Building2 size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Theatre" : "Add New Theatre"}</h3>
@@ -121,24 +122,24 @@ function TheatreFormModal({ mode = "add", initial = null, cities, onSave, onCanc
         <div className="overflow-y-auto flex-1 px-6 py-4 flex flex-col gap-4">
           {/* Name */}
           <div>
-            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Theatre Name <span style={{ color: "#f0545c" }}>*</span></label>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Theatre Name <span style={{ color: "#106579" }}>*</span></label>
             <input type="text" placeholder="e.g. PVR Phoenix Mall" value={form.name} onChange={(e) => set("name", e.target.value)}
-              className={inp} style={{ borderColor: errors.name ? "#f0545c" : "#e5e7eb" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-              onBlur={(e)  => (e.currentTarget.style.borderColor = errors.name ? "#f0545c" : "#e5e7eb")} />
+              className={inp} style={{ borderColor: errors.name ? "#106579" : "#e4e4e7" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = errors.name ? "#106579" : "#e4e4e7")} />
             {errors.name && <p className="text-[11px] text-red-500 mt-1">{errors.name}</p>}
           </div>
 
           {/* City */}
           <div>
-            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span style={{ color: "#f0545c" }}>*</span></label>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span style={{ color: "#106579" }}>*</span></label>
             <div className="relative">
               <MapPin size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
               <select value={form.city} onChange={(e) => set("city", e.target.value)}
                 className={inp + " pl-9 appearance-none cursor-pointer"}
-                style={{ borderColor: errors.city ? "#f0545c" : "#e5e7eb", color: form.city ? "#1f2937" : "#9ca3af" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.city ? "#f0545c" : "#e5e7eb")}>
+                style={{ borderColor: errors.city ? "#106579" : "#e4e4e7", color: form.city ? "#1f2937" : "#9ca3af" }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = errors.city ? "#106579" : "#e4e4e7")}>
                 <option value="">Select a city…</option>
                 {cities.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
@@ -150,53 +151,53 @@ function TheatreFormModal({ mode = "add", initial = null, cities, onSave, onCanc
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Address</label>
             <input type="text" placeholder="e.g. 4th Floor, Phoenix Palassio" value={form.address}
-              onChange={(e) => set("address", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-              onBlur={(e)  => (e.currentTarget.style.borderColor = "#e5e7eb")} />
+              onChange={(e) => set("address", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = "#e4e4e7")} />
           </div>
 
           {/* Location Link */}
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Google Maps Link</label>
             <input type="url" placeholder="https://maps.google.com/…" value={form.locationLink}
-              onChange={(e) => set("locationLink", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-              onBlur={(e)  => (e.currentTarget.style.borderColor = "#e5e7eb")} />
+              onChange={(e) => set("locationLink", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = "#e4e4e7")} />
           </div>
 
           {/* Screens */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">Screens <span style={{ color: "#f0545c" }}>*</span></label>
+              <label className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">Screens <span style={{ color: "#106579" }}>*</span></label>
               <button onClick={addScreen}
                 className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-all"
-                style={{ color: "#f0545c", background: "rgba(240,84,92,0.08)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.14)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.08)")}>
+                style={{ color: "#106579", background: "rgba(16,101,121,0.08)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.14)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.08)")}>
                 <Plus size={12} /> Add Screen
               </button>
             </div>
             <div className="flex flex-col gap-2">
               {screens.map((screen, i) => (
                 <div key={i} className="flex gap-2 items-start p-3 rounded-xl border border-gray-100 bg-gray-50">
-                  <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-1.5 text-[11px] font-bold text-white" style={{ background: "#f0545c" }}>{i + 1}</div>
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-1.5 text-[11px] font-bold text-white" style={{ background: "#106579" }}>{i + 1}</div>
                   <div className="flex-1 flex gap-2">
                     <div className="flex-1">
                       <input type="text" placeholder="Screen name (e.g. Audi 1)" value={screen.name}
                         onChange={(e) => updateScreen(i, "name", e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-white transition-all"
-                        style={{ borderColor: errors[`sn${i}`] ? "#f0545c" : "#e5e7eb" }}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`sn${i}`] ? "#f0545c" : "#e5e7eb")} />
+                        style={{ borderColor: errors[`sn${i}`] ? "#106579" : "#e4e4e7" }}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`sn${i}`] ? "#106579" : "#e4e4e7")} />
                       {errors[`sn${i}`] && <p className="text-[10px] text-red-500 mt-0.5">{errors[`sn${i}`]}</p>}
                     </div>
                     <div className="w-28">
                       <input type="number" placeholder="Seats" value={screen.totalSeats} min="1"
                         onChange={(e) => updateScreen(i, "totalSeats", e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-white transition-all"
-                        style={{ borderColor: errors[`ss${i}`] ? "#f0545c" : "#e5e7eb" }}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = "#f0545c")}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`ss${i}`] ? "#f0545c" : "#e5e7eb")} />
+                        style={{ borderColor: errors[`ss${i}`] ? "#106579" : "#e4e4e7" }}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = errors[`ss${i}`] ? "#106579" : "#e4e4e7")} />
                       {errors[`ss${i}`] && <p className="text-[10px] text-red-500 mt-0.5">{errors[`ss${i}`]}</p>}
                     </div>
                   </div>
@@ -206,7 +207,7 @@ function TheatreFormModal({ mode = "add", initial = null, cities, onSave, onCanc
                       style={{ background: "#fff1f2" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "#fee2e2")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "#fff1f2")}>
-                      <X size={12} style={{ color: "#f0545c" }} />
+                      <X size={12} style={{ color: "#106579" }} />
                     </button>
                   )}
                 </div>
@@ -220,15 +221,15 @@ function TheatreFormModal({ mode = "add", initial = null, cities, onSave, onCanc
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
             onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e04048"; }}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             {saving ? <Loader2 size={14} className="animate-spin" /> : mode === "edit" ? <Edit size={14} /> : <Plus size={14} />}
             {mode === "edit" ? "Save Changes" : "Add Theatre"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -282,7 +283,7 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
     setConfirmScreen(null);
   };
 
-  const rowInp = "px-2.5 py-1.5 rounded-lg border border-gray-200 text-[12.5px] text-gray-800 outline-none bg-white transition-all focus:border-[#f0545c]";
+  const rowInp = "px-2.5 py-1.5 rounded-lg border border-gray-200 text-[12.5px] text-gray-800 outline-none bg-white transition-all focus:border-now-accent";
 
   return (
     <>
@@ -290,7 +291,7 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
         <td colSpan={6} className="px-4 pb-4 pt-1 bg-gray-50/60">
           <div className="ml-12">
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <Monitor size={11} style={{ color: "#f0545c" }} /> Screens
+              <Monitor size={11} style={{ color: "#106579" }} /> Screens
             </p>
 
             <div className="flex flex-col gap-1.5 mb-3">
@@ -303,7 +304,7 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
                   className="flex items-center gap-2 bg-white border border-gray-100 rounded-xl px-3 py-2 group">
 
                   <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-white"
-                    style={{ background: "#f0545c" }}>
+                    style={{ background: "#106579" }}>
                     <Monitor size={11} />
                   </div>
 
@@ -344,9 +345,9 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
                         onClick={() => onSeatLayout(screen._id)}
                         title="Manage seat layout"
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
-                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.16)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.08)")}>
+                        style={{ background: "rgba(16,101,121,0.08)", color: "#106579" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.16)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.08)")}>
                         <Monitor size={11} /> Layout
                       </button>
 
@@ -379,7 +380,7 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
             {/* ── Add new screen inline ── */}
             <div className="flex items-start gap-2 p-3 rounded-xl border border-dashed border-gray-200 bg-white">
               <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-1 text-[11px] font-bold"
-                style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}>
+                style={{ background: "rgba(16,101,121,0.08)", color: "#106579" }}>
                 <Plus size={12} />
               </div>
               <div className="flex-1">
@@ -387,7 +388,7 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
                   value={addForm.name}
                   onChange={(e) => { setAddForm((p) => ({ ...p, name: e.target.value })); setAddErrors((p) => ({ ...p, name: "" })); }}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                  className={`w-full px-3 py-1.5 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-gray-50 transition-all ${addErrors.name ? "border-red-400" : "border-gray-200"} focus:border-[#f0545c] focus:bg-white`}
+                  className={`w-full px-3 py-1.5 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-gray-50 transition-all ${addErrors.name ? "border-red-400" : "border-gray-200"} focus:border-now-accent focus:bg-white`}
                 />
                 {addErrors.name && <p className="text-[10px] text-red-500 mt-0.5">{addErrors.name}</p>}
               </div>
@@ -396,15 +397,15 @@ function ScreensManagerRow({ theatre, onScreenAdd, onScreenEdit, onScreenDelete,
                   value={addForm.totalSeats}
                   onChange={(e) => { setAddForm((p) => ({ ...p, totalSeats: e.target.value })); setAddErrors((p) => ({ ...p, totalSeats: "" })); }}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                  className={`w-full px-3 py-1.5 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-gray-50 transition-all ${addErrors.totalSeats ? "border-red-400" : "border-gray-200"} focus:border-[#f0545c] focus:bg-white`}
+                  className={`w-full px-3 py-1.5 rounded-lg border text-[12.5px] text-gray-800 placeholder-gray-300 outline-none bg-gray-50 transition-all ${addErrors.totalSeats ? "border-red-400" : "border-gray-200"} focus:border-now-accent focus:bg-white`}
                 />
                 {addErrors.totalSeats && <p className="text-[10px] text-red-500 mt-0.5">{addErrors.totalSeats}</p>}
               </div>
               <button onClick={handleAdd} disabled={addingScreen}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-all flex-shrink-0 disabled:opacity-50 mt-0.5"
-                style={{ background: "#f0545c" }}
+                style={{ background: "#106579" }}
                 onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e04048"; }}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+                onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
                 {addingScreen ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                 Add
               </button>
@@ -592,9 +593,9 @@ export default function AdminTheatres() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            style={{ background: "#106579" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             <Plus size={15} /> Add Theatre
           </button>
         </div>
@@ -605,7 +606,7 @@ export default function AdminTheatres() {
             { label: "Total Theatres", value: theatres.length,             color: "#6366f1" },
             { label: "Cities Covered", value: uniqueCities,                color: "#10b981" },
             { label: "Total Screens",  value: totalScreens,                color: "#f59e0b" },
-            { label: "Total Seats",    value: totalSeats.toLocaleString(), color: "#f0545c" },
+            { label: "Total Seats",    value: totalSeats.toLocaleString(), color: "#106579" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -671,8 +672,8 @@ export default function AdminTheatres() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <Building2 size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <Building2 size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No theatres found</p>
                     <p className="text-[12px] text-gray-300 mt-0.5">
@@ -688,8 +689,8 @@ export default function AdminTheatres() {
 
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(240,84,92,0.08)" }}>
-                            <Building2 size={16} style={{ color: "#f0545c" }} />
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,101,121,0.08)" }}>
+                            <Building2 size={16} style={{ color: "#106579" }} />
                           </div>
                           <div>
                             <p className="text-[13px] font-semibold text-gray-900">{theatre.name}</p>
@@ -731,8 +732,8 @@ export default function AdminTheatres() {
                             title="Manage screens"
                             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
                             style={{
-                              background: expandedId === theatre._id ? "rgba(240,84,92,0.08)" : "#f9fafb",
-                              color:      expandedId === theatre._id ? "#f0545c" : "#6b7280",
+                              background: expandedId === theatre._id ? "rgba(16,101,121,0.08)" : "#f9fafb",
+                              color:      expandedId === theatre._id ? "#106579" : "#6b7280",
                             }}
                             onMouseEnter={(e) => { if (expandedId !== theatre._id) e.currentTarget.style.background = "#f3f4f6"; }}
                             onMouseLeave={(e) => { if (expandedId !== theatre._id) e.currentTarget.style.background = "#f9fafb"; }}

@@ -6,6 +6,7 @@ import { AdminAuthProvider } from "./context/AdminAuthContext";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "sonner";
 import "./index.css";
+import "./interface.css";
 
 fetch(`${import.meta.env.VITE_API_URL}/health`).catch(() => {});
 ReactDOM.createRoot(document.getElementById("root")).render(

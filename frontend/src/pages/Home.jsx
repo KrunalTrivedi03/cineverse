@@ -11,10 +11,11 @@ import { getSelectedDistrict } from "../components/DistrictSelector";
 
 import {
   X, Play, Clock, CalendarDays, Film, Globe, ShieldCheck, Ticket,
-  PartyPopper, MapPin, Dumbbell, Trophy,
+  PartyPopper, MapPin, Dumbbell, Trophy, ArrowUpRight, Pause,
 } from "lucide-react";
 import OffersBanner from "../components/OffersBanner";
 import BottomNav from "../components/BottomNav";
+import Dialog from "../components/Dialog";
 
 /* ─── Helpers ─────────────────────────────────────────── */
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
@@ -139,6 +140,7 @@ export default function Home() {
   const [trailerUrl, setTrailerUrl] = useState(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [autoplay, setAutoplay] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const autoplayRef = useRef(null);
   const pausedRef = useRef(false);
 
@@ -176,20 +178,20 @@ export default function Home() {
   // Only ever one index is "active" at a time; everything else is opacity 0
   // and pointer-events: none.
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (slides.length <= 1 || !autoplay) return;
     autoplayRef.current = setInterval(() => {
       if (pausedRef.current) return;
       setActiveIdx((i) => (i + 1) % slides.length);
     }, 5500);
     return () => clearInterval(autoplayRef.current);
-  }, [slides.length]);
+  }, [slides.length, autoplay]);
 
   const goTo = (i) => {
     setActiveIdx(i);
     // Restart the autoplay clock so a manual click doesn't get immediately
     // overridden by a timer that was already halfway through its interval.
     clearInterval(autoplayRef.current);
-    if (slides.length > 1) {
+    if (slides.length > 1 && autoplay) {
       autoplayRef.current = setInterval(() => {
         if (pausedRef.current) return;
         setActiveIdx((i2) => (i2 + 1) % slides.length);
@@ -207,50 +209,52 @@ export default function Home() {
     setTrailerUrl(null);
   };
 
-  useEffect(() => {
-    const fn = (e) => e.key === "Escape" && closeTrailer();
-    window.addEventListener("keydown", fn);
-    return () => window.removeEventListener("keydown", fn);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-[#f5f5f5]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-now-canvas" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
+      <a href="#main-content" className="now-skip">Skip to content</a>
       <Navbar />
       <BottomNav />
 
-      <div
-        className="relative"
-        style={{ background: "#111" }}
+      <main id="main-content" tabIndex={-1}>
+      <h1 className="sr-only">Discover entertainment on NOW</h1>
+      <section
+        className="now-hero"
+        aria-label="Featured entertainment"
         onMouseEnter={() => (pausedRef.current = true)}
         onMouseLeave={() => (pausedRef.current = false)}
+        onFocus={() => (pausedRef.current = true)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget) && !trailerUrl) pausedRef.current = false;
+        }}
       >
         {loading ? (
-          <div
-            className="w-full flex items-center justify-center"
-            style={{ height: "clamp(420px, 58vw, 600px)", background: "#1a1a1a" }}
-          >
+          <div role="status" className="now-hero-stage flex items-center justify-center">
+            <span className="sr-only">Loading featured entertainment</span>
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
                   className="w-2.5 h-2.5 rounded-full animate-bounce"
-                  style={{ background: "#f0545c", animationDelay: `${i * 0.15}s` }}
+                  style={{ background: "#106579", animationDelay: `${i * 0.15}s` }}
                 />
               ))}
             </div>
           </div>
         ) : slides.length === 0 ? (
-          <div
-            className="w-full flex flex-col items-center justify-center gap-2 text-center px-6"
-            style={{ height: "clamp(340px, 40vw, 460px)", background: "#1a1a1a" }}
-          >
-            <p className="text-white/70 text-[14px] font-semibold">Nothing to feature here yet</p>
-            <p className="text-white/35 text-[12px]">Check back soon, or pick a district to see local events &amp; play venues.</p>
+          <div className="now-hero-stage now-hero-blank">
+            <div>
+              <h2 className="now-hero-title max-w-[10ch]">Make plans worth going out for.</h2>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-gray-500 sm:text-base">Browse movies, discover live events and find places to play near you.</p>
+              <div className="mt-6 flex flex-wrap gap-2 sm:gap-3">
+                <Link className="now-primary" to="/now-showing">Find movies <ArrowUpRight size={16} /></Link>
+                <Link className="now-secondary" to="/events">Explore events</Link>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="relative w-full overflow-hidden" style={{ height: "clamp(420px, 58vw, 600px)" }}>
+          <div className="now-hero-stage relative w-full overflow-hidden">
             {slides.map((item, i) => (
               <div
                 key={item.key}
@@ -262,6 +266,7 @@ export default function Home() {
                   transition: "opacity 0.7s ease",
                 }}
                 aria-hidden={i !== activeIdx}
+                inert={i !== activeIdx}
               >
                 <HeroSlide item={item} onPlay={() => openTrailer(item.trailer)} />
               </div>
@@ -271,50 +276,52 @@ export default function Home() {
 
         {/* Dot indicators */}
         {slides.length > 1 && !loading && (
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          <div className="absolute bottom-3 left-5 sm:left-12 z-20 flex items-center gap-1">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className="transition-all duration-300 rounded-full"
-                style={{
-                  width: i === activeIdx ? 24 : 8,
-                  height: 8,
-                  background: i === activeIdx ? "#f0545c" : "rgba(255,255,255,0.35)",
-                }}
-              />
+                aria-label={`Show ${slides[i].title}`}
+                aria-current={i === activeIdx ? "true" : undefined}
+                className="grid size-8 place-items-center rounded-full"
+              >
+                <span className={i === activeIdx ? "h-1.5 w-6 rounded-full bg-now-accent" : "size-1.5 rounded-full bg-now-accent/40"} />
+              </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setAutoplay((enabled) => !enabled)}
+              aria-label={autoplay ? "Pause featured slides" : "Play featured slides"}
+              className="grid size-9 place-items-center rounded-full bg-white/80 text-now-accent"
+            >
+              {autoplay ? <Pause size={15} /> : <Play size={15} />}
+            </button>
           </div>
         )}
-      </div>
+      </section>
 
       {/* ══ LIGHT CONTENT ═════════════════════════════════ */}
-      <div className="bg-white">
+      <div className="now-home-content">
         <OffersBanner />
         <LatestMovies />
         <ComingSoon />
         <Events />
         <PlayHome />
       </div>
+      </main>
 
       {/* ══ FOOTER ════════════════════════════════════════ */}
       <Footer />
 
       {/* ══ TRAILER MODAL ═════════════════════════════════ */}
       {trailerUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(6px)" }}
-          onClick={closeTrailer}
-        >
+        <Dialog variant="video" label="Watch trailer" onDismiss={closeTrailer}>
           <div
-            className="relative w-full max-w-4xl"
-            onClick={(e) => e.stopPropagation()}
-            style={{ animation: "scaleUp 0.22s cubic-bezier(.4,0,.2,1) both" }}
+            className="p-3 sm:p-4"
           >
             <button
               onClick={closeTrailer}
-              className="absolute -top-11 right-0 flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors"
+              className="ml-auto mb-2 flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-white/85 hover:bg-white/10 text-sm transition-colors"
             >
               <X size={15} /> Close
             </button>
@@ -329,13 +336,7 @@ export default function Home() {
               />
             </div>
           </div>
-          <style>{`
-            @keyframes scaleUp {
-              from { opacity: 0; transform: scale(0.93); }
-              to   { opacity: 1; transform: scale(1); }
-            }
-          `}</style>
-        </div>
+        </Dialog>
       )}
     </div>
   );
@@ -345,61 +346,39 @@ export default function Home() {
 function HeroSlide({ item, onPlay }) {
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Blurred backdrop */}
       <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: item.background ? `url(${item.background})` : undefined,
-          background: item.background ? undefined : "linear-gradient(135deg,#1c1c1c,#2d2d2d)",
-          backgroundSize: "cover",
-          backgroundPosition: "center 20%",
-          filter: "brightness(0.22) saturate(1.3)",
-          transform: "scale(1.07)",
-        }}
-      />
-
-      {/* Left-dark overlay */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(105deg, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.65) 42%, rgba(8,8,8,0.1) 100%)",
-        }}
-      />
-
-      {/* Bottom bleed into page */}
-      <div
-        className="absolute bottom-0 left-0 right-0"
-        style={{ height: 80, background: "linear-gradient(to bottom, transparent, #f5f5f5)" }}
+        aria-hidden="true"
+        className="now-hero-art"
+        style={{ backgroundImage: item.background ? `url(${item.background})` : undefined }}
       />
 
       {/* Content */}
-      <div className="relative z-10 h-full flex items-center px-8 md:px-16 max-w-6xl mx-auto">
+      <div className="relative z-10 h-full flex items-center px-6 pb-8 md:px-16">
         <div className="flex items-center gap-10 md:gap-16 w-full">
 
           {/* Left: text */}
-          <div className="flex-1 min-w-0 text-white">
+          <div className="flex-1 min-w-0 text-gray-900">
             {/* Tag pill */}
             <span
               className="inline-block text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4"
               style={{
-                background: "rgba(240,84,92,0.2)",
-                color: "#f0545c",
-                border: "1px solid rgba(240,84,92,0.35)",
+                background: "var(--now-mist)",
+                color: "var(--now-accent)",
+                border: "1px solid #cce8eb",
               }}
             >
               {item.tag}
             </span>
 
             <h2
-              className="font-black leading-none mb-3 tracking-tight"
-              style={{ fontSize: "clamp(28px, 4.5vw, 52px)" }}
+              className="now-hero-title mb-3 line-clamp-2"
             >
               {item.title}
             </h2>
 
             {/* Meta row */}
             {item.meta?.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-white/45 text-[13px] mb-4">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600 text-[13px] mb-4">
                 {item.meta.map((m, i) => {
                   const MetaIcon = m.icon;
                   return (
@@ -414,7 +393,7 @@ function HeroSlide({ item, onPlay }) {
 
             {item.description && (
               <p
-                className="text-white/55 leading-relaxed mb-6 line-clamp-2"
+                className="text-gray-600 leading-relaxed mb-6 line-clamp-2"
                 style={{ maxWidth: 480, fontSize: 14 }}
               >
                 {item.description}
@@ -425,10 +404,7 @@ function HeroSlide({ item, onPlay }) {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 to={item.primaryCta.to}
-                className="flex items-center gap-2 font-semibold px-7 py-2.5 rounded-xl text-sm text-white transition-all active:scale-95"
-                style={{ background: "#f0545c" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+                className="now-primary"
               >
                 <item.primaryCta.icon size={15} /> {item.primaryCta.label}
               </Link>
@@ -436,14 +412,7 @@ function HeroSlide({ item, onPlay }) {
               {item.trailer && (
                 <button
                   onClick={onPlay}
-                  className="flex items-center gap-2 font-semibold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-95"
-                  style={{
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    color: "rgba(255,255,255,0.75)",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.14)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+                  className="now-secondary"
                 >
                   <Play size={14} fill="currentColor" /> Watch Trailer
                 </button>
@@ -504,5 +473,5 @@ function HeroSlide({ item, onPlay }) {
 }
 
 function Dot() {
-  return <span className="text-white/20 text-[10px]">•</span>;
+  return <span className="text-now-accent/45 text-[10px]">•</span>;
 }

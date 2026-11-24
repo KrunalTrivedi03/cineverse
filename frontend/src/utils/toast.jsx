@@ -3,7 +3,7 @@ import { CheckCircle2, XCircle, Info, X } from "lucide-react";
 
 const CONFIG = {
   success: { icon: CheckCircle2, color: "#16a34a", bg: "rgba(22,163,74,0.1)" },
-  error:   { icon: XCircle,      color: "#f0545c", bg: "rgba(240,84,92,0.1)" },
+  error:   { icon: XCircle,      color: "#106579", bg: "rgba(16,101,121,0.1)" },
   info:    { icon: Info,         color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
 };
 

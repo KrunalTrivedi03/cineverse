@@ -86,10 +86,10 @@ export default function CategoryEvents() {
               onClick={() => setSortBy(o.key)}
               style={{
                 flexShrink: 0, padding: "6px 12px", borderRadius: 20,
-                border: `1.5px solid ${sortBy === o.key ? "#f0545c" : "#e5e7eb"}`,
-                background: sortBy === o.key ? "rgba(240,84,92,0.08)" : "#fff",
+                border: `1.5px solid ${sortBy === o.key ? "#106579" : "#e4e4e7"}`,
+                background: sortBy === o.key ? "rgba(16,101,121,0.08)" : "#fff",
                 fontSize: 11, fontWeight: 700,
-                color: sortBy === o.key ? "#f0545c" : "#374151", cursor: "pointer",
+                color: sortBy === o.key ? "#106579" : "#374151", cursor: "pointer",
               }}
             >
               {o.label}
@@ -101,10 +101,10 @@ export default function CategoryEvents() {
               onClick={() => setLanguage((v) => (v === lang ? "" : lang))}
               style={{
                 flexShrink: 0, padding: "6px 12px", borderRadius: 20,
-                border: `1.5px solid ${language === lang ? "#f0545c" : "#e5e7eb"}`,
-                background: language === lang ? "rgba(240,84,92,0.08)" : "#fff",
+                border: `1.5px solid ${language === lang ? "#106579" : "#e4e4e7"}`,
+                background: language === lang ? "rgba(16,101,121,0.08)" : "#fff",
                 fontSize: 11, fontWeight: 700,
-                color: language === lang ? "#f0545c" : "#374151", cursor: "pointer",
+                color: language === lang ? "#106579" : "#374151", cursor: "pointer",
               }}
             >
               {lang}
@@ -118,7 +118,7 @@ export default function CategoryEvents() {
           <div className="flex items-center justify-center py-24">
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
-                <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
               ))}
             </div>
           </div>

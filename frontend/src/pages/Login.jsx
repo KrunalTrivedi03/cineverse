@@ -86,7 +86,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-dvh flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
 
@@ -152,7 +152,7 @@ export default function Login() {
         {/* Right fade into form panel */}
         <div
           className="absolute top-0 right-0 bottom-0 w-32 pointer-events-none"
-          style={{ background: "linear-gradient(to right, transparent, #f5f5f5)" }}
+          style={{ background: "linear-gradient(to right, transparent, #21182d)" }}
         />
 
         {/* Branding overlay */}
@@ -165,7 +165,7 @@ export default function Login() {
               backdropFilter: "blur(12px)",
             }}
           >
-            <img src={nowLogo} alt="NOW" className="h-9 w-auto" />
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-9 w-auto" />
             <p
               style={{
                 margin: 0,
@@ -176,7 +176,7 @@ export default function Login() {
               }}
             >
               <span style={{ color: "#ffffff" }}>Your World of </span>
-              <span style={{ color: "#f0545c" }}>Entertainment</span>
+              <span style={{ color: "#ffd5df" }}>Entertainment</span>
             </p>
           </div>
           <p className="text-white/50 text-[14px] leading-relaxed max-w-xs">
@@ -187,18 +187,17 @@ export default function Login() {
 
       {/* ── RIGHT: Login form ────────────────────────────── */}
       <div
-        className="w-full lg:w-[420px] flex-shrink-0 flex flex-col justify-center px-8 md:px-12 py-12"
-        style={{ background: "#f5f5f5" }}
+        className="w-full lg:w-[min(50%,35rem)] shrink-0 flex flex-col justify-center px-4 py-6 sm:px-8 md:px-10"
+        style={{ background: "#fafafb" }}
       >
-        <div className="fade-up w-full max-w-sm mx-auto">
+        <div className="fade-up mx-auto w-full max-w-md rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
 
-          {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
-          </div>
+          <Link to="/" className="mb-6 inline-flex min-h-11 items-center" aria-label="NOW home">
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-7 w-auto" />
+          </Link>
 
           {/* Heading */}
-          <h1 className="text-[26px] font-bold text-gray-900 leading-tight">
+          <h1 className="text-3xl font-bold text-gray-900 leading-tight sm:text-4xl">
             Welcome back
           </h1>
           <p className="text-[14px] text-gray-400 mt-1 mb-8">
@@ -209,15 +208,16 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email */}
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
+              <label htmlFor="login-email" className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
                 Email
               </label>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
-                style={{ borderColor: "#e5e7eb" }}
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
+                style={{ borderColor: "#e4e4e7" }}
               >
                 <Mail size={15} className="text-gray-300 flex-shrink-0" />
                 <input
+                  id="login-email" autoComplete="email"
                   type="email"
                   placeholder="you@example.com"
                   required
@@ -231,23 +231,24 @@ export default function Login() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest">
+                <label htmlFor="login-password" className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest">
                   Password
                 </label>
                 <button
                   type="button"
                   className="text-[12px] font-medium hover:underline"
-                  style={{ color: "#f0545c" }}
+                  style={{ color: "#106579" }}
                 >
                   Forgot password?
                 </button>
               </div>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
-                style={{ borderColor: "#e5e7eb" }}
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
+                style={{ borderColor: "#e4e4e7" }}
               >
                 <Lock size={15} className="text-gray-300 flex-shrink-0" />
                 <input
+                  id="login-password" autoComplete="current-password"
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
                   required
@@ -257,7 +258,7 @@ export default function Login() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPass((p) => !p)}
+                  onClick={() => setShowPass((p) => !p)} aria-label={showPass ? "Hide password" : "Show password"}
                   className="text-gray-300 hover:text-gray-500 transition-colors"
                 >
                   {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -270,11 +271,11 @@ export default function Login() {
               disabled={loading}
               className="mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-white transition-all active:scale-[0.98]"
               style={{
-                background: loading ? "#ccc" : "#f0545c",
+                background: loading ? "#ccc" : "#106579",
                 cursor: loading ? "not-allowed" : "pointer",
               }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#d94048"; }}
-              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#f0545c"; }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#125467"; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#106579"; }}
             >
               {loading ? (
                 <>
@@ -302,7 +303,7 @@ export default function Login() {
               window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
             }}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-gray-700 bg-white border transition-all active:scale-[0.98] hover:bg-gray-50"
-            style={{ borderColor: "#e5e7eb" }}
+            style={{ borderColor: "#e4e4e7" }}
           >
             <svg width="16" height="16" viewBox="0 0 48 48">
               <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.7 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
@@ -318,7 +319,7 @@ export default function Login() {
             <Link
               to="/register"
               className="font-semibold hover:underline"
-              style={{ color: "#f0545c" }}
+              style={{ color: "#106579" }}
             >
               Create an account
             </Link>

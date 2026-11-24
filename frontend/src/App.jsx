@@ -48,9 +48,10 @@ const WebShowsListing = lazy(() => import("./pages/WebShowsListing"));
 
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+    <div role="status" className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <span className="sr-only">Loading page</span>
       <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-[#f0545c] animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-now-accent animate-spin" />
       </div>
     </div>
   );

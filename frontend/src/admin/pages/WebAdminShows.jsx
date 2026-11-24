@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -25,21 +26,21 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ show, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete web show?"} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete Show</h3>
         <p className="text-[13px] text-gray-500 mb-5">Delete <span className="font-semibold text-gray-800">"{show.title}"</span>? This cannot be undone.</p>
         <div className="flex gap-2">
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
-          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -142,12 +143,12 @@ function WebShowFormModal({ mode = "add", initial = null, onSave, onCancel, savi
   const label = "block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "web show"} maxWidth={600} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[600px] max-h-[90vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Tv size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <Tv size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Show" : "Add New Show"}</h3>
@@ -181,62 +182,62 @@ function WebShowFormModal({ mode = "add", initial = null, onSave, onCancel, savi
           </div>
 
           <div>
-            <label className={label}>Title <span style={{ color: "#f0545c" }}>*</span></label>
-            <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Money Heist" className={inp} style={{ borderColor: errors.title ? "#f0545c" : "#e5e7eb" }} />
+            <label className={label}>Title <span style={{ color: "#106579" }}>*</span></label>
+            <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Money Heist" className={inp} style={{ borderColor: errors.title ? "#106579" : "#e4e4e7" }} />
             {errors.title && <p className="text-[11px] text-red-500 mt-1">{errors.title}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Category</label>
-              <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}>
+              <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}>
                 <option value="trending-series">Trending Series</option>
                 <option value="web-original">Web Originals</option>
               </select>
             </div>
             <div>
               <label className={label}>Release Year</label>
-              <input type="number" value={form.releaseYear} onChange={(e) => set("releaseYear", e.target.value)} placeholder="2024" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="number" value={form.releaseYear} onChange={(e) => set("releaseYear", e.target.value)} placeholder="2024" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
 
           <div>
-            <label className={label}>Description <span style={{ color: "#f0545c" }}>*</span></label>
-            <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={3} placeholder="Short synopsis…" className={inp} style={{ borderColor: errors.description ? "#f0545c" : "#e5e7eb", resize: "vertical" }} />
+            <label className={label}>Description <span style={{ color: "#106579" }}>*</span></label>
+            <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={3} placeholder="Short synopsis…" className={inp} style={{ borderColor: errors.description ? "#106579" : "#e4e4e7", resize: "vertical" }} />
             {errors.description && <p className="text-[11px] text-red-500 mt-1">{errors.description}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Genre (comma separated)</label>
-              <input value={form.genre} onChange={(e) => set("genre", e.target.value)} placeholder="Drama, Thriller" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input value={form.genre} onChange={(e) => set("genre", e.target.value)} placeholder="Drama, Thriller" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
             <div>
               <label className={label}>Rating (0-10)</label>
-              <input type="number" step="0.1" min="0" max="10" value={form.rating} onChange={(e) => set("rating", e.target.value)} placeholder="8.5" className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="number" step="0.1" min="0" max="10" value={form.rating} onChange={(e) => set("rating", e.target.value)} placeholder="8.5" className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
 
           <div>
             <label className={label}>Cast (comma separated)</label>
-            <input value={form.cast} onChange={(e) => set("cast", e.target.value)} placeholder="Actor One, Actor Two" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.cast} onChange={(e) => set("cast", e.target.value)} placeholder="Actor One, Actor Two" className={inp} style={{ borderColor: "#e4e4e7" }} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Streaming URL (Watch Now)</label>
-              <input type="url" value={form.streamingUrl} onChange={(e) => set("streamingUrl", e.target.value)} placeholder="https://..." className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="url" value={form.streamingUrl} onChange={(e) => set("streamingUrl", e.target.value)} placeholder="https://..." className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
             <div>
               <label className={label}>Trailer URL</label>
-              <input type="url" value={form.trailerUrl} onChange={(e) => set("trailerUrl", e.target.value)} placeholder="https://youtube.com/..." className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="url" value={form.trailerUrl} onChange={(e) => set("trailerUrl", e.target.value)} placeholder="https://youtube.com/..." className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className={label} style={{ marginBottom: 0 }}>Seasons</label>
-              <button type="button" onClick={addSeasonRow} className="text-[12px] font-semibold" style={{ color: "#f0545c" }}>+ Add Season</button>
+              <button type="button" onClick={addSeasonRow} className="text-[12px] font-semibold" style={{ color: "#106579" }}>+ Add Season</button>
             </div>
             <div className="space-y-2">
               {form.seasons.map((s, i) => (
@@ -261,7 +262,7 @@ function WebShowFormModal({ mode = "add", initial = null, onSave, onCancel, savi
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+            <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-now-accent" />
             <span className="text-[13px] font-medium text-gray-700">Active (visible on site)</span>
           </label>
         </div>
@@ -270,12 +271,12 @@ function WebShowFormModal({ mode = "add", initial = null, onSave, onCancel, savi
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Add Show"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -362,7 +363,7 @@ export default function WebAdminShows() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Add Show
           </button>
         </div>
@@ -372,7 +373,7 @@ export default function WebAdminShows() {
             { label: "Total Shows",      value: shows.length, color: "#6366f1", bg: "rgba(99,102,241,0.08)" },
             { label: "Trending Series",  value: shows.filter((s) => s.category === "trending-series").length, color: "#16a34a", bg: "rgba(22,163,74,0.08)" },
             { label: "Web Originals",    value: shows.filter((s) => s.category === "web-original").length, color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
-            { label: "Search Results",   value: search ? filtered.length : "—", color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+            { label: "Search Results",   value: search ? filtered.length : "—", color: "#106579", bg: "rgba(16,101,121,0.08)" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -406,8 +407,8 @@ export default function WebAdminShows() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <Tv size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <Tv size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No shows found</p>
                   </td>
@@ -429,8 +430,8 @@ export default function WebAdminShows() {
                     </td>
                     <td className="py-4 px-4 text-[12px] text-gray-500">{s.releaseYear || "—"}</td>
                     <td className="py-4 px-4">
-                      <span className="flex items-center gap-1 text-[12px] font-bold" style={{ color: "#f0545c" }}>
-                        <Star size={11} fill="#f0545c" /> {s.rating}
+                      <span className="flex items-center gap-1 text-[12px] font-bold" style={{ color: "#106579" }}>
+                        <Star size={11} fill="#106579" /> {s.rating}
                       </span>
                     </td>
                     <td className="py-4 px-4">

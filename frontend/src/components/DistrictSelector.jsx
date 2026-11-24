@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin, X, Search, Loader2, ChevronDown } from "lucide-react";
+import Dialog from "./Dialog";
 import api from "../api/axiosInstance";
 
 export function getSelectedDistrict() {
@@ -59,31 +60,24 @@ export default function DistrictSelector({ compact = false }) {
         style={{
           display: "flex", alignItems: "center", gap: 6,
           padding: compact ? "6px 10px" : "8px 14px",
-          borderRadius: 20, border: "1.5px solid #e5e7eb",
-          background: selectedName ? "rgba(240,84,92,0.06)" : "#fff",
+          borderRadius: 20, border: "1.5px solid #e4e4e7",
+          background: selectedName ? "rgba(16,101,121,0.06)" : "#fff",
           cursor: "pointer",
         }}
       >
-        <MapPin size={14} color={selectedName ? "#f0545c" : "#9ca3af"} />
-        <span style={{ fontSize: 13, fontWeight: 700, color: selectedName ? "#f0545c" : "#6b7280" }}>
+        <MapPin size={14} color={selectedName ? "#106579" : "#9ca3af"} />
+        <span style={{ fontSize: 13, fontWeight: 700, color: selectedName ? "#106579" : "#6b7280" }}>
           {selectedName || "Select District"}
         </span>
-        <ChevronDown size={13} color={selectedName ? "#f0545c" : "#9ca3af"} />
+        <ChevronDown size={13} color={selectedName ? "#106579" : "#9ca3af"} />
       </button>
 
       {districtModal && (
-        <div
-          className="fixed inset-0 z-[999] flex items-center justify-center p-4"
-          style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
-          onClick={() => { setDistrictModal(false); setSearch(""); }}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <Dialog label="Select your district" onDismiss={() => { setDistrictModal(false); setSearch(""); }}>
+          <div>
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <p className="text-[15px] font-bold text-gray-900">Select your district</p>
-              <button onClick={() => { setDistrictModal(false); setSearch(""); }}>
+              <button aria-label="Close district selector" className="grid size-10 place-items-center rounded-lg hover:bg-gray-50" onClick={() => { setDistrictModal(false); setSearch(""); }}>
                 <X size={18} className="text-gray-400 hover:text-gray-700 transition-colors" />
               </button>
             </div>
@@ -93,14 +87,15 @@ export default function DistrictSelector({ compact = false }) {
                 <Search size={13} className="text-gray-400 flex-shrink-0" />
                 <input
                   ref={inputRef}
+                  aria-label="Search districts"
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search district…"
-                  className="flex-1 bg-transparent text-[13px] text-gray-800 outline-none placeholder-gray-400"
+                  className="flex-1 min-w-0 bg-transparent text-[13px] text-gray-800 outline-none placeholder-gray-400"
                 />
                 {search && (
-                  <button onClick={() => setSearch("")}>
+                  <button aria-label="Clear district search" onClick={() => setSearch("")}>
                     <X size={12} className="text-gray-400" />
                   </button>
                 )}
@@ -110,7 +105,7 @@ export default function DistrictSelector({ compact = false }) {
             <div className="px-4 pb-4 max-h-72 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
               {loading ? (
                 <div className="flex items-center justify-center py-8 gap-2 text-gray-400">
-                  <Loader2 size={16} className="animate-spin" style={{ color: "#f0545c" }} />
+                  <Loader2 size={16} className="animate-spin" style={{ color: "#106579" }} />
                   <span className="text-[13px]">Loading districts…</span>
                 </div>
               ) : filtered.length === 0 ? (
@@ -127,8 +122,8 @@ export default function DistrictSelector({ compact = false }) {
                         onClick={() => handleSelect(d)}
                         className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all border"
                         style={active
-                          ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
-                          : { background: "white", color: "#374151", borderColor: "#e5e7eb" }}
+                          ? { background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.3)" }
+                          : { background: "white", color: "#374151", borderColor: "#e4e4e7" }}
                       >
                         <MapPin size={12} />
                         {d.name}
@@ -148,7 +143,7 @@ export default function DistrictSelector({ compact = false }) {
               )}
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
     </>
   );

@@ -58,7 +58,7 @@ export default function EventDetail() {
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
         {[0, 1, 2].map((i) => (
-          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
     </div>
@@ -110,7 +110,7 @@ export default function EventDetail() {
                 style={{ width: 84, height: 116, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", border: "2px solid rgba(255,255,255,0.15)" }} />
             )}
             <div className="pb-1 min-w-0">
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#f0545c", textTransform: "uppercase", letterSpacing: ".08em" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#106579", textTransform: "uppercase", letterSpacing: ".08em" }}>
                 {event.category}{event.genre ? ` · ${event.genre}` : ""}
               </span>
               <h1 className="text-[20px] sm:text-[26px] flex items-center gap-2.5 flex-wrap" style={{ margin: "4px 0 6px", fontWeight: 800, color: "#fff", letterSpacing: "-.5px", lineHeight: 1.15 }}>
@@ -141,15 +141,15 @@ export default function EventDetail() {
           {/* Quick facts */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px,1fr))", gap: 12, marginBottom: 24 }}>
             {nearestSchedule && (
-              <FactCard icon={<Calendar size={14} color="#f0545c" />} label="Date" value={fmtDateLong(nearestSchedule.eventDate)} />
+              <FactCard icon={<Calendar size={14} color="#106579" />} label="Date" value={fmtDateLong(nearestSchedule.eventDate)} />
             )}
             {nearestSchedule?.showTimes?.[0] && (
-              <FactCard icon={<Clock size={14} color="#f0545c" />} label="Time" value={fmt12(nearestSchedule.showTimes[0].time)} />
+              <FactCard icon={<Clock size={14} color="#106579" />} label="Time" value={fmt12(nearestSchedule.showTimes[0].time)} />
             )}
             {event.duration && (
-              <FactCard icon={<Clock size={14} color="#f0545c" />} label="Duration" value={`${event.duration} min`} />
+              <FactCard icon={<Clock size={14} color="#106579" />} label="Duration" value={`${event.duration} min`} />
             )}
-            <FactCard icon={<ShieldAlert size={14} color="#f0545c" />} label="Age Limit" value={event.ageRestriction} />
+            <FactCard icon={<ShieldAlert size={14} color="#106579" />} label="Age Limit" value={event.ageRestriction} />
           </div>
 
           {/* Tour banner — shown when this event is one leg of a multi-city/country tour */}
@@ -158,8 +158,8 @@ export default function EventDetail() {
               onClick={() => navigate(`/tours/${event.tour._id}`)}
               className="flex items-center gap-3 mb-6 cursor-pointer"
               style={{
-                background: "rgba(240,84,92,0.06)",
-                border: "1px solid rgba(240,84,92,0.2)",
+                background: "rgba(16,101,121,0.06)",
+                border: "1px solid rgba(16,101,121,0.2)",
                 borderRadius: 14,
                 padding: "12px 14px",
               }}
@@ -169,12 +169,12 @@ export default function EventDetail() {
                   style={{ width: 44, height: 32, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} />
               )}
               <div className="min-w-0 flex-1">
-                <p style={{ fontSize: 10, fontWeight: 700, color: "#f0545c", textTransform: "uppercase", letterSpacing: ".06em" }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "#106579", textTransform: "uppercase", letterSpacing: ".06em" }}>
                   Part of a tour
                 </p>
                 <p className="truncate" style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{event.tour.title}</p>
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#f0545c", flexShrink: 0 }}>See all stops →</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#106579", flexShrink: 0 }}>See all stops →</span>
             </div>
           )}
 
@@ -194,7 +194,7 @@ export default function EventDetail() {
                 <button
                   onClick={() => setDescExpanded((v) => !v)}
                   className="mt-1.5 text-[12px] font-bold flex items-center gap-1"
-                  style={{ color: "#f0545c" }}
+                  style={{ color: "#106579" }}
                 >
                   {descExpanded ? "Read less" : "Read more"}
                   <ChevronDown size={13} style={{ transform: descExpanded ? "rotate(180deg)" : "none", transition: "transform 0.15s ease" }} />
@@ -214,7 +214,7 @@ export default function EventDetail() {
                   <img key={i} src={IMG(g)} onClick={() => setGalleryIdx(i)}
                     style={{
                       width: 64, height: 64, objectFit: "cover", borderRadius: 8, cursor: "pointer", flexShrink: 0,
-                      border: i === galleryIdx ? "2px solid #f0545c" : "2px solid transparent", opacity: i === galleryIdx ? 1 : 0.6,
+                      border: i === galleryIdx ? "2px solid #106579" : "2px solid transparent", opacity: i === galleryIdx ? 1 : 0.6,
                     }} />
                 ))}
               </div>
@@ -246,7 +246,7 @@ export default function EventDetail() {
           {venue && (
             <Section title="Venue">
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <Building2 size={16} color="#f0545c" style={{ marginTop: 2, flexShrink: 0 }} />
+                <Building2 size={16} color="#106579" style={{ marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#111" }}>{venue.name}</p>
                   <p style={{ margin: "3px 0 0", fontSize: 12, color: "#9ca3af" }}>
@@ -254,7 +254,7 @@ export default function EventDetail() {
                   </p>
                   {venue.locationLink && (
                     <a href={venue.locationLink} target="_blank" rel="noreferrer"
-                      style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, fontWeight: 700, color: "#f0545c" }}>
+                      style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, fontWeight: 700, color: "#106579" }}>
                       <MapPin size={12} /> Get Directions
                     </a>
                   )}
@@ -281,7 +281,7 @@ export default function EventDetail() {
                   <button
                     onClick={() => setRulesExpanded((v) => !v)}
                     className="w-full flex items-center justify-center gap-1 px-4 py-3 text-[12px] font-bold"
-                    style={{ color: "#f0545c", borderTop: "1px solid #f0f0f0" }}
+                    style={{ color: "#106579", borderTop: "1px solid #f0f0f0" }}
                   >
                     {rulesExpanded ? "Show less" : "See more"}
                     <ChevronDown size={13} style={{ transform: rulesExpanded ? "rotate(180deg)" : "none", transition: "transform 0.15s ease" }} />
@@ -349,7 +349,7 @@ export default function EventDetail() {
           <button
             onClick={() => navigate(`/events/${event._id}/book`)}
             className="flex items-center gap-2 px-6 py-3 rounded-4xl font-bold text-[13px] text-white flex-shrink-0"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             <Ticket size={15} /> Book Tickets
           </button>
@@ -379,7 +379,7 @@ function BookingCardContent({ event, schedules, minPrice, navigate }) {
           onClick={() => navigate(`/events/${event._id}/book`)}
           style={{
             width: "100%", padding: "13px 0", border: "none", borderRadius: 14,
-            background: "#f0545c", color: "#fff", fontSize: 14, fontWeight: 800,
+            background: "#106579", color: "#fff", fontSize: 14, fontWeight: 800,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >

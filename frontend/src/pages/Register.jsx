@@ -63,7 +63,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-row-reverse" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-dvh flex flex-row-reverse" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
 
@@ -128,7 +128,7 @@ export default function Register() {
         {/* Left fade into light form panel */}
         <div
           className="absolute top-0 left-0 bottom-0 w-32 pointer-events-none"
-          style={{ background: "linear-gradient(to left, transparent, #f5f5f5)" }}
+          style={{ background: "linear-gradient(to left, transparent, #21182d)" }}
         />
 
         {/* Branding bottom-right */}
@@ -141,7 +141,7 @@ export default function Register() {
               backdropFilter: "blur(12px)",
             }}
           >
-            <img src={nowLogo} alt="NOW" className="h-9 w-auto" />
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-9 w-auto" />
             <p
               style={{
                 margin: 0,
@@ -152,7 +152,7 @@ export default function Register() {
               }}
             >
               <span style={{ color: "#ffffff" }}>Your World of </span>
-              <span style={{ color: "#f0545c" }}>Entertainment</span>
+              <span style={{ color: "#ffd5df" }}>Entertainment</span>
             </p>
           </div>
           <p className="text-white/40 text-[13px] leading-relaxed max-w-xs ml-auto">
@@ -163,18 +163,17 @@ export default function Register() {
 
       {/* ── LEFT: Register form (LIGHT) ─────────────────── */}
       <div
-        className="w-full lg:w-[440px] flex-shrink-0 flex flex-col justify-center px-8 md:px-12 py-12"
-        style={{ background: "#f5f5f5" }}
+        className="w-full lg:w-[min(50%,35rem)] shrink-0 flex flex-col justify-center px-4 py-6 sm:px-8 md:px-10"
+        style={{ background: "#fafafb" }}
       >
-        <div className="fade-up w-full max-w-sm mx-auto">
+        <div className="fade-up mx-auto w-full max-w-md rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
 
-          {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
-          </div>
+          <Link to="/" className="mb-6 inline-flex min-h-11 items-center" aria-label="NOW home">
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-7 w-auto" />
+          </Link>
 
           {/* Heading */}
-          <h1 className="text-[26px] font-bold text-gray-900 leading-tight">
+          <h1 className="text-3xl font-bold text-gray-900 leading-tight sm:text-4xl">
             Create account
           </h1>
           <p className="text-[14px] text-gray-400 mt-1 mb-8">
@@ -186,15 +185,16 @@ export default function Register() {
 
             {/* Username */}
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
+              <label htmlFor="register-name" className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
                 Full Name
               </label>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
-                style={{ borderColor: "#e5e7eb" }}
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
+                style={{ borderColor: "#e4e4e7" }}
               >
                 <User size={15} className="text-gray-300 flex-shrink-0" />
                 <input
+                  id="register-name" autoComplete="name"
                   type="text"
                   placeholder="Your name"
                   required
@@ -207,15 +207,16 @@ export default function Register() {
 
             {/* Email */}
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
+              <label htmlFor="register-email" className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
                 Email
               </label>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
-                style={{ borderColor: "#e5e7eb" }}
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
+                style={{ borderColor: "#e4e4e7" }}
               >
                 <Mail size={15} className="text-gray-300 flex-shrink-0" />
                 <input
+                  id="register-email" autoComplete="email"
                   type="email"
                   placeholder="you@example.com"
                   required
@@ -228,15 +229,16 @@ export default function Register() {
 
             {/* Password */}
             <div>
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
+              <label htmlFor="register-password" className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
                 Password
               </label>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-[#f0545c]"
-                style={{ borderColor: "#e5e7eb" }}
+                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
+                style={{ borderColor: "#e4e4e7" }}
               >
                 <Lock size={15} className="text-gray-300 flex-shrink-0" />
                 <input
+                  id="register-password" autoComplete="new-password"
                   type={showPass ? "text" : "password"}
                   placeholder="Create a strong password"
                   required
@@ -246,7 +248,7 @@ export default function Register() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPass((p) => !p)}
+                  onClick={() => setShowPass((p) => !p)} aria-label={showPass ? "Hide password" : "Show password"}
                   className="text-gray-300 hover:text-gray-500 transition-colors flex-shrink-0"
                 >
                   {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -260,9 +262,9 @@ export default function Register() {
             {/* Terms note */}
             <p className="text-[12px] text-gray-400 leading-relaxed">
               By creating an account you agree to our{" "}
-              <span className="font-medium cursor-pointer" style={{ color: "#f0545c" }}>Terms of Service</span>{" "}
+              <span className="font-medium cursor-pointer" style={{ color: "#106579" }}>Terms of Service</span>{" "}
               and{" "}
-              <span className="font-medium cursor-pointer" style={{ color: "#f0545c" }}>Privacy Policy</span>.
+              <span className="font-medium cursor-pointer" style={{ color: "#106579" }}>Privacy Policy</span>.
             </p>
 
             {/* Submit */}
@@ -270,9 +272,9 @@ export default function Register() {
               type="submit"
               disabled={loading}
               className="mt-1 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-white transition-all active:scale-[0.98]"
-              style={{ background: loading ? "#ccc" : "#f0545c", cursor: loading ? "not-allowed" : "pointer" }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#d94048"; }}
-              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#f0545c"; }}
+              style={{ background: loading ? "#ccc" : "#106579", cursor: loading ? "not-allowed" : "pointer" }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#125467"; }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#106579"; }}
             >
               {loading ? (
                 <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Creating account...</>
@@ -293,7 +295,7 @@ export default function Register() {
             type="button"
             onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-gray-700 bg-white border transition-all active:scale-[0.98] hover:bg-gray-50"
-            style={{ borderColor: "#e5e7eb" }}
+            style={{ borderColor: "#e4e4e7" }}
           >
             <svg width="16" height="16" viewBox="0 0 48 48">
               <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.7 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
@@ -306,7 +308,7 @@ export default function Register() {
 
           <p className="text-center text-[14px] text-gray-500 mt-4">
             Already have an account?{" "}
-            <Link to="/login" className="font-semibold hover:underline" style={{ color: "#f0545c" }}>
+            <Link to="/login" className="font-semibold hover:underline" style={{ color: "#106579" }}>
               Sign in
             </Link>
           </p>

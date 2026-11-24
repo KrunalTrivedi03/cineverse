@@ -141,11 +141,11 @@ const scrollCategories = (dir) => {
                 style={{
                   display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
                   padding: "7px 14px", borderRadius: 20,
-                  border: "1.5px solid #e5e7eb", background: "#fff",
+                  border: "1.5px solid #e4e4e7", background: "#fff",
                   fontSize: 12, fontWeight: 700, color: "#374151", cursor: "pointer",
                 }}
               >
-                <Icon size={13} color="#f0545c" /> {cat}
+                <Icon size={13} color="#106579" /> {cat}
               </button>
             );
           })}
@@ -173,7 +173,7 @@ const scrollCategories = (dir) => {
               <div className="flex items-center justify-center py-24">
                 <div className="flex gap-2">
                   {[0, 1, 2].map((i) => (
-                    <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                    <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
               </div>
@@ -187,14 +187,14 @@ const scrollCategories = (dir) => {
                       <button
                         onClick={() => scrollCategories(-1)}
                         aria-label="Scroll categories left"
-                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e4e4e7", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                       >
                         <ChevronLeft size={15} color="#374151" />
                       </button>
                       <button
                         onClick={() => scrollCategories(1)}
                         aria-label="Scroll categories right"
-                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #e4e4e7", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                       >
                         <ChevronRight size={15} color="#374151" />
                       </button>
@@ -230,8 +230,8 @@ const scrollCategories = (dir) => {
                             e.currentTarget.style.boxShadow = "none";
                           }}
                         >
-                          <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(240,84,92,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Icon size={17} color="#f0545c" />
+                          <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(16,101,121,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Icon size={17} color="#106579" />
                           </div>
                           <span style={{ fontSize: 12, fontWeight: 700, color: "#374151", textAlign: "center" }}>{cat}</span>
                         </div>

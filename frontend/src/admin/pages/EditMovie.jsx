@@ -64,7 +64,7 @@ function StyledInput({ className = "", ...props }) {
   return (
     <input
       className={`w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900
-        placeholder-gray-400 outline-none focus:border-[#f0545c] focus:ring-2 focus:ring-[#f0545c]/10
+        placeholder-gray-400 outline-none focus:border-now-accent focus:ring-2 focus:ring-now-accent/10
         transition-all ${className}`}
       {...props}
     />
@@ -75,7 +75,7 @@ function StyledSelect({ className = "", children, ...props }) {
   return (
     <select
       className={`w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900
-        outline-none focus:border-[#f0545c] focus:ring-2 focus:ring-[#f0545c]/10
+        outline-none focus:border-now-accent focus:ring-2 focus:ring-now-accent/10
         transition-all appearance-none cursor-pointer ${className}`}
       {...props}
     >
@@ -88,7 +88,7 @@ function StyledTextarea({ className = "", ...props }) {
   return (
     <textarea
       className={`w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900
-        placeholder-gray-400 outline-none focus:border-[#f0545c] focus:ring-2 focus:ring-[#f0545c]/10
+        placeholder-gray-400 outline-none focus:border-now-accent focus:ring-2 focus:ring-now-accent/10
         transition-all resize-none ${className}`}
       {...props}
     />
@@ -99,8 +99,8 @@ function SectionCard({ title, icon: Icon, children }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(240,84,92,0.09)" }}>
-          <Icon size={16} style={{ color: "#f0545c" }} />
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,101,121,0.09)" }}>
+          <Icon size={16} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900">{title}</h3>
       </div>
@@ -126,9 +126,9 @@ function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLas
         <button
           onClick={onSubmit}
           className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
-          style={{ background: "#f0545c" }}
+          style={{ background: "#106579" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
         >
           <Pencil size={15} /> {submitLabel}
         </button>
@@ -136,9 +136,9 @@ function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLas
         <button
           onClick={onNext}
           className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
-          style={{ background: "#f0545c" }}
+          style={{ background: "#106579" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
         >
           {nextLabel} <ArrowRight size={16} />
         </button>
@@ -156,8 +156,8 @@ function ToggleChip({ label, active, onClick }) {
       className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold border transition-all"
       style={
         active
-          ? { background: "rgba(240,84,92,0.1)", color: "#f0545c", borderColor: "rgba(240,84,92,0.35)" }
-          : { background: "#f9fafb", color: "#6b7280", borderColor: "#e5e7eb" }
+          ? { background: "rgba(16,101,121,0.1)", color: "#106579", borderColor: "rgba(16,101,121,0.35)" }
+          : { background: "#f9fafb", color: "#6b7280", borderColor: "#e4e4e7" }
       }
     >
       {label}
@@ -181,7 +181,7 @@ function PersonCard({ person, index, onUpdate, onRemove, onImage, roleLabel }) {
           )}
         </div>
         <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-sm"
-          style={{ background: "#f0545c" }}>
+          style={{ background: "#106579" }}>
           <Plus size={10} className="text-white" />
         </div>
         <input type="file" hidden accept="image/*" onChange={(e) => onImage(index, e)} />
@@ -428,9 +428,9 @@ export default function EditMovie() {
           <div className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(240,84,92,0.09)" }}
+              style={{ background: "rgba(16,101,121,0.09)" }}
             >
-              <Pencil size={15} style={{ color: "#f0545c" }} />
+              <Pencil size={15} style={{ color: "#106579" }} />
             </div>
             <h1 className="text-[22px] font-bold text-gray-900 tracking-tight truncate">
               Edit:{" "}
@@ -456,7 +456,7 @@ export default function EditMovie() {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
                   style={
                     isActive
-                      ? { background: "rgba(240,84,92,0.09)", color: "#f0545c" }
+                      ? { background: "rgba(16,101,121,0.09)", color: "#106579" }
                       : isCompleted
                         ? {
                             background: "transparent",
@@ -475,9 +475,9 @@ export default function EditMovie() {
                     style={
                       isActive
                         ? {
-                            background: "#f0545c",
+                            background: "#106579",
                             color: "#fff",
-                            borderColor: "#f0545c",
+                            borderColor: "#106579",
                           }
                         : isCompleted
                           ? {
@@ -488,7 +488,7 @@ export default function EditMovie() {
                           : {
                               background: "transparent",
                               color: "#d1d5db",
-                              borderColor: "#e5e7eb",
+                              borderColor: "#e4e4e7",
                             }
                     }
                   >
@@ -499,7 +499,7 @@ export default function EditMovie() {
                 {idx < STEPS.length - 1 && (
                   <div
                     className="w-4 h-px mx-1"
-                    style={{ background: "#e5e7eb" }}
+                    style={{ background: "#e4e4e7" }}
                   />
                 )}
               </div>
@@ -566,12 +566,12 @@ export default function EditMovie() {
 
               <InputField icon={Image} label="Movie Poster">
                 <div className="flex items-start gap-4">
-                  <label className="flex-1 flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-[#f0545c] hover:bg-[rgba(240,84,92,0.03)] transition-all group">
+                  <label className="flex-1 flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-now-accent hover:bg-[rgba(16,101,121,0.03)] transition-all group">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                      style={{ background: "rgba(240,84,92,0.09)" }}
+                      style={{ background: "rgba(16,101,121,0.09)" }}
                     >
-                      <Upload size={18} style={{ color: "#f0545c" }} />
+                      <Upload size={18} style={{ color: "#106579" }} />
                     </div>
                     <div className="text-center">
                       <p className="text-[13px] font-semibold text-gray-700">
@@ -699,9 +699,9 @@ export default function EditMovie() {
                 <div className="flex items-center gap-3">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: "rgba(240,84,92,0.09)" }}
+                    style={{ background: "rgba(16,101,121,0.09)" }}
                   >
-                    <Tv size={15} style={{ color: "#f0545c" }} />
+                    <Tv size={15} style={{ color: "#106579" }} />
                   </div>
                   <div>
                     <p className="text-[13px] font-semibold text-gray-900">
@@ -717,7 +717,7 @@ export default function EditMovie() {
                   onClick={() => set("isInCinemas", !form.isInCinemas)}
                   className="relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0"
                   style={{
-                    background: form.isInCinemas ? "#f0545c" : "#d1d5db",
+                    background: form.isInCinemas ? "#106579" : "#d1d5db",
                   }}
                 >
                   <span
@@ -758,9 +758,9 @@ export default function EditMovie() {
                         key={i}
                         className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-lg border"
                         style={{
-                          background: "rgba(240,84,92,0.08)",
-                          color: "#f0545c",
-                          borderColor: "rgba(240,84,92,0.25)",
+                          background: "rgba(16,101,121,0.08)",
+                          color: "#106579",
+                          borderColor: "rgba(16,101,121,0.25)",
                         }}
                       >
                         {city}
@@ -848,7 +848,7 @@ export default function EditMovie() {
               ))}
               <button
                 onClick={addCast}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border-2 border-dashed border-gray-200 text-gray-500 hover:border-[#f0545c] hover:text-[#f0545c] hover:bg-[rgba(240,84,92,0.03)] transition-all w-full justify-center mt-2"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border-2 border-dashed border-gray-200 text-gray-500 hover:border-now-accent hover:text-now-accent hover:bg-[rgba(16,101,121,0.03)] transition-all w-full justify-center mt-2"
               >
                 <Plus size={15} /> Add Cast Member
               </button>
@@ -887,7 +887,7 @@ export default function EditMovie() {
               ))}
               <button
                 onClick={addCrew}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border-2 border-dashed border-gray-200 text-gray-500 hover:border-[#f0545c] hover:text-[#f0545c] hover:bg-[rgba(240,84,92,0.03)] transition-all w-full justify-center mt-2"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border-2 border-dashed border-gray-200 text-gray-500 hover:border-now-accent hover:text-now-accent hover:bg-[rgba(16,101,121,0.03)] transition-all w-full justify-center mt-2"
               >
                 <Plus size={15} /> Add Crew Member
               </button>
@@ -908,9 +908,9 @@ export default function EditMovie() {
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(240,84,92,0.09)" }}
+                  style={{ background: "rgba(16,101,121,0.09)" }}
                 >
-                  <Clapperboard size={16} style={{ color: "#f0545c" }} />
+                  <Clapperboard size={16} style={{ color: "#106579" }} />
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-900">
                   Movie Details
@@ -994,9 +994,9 @@ export default function EditMovie() {
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(240,84,92,0.09)" }}
+                  style={{ background: "rgba(16,101,121,0.09)" }}
                 >
-                  <Radio size={16} style={{ color: "#f0545c" }} />
+                  <Radio size={16} style={{ color: "#106579" }} />
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-900">
                   Release Information
@@ -1090,9 +1090,9 @@ export default function EditMovie() {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style={{ background: "rgba(240,84,92,0.09)" }}
+                        style={{ background: "rgba(16,101,121,0.09)" }}
                       >
-                        <Icon size={16} style={{ color: "#f0545c" }} />
+                        <Icon size={16} style={{ color: "#106579" }} />
                       </div>
                       <h3 className="text-[15px] font-bold text-gray-900">
                         {label}
@@ -1101,8 +1101,8 @@ export default function EditMovie() {
                     <span
                       className="text-[12px] font-semibold px-2.5 py-1 rounded-full"
                       style={{
-                        background: "rgba(240,84,92,0.08)",
-                        color: "#f0545c",
+                        background: "rgba(16,101,121,0.08)",
+                        color: "#106579",
                       }}
                     >
                       {list.length}
@@ -1154,9 +1154,9 @@ export default function EditMovie() {
                 <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: "rgba(240,84,92,0.09)" }}
+                    style={{ background: "rgba(16,101,121,0.09)" }}
                   >
-                    <Clapperboard size={16} style={{ color: "#f0545c" }} />
+                    <Clapperboard size={16} style={{ color: "#106579" }} />
                   </div>
                   <h3 className="text-[15px] font-bold text-gray-900">
                     Trailer Preview
@@ -1180,7 +1180,7 @@ export default function EditMovie() {
                     </div>
                     <div
                       className="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full text-white"
-                      style={{ background: "#f0545c" }}
+                      style={{ background: "#106579" }}
                     >
                       Trailer
                     </div>

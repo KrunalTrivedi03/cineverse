@@ -1,3 +1,4 @@
+import Dialog from "../../components/Dialog";
 import { useState, useEffect, useMemo } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -34,10 +35,10 @@ function Toast({ toast, onClose }) {
 
 function ConfirmModal({ tour, onConfirm, onCancel, busy }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <Dialog variant="form" label={"Delete tour?"} maxWidth={360} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-[360px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-          <Trash2 size={18} style={{ color: "#f0545c" }} />
+          <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
         <h3 className="text-[15px] font-bold text-gray-900 mb-1">Delete Tour</h3>
         <p className="text-[13px] text-gray-500 mb-1">
@@ -50,12 +51,12 @@ function ConfirmModal({ tour, onConfirm, onCancel, busy }) {
         )}
         <div className="flex gap-2 mt-2">
           <button onClick={onCancel} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
-          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#f0545c" }}>
+          <button onClick={onConfirm} disabled={busy} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2" style={{ background: "#106579" }}>
             {busy && <Loader2 size={13} className="animate-spin" />} Delete
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -124,12 +125,12 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
   const inp = "w-full px-4 py-2.5 rounded-xl border text-[13px] text-gray-800 placeholder-gray-300 outline-none transition-all";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "tour"} maxWidth={520} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[520px] max-h-[90vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              {mode === "edit" ? <Edit size={18} style={{ color: "#f0545c" }} /> : <Route size={18} style={{ color: "#f0545c" }} />}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              {mode === "edit" ? <Edit size={18} style={{ color: "#106579" }} /> : <Route size={18} style={{ color: "#106579" }} />}
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">{mode === "edit" ? "Edit Tour" : "Create New Tour"}</h3>
@@ -151,29 +152,29 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
           </div>
 
           <div>
-            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tour Title <span style={{ color: "#f0545c" }}>*</span></label>
+            <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tour Title <span style={{ color: "#106579" }}>*</span></label>
             <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Arijit Singh — Forever Tour 2026"
-              className={inp} style={{ borderColor: errors.title ? "#f0545c" : "#e5e7eb" }} />
+              className={inp} style={{ borderColor: errors.title ? "#106579" : "#e4e4e7" }} />
             {errors.title && <p className="text-[11px] text-red-500 mt-1">{errors.title}</p>}
           </div>
 
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Description</label>
             <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={3}
-              placeholder="What's this tour about…" className={inp} style={{ borderColor: "#e5e7eb", resize: "vertical" }} />
+              placeholder="What's this tour about…" className={inp} style={{ borderColor: "#e4e4e7", resize: "vertical" }} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
-              <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}>
+              <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}>
                 <option value="">Select category</option>
                 {TOUR_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Status</label>
-              <select value={form.status} onChange={(e) => set("status", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }}>
+              <select value={form.status} onChange={(e) => set("status", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }}>
                 {TOUR_STATUSES.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
               </select>
             </div>
@@ -182,11 +183,11 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Start Date</label>
-              <input type="date" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="date" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
             <div>
               <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">End Date</label>
-              <input type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} className={inp} style={{ borderColor: "#e5e7eb" }} />
+              <input type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} className={inp} style={{ borderColor: "#e4e4e7" }} />
             </div>
           </div>
           <p className="text-[11px] text-gray-400 -mt-2">Leave blank to auto-derive from linked legs' show dates later.</p>
@@ -197,14 +198,14 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
               <div className="flex flex-wrap gap-2 mb-2">
                 {selectedArtists.map((a) => (
                   <span key={a._id} className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-lg border"
-                    style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.25)" }}>
+                    style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.25)" }}>
                     {a.name}
                     <button type="button" onClick={() => toggleArtist(a._id)} className="hover:opacity-70 leading-none">×</button>
                   </span>
                 ))}
               </div>
             )}
-            <input value={artistSearch} onChange={(e) => setArtistSearch(e.target.value)} placeholder="Search artists..." className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={artistSearch} onChange={(e) => setArtistSearch(e.target.value)} placeholder="Search artists..." className={inp} style={{ borderColor: "#e4e4e7" }} />
             <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-gray-100 divide-y divide-gray-50">
               {filteredArtists.length === 0 ? (
                 <p className="text-[13px] text-gray-400 text-center py-6">No matches</p>
@@ -215,7 +216,7 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
                     <button key={a._id} type="button" onClick={() => toggleArtist(a._id)}
                       className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 text-left">
                       <span className="flex-1 text-[13px] font-medium text-gray-800 truncate">{a.name}</span>
-                      {active && <CheckCircle2 size={14} style={{ color: "#f0545c" }} />}
+                      {active && <CheckCircle2 size={14} style={{ color: "#106579" }} />}
                     </button>
                   );
                 })
@@ -225,11 +226,11 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
 
           <div>
             <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tags (comma-separated)</label>
-            <input value={form.tags} onChange={(e) => set("tags", e.target.value)} placeholder="world tour, live, 2026" className={inp} style={{ borderColor: "#e5e7eb" }} />
+            <input value={form.tags} onChange={(e) => set("tags", e.target.value)} placeholder="world tour, live, 2026" className={inp} style={{ borderColor: "#e4e4e7" }} />
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} className="w-4 h-4 accent-[#f0545c]" />
+            <input type="checkbox" checked={form.isFeatured} onChange={(e) => set("isFeatured", e.target.checked)} className="w-4 h-4 accent-now-accent" />
             <span className="text-[13px] font-medium text-gray-700 flex items-center gap-1"><Star size={13} /> Feature this tour</span>
           </label>
         </div>
@@ -238,12 +239,12 @@ function TourFormModal({ mode = "add", initial = null, artistOptions, onSave, on
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             {saving && <Loader2 size={13} className="animate-spin" />} {mode === "edit" ? "Save Changes" : "Create Tour"}
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -319,12 +320,12 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <Dialog variant="form" label={"Tour stops"} maxWidth={560} onDismiss={onClose} dismissOnBackdrop={false}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-[560px] max-h-[85vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              <Route size={18} style={{ color: "#f0545c" }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              <Route size={18} style={{ color: "#106579" }} />
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">Manage Legs</h3>
@@ -405,7 +406,7 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
                       </div>
                       <button onClick={() => handleLink(e._id)} disabled={busyId === e._id}
                         className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-40"
-                        style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c" }}>
+                        style={{ background: "rgba(16,101,121,0.08)", color: "#106579" }}>
                         {busyId === e._id ? <Loader2 size={12} className="animate-spin" /> : <Link2 size={12} />} Add
                       </button>
                     </div>
@@ -417,10 +418,10 @@ function LegsModal({ tour, onClose, onChanged, showToast }) {
         </div>
 
         <div className="px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose} className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-white" style={{ background: "#f0545c" }}>Done</button>
+          <button onClick={onClose} className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-white" style={{ background: "#106579" }}>Done</button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -505,7 +506,7 @@ export default function AdminTours() {
     { label: "Total Tours",  value: tours.length, color: "#6366f1", bg: "rgba(99,102,241,0.08)" },
     { label: "Live Now",     value: tours.filter((t) => t.status === "live").length, color: "#16a34a", bg: "rgba(22,163,74,0.08)" },
     { label: "Multi-Country", value: tours.filter((t) => (t.countries || []).length > 1).length, color: "#0ea5e9", bg: "rgba(14,165,233,0.08)" },
-    { label: "Search Results", value: search ? filtered.length : "—", color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+    { label: "Search Results", value: search ? filtered.length : "—", color: "#106579", bg: "rgba(16,101,121,0.08)" },
   ]), [tours, search, filtered.length]);
 
   return (
@@ -522,7 +523,7 @@ export default function AdminTours() {
           </div>
           <button onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}>
+            style={{ background: "#106579" }}>
             <Plus size={15} /> Create Tour
           </button>
         </div>
@@ -561,8 +562,8 @@ export default function AdminTours() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <Route size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <Route size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No tours found</p>
                   </td>

@@ -1,3 +1,4 @@
+import Dialog from "../components/Dialog";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSportIcon } from "../utils/sportIcons";
@@ -100,7 +101,7 @@ export default function Play() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
 
       <Navbar />
 
@@ -114,8 +115,8 @@ export default function Play() {
         {!city.id ? (
           /* ── No city selected in the navbar yet ── */
           <div className="rounded-2xl border border-gray-100 bg-white flex flex-col items-center text-center px-6 py-14" style={{ borderRadius: 20 }}>
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
-              <MapPin size={24} style={{ color: "#f0545c" }} />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.08)" }}>
+              <MapPin size={24} style={{ color: "#106579" }} />
             </div>
             <p className="text-[15px] font-bold text-gray-900 mb-1">Select a city to get started</p>
             <p className="text-[13px] text-gray-400 max-w-[260px]">
@@ -184,7 +185,7 @@ export default function Play() {
               <button
                 onClick={() => setShowFilters(true)}
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 bg-white"
-                style={{ borderColor: "#e5e7eb", color: "#374151" }}
+                style={{ borderColor: "#e4e4e7", color: "#374151" }}
               >
                 <SlidersHorizontal size={13} /> Filters
               </button>
@@ -193,8 +194,8 @@ export default function Play() {
                 disabled={!coords}
                 className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap disabled:opacity-40"
                 style={under5km
-                  ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
-                  : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+                  ? { background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.3)" }
+                  : { background: "#fff", color: "#6b7280", borderColor: "#e4e4e7" }}
               >
                 Under 5 km
               </button>
@@ -206,8 +207,8 @@ export default function Play() {
                     onClick={() => toggleSport(a._id)}
                     className="px-3.5 py-2 rounded-full border text-[12.5px] font-semibold flex-shrink-0 whitespace-nowrap"
                     style={active
-                      ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
-                      : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+                      ? { background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.3)" }
+                      : { background: "#fff", color: "#6b7280", borderColor: "#e4e4e7" }}
                   >
                     {a.name}
                   </button>
@@ -263,7 +264,7 @@ export default function Play() {
                     <button
                       onClick={() => setVenuesShown((n) => n + VENUES_PAGE_SIZE)}
                       className="flex items-center gap-1.5 px-5 py-2.5 rounded-full border text-[13px] font-bold text-gray-700 bg-white active:scale-[0.97] transition-transform"
-                      style={{ borderColor: "#e5e7eb" }}
+                      style={{ borderColor: "#e4e4e7" }}
                     >
                       Load more <ChevronDown size={14} />
                     </button>
@@ -277,11 +278,11 @@ export default function Play() {
 
       {/* Filters sheet: sort + full sport list + distance */}
       {showFilters && (
-        <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={() => setShowFilters(false)}>
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <Dialog variant="sheet" label="Filter play venues" onDismiss={() => setShowFilters(false)}>
+          <div className="p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-[15px] font-bold text-gray-900">Filters</p>
-              <button onClick={() => setShowFilters(false)}><X size={18} className="text-gray-400" /></button>
+              <button aria-label="Close filters" className="grid size-10 place-items-center rounded-lg hover:bg-gray-50" onClick={() => setShowFilters(false)}><X size={18} className="text-gray-400" /></button>
             </div>
 
             <p className="text-[11.5px] font-bold text-gray-400 uppercase tracking-wide mb-2">Sort by</p>
@@ -292,7 +293,7 @@ export default function Play() {
                   onClick={() => setSort(o.id)}
                   disabled={o.id === "distance" && !coords}
                   className="flex items-center justify-between px-3 py-2.5 rounded-xl text-[13.5px] font-medium disabled:opacity-40"
-                  style={{ background: sort === o.id ? "rgba(240,84,92,0.06)" : "transparent", color: sort === o.id ? "#f0545c" : "#374151" }}
+                  style={{ background: sort === o.id ? "rgba(16,101,121,0.06)" : "transparent", color: sort === o.id ? "#106579" : "#374151" }}
                 >
                   {o.label}
                   {o.id === "distance" && <Navigation size={13} className="text-gray-300" />}
@@ -310,8 +311,8 @@ export default function Play() {
                     onClick={() => toggleSport(a._id)}
                     className="px-3 py-1.5 rounded-full border text-[12.5px] font-semibold"
                     style={active
-                      ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.3)" }
-                      : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }}
+                      ? { background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.3)" }
+                      : { background: "#fff", color: "#6b7280", borderColor: "#e4e4e7" }}
                   >
                     {a.name}
                   </button>
@@ -322,12 +323,12 @@ export default function Play() {
             <button
               onClick={() => setShowFilters(false)}
               className="w-full py-3 rounded-xl text-[13.5px] font-bold text-white"
-              style={{ background: "#f0545c" }}
+              style={{ background: "#106579" }}
             >
               Show {venues.length} venue{venues.length === 1 ? "" : "s"}
             </button>
           </div>
-        </div>
+        </Dialog>
       )}
     </div>
   );

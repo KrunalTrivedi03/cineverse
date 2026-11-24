@@ -3,9 +3,10 @@ import {
   ChevronLeft, ChevronDown, ChevronRight, Tag, Percent, IndianRupee,
   Sparkles, Check, Loader2, SlidersHorizontal,
 } from "lucide-react";
+import Dialog from "./Dialog";
 import { fetchApplicableOffers, validateOffer, formatDiscountLabel, formatValidity, IMG } from "../utils/offers";
 
-const ACCENT = "#f0545c";
+const ACCENT = "#106579";
 
 const FILTERS = [
   { key: "all", label: "All offers" },
@@ -153,7 +154,7 @@ export default function OffersDrawer({ type, id, genre, amount, appliedOffer, on
               <div className="flex items-center gap-3 p-3 rounded-xl mb-2.5" style={{ background: "#fafafa" }}>
                 <div
                   className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
-                  style={{ background: topOffer.image ? "#f3f4f6" : "rgba(240,84,92,0.08)" }}
+                  style={{ background: topOffer.image ? "#f3f4f6" : "rgba(16,101,121,0.08)" }}
                 >
                   {topOffer.image ? (
                     <img src={IMG(topOffer.image)} alt="" className="w-full h-full object-cover" />
@@ -199,17 +200,10 @@ export default function OffersDrawer({ type, id, genre, amount, appliedOffer, on
       )}
 
       {open && (
-        <div
-          className="fixed inset-0 z-[1000] flex justify-end"
-          style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(3px)" }}
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="bg-white w-full sm:max-w-md h-full overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <Dialog variant="drawer" label="Booking offers" onDismiss={() => setOpen(false)}>
+          <div className="bg-white h-dvh overflow-hidden flex flex-col">
             <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 flex-shrink-0">
-              <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-50 flex-shrink-0">
+              <button aria-label="Close offers" onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-50 flex-shrink-0">
                 <ChevronLeft size={17} className="text-gray-700" />
               </button>
               <p className="text-[16px] font-extrabold text-gray-900">Offers</p>
@@ -219,7 +213,7 @@ export default function OffersDrawer({ type, id, genre, amount, appliedOffer, on
             <div className="px-5 py-4 border-b border-gray-100 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <input
-                  value={manualCode}
+                  value={manualCode} aria-label="Coupon code"
                   onChange={(e) => { setManualCode(e.target.value); setManualError(""); }}
                   onKeyDown={(e) => e.key === "Enter" && applyManualCode()}
                   placeholder="Have a coupon? Type here"
@@ -247,7 +241,7 @@ export default function OffersDrawer({ type, id, genre, amount, appliedOffer, on
                 {FILTERS.map((f) => (
                   <button
                     key={f.key}
-                    onClick={() => setFilter(f.key)}
+                    onClick={() => setFilter(f.key)} aria-pressed={filter === f.key}
                     className="px-3 py-1.5 rounded-full text-[11.5px] font-semibold flex-shrink-0 transition-all"
                     style={
                       filter === f.key
@@ -278,7 +272,7 @@ export default function OffersDrawer({ type, id, genre, amount, appliedOffer, on
                         style={{ borderColor: isApplied ? ACCENT : "#f0f0f0" }}
                       >
                         <div className="p-3.5 flex gap-3">
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: "rgba(240,84,92,0.08)" }}>
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: "rgba(16,101,121,0.08)" }}>
                             {offer.image ? (
                               <img src={IMG(offer.image)} alt="" className="w-full h-full object-cover" />
                             ) : offer.discountType === "percentage" ? (
@@ -342,7 +336,7 @@ export default function OffersDrawer({ type, id, genre, amount, appliedOffer, on
               {error && <p className="text-[11.5px] font-medium text-center mt-3" style={{ color: ACCENT }}>{error}</p>}
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
     </div>
   );

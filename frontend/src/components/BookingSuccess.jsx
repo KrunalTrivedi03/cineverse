@@ -45,7 +45,7 @@ export default function BookingSuccess() {
   const venue  = theatre?.name || "";
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
       <BottomNav />
@@ -90,7 +90,7 @@ export default function BookingSuccess() {
             </div>
             <div style={{
               flexShrink: 0, padding: "4px 10px", borderRadius: 8,
-              background: "rgba(240,84,92,0.15)", border: "1px solid rgba(240,84,92,0.3)",
+              background: "rgba(16,101,121,0.15)", border: "1px solid rgba(16,101,121,0.3)",
             }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: "#f87171" }}>{booking.screen}</span>
             </div>
@@ -123,12 +123,12 @@ export default function BookingSuccess() {
           <div style={{ position: "relative", display: "flex", alignItems: "center", padding: "0 16px" }}>
             <div style={{
               position: "absolute", left: -12, width: 24, height: 24,
-              borderRadius: "50%", background: "#f5f5f7",
+              borderRadius: "50%", background: "#fafafb",
             }} />
-            <div style={{ flex: 1, borderTop: "1.5px dashed #e5e7eb" }} />
+            <div style={{ flex: 1, borderTop: "1.5px dashed #e4e4e7" }} />
             <div style={{
               position: "absolute", right: -12, width: 24, height: 24,
-              borderRadius: "50%", background: "#f5f5f7",
+              borderRadius: "50%", background: "#fafafb",
             }} />
           </div>
 
@@ -167,7 +167,7 @@ export default function BookingSuccess() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6, borderTop: "1px solid #f3f4f6", marginTop: 3 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#111" }}>Total Paid</span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: "#f0545c" }}>₹{total?.toLocaleString("en-IN")}</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: "#106579" }}>₹{total?.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>
@@ -180,8 +180,8 @@ export default function BookingSuccess() {
             background: "#fafafa",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <Ticket size={12} color="#f0545c" />
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#f0545c" }}>NOW</span>
+              <Ticket size={12} color="#106579" />
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#106579" }}>NOW</span>
             </div>
             <span style={{ fontSize: 9, fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "monospace" }}>{ref}</span>
           </div>
@@ -193,7 +193,7 @@ export default function BookingSuccess() {
             onClick={() => navigate("/")}
             style={{
               flex: 1, padding: "12px 0", border: "none", cursor: "pointer",
-              borderRadius: 14, background: "#f0545c",
+              borderRadius: 14, background: "#106579",
               fontSize: 13, fontWeight: 700, color: "#fff",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               fontFamily: "'Outfit', sans-serif",
@@ -205,7 +205,7 @@ export default function BookingSuccess() {
             style={{
               flex: 1, padding: "12px 0", cursor: "pointer",
               borderRadius: 14, background: "#fff",
-              border: "1.5px solid #e5e7eb",
+              border: "1.5px solid #e4e4e7",
               fontSize: 13, fontWeight: 700, color: "#374151",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               fontFamily: "'Outfit', sans-serif",

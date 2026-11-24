@@ -1,3 +1,5 @@
+import Dialog from "../../components/Dialog";
+import DeleteDialog from "../../components/DeleteDialog";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosAdmin from "../../api/axiosAdmin";
@@ -11,7 +13,7 @@ import {
 const CATEGORIES = ["Recliner", "Premium", "Classic"];
 const CAT_COLORS = {
   Recliner: { bg: "rgba(139,92,246,0.1)", text: "#7c3aed", border: "rgba(139,92,246,0.3)" },
-  Premium:  { bg: "rgba(240,84,92,0.1)",  text: "#f0545c", border: "rgba(240,84,92,0.3)"  },
+  Premium:  { bg: "rgba(16,101,121,0.1)",  text: "#106579", border: "rgba(16,101,121,0.3)"  },
   Classic:  { bg: "rgba(16,185,129,0.1)", text: "#059669", border: "rgba(16,185,129,0.3)" },
 };
 
@@ -78,6 +80,8 @@ export default function AdminSeatLayout() {
   const [editBusy,  setEditBusy]  = useState(false);
 
   const [deletingId, setDeletingId] = useState(null);
+  const [rowToDelete, setRowToDelete] = useState(null);
+  const [confirmRandomLayout, setConfirmRandomLayout] = useState(false);
 
   const showToast = (message, type = "success") => setToast({ message, type });
 
@@ -158,7 +162,7 @@ export default function AdminSeatLayout() {
 
   /* ── Delete row ── */
   const handleDeleteRow = async (rowId, rowLabel) => {
-    if (!window.confirm(`Delete row "${rowLabel}"?`)) return;
+    setRowToDelete(null);
     setDeletingId(rowId);
     try {
       const res = await axiosAdmin.delete(
@@ -173,7 +177,7 @@ export default function AdminSeatLayout() {
   };
 
   const handleRandomLayout = async () => {
-    if (!window.confirm("This will replace the current seat layout with a randomly generated one. Continue?")) return;
+    setConfirmRandomLayout(false);
     setRandomizing(true);
     try {
       const res = await axiosAdmin.post(`/theatres/admin/${theatreId}/screens/${screenId}/layout/random`);
@@ -205,7 +209,7 @@ export default function AdminSeatLayout() {
     } finally { setSaving(false); }
   };
 
-  const inp = "px-3 py-2 rounded-lg border border-gray-200 text-[13px] text-gray-800 outline-none bg-white transition-all focus:border-[#f0545c]";
+  const inp = "px-3 py-2 rounded-lg border border-gray-200 text-[13px] text-gray-800 outline-none bg-white transition-all focus:border-now-accent";
 
   return (
     <AdminLayout>
@@ -219,8 +223,8 @@ export default function AdminSeatLayout() {
             <ChevronLeft size={16} className="text-gray-600" />
           </button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,84,92,0.08)" }}>
-              <Monitor size={18} style={{ color: "#f0545c" }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
+              <Monitor size={18} style={{ color: "#106579" }} />
             </div>
             <div>
               <h1 className="text-[20px] font-bold text-gray-900">
@@ -239,7 +243,7 @@ export default function AdminSeatLayout() {
             { label: "Total Seats",    value: totalSeats,                   color: "#6366f1" },
             { label: "Total Rows",     value: totalRows,                    color: "#10b981" },
             { label: "Recliner Seats", value: catCounts.Recliner || 0,     color: "#8b5cf6" },
-            { label: "Premium Seats",  value: catCounts.Premium  || 0,     color: "#f0545c" },
+            { label: "Premium Seats",  value: catCounts.Premium  || 0,     color: "#106579" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -256,11 +260,11 @@ export default function AdminSeatLayout() {
               <h2 className="text-[15px] font-bold text-gray-900">Row Configuration</h2>
               <div className="flex items-center gap-2">
                 {saving && <Loader2 size={15} className="animate-spin text-gray-400" />}
-                <button onClick={handleRandomLayout} disabled={randomizing}
+                <button onClick={() => setConfirmRandomLayout(true)} disabled={randomizing}
                   className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
-                  style={{ color: "#f0545c", background: "rgba(240,84,92,0.08)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.14)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.08)")}>
+                  style={{ color: "#106579", background: "rgba(16,101,121,0.08)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.14)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.08)")}>
                   {randomizing ? <Loader2 size={12} className="animate-spin" /> : <Monitor size={12} />}
                   Generate Random Layout
                 </button>
@@ -270,7 +274,7 @@ export default function AdminSeatLayout() {
             {/* Loading */}
             {loading && (
               <div className="flex items-center justify-center py-16 gap-2 text-gray-400">
-                <Loader2 size={18} className="animate-spin" style={{ color: "#f0545c" }} />
+                <Loader2 size={18} className="animate-spin" style={{ color: "#106579" }} />
                 <span className="text-[13px]">Loading layout…</span>
               </div>
             )}
@@ -349,7 +353,7 @@ export default function AdminSeatLayout() {
                             <Edit size={12} />
                           </button>
                           {/* Delete btn */}
-                          <button onClick={() => handleDeleteRow(row._id, row.row)} disabled={isDeleting}
+                          <button onClick={() => setRowToDelete(row)} aria-label={`Delete row ${row.row}`} disabled={isDeleting}
                             className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all disabled:opacity-40"
                             style={{ background: "#fff1f2", color: "#dc2626" }}
                             onMouseEnter={(e) => (e.currentTarget.style.background = "#fee2e2")}
@@ -372,14 +376,14 @@ export default function AdminSeatLayout() {
                   <div>
                     <input value={addForm.row} onChange={(e) => { setAddForm((p) => ({ ...p, row: e.target.value })); setAddErr((p) => ({ ...p, row: "" })); }}
                       placeholder="Row label (e.g. A)" onKeyDown={(e) => e.key === "Enter" && handleAddRow()}
-                      className={inp + " w-28"} style={{ borderColor: addErr.row ? "#f0545c" : "#e5e7eb" }} />
+                      className={inp + " w-28"} style={{ borderColor: addErr.row ? "#106579" : "#e4e4e7" }} />
                     {addErr.row && <p className="text-[10px] text-red-500 mt-0.5">{addErr.row}</p>}
                   </div>
                   <div>
                     <input type="number" value={addForm.seats} min="1" max="30"
                       onChange={(e) => { setAddForm((p) => ({ ...p, seats: e.target.value })); setAddErr((p) => ({ ...p, seats: "" })); }}
                       placeholder="Seats" onKeyDown={(e) => e.key === "Enter" && handleAddRow()}
-                      className={inp + " w-20"} style={{ borderColor: addErr.seats ? "#f0545c" : "#e5e7eb" }} />
+                      className={inp + " w-20"} style={{ borderColor: addErr.seats ? "#106579" : "#e4e4e7" }} />
                     {addErr.seats && <p className="text-[10px] text-red-500 mt-0.5">{addErr.seats}</p>}
                   </div>
                   <select value={addForm.category} onChange={(e) => setAddForm((p) => ({ ...p, category: e.target.value }))}
@@ -388,9 +392,9 @@ export default function AdminSeatLayout() {
                   </select>
                   <button onClick={handleAddRow} disabled={addBusy}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition-all disabled:opacity-50"
-                    style={{ background: "#f0545c" }}
+                    style={{ background: "#106579" }}
                     onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e04048"; }}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
                     {addBusy ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                     Add Row
                   </button>
@@ -410,7 +414,7 @@ export default function AdminSeatLayout() {
               {/* Screen indicator */}
               <div className="flex flex-col items-center mb-6">
                 <div className="w-3/4 h-1.5 rounded-b-full opacity-40"
-                  style={{ background: "linear-gradient(to right, transparent, #f0545c, transparent)" }} />
+                  style={{ background: "linear-gradient(to right, transparent, #106579, transparent)" }} />
                 <p className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase mt-1.5 flex items-center gap-1">
                   <Monitor size={10} /> Screen
                 </p>
@@ -447,6 +451,23 @@ export default function AdminSeatLayout() {
         </div>
       </div>
 
+      {rowToDelete && (
+        <DeleteDialog title="Delete seat row?" onCancel={() => setRowToDelete(null)} onDelete={() => handleDeleteRow(rowToDelete._id, rowToDelete.row)}>
+          <p>Row <strong>{rowToDelete.row}</strong> will be removed from the seat layout.</p>
+        </DeleteDialog>
+      )}
+      {confirmRandomLayout && (
+        <Dialog label="Replace seat layout" onDismiss={() => setConfirmRandomLayout(false)}>
+          <div className="p-5 sm:p-7">
+            <h2 className="text-xl font-bold">Replace seat layout?</h2>
+            <p className="mt-2 text-sm text-gray-500">This replaces the current seat layout with a randomly generated one.</p>
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button type="button" className="min-h-11 rounded-xl border border-gray-200 px-4 text-sm font-semibold" onClick={() => setConfirmRandomLayout(false)}>Cancel</button>
+              <button type="button" className="now-primary" onClick={handleRandomLayout}>Replace layout</button>
+            </div>
+          </div>
+        </Dialog>
+      )}
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
     </AdminLayout>
   );

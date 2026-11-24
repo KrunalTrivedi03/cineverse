@@ -1,3 +1,5 @@
+import DeleteDialog from "../../components/DeleteDialog";
+import { showToast } from "../../utils/toast";
 import { useState, useEffect } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -68,7 +70,7 @@ export default function Movies() {
     fetchMovies();
   } catch (err) {
     console.error("Delete failed", err);
-    alert("Failed to delete movie");
+    showToast.error("Failed to delete movie");
   }
 };
 
@@ -90,9 +92,9 @@ export default function Movies() {
           <button
             onClick={() => navigate("/admin/movies/add")}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}
+            style={{ background: "#106579" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
           >
             <Plus size={15} /> Add Movie
           </button>
@@ -106,7 +108,7 @@ export default function Movies() {
               value: movies.length
                 ? (movies.reduce((s, m) => s + (parseFloat(m.rating) || 0), 0) / movies.length).toFixed(1)
                 : "—",
-              color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+              color: "#106579", bg: "rgba(16,101,121,0.08)" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
@@ -318,62 +320,10 @@ export default function Movies() {
         </div>
       </div>
       {deleteTarget && (
-  <div style={{
-    position: "fixed", inset: 0, zIndex: 9999,
-    background: "rgba(0,0,0,0.55)",
-    display: "flex", alignItems: "center", justifyContent: "center"
-  }}>
-    <div style={{
-      background: "#ffffff",
-      border: "1px solid #e5e7eb",
-      borderRadius: "16px",
-      padding: "2rem",
-      width: 360,
-      textAlign: "center",
-      boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
-    }}>
-      <div style={{
-        width: 52, height: 52, borderRadius: "50%",
-        background: "rgba(220,38,38,0.1)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        margin: "0 auto 1.25rem"
-      }}>
-        <Trash2 size={24} color="#dc2626" />
-      </div>
-      <p style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: "0 0 0.5rem" }}>
-        Delete movie?
-      </p>
-      <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 1.75rem", lineHeight: 1.6 }}>
-        <strong style={{ color: "#111827" }}>{deleteTarget.title}</strong> will be permanently removed. This cannot be undone.
-      </p>
-      <div style={{ display: "flex", gap: 10 }}>
-        <button
-          onClick={() => setDeleteTarget(null)}
-          style={{
-            flex: 1, padding: "0.6rem",
-            borderRadius: "10px",
-            border: "1px solid #e5e7eb",
-            background: "#f9fafb", color: "#374151",
-            fontSize: 13, cursor: "pointer", fontWeight: 500
-          }}
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleDelete}
-          style={{
-            flex: 1, padding: "0.6rem",
-            borderRadius: "10px",
-            border: "none", background: "#dc2626",
-            color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer"
-          }}
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        <DeleteDialog title="Delete movie?" onCancel={() => setDeleteTarget(null)} onDelete={handleDelete}>
+          <p><strong>{deleteTarget.title}</strong> will be permanently removed. This action cannot be undone.</p>
+        </DeleteDialog>
+      )}
     </AdminLayout>
   );
 }
@@ -390,7 +340,7 @@ function ActionBtn({ onClick, color, title, children }) {
   return (
     <button
       onClick={onClick}
-      title={title}
+      title={title} aria-label={title}
       className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
       style={{ background: c.bg, color: c.text }}
       onMouseEnter={(e) => (e.currentTarget.style.background = c.hover)}

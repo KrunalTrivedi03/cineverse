@@ -22,7 +22,7 @@ export default function EventRow({ title, events, seeAllPath, emptyText }) {
             onClick={() => navigate(seeAllPath)}
             style={{
               display: "flex", alignItems: "center", gap: 2, border: "none", background: "none",
-              cursor: "pointer", fontSize: 12, fontWeight: 700, color: "#f0545c",
+              cursor: "pointer", fontSize: 12, fontWeight: 700, color: "#106579",
             }}
           >
             See all <ChevronRight size={14} />

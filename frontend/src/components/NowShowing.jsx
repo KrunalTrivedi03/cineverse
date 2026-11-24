@@ -1,3 +1,4 @@
+import Dialog from "./Dialog";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axiosInstance";
@@ -41,7 +42,7 @@ function FilterSection({ title, children, onClear, hasActive }) {
         {hasActive && (
           <button
             onClick={(e) => { e.stopPropagation(); onClear(); }}
-            className="text-[11px] font-semibold text-[#f0545c] hover:underline"
+            className="text-[11px] font-semibold text-now-accent hover:underline"
           >
             Clear
           </button>
@@ -63,8 +64,8 @@ function SideChip({ label, active, onClick }) {
       className="px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all"
       style={
         active
-          ? { background: "rgba(240,84,92,0.1)", color: "#f0545c", borderColor: "rgba(240,84,92,0.4)" }
-          : { background: "white", color: "#374151", borderColor: "#e5e7eb" }
+          ? { background: "rgba(16,101,121,0.1)", color: "#106579", borderColor: "rgba(16,101,121,0.4)" }
+          : { background: "white", color: "#374151", borderColor: "#e4e4e7" }
       }
     >
       {label}
@@ -79,7 +80,7 @@ function LangPill({ label, active, onClick }) {
       className="px-4 py-1.5 rounded-full text-[13px] font-semibold border transition-all flex-shrink-0"
       style={
         active
-          ? { background: "#f0545c", color: "#fff", borderColor: "#f0545c" }
+          ? { background: "#106579", color: "#fff", borderColor: "#106579" }
           : { background: "white", color: "#374151", borderColor: "#d1d5db" }
       }
     >
@@ -135,7 +136,7 @@ function ComingSoonBanner({ movies }) {
         <Link
           to="/coming-soon"
           className="flex items-center gap-1 text-[12px] md:text-[13px] font-bold whitespace-nowrap flex-shrink-0 hover:opacity-70 transition-opacity"
-          style={{ color: "#f0545c" }}
+          style={{ color: "#106579" }}
         >
           Explore Upcoming
           <ChevronRight size={14} />
@@ -161,17 +162,8 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
   if (!open) return null;
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/40"
-        onClick={onClose}
-      />
-      {/* Drawer */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[#f5f5f7] rounded-t-2xl"
-        style={{ maxHeight: "85vh", overflowY: "auto" }}
-      >
+    <Dialog variant="sheet" label="Filter movies" onDismiss={onClose}>
+      <div className="bg-gray-50">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
@@ -184,12 +176,12 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
             {activeCount > 0 && (
               <button
                 onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [], inCinemas: false })}
-                className="text-[12px] font-semibold text-[#f0545c]"
+                className="text-[12px] font-semibold text-now-accent"
               >
                 Clear All ({activeCount})
               </button>
             )}
-            <button onClick={onClose}>
+            <button aria-label="Close filters" className="grid size-10 place-items-center rounded-lg hover:bg-gray-50" onClick={onClose}>
               <X size={20} className="text-gray-500" />
             </button>
           </div>
@@ -251,8 +243,8 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
             className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-[13px] font-semibold transition-all bg-white"
             style={
               filters.inCinemas
-                ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
-                : { borderColor: "#e5e7eb", color: "#6b7280" }
+                ? { borderColor: "rgba(16,101,121,0.4)", color: "#106579", background: "rgba(16,101,121,0.05)" }
+                : { borderColor: "#e4e4e7", color: "#6b7280" }
             }
           >
             <span className="flex items-center gap-2"><Tv size={14} /> In Cinemas Only</span>
@@ -263,13 +255,13 @@ function MobileFilterDrawer({ open, onClose, filters, setFilters, availableForma
           <button
             onClick={onClose}
             className="w-full py-3 rounded-2xl text-[14px] font-bold text-white mt-1"
-            style={{ background: "#f0545c" }}
+            style={{ background: "#106579" }}
           >
             {activeCount > 0 ? `Apply ${activeCount} Filter${activeCount !== 1 ? "s" : ""}` : "Apply Filters"}
           </button>
         </div>
       </div>
-    </>
+    </Dialog>
   );
 }
 
@@ -368,7 +360,7 @@ export default function NowShowingPage() {
             {activeCount > 0 && (
               <button
                 onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [], inCinemas: false })}
-                className="text-[12px] font-semibold text-[#f0545c] hover:underline flex items-center gap-1"
+                className="text-[12px] font-semibold text-now-accent hover:underline flex items-center gap-1"
               >
                 <X size={12} /> Clear All
               </button>
@@ -430,8 +422,8 @@ export default function NowShowingPage() {
             className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-[13px] font-semibold transition-all bg-white"
             style={
               filters.inCinemas
-                ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
-                : { borderColor: "#e5e7eb", color: "#6b7280" }
+                ? { borderColor: "rgba(16,101,121,0.4)", color: "#106579", background: "rgba(16,101,121,0.05)" }
+                : { borderColor: "#e4e4e7", color: "#6b7280" }
             }
           >
             <span className="flex items-center gap-2"><Tv size={14} /> In Cinemas Only</span>
@@ -446,7 +438,7 @@ export default function NowShowingPage() {
           <div className="flex items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
               <h1 className="text-[18px] md:text-[22px] font-bold text-gray-900">
-                Movies In <span style={{ color: "#f0545c" }}>{city}</span>
+                Movies In <span style={{ color: "#106579" }}>{city}</span>
               </h1>
               <MapPin size={15} className="text-gray-400" />
             </div>
@@ -457,14 +449,14 @@ export default function NowShowingPage() {
               className="flex md:hidden items-center gap-2 px-3 py-2 rounded-xl border text-[13px] font-semibold bg-white transition-all"
               style={
                 activeCount > 0
-                  ? { borderColor: "rgba(240,84,92,0.4)", color: "#f0545c", background: "rgba(240,84,92,0.05)" }
-                  : { borderColor: "#e5e7eb", color: "#374151" }
+                  ? { borderColor: "rgba(16,101,121,0.4)", color: "#106579", background: "rgba(16,101,121,0.05)" }
+                  : { borderColor: "#e4e4e7", color: "#374151" }
               }
             >
               <SlidersHorizontal size={15} />
               Filters
               {activeCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-[#f0545c] text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-now-accent text-white text-[10px] font-bold flex items-center justify-center">
                   {activeCount}
                 </span>
               )}
@@ -496,7 +488,7 @@ export default function NowShowingPage() {
               {[...filters.genre, ...filters.certificate, ...filters.format].map((v) => (
                 <span key={v}
                   className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border"
-                  style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.2)" }}>
+                  style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.2)" }}>
                   {v}
                   <button onClick={() => {
                     if (filters.genre.includes(v))            toggleFilter("genre", v);
@@ -507,7 +499,7 @@ export default function NowShowingPage() {
               ))}
               {filters.inCinemas && (
                 <span className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border"
-                  style={{ background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.2)" }}>
+                  style={{ background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.2)" }}>
                   In Cinemas <button onClick={() => setFilters((f) => ({ ...f, inCinemas: false }))}><X size={10} /></button>
                 </span>
               )}
@@ -540,8 +532,8 @@ export default function NowShowingPage() {
           {!loading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-                style={{ background: "rgba(240,84,92,0.07)" }}>
-                <Tv size={30} style={{ color: "#f0545c", opacity: 0.4 }} />
+                style={{ background: "rgba(16,101,121,0.07)" }}>
+                <Tv size={30} style={{ color: "#106579", opacity: 0.4 }} />
               </div>
               <p className="text-[16px] font-bold text-gray-400">
                 {activeCount > 0 ? "No movies match your filters" : `No movies showing in ${city}`}
@@ -553,7 +545,7 @@ export default function NowShowingPage() {
                 <button
                   onClick={() => setFilters({ genre: [], language: [], certificate: [], format: [], inCinemas: false })}
                   className="mt-4 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white"
-                  style={{ background: "#f0545c" }}>
+                  style={{ background: "#106579" }}>
                   Clear Filters
                 </button>
               )}
@@ -605,7 +597,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
 
         {movie.isInCinemas && (
           <span className="absolute top-2.5 right-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: "rgba(240,84,92,0.88)", color: "#fff" }}>
+            style={{ background: "rgba(16,101,121,0.88)", color: "#fff" }}>
             In Cinemas
           </span>
         )}
@@ -618,7 +610,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
             </p>
           )}
           <div className="flex items-center gap-1.5">
-            <Star size={11} fill="#f0545c" className="text-[#f0545c] flex-shrink-0" />
+            <Star size={11} fill="#106579" className="text-now-accent flex-shrink-0" />
             <span className="text-white font-bold text-[12px]">{movie.rating}/10</span>
             <span className="text-white/50 text-[11px]">{formatVotes(movie.votes)}+ Votes</span>
           </div>
@@ -626,7 +618,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
       </div>
 
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors">
           {movie.title}
         </h3>
         <p className="text-[12px] text-gray-400 mt-0.5 truncate">
@@ -641,11 +633,11 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
           onClick={(e) => onVote(e, movie._id)}
           className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-semibold transition-all border"
           style={{
-            borderColor: isVoted ? "rgba(240,84,92,0.5)"  : "rgba(240,84,92,0.25)",
-            color:       isVoted ? "#fff"                  : "#f0545c",
-            background:  isVoted ? "#f0545c"               : "white",
+            borderColor: isVoted ? "rgba(16,101,121,0.5)"  : "rgba(16,101,121,0.25)",
+            color:       isVoted ? "#fff"                  : "#106579",
+            background:  isVoted ? "#106579"               : "white",
           }}
-          onMouseEnter={(e) => { if (!isVoted) e.currentTarget.style.background = "rgba(240,84,92,0.05)"; }}
+          onMouseEnter={(e) => { if (!isVoted) e.currentTarget.style.background = "rgba(16,101,121,0.05)"; }}
           onMouseLeave={(e) => { if (!isVoted) e.currentTarget.style.background = "white"; }}
         >
           <ThumbsUp size={12} fill={isVoted ? "#fff" : "none"} />

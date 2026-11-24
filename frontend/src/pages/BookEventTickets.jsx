@@ -81,14 +81,14 @@ export default function BookEventTickets() {
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex gap-2">
         {[0, 1, 2].map((i) => (
-          <span key={i} className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+          <span key={i} className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#f5f5f5", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
       <Navbar />
 
@@ -120,8 +120,8 @@ export default function BookEventTickets() {
                 onClick={() => setSelectedDate(d.key)}
                 style={{
                   flexShrink: 0, minWidth: 56, padding: "8px 4px", borderRadius: 12, textAlign: "center",
-                  border: `1.5px solid ${active ? "#f0545c" : "#e5e7eb"}`,
-                  background: active ? "#f0545c" : "#fff", cursor: "pointer",
+                  border: `1.5px solid ${active ? "#106579" : "#e4e4e7"}`,
+                  background: active ? "#106579" : "#fff", cursor: "pointer",
                 }}
               >
                 <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: active ? "#fff" : "#9ca3af", textTransform: "uppercase" }}>{d.day}</p>
@@ -148,7 +148,7 @@ export default function BookEventTickets() {
                     <h3 className="text-[15px] font-bold text-gray-900">{schedule.venue?.name}</h3>
                     {schedule.venue?.locationLink && (
                       <a href={schedule.venue.locationLink} target="_blank" rel="noreferrer"
-                        className="flex items-center gap-0.5 text-[11px] font-semibold text-[#f0545c] hover:underline">
+                        className="flex items-center gap-0.5 text-[11px] font-semibold text-now-accent hover:underline">
                         <MapPin size={11} /> Directions
                       </a>
                     )}
@@ -168,7 +168,7 @@ export default function BookEventTickets() {
                         <button
                           key={slot._id}
                           onClick={() => handleSlotClick(schedule, slot)}
-                          className="flex flex-col items-start gap-0.5 px-4 py-2 rounded-md border border-gray-300 hover:border-[#f0545c] hover:bg-[#fff8f8] transition-all"
+                          className="flex flex-col items-start gap-0.5 px-4 py-2 rounded-md border border-gray-300 hover:border-now-accent hover:bg-[#fff8f8] transition-all"
                         >
                           <span className="flex items-center gap-1 text-[14px] font-bold text-gray-900">
                             <Clock size={12} className="text-gray-400" /> {fmt12(slot.time)}

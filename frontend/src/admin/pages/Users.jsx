@@ -26,7 +26,7 @@ function Avatar({ name }) {
   const initials = name ? name.slice(0, 2).toUpperCase() : "??";
   const colors = [
     ["rgba(99,102,241,0.12)", "#6366f1"],
-    ["rgba(240,84,92,0.12)",  "#f0545c"],
+    ["rgba(16,101,121,0.12)",  "#106579"],
     ["rgba(16,185,129,0.12)", "#10b981"],
     ["rgba(245,158,11,0.12)", "#f59e0b"],
     ["rgba(139,92,246,0.12)", "#8b5cf6"],
@@ -126,7 +126,7 @@ export default function Users() {
           {[
             { label: "Total Users",   value: total,   icon: UsersIcon,  color: "#6366f1", bg: "rgba(99,102,241,0.08)"  },
             { label: "Active",        value: active,  icon: UserCheck,  color: "#10b981", bg: "rgba(16,185,129,0.08)"  },
-            { label: "Banned",        value: banned,  icon: ShieldX,    color: "#f0545c", bg: "rgba(240,84,92,0.08)"   },
+            { label: "Banned",        value: banned,  icon: ShieldX,    color: "#106579", bg: "rgba(16,101,121,0.08)"   },
             { label: "Premium",       value: premium, icon: ShieldCheck,color: "#f59e0b", bg: "rgba(245,158,11,0.08)"  },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
@@ -169,8 +169,8 @@ export default function Users() {
                 className="text-[12px] font-semibold px-3 py-2 rounded-xl border transition-all capitalize"
                 style={
                   filter === f
-                    ? { background: "rgba(240,84,92,0.08)", color: "#f0545c", borderColor: "rgba(240,84,92,0.25)" }
-                    : { background: "white", color: "#6b7280", borderColor: "#e5e7eb" }
+                    ? { background: "rgba(16,101,121,0.08)", color: "#106579", borderColor: "rgba(16,101,121,0.25)" }
+                    : { background: "white", color: "#6b7280", borderColor: "#e4e4e7" }
                 }
               >
                 {f}
@@ -271,7 +271,7 @@ export default function Users() {
                         style={
                           u.plan && u.plan !== "Free"
                             ? { background: "rgba(245,158,11,0.08)", color: "#f59e0b", borderColor: "rgba(245,158,11,0.2)" }
-                            : { background: "#f9fafb", color: "#9ca3af", borderColor: "#e5e7eb" }
+                            : { background: "#f9fafb", color: "#9ca3af", borderColor: "#e4e4e7" }
                         }
                       >
                         {u.plan || "Free"}

@@ -177,7 +177,7 @@ export default function OtpVerification() {
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at center, rgba(13,13,13,0.5) 0%, transparent 70%)" }} />
         <div className="absolute top-0 right-0 bottom-0 w-32 pointer-events-none"
-          style={{ background: "linear-gradient(to right, transparent, #f5f5f5)" }} />
+          style={{ background: "linear-gradient(to right, transparent, #fafafb)" }} />
 
         {/* Branding */}
         <div className="absolute bottom-10 left-8 z-10">
@@ -189,7 +189,7 @@ export default function OtpVerification() {
               backdropFilter: "blur(12px)",
             }}
           >
-            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-8 w-auto" />
             <p
               style={{
                 margin: 0,
@@ -200,7 +200,7 @@ export default function OtpVerification() {
               }}
             >
               <span style={{ color: "#ffffff" }}>Your World of </span>
-              <span style={{ color: "#f0545c" }}>Entertainment</span>
+              <span style={{ color: "#106579" }}>Entertainment</span>
             </p>
           </div>
           <p className="text-white/40 text-[13px] max-w-xs leading-relaxed">
@@ -212,13 +212,13 @@ export default function OtpVerification() {
       {/* ── RIGHT: OTP form ────────────────────────────── */}
       <div
         className="w-full lg:w-[480px] flex-shrink-0 flex flex-col justify-center px-6 sm:px-10 md:px-14 py-12"
-        style={{ background: "#f5f5f5" }}
+        style={{ background: "#fafafb" }}
       >
         <div className="fade-up w-full max-w-[360px] mx-auto">
 
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <img src={nowLogo} alt="NOW" className="h-8 w-auto" />
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-8 w-auto" />
           </div>
 
           {/* ── Success state ── */}
@@ -244,9 +244,9 @@ export default function OtpVerification() {
               {/* Shield icon */}
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
-                style={{ background: "rgba(240,84,92,0.1)" }}
+                style={{ background: "rgba(16,101,121,0.1)" }}
               >
-                <ShieldCheck size={24} style={{ color: "#f0545c" }} />
+                <ShieldCheck size={24} style={{ color: "#106579" }} />
               </div>
 
               <h1 className="text-[26px] font-bold text-gray-900 leading-tight">
@@ -275,8 +275,8 @@ export default function OtpVerification() {
                     style={{
                       width: 52,
                       height: 56,
-                      borderColor: digit ? "#f0545c" : "#e5e7eb",
-                      boxShadow: digit ? "0 0 0 3px rgba(240,84,92,0.1)" : "none",
+                      borderColor: digit ? "#106579" : "#e4e4e7",
+                      boxShadow: digit ? "0 0 0 3px rgba(16,101,121,0.1)" : "none",
                     }}
                     placeholder="·"
                   />
@@ -302,7 +302,7 @@ export default function OtpVerification() {
                   onClick={handleResend}
                   disabled={timer > 0}
                   className="flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
-                  style={{ color: timer > 0 ? "#d1d5db" : "#f0545c", cursor: timer > 0 ? "not-allowed" : "pointer" }}
+                  style={{ color: timer > 0 ? "#d1d5db" : "#106579", cursor: timer > 0 ? "not-allowed" : "pointer" }}
                 >
                   <RotateCcw size={13} /> Resend
                 </button>
@@ -314,12 +314,12 @@ export default function OtpVerification() {
                 disabled={!isComplete || loading}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-white transition-all active:scale-[0.98]"
                 style={{
-                  background: isComplete && !loading ? "#f0545c" : "#e5e7eb",
+                  background: isComplete && !loading ? "#106579" : "#e4e4e7",
                   color: isComplete && !loading ? "white" : "#9ca3af",
                   cursor: isComplete && !loading ? "pointer" : "not-allowed",
                 }}
-                onMouseEnter={(e) => { if (isComplete && !loading) e.currentTarget.style.background = "#d94048"; }}
-                onMouseLeave={(e) => { if (isComplete && !loading) e.currentTarget.style.background = "#f0545c"; }}
+                onMouseEnter={(e) => { if (isComplete && !loading) e.currentTarget.style.background = "#125467"; }}
+                onMouseLeave={(e) => { if (isComplete && !loading) e.currentTarget.style.background = "#106579"; }}
               >
                 {loading ? (
                   <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Verifying...</>
@@ -330,7 +330,7 @@ export default function OtpVerification() {
 
               <p className="text-center text-[13px] text-gray-400 mt-6">
                 Wrong email?{" "}
-                <Link to="/register" className="font-semibold hover:underline" style={{ color: "#f0545c" }}>
+                <Link to="/register" className="font-semibold hover:underline" style={{ color: "#106579" }}>
                   Go back
                 </Link>
               </p>

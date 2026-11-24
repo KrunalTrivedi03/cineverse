@@ -1,3 +1,4 @@
+import Dialog from "../components/Dialog";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -17,7 +18,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
 
-const ACCENT = "#f0545c";
+const ACCENT = "#106579";
 
 /** Turns a YouTube/Vimeo watch link into an embeddable iframe URL.
  *  Returns null for anything else (e.g. direct .mp4 files), which the
@@ -54,35 +55,22 @@ function isDirectVideoFile(url) {
 }
 
 function TrailerModal({ url, title, onClose }) {
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
-
   const embedUrl = getEmbedUrl(url);
   const playableDirectly = !embedUrl && isDirectVideoFile(url);
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-3 sm:p-6"
-      onClick={onClose}
-    >
+    <Dialog variant="video" label={title + " trailer"} onDismiss={onClose}>
+    <div className="p-3 sm:p-4">
       <button
         onClick={onClose}
         aria-label="Close trailer"
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors"
+        className="ml-auto mb-2 w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors"
       >
         <X size={18} />
       </button>
 
       <div
-        className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden bg-black shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        className="w-full min-h-44 aspect-video rounded-xl overflow-hidden bg-black shadow-2xl"
       >
         {embedUrl ? (
           <iframe
@@ -120,6 +108,7 @@ function TrailerModal({ url, title, onClose }) {
         )}
       </div>
     </div>
+    </Dialog>
   );
 }
 
@@ -305,7 +294,7 @@ export default function WebShowDetails() {
           <div className="flex-1 pt-1 sm:pt-24 min-w-0">
             <span
               className="inline-block text-[10.5px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full mb-2"
-              style={{ backgroundColor: "rgba(240,84,92,0.1)", color: ACCENT }}
+              style={{ backgroundColor: "rgba(16,101,121,0.1)", color: ACCENT }}
             >
               {show.category === "trending-series" ? "Trending Series" : "Web Original"}
             </span>
@@ -317,7 +306,7 @@ export default function WebShowDetails() {
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[13px] text-gray-600">
               <span
                 className="flex items-center gap-1 font-bold px-2 py-0.5 rounded-md"
-                style={{ backgroundColor: "rgba(240,84,92,0.1)", color: ACCENT }}
+                style={{ backgroundColor: "rgba(16,101,121,0.1)", color: ACCENT }}
               >
                 <Star size={13} fill={ACCENT} stroke={ACCENT} />
                 {show.rating}
@@ -422,7 +411,7 @@ export default function WebShowDetails() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(240,84,92,0.1)" }}
+                      style={{ backgroundColor: "rgba(16,101,121,0.1)" }}
                     >
                       <Tv size={15} style={{ color: ACCENT }} />
                     </div>

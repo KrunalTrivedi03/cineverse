@@ -1,3 +1,4 @@
+import Dialog from "./Dialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import api from "../api/axiosInstance";
@@ -93,8 +94,8 @@ const WL_OPTIONS = [
     value: "watching",
     label: "Watching",
     icon: PlayCircle,
-    color: "#f0545c",
-    activeBg: "rgba(240,84,92,0.18)",
+    color: "#106579",
+    activeBg: "rgba(16,101,121,0.18)",
   },
   {
     value: "completed",
@@ -261,9 +262,9 @@ function StatusPickerDropdown({ currentStatus, onPick, onRemove, showRemove, dro
           <button
             onClick={onRemove}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-left transition-all"
-            style={{ color: "rgba(240,84,92,0.75)" }}
+            style={{ color: "rgba(16,101,121,0.75)" }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(240,84,92,0.08)")
+              (e.currentTarget.style.background = "rgba(16,101,121,0.08)")
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.background = "transparent")
@@ -452,11 +453,8 @@ function WatchlistButton({ movieId, mobile, light = false, pill = false }) {
 
 function AgeGatePopup({ onConfirm, onBack }) {
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
-      onClick={onBack}>
-      <div className="bg-white rounded-2xl w-[340px] overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}>
+    <Dialog label="Age requirement" onDismiss={onBack}>
+      <div>
 
         {/* Body */}
         <div className="px-5 pt-6 pb-5">
@@ -466,8 +464,8 @@ function AgeGatePopup({ onConfirm, onBack }) {
           </h2>
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 w-[58px] h-[58px] rounded-full flex items-center justify-center"
-              style={{ border: "3px solid #f0545c" }}>
-              <span className="text-[18px] font-extrabold" style={{ color: "#f0545c" }}>18+</span>
+              style={{ border: "3px solid #106579" }}>
+              <span className="text-[18px] font-extrabold" style={{ color: "#106579" }}>18+</span>
             </div>
             <p className="text-[13px] text-gray-500 leading-relaxed flex-1">
               This movie is only for viewers above 18. Please carry a valid ID/Age Proof
@@ -477,18 +475,20 @@ function AgeGatePopup({ onConfirm, onBack }) {
           </div>
         </div>
 
-        {/* CTA */}
+        <div className="flex flex-wrap justify-end gap-2 border-t border-gray-200 px-5 py-4">
+        <button type="button" className="min-h-11 rounded-lg px-4 text-sm font-semibold hover:bg-gray-50" onClick={onBack}>Go back</button>
         <button
           onClick={onConfirm}
-          className="w-full py-4 text-[15px] font-bold text-white transition-all"
-          style={{ background: "#f0545c" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+          className="now-primary"
+          style={{ background: "#106579" }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
           Continue
         </button>
+        </div>
 
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -507,7 +507,7 @@ export default function MovieDetailWrapper() {
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="w-2.5 h-2.5 rounded-full bg-[#f0545c] animate-bounce"
+              className="w-2.5 h-2.5 rounded-full bg-now-accent animate-bounce"
               style={{ animationDelay: `${i * 0.15}s` }}
             />
           ))}
@@ -565,7 +565,7 @@ function MovieDetail({ movie }) {
       return (
         <button
           onClick={goToBooking}
-          className={`flex items-center justify-center gap-1.5 bg-[#f0545c] hover:bg-[#d94048] text-white font-semibold transition-colors ${
+          className={`flex items-center justify-center gap-1.5 bg-now-accent hover:bg-now-accent-hover text-white font-semibold transition-colors ${
             wide
               ? "flex-1 py-3 rounded-full text-[14px]"
               : mobile
@@ -695,7 +695,7 @@ function MovieDetail({ movie }) {
           <div className="mt-3 flex items-center gap-3 flex-wrap">
             {releaseLine && <p className="text-gray-400 text-[13px]">{releaseLine}</p>}
             <span className="flex items-center gap-1 text-gray-400 text-[13px]">
-              <Star size={12} fill="#f0545c" className="text-[#f0545c]" />
+              <Star size={12} fill="#106579" className="text-now-accent" />
               <span className="font-bold text-gray-800">{movie.rating ?? "—"}/10</span>
               <span>· {formatVotes(votes)} votes</span>
             </span>
@@ -800,7 +800,7 @@ function MovieDetail({ movie }) {
             <div className="flex items-center gap-4 flex-wrap mt-1">
               {releaseLine && <span className="text-white/45 text-[13px]">{releaseLine}</span>}
               <span className="flex items-center gap-1.5 text-[13px]">
-                <Star size={13} fill="#f0545c" className="text-[#f0545c]" />
+                <Star size={13} fill="#106579" className="text-now-accent" />
                 <span className="text-white font-bold">{movie.rating ?? "—"}/10</span>
                 <span className="text-white/40">{formatVotes(votes)} Votes</span>
               </span>
@@ -864,7 +864,7 @@ function MovieDetail({ movie }) {
           <div className="px-4 md:px-16 py-6 md:py-8 max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-5">
               <SectionTitle noMargin>You might also like</SectionTitle>
-              <button className="text-[#f0545c] text-[13px] font-semibold flex items-center gap-0.5 hover:underline">
+              <button className="text-now-accent text-[13px] font-semibold flex items-center gap-0.5 hover:underline">
                 View All <ChevronRight size={14} />
               </button>
             </div>
@@ -885,11 +885,11 @@ function MovieDetail({ movie }) {
 
       {/* ── Trailer modal ── */}
       {showTrailer && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-3 md:p-4">
-          <div className="relative w-full max-w-4xl">
+        <Dialog variant="video" label="Watch trailer" onDismiss={() => setShowTrailer(false)}>
+          <div className="p-3 sm:p-4">
             <button
               onClick={() => setShowTrailer(false)}
-              className="absolute -top-9 right-0 text-white/60 hover:text-white flex items-center gap-1.5 text-[13px] transition-colors"
+              className="ml-auto mb-2 flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-white/85 hover:bg-white/10 text-sm"
             >
               <X size={14} /> Close
             </button>
@@ -903,7 +903,7 @@ function MovieDetail({ movie }) {
               />
             </div>
           </div>
-        </div>
+        </Dialog>
       )}
 
       {/* ── Floating action bar — mobile only ── */}
@@ -928,8 +928,8 @@ function MovieDetail({ movie }) {
 
 function VoteButton({ voted, votes, status, onVote, mobile, light = false, pill = false }) {
   const isUpcoming  = status === "upcoming";
-  const activeColor = isUpcoming ? "rgba(234,88,12,0.85)" : "rgba(240,84,92,0.85)";
-  const activeBorder= isUpcoming ? "rgba(234,88,12,0.5)"  : "rgba(240,84,92,0.5)";
+  const activeColor = isUpcoming ? "rgba(234,88,12,0.85)" : "rgba(16,101,121,0.85)";
+  const activeBorder= isUpcoming ? "rgba(234,88,12,0.5)"  : "rgba(16,101,121,0.5)";
 
   const idle = light
     ? { borderColor: "#e5e5e5", color: "#525252", background: "#fff" }
@@ -1140,7 +1140,7 @@ function CrewCard({ item }) {
         </p>
         <p
           className="mt-0.5 text-[10px] md:text-[11px] font-medium line-clamp-1 leading-snug"
-          style={{ color: "#f0545c" }}
+          style={{ color: "#106579" }}
           title={item.roles.join(" · ")}
         >
           {item.roles.join(" · ")}
@@ -1223,7 +1223,7 @@ function SimilarMovies({ movies }) {
                   : formatDateShort(m.releaseDate)}
               </div>
             </div>
-            <p className="mt-1.5 text-[12px] md:text-[13px] font-semibold text-gray-900 line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+            <p className="mt-1.5 text-[12px] md:text-[13px] font-semibold text-gray-900 line-clamp-1 group-hover:text-now-accent transition-colors">
               {m.title}
             </p>
             <p className="text-[11px] md:text-[12px] text-gray-400 mt-0.5">{m.genre}</p>

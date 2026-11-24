@@ -69,26 +69,26 @@ export default function Aboutus() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: "#14141a" }}>
+      <section className="now-light-banner relative overflow-hidden">
         <div
           className="absolute -right-24 -top-24 w-72 h-72 rounded-full pointer-events-none"
-          style={{ background: "rgba(240,84,92,0.18)" }}
+          style={{ background: "rgba(16,101,121,0.18)" }}
         />
         <div
           className="absolute -left-16 bottom-0 w-56 h-56 rounded-full pointer-events-none"
-          style={{ background: "rgba(240,84,92,0.10)" }}
+          style={{ background: "rgba(16,101,121,0.10)" }}
         />
         <div className="relative max-w-5xl mx-auto px-5 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 text-center">
-          <div className="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full" style={{ background: "rgba(240,84,92,0.15)" }}>
-            <Sparkles size={12} style={{ color: "#f0545c" }} />
-            <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+          <div className="inline-flex items-center gap-1.5 mb-5 px-3 py-1.5 rounded-full" style={{ background: "rgba(16,101,121,0.15)" }}>
+            <Sparkles size={12} style={{ color: "#106579" }} />
+            <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
               About NOW
             </span>
           </div>
-          <h1 className="text-white font-black text-[32px] sm:text-[44px] md:text-[52px] leading-[1.1] tracking-tight max-w-3xl mx-auto" style={{ letterSpacing: "-0.02em" }}>
-            One Platform, <span style={{ color: "#f0545c" }}>Every Experience</span>
+          <h1 className="text-gray-900 font-black text-[32px] sm:text-[44px] md:text-[52px] leading-[1.1] tracking-tight max-w-3xl mx-auto" style={{ letterSpacing: "-0.02em" }}>
+            One Platform, <span style={{ color: "#106579" }}>Every Experience</span>
           </h1>
-          <p className="text-white/60 text-[14px] sm:text-[16px] max-w-xl mx-auto mt-5 leading-relaxed">
+          <p className="text-gray-600 text-[14px] sm:text-[16px] max-w-xl mx-auto mt-5 leading-relaxed">
             NOW brings movies, live events and plays together in a single, seamless booking
             experience — designed for people who love to go out and be entertained.
           </p>
@@ -100,7 +100,7 @@ export default function Aboutus() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 md:p-7">
           {STATS.map((s) => (
             <div key={s.label} className="text-center">
-              <p className="text-[24px] md:text-[30px] font-black" style={{ color: "#f0545c", letterSpacing: "-0.02em" }}>
+              <p className="text-[24px] md:text-[30px] font-black" style={{ color: "#106579", letterSpacing: "-0.02em" }}>
                 {s.value}
               </p>
               <p className="text-[12px] md:text-[13px] text-gray-500 font-medium mt-1">{s.label}</p>
@@ -113,7 +113,7 @@ export default function Aboutus() {
       <section className="max-w-5xl mx-auto px-5 md:px-8 pt-16 md:pt-20 pb-4">
         <div className="grid md:grid-cols-[1fr_1.1fr] gap-8 md:gap-14 items-center">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#f0545c" }}>
+            <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#106579" }}>
               Who we are
             </p>
             <h2 className="text-[24px] md:text-[30px] font-black text-gray-900 tracking-tight leading-tight mb-4">
@@ -152,8 +152,8 @@ export default function Aboutus() {
       <section className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-20">
         <div className="grid md:grid-cols-2 gap-5 md:gap-6">
           <div className="rounded-3xl p-7 md:p-9" style={{ background: "#fff5f5" }}>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(240,84,92,0.12)" }}>
-              <Target size={20} style={{ color: "#f0545c" }} />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(16,101,121,0.12)" }}>
+              <Target size={20} style={{ color: "#106579" }} />
             </div>
             <h3 className="text-[19px] font-extrabold text-gray-900 mb-2.5">Our Mission</h3>
             <p className="text-[14px] text-gray-500 leading-relaxed">
@@ -177,7 +177,7 @@ export default function Aboutus() {
       {/* Highlights */}
       <section className="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-20">
         <div className="text-center mb-10 md:mb-12">
-          <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#f0545c" }}>
+          <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#106579" }}>
             Why NOW
           </p>
           <h2 className="text-[24px] md:text-[30px] font-black text-gray-900 tracking-tight">
@@ -190,8 +190,8 @@ export default function Aboutus() {
               key={title}
               className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(240,84,92,0.08)" }}>
-                <Icon size={18} style={{ color: "#f0545c" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.08)" }}>
+                <Icon size={18} style={{ color: "#106579" }} />
               </div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-1.5">{title}</h3>
               <p className="text-[13px] text-gray-500 leading-relaxed">{desc}</p>
@@ -204,7 +204,7 @@ export default function Aboutus() {
       <section className="max-w-6xl mx-auto px-5 md:px-8 pb-20 md:pb-28">
         <div
           className="relative overflow-hidden rounded-3xl px-6 md:px-14 py-12 md:py-16 text-center"
-          style={{ background: "linear-gradient(135deg, #f0545c 0%, #ff8a65 100%)" }}
+          style={{ background: "linear-gradient(135deg, #106579 0%, #ff8a65 100%)" }}
         >
           <Users size={140} strokeWidth={1} className="absolute -right-6 -bottom-10 hidden md:block" style={{ color: "rgba(255,255,255,0.15)" }} />
           <CalendarDays size={110} strokeWidth={1} className="absolute -left-4 -top-8 hidden md:block" style={{ color: "rgba(255,255,255,0.12)" }} />

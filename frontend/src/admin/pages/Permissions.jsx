@@ -43,9 +43,9 @@ const SCOPE_CONFIG = {
   admin: {
     label: "Admin",
     icon: ShieldAlert,
-    bg: "rgba(240,84,92,0.08)",
+    bg: "rgba(16,101,121,0.08)",
     color: "#dc2626",
-    border: "rgba(240,84,92,0.2)",
+    border: "rgba(16,101,121,0.2)",
   },
 };
 
@@ -147,12 +147,12 @@ export default function Permissions() {
           <button
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all"
             style={{
-              background: "rgba(240,84,92,0.09)",
-              color: "#f0545c",
-              border: "1px solid rgba(240,84,92,0.25)",
+              background: "rgba(16,101,121,0.09)",
+              color: "#106579",
+              border: "1px solid rgba(16,101,121,0.25)",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.16)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.09)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.16)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.09)")}
           >
             <Plus size={15} />
             New Permission
@@ -165,7 +165,7 @@ export default function Permissions() {
             { label: "Total",   value: total,      icon: KeyRound,    color: "#6366f1", bg: "rgba(99,102,241,0.08)"  },
             { label: "Read",    value: readCount,  icon: Eye,         color: "#10b981", bg: "rgba(16,185,129,0.08)"  },
             { label: "Write",   value: writeCount, icon: PenLine,     color: "#f59e0b", bg: "rgba(245,158,11,0.08)"  },
-            { label: "Admin",   value: adminCount, icon: ShieldCheck, color: "#f0545c", bg: "rgba(240,84,92,0.08)"   },
+            { label: "Admin",   value: adminCount, icon: ShieldCheck, color: "#106579", bg: "rgba(16,101,121,0.08)"   },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div
               key={label}
@@ -221,11 +221,11 @@ export default function Permissions() {
                 style={
                   filter === f
                     ? {
-                        background: "rgba(240,84,92,0.08)",
-                        color: "#f0545c",
-                        borderColor: "rgba(240,84,92,0.25)",
+                        background: "rgba(16,101,121,0.08)",
+                        color: "#106579",
+                        borderColor: "rgba(16,101,121,0.25)",
                       }
-                    : { background: "white", color: "#6b7280", borderColor: "#e5e7eb" }
+                    : { background: "white", color: "#6b7280", borderColor: "#e4e4e7" }
                 }
               >
                 {f}
@@ -316,9 +316,9 @@ export default function Permissions() {
                         <div className="flex items-center gap-3">
                           <div
                             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                            style={{ background: "rgba(240,84,92,0.08)" }}
+                            style={{ background: "rgba(16,101,121,0.08)" }}
                           >
-                            <KeyRound size={16} style={{ color: "#f0545c" }} />
+                            <KeyRound size={16} style={{ color: "#106579" }} />
                           </div>
                           <span className="text-[13px] font-semibold text-gray-900 font-mono tracking-tight">
                             {resource}

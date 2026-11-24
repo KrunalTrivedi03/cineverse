@@ -1,3 +1,5 @@
+import DeleteDialog from "../../components/DeleteDialog";
+import { showToast } from "../../utils/toast";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosAdmin from "../../api/axiosAdmin";
@@ -77,7 +79,7 @@ export default function AdminEvents() {
       fetchEvents();
     } catch (err) {
       console.error("Delete failed", err);
-      alert("Failed to delete event");
+      showToast.error("Failed to delete event");
     } finally { setDeleting(false); }
   };
 
@@ -97,9 +99,9 @@ export default function AdminEvents() {
           <button
             onClick={() => navigate("/admin/events/add")}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all active:scale-[0.98] self-start sm:self-auto"
-            style={{ background: "#f0545c" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d94048")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f0545c")}>
+            style={{ background: "#106579" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#125467")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}>
             <Plus size={15} /> Add Event
           </button>
         </div>
@@ -111,7 +113,7 @@ export default function AdminEvents() {
             { label: "Upcoming",     value: upcoming,        color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
             { label: "Avg Rating",
               value: events.length ? (events.reduce((s, e) => s + (e.ratings?.average || 0), 0) / events.length).toFixed(1) : "—",
-              color: "#f0545c", bg: "rgba(240,84,92,0.08)" },
+              color: "#106579", bg: "rgba(16,101,121,0.08)" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
               <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
@@ -168,8 +170,8 @@ export default function AdminEvents() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(240,84,92,0.08)" }}>
-                      <PartyPopper size={22} style={{ color: "#f0545c" }} />
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
+                      <PartyPopper size={22} style={{ color: "#106579" }} />
                     </div>
                     <p className="text-[14px] font-semibold text-gray-400">No events found</p>
                     <p className="text-[12px] text-gray-300 mt-0.5">{search ? `No results for "${search}"` : "Add your first event to get started"}</p>
@@ -240,23 +242,9 @@ export default function AdminEvents() {
       </div>
 
       {deleteTarget && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 16, padding: "2rem", width: 360, textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(220,38,38,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
-              <Trash2 size={24} color="#dc2626" />
-            </div>
-            <p style={{ fontSize: 16, fontWeight: 600, color: "#111827", margin: "0 0 0.5rem" }}>Delete event?</p>
-            <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 1.75rem", lineHeight: 1.6 }}>
-              <strong style={{ color: "#111827" }}>{deleteTarget.title}</strong> and all its schedules will be permanently removed. This cannot be undone.
-            </p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setDeleteTarget(null)} disabled={deleting} style={{ flex: 1, padding: "0.6rem", borderRadius: 10, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 13, cursor: "pointer", fontWeight: 500 }}>Cancel</button>
-              <button onClick={handleDelete} disabled={deleting} style={{ flex: 1, padding: "0.6rem", borderRadius: 10, border: "none", background: "#dc2626", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                {deleting ? "Deleting…" : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteDialog title="Delete event?" onCancel={() => setDeleteTarget(null)} onDelete={handleDelete} busy={deleting}>
+          <p><strong>{deleteTarget.title}</strong> and all its schedules will be permanently removed. This action cannot be undone.</p>
+        </DeleteDialog>
       )}
     </AdminLayout>
   );

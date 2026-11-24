@@ -87,7 +87,7 @@ export default function ComingSoon() {
   };
 
   const SectionWrapper = ({ children, showSeeAll = false }) => (
-    <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
+    <section className="w-full px-6 md:px-14 py-10 bg-now-canvas border-t border-gray-100">
       <div className="flex items-end justify-between mb-6">
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
@@ -106,7 +106,7 @@ export default function ComingSoon() {
           )}
         </div>
         {showSeeAll && (
-          <button className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline flex-shrink-0"
+          <button className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline flex-shrink-0"
           onClick={() => navigate("/coming-soon")}
           >
             See All <ChevronRight size={15} />
@@ -154,12 +154,12 @@ export default function ComingSoon() {
             onClick={fetchUpcoming}
             className="text-[12px] font-semibold px-4 py-1.5 rounded-lg border transition-all"
             style={{
-              borderColor: "rgba(240,84,92,0.3)",
-              color: "#f0545c",
-              background: "rgba(240,84,92,0.05)",
+              borderColor: "rgba(16,101,121,0.3)",
+              color: "#106579",
+              background: "rgba(16,101,121,0.05)",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.12)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.05)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.12)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.05)")}
           >
             Try Again
           </button>
@@ -295,7 +295,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
       {/* Info */}
       <div className="mt-2.5 px-0.5">
         <h3
-          className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors cursor-pointer"
+          className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors cursor-pointer"
           onClick={onView}
           title={movie.title}
         >
@@ -326,9 +326,9 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
                 key={i}
                 className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                 style={{
-                  background: "rgba(240,84,92,0.08)",
+                  background: "rgba(16,101,121,0.08)",
                   color: "#c0353b",
-                  border: "1px solid rgba(240,84,92,0.2)",
+                  border: "1px solid rgba(16,101,121,0.2)",
                 }}
               >
                 {g}
@@ -362,23 +362,23 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
             onClick={onView}
             className="flex-1 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
-              borderColor: "rgba(240,84,92,0.3)",
-              color: "#f0545c",
-              background: "rgba(240,84,92,0.05)",
+              borderColor: "rgba(16,101,121,0.3)",
+              color: "#106579",
+              background: "rgba(16,101,121,0.05)",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.12)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(240,84,92,0.05)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.12)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,101,121,0.05)")}
           >
             View Details
           </button>
 
           <button
-            onClick={() => setNotified((p) => !p)}
+            onClick={() => setNotified((p) => !p)} aria-label="Release reminder" aria-pressed={notified}
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all border"
             style={{
-              borderColor: notified ? "rgba(240,84,92,0.4)" : "rgba(0,0,0,0.12)",
-              background: notified ? "rgba(240,84,92,0.1)" : "white",
-              color: notified ? "#f0545c" : "#666",
+              borderColor: notified ? "rgba(16,101,121,0.4)" : "rgba(0,0,0,0.12)",
+              background: notified ? "rgba(16,101,121,0.1)" : "white",
+              color: notified ? "#106579" : "#666",
             }}
             title={notified ? "Reminder set" : "Remind me"}
           >
@@ -393,6 +393,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
 function ArrowBtn({ dir, onClick, style }) {
   return (
     <button
+      aria-label={dir === "left" ? "Previous releases" : "Next releases"}
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
       className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"

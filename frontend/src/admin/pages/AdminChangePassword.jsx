@@ -87,9 +87,9 @@ export default function AdminChangePassword() {
       <div className="flex items-center gap-3 mb-6">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: "rgba(240,84,92,0.1)" }}
+          style={{ background: "rgba(16,101,121,0.1)" }}
         >
-          <KeyRound size={19} style={{ color: "#f0545c" }} />
+          <KeyRound size={19} style={{ color: "#106579" }} />
         </div>
         <div>
           <h1 className="text-[18px] font-bold text-gray-900">Change Password</h1>
@@ -128,7 +128,7 @@ export default function AdminChangePassword() {
               type={showCurrent ? "text" : "password"}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 text-[14px] outline-none focus:border-[#f0545c] transition-colors"
+              className="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 text-[14px] outline-none focus:border-now-accent transition-colors"
               autoComplete="current-password"
               required
             />
@@ -150,7 +150,7 @@ export default function AdminChangePassword() {
               type={showNew ? "text" : "password"}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 text-[14px] outline-none focus:border-[#f0545c] transition-colors"
+              className="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 text-[14px] outline-none focus:border-now-accent transition-colors"
               autoComplete="new-password"
               required
             />
@@ -189,7 +189,7 @@ export default function AdminChangePassword() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl border text-[14px] outline-none transition-colors mb-1"
             style={{
-              borderColor: confirmPassword && !passwordsMatch ? "#fca5a5" : "#e5e7eb",
+              borderColor: confirmPassword && !passwordsMatch ? "#fca5a5" : "#e4e4e7",
             }}
             autoComplete="new-password"
             required
@@ -203,7 +203,7 @@ export default function AdminChangePassword() {
             disabled={!canSubmit}
             className="w-full mt-5 py-3 rounded-xl text-[14px] font-bold text-white transition-all flex items-center justify-center gap-2"
             style={{
-              background: canSubmit ? "#f0545c" : "#e5e7eb",
+              background: canSubmit ? "#106579" : "#e4e4e7",
               color: canSubmit ? "white" : "#9ca3af",
               cursor: canSubmit ? "pointer" : "not-allowed",
             }}
@@ -227,10 +227,10 @@ export default function AdminChangePassword() {
       >
         <div
           className="absolute -top-10 -right-10 w-40 h-40 rounded-full"
-          style={{ background: "rgba(240,84,92,0.15)", filter: "blur(20px)" }}
+          style={{ background: "rgba(16,101,121,0.15)", filter: "blur(20px)" }}
         />
         <div className="relative flex items-center gap-2 mb-5">
-          <Sparkles size={16} style={{ color: "#f0545c" }} />
+          <Sparkles size={16} style={{ color: "#106579" }} />
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
             Account security
           </span>
@@ -243,7 +243,7 @@ export default function AdminChangePassword() {
                 className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ background: "rgba(255,255,255,0.06)" }}
               >
-                <tip.icon size={16} style={{ color: "#f0545c" }} />
+                <tip.icon size={16} style={{ color: "#106579" }} />
               </div>
               <div>
                 <p className="text-[13px] font-semibold text-white">{tip.title}</p>

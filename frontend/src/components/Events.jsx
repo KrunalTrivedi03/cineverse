@@ -103,7 +103,7 @@ export default function HomeEvents() {
 
   if (loading) {
     return (
-      <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
+      <section className="w-full px-6 md:px-14 py-10 bg-now-canvas border-t border-gray-100">
         <SectionHeader count={0} />
         <div className="flex gap-4 overflow-hidden">
           {[...Array(5)].map((_, i) => (
@@ -123,7 +123,7 @@ export default function HomeEvents() {
   if (!events.length) return null;
 
   return (
-    <section className="w-full px-6 md:px-14 py-10 bg-[#f5f5f5] border-t border-gray-100">
+    <section className="w-full px-6 md:px-14 py-10 bg-now-canvas border-t border-gray-100">
       <SectionHeader count={events.length} onSeeAll={() => navigate("/events")} />
 
       <div className="relative">
@@ -156,10 +156,10 @@ function SectionHeader({ count, onSeeAll }) {
     <div className="flex items-end justify-between mb-6">
       <div>
         <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(240,84,92,0.12)" }}>
-            <Flame size={10} style={{ color: "#f0545c" }} />
+          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(16,101,121,0.12)" }}>
+            <Flame size={10} style={{ color: "#106579" }} />
           </span>
-          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#f0545c" }}>
+          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
             Don't miss out
           </p>
         </div>
@@ -170,7 +170,7 @@ function SectionHeader({ count, onSeeAll }) {
       </div>
       {onSeeAll && (
         <button
-          className="flex items-center gap-0.5 text-[#f0545c] text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
+          className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
           onClick={onSeeAll}
         >
           See All <ChevronRight size={15} />
@@ -195,7 +195,7 @@ function EventPosterCard({ event, onClick }) {
   const daysLeft = daysUntilEvent(sched?.eventDate);
 
   const badge = isTrending
-    ? { label: "Trending", bg: "rgba(240,84,92,0.9)", icon: Flame }
+    ? { label: "Trending", bg: "rgba(16,101,121,0.9)", icon: Flame }
     : daysLeft != null
     ? { label: daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d to go`, bg: "rgba(234,88,12,0.88)", icon: Sparkles }
     : { label: "Coming Soon", bg: "rgba(234,88,12,0.88)", icon: Sparkles };
@@ -273,7 +273,7 @@ function EventPosterCard({ event, onClick }) {
       </div>
 
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-[#f0545c] transition-colors">
+        <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors">
           {event.title}
         </h3>
 
@@ -285,8 +285,8 @@ function EventPosterCard({ event, onClick }) {
 
         {sched && (
           <div className="flex items-center gap-1 mt-1">
-            <Calendar size={10} color="#f0545c" />
-            <span className="text-[11px] font-semibold text-[#f0545c] truncate">
+            <Calendar size={10} color="#106579" />
+            <span className="text-[11px] font-semibold text-now-accent truncate">
               {fmtDate(sched.eventDate)}{sched.time ? ` · ${fmt12(sched.time)}` : ""}
             </span>
           </div>

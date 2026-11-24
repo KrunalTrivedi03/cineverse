@@ -306,9 +306,8 @@ export default function UpcomingMoviesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-now-canvas" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-now-canvas" style={{ fontFamily: "var(--now-ui-font)" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
         ::-webkit-scrollbar { display: none; }
         * { box-sizing: border-box; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }

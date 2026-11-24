@@ -8,7 +8,7 @@
 }
 
 @theme {
-  --font-sans: "Outfit", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
   --color-gray-50: #fafafb;
   --color-gray-100: #f1f4f5;
   --color-gray-200: #e4e4e7;
@@ -144,7 +144,6 @@ body:has(.now-dialog[open]) { overflow: hidden; }
   border: 1px solid #cce8eb;
 }
 @media (min-width: 84rem) { .now-hero { margin-inline: auto; } }
-.now-hero-stage { height: clamp(26rem, 43vw, 34rem); }
 .now-hero-blank {
   display: grid;
   align-items: center;
@@ -213,7 +212,6 @@ body:has(.now-dialog[open]) { overflow: hidden; }
 }
 @media (max-width: 767px) {
   .now-header-inner { min-height: 3.75rem; }
-  .now-hero-stage { height: clamp(24rem, 90vw, 29rem); }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -327,20 +325,9 @@ body:has(.now-dialog[open]) { overflow: hidden; }
 .now-dialog--form .now-dialog-content > div { max-width: 100%; }
 .now-dialog--gallery { width: min(100% - 2rem, 58rem); }
 
-.now-hero-art {
-  position: absolute;
-  inset: 0 0 0 36%;
-  background-size: cover;
-  background-position: center 24%;
-  opacity: .24;
-  mask-image: linear-gradient(to right, transparent, #000 76%);
-}
 .now-light-banner {
   background:
     radial-gradient(ellipse at top right, color-mix(in srgb, var(--color-now-cyan) 24%, white), transparent 62%),
     linear-gradient(115deg, #fff, #edf9fb);
   border-bottom: 1px solid #cce8eb;
-}
-@media (max-width: 639px) {
-  .now-hero-art { inset: 0 0 0 10%; opacity: .12; }
 }

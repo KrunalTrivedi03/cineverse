@@ -1,5 +1,6 @@
+import DiscoveryHeading from "./DiscoveryHeading";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getSportIcon } from "../utils/sportIcons";
 import api from "../api/axiosInstance";
 import { getSelectedDistrict } from "./DistrictSelector";
@@ -12,7 +13,6 @@ export default function PlayHome() {
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
   const sliderRef = useRef(null);
-  const navigate = useNavigate();
   const district = getSelectedDistrict();
 
   const fetchVenues = useCallback(() => {
@@ -78,13 +78,13 @@ export default function PlayHome() {
 
   return (
     <section className="w-full px-6 md:px-14 py-10 bg-white border-t border-gray-100">
-      <SectionHeader count={venues.length} onSeeAll={() => navigate("/play")} />
+      <SectionHeader count={venues.length} />
 
       <div className="relative">
         {canLeft && <ArrowBtn dir="left" onClick={() => scroll("left")} style={{ left: -16, top: "38%" }} />}
         <div
           ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
+          className="now-media-rail flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {venues.map((v) => (
@@ -97,39 +97,14 @@ export default function PlayHome() {
   );
 }
 
-function SectionHeader({ count, onSeeAll }) {
-  return (
-    <div className="flex items-end justify-between mb-6">
-      <div>
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(16,101,121,0.12)" }}>
-            <Dumbbell size={10} style={{ color: "#106579" }} />
-          </span>
-          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
-            Get moving
-          </p>
-        </div>
-        <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-          Upcoming Plays
-        </h2>
-        {count > 0 && <p className="text-[13px] text-gray-400 mt-0.5">{count} venue{count !== 1 ? "s" : ""} near you</p>}
-      </div>
-      {onSeeAll && (
-        <button
-          className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
-          onClick={onSeeAll}
-        >
-          See All <ChevronRight size={15} />
-        </button>
-      )}
-    </div>
-  );
+function SectionHeader({ count }) {
+  return <DiscoveryHeading title="Places to play" detail={count ? `${count} nearby ${count === 1 ? "venue" : "venues"}` : undefined} to="/play" />;
 }
 
 function VenueCard({ venue }) {
   const activities = venue.courtActivities?.length ? venue.courtActivities : (venue.activities || []);
   return (
-    <Link to={`/play/venues/${venue._id}`} className="now-card flex-shrink-0 w-[220px] group snap-start rounded-2xl p-1.5">
+    <Link to={`/play/venues/${venue._id}`} className="now-media-card now-venue-card group shrink-0 snap-start">
       <div className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-shadow group-hover:shadow-lg" style={{ aspectRatio: "4/3" }}>
         {venue.images?.[0] ? (
           <img

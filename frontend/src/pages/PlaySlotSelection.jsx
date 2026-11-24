@@ -269,7 +269,7 @@ export default function PlaySlotSelection() {
 
   if (error) {
     return (
-      <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
           <p className="text-[14px] font-semibold text-gray-500 mb-4">{error}</p>
@@ -280,7 +280,7 @@ export default function PlaySlotSelection() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
       <Navbar />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 140px" }}>

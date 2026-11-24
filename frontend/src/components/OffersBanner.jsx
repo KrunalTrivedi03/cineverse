@@ -60,8 +60,8 @@ export default function OffersBanner() {
   const OFFERS = offers;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10">
-      <div className="flex items-end justify-between mb-3 md:mb-4">
+    <section className="now-offers-section">
+      <div className="flex items-end justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-1.5 mb-1">
             <span
@@ -82,14 +82,14 @@ export default function OffersBanner() {
         {/* Desktop arrows */}
         <div className="hidden md:flex items-center gap-2">
           <button
-            onClick={() => swiperRef.current?.slidePrev()}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
+            type="button" aria-label="Previous offer" onClick={() => swiperRef.current?.slidePrev()}
+            className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
           >
             <ChevronLeft size={15} />
           </button>
           <button
-            onClick={() => swiperRef.current?.slideNext()}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
+            type="button" aria-label="Next offer" onClick={() => swiperRef.current?.slideNext()}
+            className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-white hover:bg-now-accent hover:border-now-accent transition-all"
           >
             <ChevronRight size={15} />
           </button>
@@ -102,7 +102,7 @@ export default function OffersBanner() {
           onSlideChange={(s) => setActiveIdx(s.realIndex)}
           modules={[Autoplay, Pagination]}
           autoplay={{ delay: 4800, disableOnInteraction: false }}
-          loop
+          loop={OFFERS.length > 1}
           speed={750}
           className="w-full"
         >
@@ -141,7 +141,7 @@ export default function OffersBanner() {
                     style={{ color: "rgba(255,255,255,0.14)" }}
                   />
 
-                  <div className="relative flex items-center justify-between gap-4 h-full px-5 sm:px-8 py-5 sm:py-6">
+                  <div className="now-offer-slide">
                     <div className="min-w-0">
                       {/* Badge row */}
                       <div className="flex items-center gap-2 mb-2">
@@ -157,17 +157,17 @@ export default function OffersBanner() {
                         </span>
                       </div>
 
-                      <h3 className="text-white font-black text-[19px] sm:text-[24px] leading-[1.15] mb-1 max-w-md" style={{ letterSpacing: "-0.01em" }}>
+                      <h3 className="text-white font-black text-xl sm:text-3xl leading-[1.15] mb-1 max-w-md" style={{ letterSpacing: "-0.01em" }}>
                         {offer.title}
                       </h3>
-                      <p className="text-white/75 text-[12px] sm:text-[13px] max-w-xs sm:max-w-sm leading-snug hidden sm:block">
+                      <p className="text-white/75 text-[12px] sm:text-[13px] max-w-md leading-snug line-clamp-2">
                         {offer.desc}
                       </p>
                     </div>
 
                     <Link
                       to={offer.to}
-                      className="inline-flex items-center gap-1.5 flex-shrink-0 text-[12.5px] font-bold px-4 py-2.5 rounded-full bg-white transition-transform active:scale-95 hover:-translate-y-0.5 whitespace-nowrap"
+                      className="inline-flex items-center gap-1.5 min-h-11 min-w-0 max-w-full text-[12.5px] font-bold px-4 py-2.5 rounded-full bg-white transition-transform active:scale-95 hover:-translate-y-0.5"
                       style={{ color: offer.accent, boxShadow: "0 6px 16px rgba(0,0,0,0.15)" }}
                     >
                       {offer.cta} <ArrowRight size={13} />
@@ -180,18 +180,12 @@ export default function OffersBanner() {
         </Swiper>
 
         {/* Dots */}
-        <div className="absolute bottom-3 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
+        <div className="now-offer-dots">
           {OFFERS.map((_, i) => (
             <button
               key={i}
-              onClick={() => swiperRef.current?.slideToLoop(i)}
-              className="transition-all duration-300 rounded-full"
-              style={{
-                width: i === activeIdx ? 16 : 5,
-                height: 5,
-                background: i === activeIdx ? "#fff" : "rgba(255,255,255,0.45)",
-              }}
-            />
+              type="button" aria-label={`Go to offer ${i + 1}`} aria-current={i === activeIdx ? "true" : undefined} onClick={() => swiperRef.current?.slideToLoop(i)}
+              className="now-discovery-dot"><span /></button>
           ))}
         </div>
       </div>

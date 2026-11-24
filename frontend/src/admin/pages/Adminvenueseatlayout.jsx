@@ -22,7 +22,7 @@ function Toast({ toast, onClose }) {
         background: toast.type === "success" ? "#f0fdf4" : "#fff1f2",
         color:      toast.type === "success" ? "#16a34a" : "#dc2626",
         border:    `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecdd3"}`,
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--now-ui-font)",
       }}>
       {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
       {toast.message}
@@ -141,8 +141,7 @@ export default function AdminVenueSeatLayout() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "var(--now-ui-font)" }}>
 
         <button onClick={() => navigate("/admin/venues")} className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-gray-800 mb-4">
           <ChevronLeft size={15} /> Back to Venues

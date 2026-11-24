@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import DiscoveryHeading from "../components/DiscoveryHeading";
 import Navbar from "../components/Navbar";
 import LatestMovies from "../components/LatestMovies";
 import ComingSoon from "../components/ComingSoon";
@@ -11,13 +12,20 @@ import { getSelectedDistrict } from "../components/DistrictSelector";
 
 import {
   X, Play, Clock, CalendarDays, Film, Globe, ShieldCheck, Ticket,
-  PartyPopper, MapPin, Dumbbell, Trophy, ArrowUpRight, Pause,
+  PartyPopper, MapPin, Dumbbell, Trophy, ArrowUpRight, Pause, ChevronLeft, ChevronRight, Tv,
 } from "lucide-react";
 import OffersBanner from "../components/OffersBanner";
 import BottomNav from "../components/BottomNav";
 import Dialog from "../components/Dialog";
 
 /* ─── Helpers ─────────────────────────────────────────── */
+const CATEGORIES = [
+  { label: "Movies", note: "In cinemas", to: "/now-showing", icon: Film },
+  { label: "Shows", note: "Web series", to: "/web-shows", icon: Tv },
+  { label: "Live events", note: "Find tickets", to: "/events", icon: CalendarDays },
+  { label: "Play", note: "Book a venue", to: "/play", icon: Trophy },
+];
+
 const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const isLatestMovie = (m) =>
@@ -210,15 +218,31 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-now-canvas" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
+    <div className="min-h-screen bg-now-canvas" style={{ fontFamily: "var(--now-ui-font)" }}>
 
       <a href="#main-content" className="now-skip">Skip to content</a>
       <Navbar />
       <BottomNav />
 
       <main id="main-content" tabIndex={-1}>
-      <h1 className="sr-only">Discover entertainment on NOW</h1>
+      <div className="now-home-intro">
+        <h1>Find your next plan</h1>
+        <p>Explore what?s on near you.</p>
+      </div>
+      <nav className="now-discovery-categories" aria-label="Explore entertainment">
+        {CATEGORIES.map(({ label, to, icon, note }) => {
+          const Icon = icon;
+          return (
+            <Link to={to} key={to} data-category={label}>
+              <span className="now-discovery-category-icon"><Icon size={24} aria-hidden="true" /></span>
+              <span className="now-discovery-category-label"><strong>{label}</strong><small>{note}</small></span>
+              <ArrowUpRight size={16} className="now-category-arrow" aria-hidden="true" />
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="now-featured-section">
+        <DiscoveryHeading title="Featured on NOW" />
       <section
         className="now-hero"
         aria-label="Featured entertainment"
@@ -230,7 +254,7 @@ export default function Home() {
         }}
       >
         {loading ? (
-          <div role="status" className="now-hero-stage flex items-center justify-center">
+          <div role="status" className="now-discovery-loading flex items-center justify-center">
             <span className="sr-only">Loading featured entertainment</span>
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
@@ -243,9 +267,9 @@ export default function Home() {
             </div>
           </div>
         ) : slides.length === 0 ? (
-          <div className="now-hero-stage now-hero-blank">
+          <div className="now-hero-blank now-discovery-empty">
             <div>
-              <h2 className="now-hero-title max-w-[10ch]">Make plans worth going out for.</h2>
+              <h2 className="now-hero-title max-w-[12ch]">Make plans worth going out for.</h2>
               <p className="mt-4 max-w-sm text-sm leading-relaxed text-gray-500 sm:text-base">Browse movies, discover live events and find places to play near you.</p>
               <div className="mt-6 flex flex-wrap gap-2 sm:gap-3">
                 <Link className="now-primary" to="/now-showing">Find movies <ArrowUpRight size={16} /></Link>
@@ -254,11 +278,11 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="now-hero-stage relative w-full overflow-hidden">
+          <div className="now-discovery-stage">
             {slides.map((item, i) => (
               <div
                 key={item.key}
-                className="absolute inset-0"
+                className="now-discovery-slide"
                 style={{
                   opacity: i === activeIdx ? 1 : 0,
                   zIndex: i === activeIdx ? 2 : 1,
@@ -276,37 +300,42 @@ export default function Home() {
 
         {/* Dot indicators */}
         {slides.length > 1 && !loading && (
-          <div className="absolute bottom-3 left-5 sm:left-12 z-20 flex items-center gap-1">
+          <div className="now-discovery-controls">
+            <button type="button" onClick={() => goTo((activeIdx + slides.length - 1) % slides.length)} aria-label="Previous featured item"><ChevronLeft size={18} /></button>
+            <div className="now-discovery-dots">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
                 aria-label={`Show ${slides[i].title}`}
                 aria-current={i === activeIdx ? "true" : undefined}
-                className="grid size-8 place-items-center rounded-full"
+                className="now-discovery-dot"
               >
                 <span className={i === activeIdx ? "h-1.5 w-6 rounded-full bg-now-accent" : "size-1.5 rounded-full bg-now-accent/40"} />
               </button>
             ))}
+            </div>
+            <button type="button" onClick={() => goTo((activeIdx + 1) % slides.length)} aria-label="Next featured item"><ChevronRight size={18} /></button>
             <button
               type="button"
               onClick={() => setAutoplay((enabled) => !enabled)}
               aria-label={autoplay ? "Pause featured slides" : "Play featured slides"}
-              className="grid size-9 place-items-center rounded-full bg-white/80 text-now-accent"
             >
               {autoplay ? <Pause size={15} /> : <Play size={15} />}
             </button>
           </div>
         )}
       </section>
+      </div>
 
       {/* ══ LIGHT CONTENT ═════════════════════════════════ */}
+
       <div className="now-home-content">
-        <OffersBanner />
         <LatestMovies />
-        <ComingSoon />
         <Events />
         <PlayHome />
+        <ComingSoon />
+        <OffersBanner />
       </div>
       </main>
 
@@ -344,134 +373,38 @@ export default function Home() {
 
 /* ─── Single Hero Slide (Movie / Event / Play) ────────── */
 function HeroSlide({ item, onPlay }) {
+  const PrimaryIcon = item.primaryCta.icon;
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="now-hero-art"
-        style={{ backgroundImage: item.background ? `url(${item.background})` : undefined }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 h-full flex items-center px-6 pb-8 md:px-16">
-        <div className="flex items-center gap-10 md:gap-16 w-full">
-
-          {/* Left: text */}
-          <div className="flex-1 min-w-0 text-gray-900">
-            {/* Tag pill */}
-            <span
-              className="inline-block text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4"
-              style={{
-                background: "var(--now-mist)",
-                color: "var(--now-accent)",
-                border: "1px solid #cce8eb",
-              }}
-            >
-              {item.tag}
-            </span>
-
-            <h2
-              className="now-hero-title mb-3 line-clamp-2"
-            >
-              {item.title}
-            </h2>
-
-            {/* Meta row */}
-            {item.meta?.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600 text-[13px] mb-4">
-                {item.meta.map((m, i) => {
-                  const MetaIcon = m.icon;
-                  return (
-                    <span key={i} className="flex items-center gap-3">
-                      {i > 0 && <Dot />}
-                      <span className="flex items-center gap-1"><MetaIcon size={12} /> {m.label}</span>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-
-            {item.description && (
-              <p
-                className="text-gray-600 leading-relaxed mb-6 line-clamp-2"
-                style={{ maxWidth: 480, fontSize: 14 }}
-              >
-                {item.description}
-              </p>
-            )}
-
-            {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                to={item.primaryCta.to}
-                className="now-primary"
-              >
-                <item.primaryCta.icon size={15} /> {item.primaryCta.label}
-              </Link>
-
-              {item.trailer && (
-                <button
-                  onClick={onPlay}
-                  className="now-secondary"
-                >
-                  <Play size={14} fill="currentColor" /> Watch Trailer
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Right: poster */}
-          {item.poster && (
-            <div className="flex-shrink-0 hidden sm:block">
-              <Link
-                to={item.posterLink}
-                className="relative group cursor-pointer block"
-                style={{ width: "clamp(140px, 14vw, 200px)" }}
-              >
-                <img
-                  src={item.poster}
-                  alt={item.title}
-                  className="w-full rounded-2xl shadow-2xl object-cover"
-                  style={{
-                    aspectRatio: "2/3",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    transition: "transform 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                />
-
-                {/* Play overlay — movies with a trailer only */}
-                {item.trailer && (
-                  <div
-                    className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: "rgba(0,0,0,0.45)" }}
-                  >
-                    <div
-                      className="w-14 h-14 rounded-full flex items-center justify-center"
-                      style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)", border: "2px solid rgba(255,255,255,0.5)" }}
-                    >
-                      <Play size={20} fill="white" className="text-white ml-0.5" />
-                    </div>
-                  </div>
-                )}
-
-                <div
-                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg"
-                  style={{ background: "rgba(20,20,20,0.9)", color: "white", border: "1px solid rgba(255,255,255,0.12)" }}
-                >
-                  {item.posterBadge}
-                </div>
-              </Link>
-            </div>
+    <div className="now-feature">
+      <div className="now-feature-art" data-has-poster={Boolean(item.poster)}>
+        {item.poster && (
+          <>
+            <img className="now-feature-backdrop" src={item.background} alt="" />
+            <Link className="now-feature-poster" to={item.posterLink} aria-label={item.title}>
+              <img src={item.poster} alt="" />
+            </Link>
+          </>
+        )}
+      </div>
+      <div className="now-feature-copy">
+        <span className="now-feature-tag">{item.tag}</span>
+        <h2 className="now-feature-title">{item.title}</h2>
+        {!!item.meta?.length && (
+          <ul className="now-feature-meta">
+            {item.meta.map(({ icon, label }, index) => {
+              const Icon = icon;
+              return <li key={index}><Icon size={14} aria-hidden="true" />{label}</li>;
+            })}
+          </ul>
+        )}
+        {item.description && <p className="now-feature-description">{item.description}</p>}
+        <div className="now-feature-actions">
+          <Link to={item.primaryCta.to} className="now-primary"><PrimaryIcon size={16} /> {item.primaryCta.label}</Link>
+          {item.trailer && (
+            <button type="button" onClick={onPlay} className="now-secondary"><Play size={14} fill="currentColor" /> Watch trailer</button>
           )}
-
         </div>
       </div>
     </div>
   );
-}
-
-function Dot() {
-  return <span className="text-now-accent/45 text-[10px]">•</span>;
 }

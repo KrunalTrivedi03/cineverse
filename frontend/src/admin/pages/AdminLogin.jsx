@@ -263,10 +263,9 @@ export default function AdminLogin() {
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ fontFamily: "'Outfit', sans-serif" }}
+      style={{ fontFamily: "var(--now-ui-font)" }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
         .input-field {
           width: 100%;
           padding: 11px 16px;
@@ -275,7 +274,7 @@ export default function AdminLogin() {
           background: rgba(255,255,255,0.07);
           color: #fff;
           font-size: 14px;
-          font-family: 'Outfit', sans-serif;
+          font-family: var(--now-ui-font);
           outline: none;
           transition: border-color 0.2s, background 0.2s;
         }

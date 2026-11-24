@@ -86,9 +86,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-dvh flex" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-dvh flex" style={{ fontFamily: "var(--now-ui-font)" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');
 
         @keyframes scrollUp {
           from { transform: translateY(0); }

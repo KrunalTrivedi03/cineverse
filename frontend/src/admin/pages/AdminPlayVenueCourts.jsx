@@ -36,7 +36,7 @@ function Toast({ toast, onClose }) {
         background: toast.type === "success" ? "#f0fdf4" : "#fff1f2",
         color:      toast.type === "success" ? "#16a34a" : "#dc2626",
         border:    `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecdd3"}`,
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--now-ui-font)",
       }}>
       {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
       {toast.message}
@@ -48,7 +48,7 @@ function Toast({ toast, onClose }) {
 function ConfirmModal({ court, onConfirm, onCancel, busy }) {
   return (
     <Dialog variant="form" label={"Delete court?"} maxWidth={340} onDismiss={() => { if (!busy) onCancel(); }} dismissOnBackdrop={false}>
-      <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-[340px]" style={{ fontFamily: "var(--now-ui-font)" }}>
         <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
           <Trash2 size={18} style={{ color: "#106579" }} />
         </div>
@@ -155,7 +155,7 @@ function CourtFormModal({ mode = "add", initial = null, activities, onSave, onCa
 
   return (
     <Dialog variant="form" label={(mode === "edit" ? "Edit " : "Add ") + "court"} maxWidth={620} onDismiss={() => { if (!saving) onCancel(); }} dismissOnBackdrop={false}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[620px] max-h-[92vh] flex flex-col" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[620px] max-h-[92vh] flex flex-col" style={{ fontFamily: "var(--now-ui-font)" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,101,121,0.08)" }}>
@@ -347,8 +347,7 @@ export default function AdminPlayVenueCourts() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "var(--now-ui-font)" }}>
 
         <button onClick={() => navigate("/admin/play/venues")} className="flex items-center gap-1.5 text-[12px] font-semibold text-gray-400 hover:text-gray-600 mb-4">
           <ArrowLeft size={13} /> Back to Play Venues

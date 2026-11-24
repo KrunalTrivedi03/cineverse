@@ -101,7 +101,7 @@ export default function Play() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
 

@@ -83,7 +83,7 @@ export default function AdminChangePassword() {
 
   return (
     <AdminLayout>
-    <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "var(--now-ui-font)" }}>
       <div className="flex items-center gap-3 mb-6">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center"

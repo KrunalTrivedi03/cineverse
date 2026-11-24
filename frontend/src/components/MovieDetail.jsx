@@ -614,8 +614,7 @@ function MovieDetail({ movie }) {
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
 

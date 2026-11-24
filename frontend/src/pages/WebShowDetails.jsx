@@ -114,7 +114,7 @@ function TrailerModal({ url, title, onClose }) {
 
 function DetailsSkeleton() {
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "var(--now-ui-font)" }}>
       <Navbar />
       <BottomNav />
       <div className="relative w-full h-[38vh] sm:h-[50vh] bg-gray-100 animate-pulse" />
@@ -219,7 +219,7 @@ export default function WebShowDetails() {
 
   if (error || !show) {
     return (
-      <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <div className="min-h-screen bg-white" style={{ fontFamily: "var(--now-ui-font)" }}>
         <Navbar />
         <BottomNav />
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4 text-center">
@@ -239,8 +239,7 @@ export default function WebShowDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
       <BottomNav />

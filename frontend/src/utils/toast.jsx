@@ -12,7 +12,7 @@ function CineToast({ id, type, message }) {
   return (
     <div
       style={{
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--now-ui-font)",
         display: "flex", alignItems: "center", gap: 12,
         background: "#fff", borderRadius: 14, padding: "14px 16px",
         boxShadow: "0 8px 24px rgba(0,0,0,0.10)", border: "1px solid #f0f0f0",

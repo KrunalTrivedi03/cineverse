@@ -98,9 +98,8 @@ export default function AdminSidebar({ onNavigate }) {
   return (
     <aside
       className="admin-sidebar flex flex-col bg-white border-r border-gray-200"
-      style={{ fontFamily: "'Outfit', sans-serif", boxShadow: "1px 0 0 #f3f4f6" }}
+      style={{ fontFamily: "var(--now-ui-font)", boxShadow: "1px 0 0 #f3f4f6" }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap');`}</style>
       <div className="px-5 py-4 border-b border-gray-100">
         <Link to="/admin/dashboard" onClick={onNavigate} className="flex flex-col items-center gap-1 max-w-full">
           <img className="now-brand-mark"

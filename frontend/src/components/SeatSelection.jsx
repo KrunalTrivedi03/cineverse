@@ -841,10 +841,9 @@ export default function SeatSelection() {
   return (
     <div
       className="min-h-screen bg-gray-50"
-      style={{ fontFamily: "'Outfit', sans-serif" }}
+      style={{ fontFamily: "var(--now-ui-font)" }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
         .seat-btn { transition: all 0.13s ease; }
         .seat-btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.08); }
         .seat-btn.selected { transform: translateY(-2px) scale(1.06); }

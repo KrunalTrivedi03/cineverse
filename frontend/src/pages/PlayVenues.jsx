@@ -96,7 +96,7 @@ export default function PlayVenues() {
 
   if (!activityId || !city.id) {
     return (
-      <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "var(--now-ui-font)" }}>
 
         <Navbar />
         <BottomNav />
@@ -111,7 +111,7 @@ export default function PlayVenues() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f7f8", fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
       <BottomNav />

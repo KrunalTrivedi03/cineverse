@@ -30,7 +30,7 @@ function Toast({ toast, onClose }) {
         background: toast.type === "success" ? "#f0fdf4" : "#fff1f2",
         color: toast.type === "success" ? "#16a34a" : "#dc2626",
         border: `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecdd3"}`,
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--now-ui-font)",
       }}
     >
       {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -48,7 +48,7 @@ function ConfirmModal({ city, onConfirm, onCancel }) {
     <Dialog variant="form" label={"Delete city?"} maxWidth={340} onDismiss={onCancel} dismissOnBackdrop={false}>
       <div
         className="bg-white rounded-2xl shadow-xl p-6 w-[340px]"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        style={{ fontFamily: "var(--now-ui-font)" }}
       >
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center mb-4"
@@ -91,7 +91,7 @@ function AddCityModal({ onAdd, onCancel, adding }) {
     <Dialog variant="form" label={"Add city"} maxWidth={380} onDismiss={() => { if (!adding) onCancel(); }} dismissOnBackdrop={false}>
       <div
         className="bg-white rounded-2xl shadow-xl p-6 w-[380px]"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        style={{ fontFamily: "var(--now-ui-font)" }}
       >
         <div className="flex items-center gap-3 mb-5">
           <div
@@ -117,7 +117,7 @@ function AddCityModal({ onAdd, onCancel, adding }) {
           onKeyDown={(e) => e.key === "Enter" && name.trim() && onAdd(name.trim())}
           autoFocus
           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] text-gray-800 placeholder-gray-300 outline-none transition-all mb-5"
-          style={{ fontFamily: "'Outfit', sans-serif" }}
+          style={{ fontFamily: "var(--now-ui-font)" }}
           onFocus={(e) => (e.currentTarget.style.borderColor = "#106579")}
           onBlur={(e) => (e.currentTarget.style.borderColor = "#e4e4e7")}
         />
@@ -252,9 +252,8 @@ export default function AdminCities() {
     <AdminLayout>
       <div
         className="min-h-screen bg-gray-50 p-6 md:p-8"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        style={{ fontFamily: "var(--now-ui-font)" }}
       >
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
 
         {/* ── Page Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">

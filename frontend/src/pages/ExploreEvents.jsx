@@ -101,8 +101,7 @@ const scrollCategories = (dir) => {
 };
 
   return (
-    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "var(--now-ui-font)" }}>
       <Navbar />
 
       <BottomNav />

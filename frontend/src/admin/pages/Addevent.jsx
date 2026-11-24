@@ -335,9 +335,8 @@ export default function AddEvent() {
     <AdminLayout>
       <div
         className="min-h-screen bg-gray-50 p-6 md:p-8"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        style={{ fontFamily: "var(--now-ui-font)" }}
       >
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
 
         <div className="mb-8">
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">

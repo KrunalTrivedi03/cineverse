@@ -243,9 +243,8 @@ export default function Watchlist() {
   return (
     <div
       className="min-h-screen"
-      style={{ fontFamily: "'Outfit', sans-serif", background: "#fafafb" }}
+      style={{ fontFamily: "var(--now-ui-font)", background: "#fafafb" }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
 
       <Navbar />
       <BottomNav />

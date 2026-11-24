@@ -379,8 +379,7 @@ export default function EditEvent() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
-          <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+        <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "var(--now-ui-font)" }}>
           <div className="h-7 w-52 bg-gray-200 rounded-lg animate-pulse mb-2" />
           <div className="h-4 w-36 bg-gray-100 rounded-lg animate-pulse mb-8" />
           <div className="h-12 w-full max-w-lg bg-gray-100 rounded-2xl animate-pulse mb-8" />
@@ -398,9 +397,8 @@ export default function EditEvent() {
     <AdminLayout>
       <div
         className="min-h-screen bg-gray-50 p-6 md:p-8"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        style={{ fontFamily: "var(--now-ui-font)" }}
       >
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
 
         <div className="mb-8">
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">

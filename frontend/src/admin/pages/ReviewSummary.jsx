@@ -221,8 +221,7 @@ function SectionHeader({ icon: Icon, title, count }) {
 function Skeleton() {
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "var(--now-ui-font)" }}>
         <div className="flex items-center gap-3 mb-8">
           <div className="w-9 h-9 rounded-xl bg-gray-200 animate-pulse" />
           <div className="h-6 w-64 bg-gray-200 rounded-lg animate-pulse" />
@@ -300,8 +299,7 @@ export default function ReviewSummary() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <div className="min-h-screen bg-gray-50 p-6 md:p-8" style={{ fontFamily: "var(--now-ui-font)" }}>
 
         {/* ── Header ── */}
         <div className="flex items-center gap-3 mb-8">

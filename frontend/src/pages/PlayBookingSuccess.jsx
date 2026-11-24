@@ -23,8 +23,7 @@ export default function PlayBookingSuccess() {
   const fee = booking.pricing?.convenienceFee || 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
       <Navbar />
       <BottomNav />
 
@@ -127,7 +126,7 @@ export default function PlayBookingSuccess() {
               borderRadius: 14, background: "#106579",
               fontSize: 13, fontWeight: 700, color: "#fff",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--now-ui-font)",
             }}>
             <Home size={15} /> Explore Play
           </button>
@@ -139,7 +138,7 @@ export default function PlayBookingSuccess() {
               border: "1.5px solid #e4e4e7",
               fontSize: 13, fontWeight: 700, color: "#374151",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--now-ui-font)",
             }}>
             <Trophy size={15} /> My Bookings
           </button>

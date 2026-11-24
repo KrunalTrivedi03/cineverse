@@ -353,8 +353,7 @@ export default function BookingReview() {
   if (isPlay) {
     const fmtRange = `${fmt12(draft.startTime)} - ${fmt12(draft.endTime)}`;
     return (
-      <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+      <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
         <Navbar />
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
           <button onClick={handlePlayBack} className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0">
@@ -509,8 +508,7 @@ export default function BookingReview() {
   const total = orderData ? (orderData.grandTotal ?? Math.max(subtotal - discount, 0) + convFee) : Math.max(subtotal - discount, 0) + convFee;
 
   return (
-    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
       <Navbar />
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-[60px] z-30">

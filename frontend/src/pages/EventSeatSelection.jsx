@@ -310,7 +310,7 @@ export default function EventSeatSelection() {
   );
 
   if (noLayout) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-center px-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-center px-6" style={{ fontFamily: "var(--now-ui-font)" }}>
       <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,101,121,0.08)" }}>
         <Ticket size={22} color="#106579" />
       </div>
@@ -355,9 +355,8 @@ export default function EventSeatSelection() {
   const urgentCountdown = countdown !== null && countdown < 60;
 
   return (
-    <div className="min-h-screen" style={{ background: "#f5f5f6", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#f5f5f6", fontFamily: "var(--now-ui-font)" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
         .es-seat-btn { transition: all 0.13s ease; }
         .es-seat-btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.08); }
         .es-seat-btn.es-selected { transform: translateY(-2px) scale(1.06); }

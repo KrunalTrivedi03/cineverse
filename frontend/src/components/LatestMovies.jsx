@@ -1,5 +1,6 @@
+import DiscoveryHeading from "./DiscoveryHeading";
 import { useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../api/axiosInstance";
 import { ChevronRight, ChevronLeft, Star, ThumbsUp, MonitorPlay, Tv } from "lucide-react";
 
@@ -47,7 +48,6 @@ export default function LatestMovies() {
   const [canLeft,  setCanLeft]  = useState(false);
   const [canRight, setCanRight] = useState(false);
   const sliderRef = useRef(null);
-  const navigate  = useNavigate();
 
   const [city, setCity] = useState(
   () => localStorage.getItem("selectedCity") || "Mumbai"
@@ -147,27 +147,16 @@ useEffect(() => {
 
   return (
     <section className="w-full px-6 md:px-14 py-10 bg-white">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-[20px] font-bold text-gray-900 tracking-tight">
-            Recommended Movies
-          </h2>
-          <p className="text-[13px] text-gray-400 mt-0.5">Handpicked for you this week</p>
-        </div>
-        <button className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline transition-all"
-        onClick={() => navigate("/now-showing")}>
-          See All <ChevronRight size={15} />
-        </button>
-      </div>
+      <DiscoveryHeading title="Movies for you" detail={`Playing and streaming in ${city}`} to="/now-showing" />
 
       {movies.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-14 text-center">
+        <div className="now-rail-empty">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
             style={{ background: "rgba(16,101,121,0.07)" }}>
             <Tv size={26} style={{ color: "#106579", opacity: 0.4 }} />
           </div>
-          <p className="text-[15px] font-bold text-gray-400">No movies in {city}</p>
-          <p className="text-[12px] text-gray-300 mt-1">Try selecting a different city from the navbar</p>
+          <p className="text-[15px] font-bold text-gray-900">No movies in {city}</p>
+          <p className="text-[12px] text-gray-500 mt-1">Try selecting a different city from the navbar</p>
         </div>
       )}
 

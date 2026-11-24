@@ -111,9 +111,8 @@ export default function Settings() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
         .fade-in { animation: fadeUp 0.28s cubic-bezier(.4,0,.2,1) both; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         .nav-item { transition: all 0.15s; }

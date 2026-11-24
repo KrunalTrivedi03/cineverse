@@ -81,9 +81,8 @@ export default function EventDetail() {
   const hasMoreRules = (event.eventRules?.length || 0) > RULES_COLLAPSED_COUNT;
 
   return (
-    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "var(--now-ui-font)" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
         .desc-clamp { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
       `}</style>
       <Navbar />

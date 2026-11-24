@@ -1,5 +1,6 @@
+import DiscoveryHeading from "./DiscoveryHeading";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../api/axiosInstance";
 import { getSelectedCity } from "./Navbar";
 import { getSelectedDistrict } from "./DistrictSelector";
@@ -43,7 +44,6 @@ export default function HomeEvents() {
   const [canLeft, setCanLeft]   = useState(false);
   const [canRight, setCanRight] = useState(false);
   const sliderRef = useRef(null);
-  const navigate  = useNavigate();
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -124,7 +124,7 @@ export default function HomeEvents() {
 
   return (
     <section className="w-full px-6 md:px-14 py-10 bg-now-canvas border-t border-gray-100">
-      <SectionHeader count={events.length} onSeeAll={() => navigate("/events")} />
+      <SectionHeader count={events.length} />
 
       <div className="relative">
         {canLeft && (
@@ -132,14 +132,13 @@ export default function HomeEvents() {
         )}
         <div
           ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
+          className="now-media-rail flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {events.map((ev) => (
             <EventPosterCard
               key={ev._id}
               event={ev}
-              onClick={() => navigate(`/events/${ev._id}`)}
             />
           ))}
         </div>
@@ -151,33 +150,8 @@ export default function HomeEvents() {
   );
 }
 
-function SectionHeader({ count, onSeeAll }) {
-  return (
-    <div className="flex items-end justify-between mb-6">
-      <div>
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(16,101,121,0.12)" }}>
-            <Flame size={10} style={{ color: "#106579" }} />
-          </span>
-          <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#106579" }}>
-            Don't miss out
-          </p>
-        </div>
-        <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-          Upcoming Live Events
-        </h2>
-        {count > 0 && <p className="text-[13px] text-gray-400 mt-0.5">{count} show{count !== 1 ? "s" : ""} lined up near you</p>}
-      </div>
-      {onSeeAll && (
-        <button
-          className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline transition-all flex-shrink-0"
-          onClick={onSeeAll}
-        >
-          See All <ChevronRight size={15} />
-        </button>
-      )}
-    </div>
-  );
+function SectionHeader({ count }) {
+  return <DiscoveryHeading title="Live events near you" detail={count ? `${count} upcoming ${count === 1 ? "event" : "events"}` : undefined} to="/events" />;
 }
 
 /* ─── Card ────────────────────────────────────────────── */
@@ -189,7 +163,7 @@ function daysUntilEvent(dateStr) {
   return diff >= 0 ? diff : null;
 }
 
-function EventPosterCard({ event, onClick }) {
+function EventPosterCard({ event }) {
   const sched = event.nextSchedule;
   const isTrending = event._tag === "trending";
   const daysLeft = daysUntilEvent(sched?.eventDate);
@@ -202,7 +176,7 @@ function EventPosterCard({ event, onClick }) {
   const BadgeIcon = badge.icon;
 
   return (
-    <div className="flex-shrink-0 w-[200px] cursor-pointer group snap-start" onClick={onClick}>
+    <Link to={`/events/${event._id}`} className="now-media-card now-event-card shrink-0 group snap-start">
       <div
         className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-shadow group-hover:shadow-lg"
         style={{ aspectRatio: "2/3" }}
@@ -210,7 +184,7 @@ function EventPosterCard({ event, onClick }) {
         {event.poster ? (
           <img
             src={IMG(event.poster)}
-            alt={event.title}
+            alt="" loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -234,7 +208,7 @@ function EventPosterCard({ event, onClick }) {
 
         {/* Status badge — top right (Trending / Coming Soon) */}
         <div
-          className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+          className="now-event-status absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
           style={{ background: badge.bg, color: "#fff" }}
         >
           <BadgeIcon size={10} />
@@ -244,7 +218,7 @@ function EventPosterCard({ event, onClick }) {
         {/* Rating chip, if present, sits just under status badge */}
         {event.ratings?.count > 0 && (
           <div
-            className="absolute top-[30px] right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+            className="now-event-rating absolute top-[30px] right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full"
             style={{ background: "rgba(0,0,0,0.55)" }}
           >
             <Star size={9} color="#facc15" fill="#facc15" />
@@ -301,7 +275,7 @@ function EventPosterCard({ event, onClick }) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -309,6 +283,7 @@ function EventPosterCard({ event, onClick }) {
 function ArrowBtn({ dir, onClick, style }) {
   return (
     <button
+      aria-label={dir === "left" ? "Previous events" : "Next events"}
       onClick={onClick}
       onMouseDown={(e) => e.preventDefault()}
       className="absolute z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:border-gray-400 hover:shadow-lg transition-all"

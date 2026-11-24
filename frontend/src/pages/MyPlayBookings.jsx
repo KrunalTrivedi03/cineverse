@@ -63,7 +63,7 @@ export default function MyPlayBookings() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
       <BottomNav />

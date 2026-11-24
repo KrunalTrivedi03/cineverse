@@ -1,3 +1,4 @@
+import DiscoveryHeading from "./DiscoveryHeading";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { BellPlus, ChevronRight, ChevronLeft, CalendarDays, Globe, Loader2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -88,31 +89,9 @@ export default function ComingSoon() {
 
   const SectionWrapper = ({ children, showSeeAll = false }) => (
     <section className="w-full px-6 md:px-14 py-10 bg-now-canvas border-t border-gray-100">
-      <div className="flex items-end justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ background: "rgba(234,88,12,0.12)" }}>
-              <CalendarDays size={10} style={{ color: "#ea580c" }} />
-            </span>
-            <p className="text-[10.5px] font-bold uppercase tracking-widest" style={{ color: "#ea580c" }}>
-              Mark your calendar
-            </p>
-          </div>
-          <h2 className="text-[20px] md:text-[22px] font-black text-gray-900 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-            Upcoming Movies
-          </h2>
-          {!!movies.length && (
-            <p className="text-[13px] text-gray-400 mt-0.5">{movies.length} release{movies.length !== 1 ? "s" : ""} on the way</p>
-          )}
-        </div>
-        {showSeeAll && (
-          <button className="flex items-center gap-0.5 text-now-accent text-[13px] font-semibold hover:underline flex-shrink-0"
-          onClick={() => navigate("/coming-soon")}
-          >
-            See All <ChevronRight size={15} />
-          </button>
-        )}
-      </div>
+      <DiscoveryHeading title="Coming soon to cinemas"
+        detail={movies.length ? movies.length + (movies.length === 1 ? " release on the way" : " releases on the way") : undefined}
+        to={showSeeAll ? "/coming-soon" : undefined} />
       {children}
     </section>
   );
@@ -190,7 +169,7 @@ export default function ComingSoon() {
 
         <div
           ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory"
+          className="now-media-rail flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {movies.map((movie) => (
@@ -237,7 +216,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
   const daysLeft = daysUntil(movie.releaseDate);
 
   return (
-    <div className="flex-shrink-0 w-[250px] group snap-start">
+    <div className="now-media-card shrink-0 group snap-start">
       {/* Poster */}
       <div
         className="relative rounded-2xl overflow-hidden bg-gray-200 shadow-sm cursor-pointer transition-shadow group-hover:shadow-lg"

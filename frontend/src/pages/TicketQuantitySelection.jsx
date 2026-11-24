@@ -180,8 +180,7 @@ export default function TicketQuantitySelection() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
+    <div className="min-h-screen" style={{ background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
       <Navbar />
 
       <div className="bg-white border-b border-gray-200 sticky top-[60px] z-40">

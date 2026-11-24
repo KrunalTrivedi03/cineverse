@@ -108,7 +108,7 @@ function ShowsRow({ category, shows, onOpen, loading }) {
       <div className="px-4 sm:px-6 mb-4">
         <h2
           className="font-extrabold tracking-tight text-gray-900 text-xl sm:text-2xl"
-          style={{ fontFamily: "'Outfit', sans-serif" }}
+          style={{ fontFamily: "var(--now-ui-font)" }}
         >
           {CATEGORY_LABELS[category]}
         </h2>
@@ -168,8 +168,7 @@ export default function WebShowsListing({ category }) {
   );
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');`}</style>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
       <BottomNav />

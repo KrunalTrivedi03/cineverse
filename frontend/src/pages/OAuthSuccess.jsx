@@ -76,13 +76,12 @@ export default function OAuthSuccess() {
     <div
       className="min-h-screen flex items-center justify-center px-6 py-10 relative overflow-hidden"
       style={{
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "var(--now-ui-font)",
         background:
           "radial-gradient(120% 90% at 15% 0%, #fff5f5 0%, #ffffff 48%, #fff8f6 100%)",
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
         @keyframes osFadeUp    { from { opacity:0; transform:translateY(18px) scale(0.985); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes osFadeOut   { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-8px) scale(0.98); } }

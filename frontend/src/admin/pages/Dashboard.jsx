@@ -98,9 +98,8 @@ export default function Dashboard() {
     <AdminLayout>
       <div
         className="min-h-screen bg-gray-50 p-6 md:p-8"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        style={{ fontFamily: "var(--now-ui-font)" }}
       >
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');`}</style>
 
         <div className="flex items-center justify-between mb-8">
           <div>

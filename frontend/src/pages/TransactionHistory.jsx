@@ -314,9 +314,8 @@ export default function TransactionHistory() {
   const creditTotal   = transactions.filter((t) => t.type === "credit").reduce((s, t) => s + (t.amount || 0), 0);
 
   return (
-    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: "#f7f7f8", fontFamily: "var(--now-ui-font)" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
         .fade-in { animation: fadeUp 0.28s cubic-bezier(.4,0,.2,1) both; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         @keyframes sheetUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }

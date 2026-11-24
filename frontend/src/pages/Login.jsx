@@ -86,7 +86,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-dvh flex" style={{ fontFamily: "var(--now-ui-font)" }}>
+    <div className="now-auth-page min-h-dvh flex" style={{ fontFamily: "var(--now-ui-font)" }}>
       <style>{`
 
         @keyframes scrollUp {
@@ -109,7 +109,7 @@ export default function Login() {
 
       {/* ── LEFT: Cinematic poster wall ─────────────────── */}
       <div
-        className="hidden lg:flex flex-1 relative overflow-hidden"
+        className="now-auth-art hidden lg:flex flex-1 relative overflow-hidden"
         style={{ background: "#0d0d0d" }}
       >
         {/* Scrolling poster strips */}
@@ -186,12 +186,11 @@ export default function Login() {
 
       {/* ── RIGHT: Login form ────────────────────────────── */}
       <div
-        className="w-full lg:w-[min(50%,35rem)] shrink-0 flex flex-col justify-center px-4 py-6 sm:px-8 md:px-10"
-        style={{ background: "#fafafb" }}
+        className="now-auth-pane"
       >
-        <div className="fade-up mx-auto w-full max-w-md rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
+        <div className="now-auth-content">
 
-          <Link to="/" className="mb-6 inline-flex min-h-11 items-center" aria-label="NOW home">
+          <Link to="/" className="now-auth-brand" aria-label="NOW home">
             <img src={nowLogo} alt="NOW" className="now-brand-mark h-7 w-auto" />
           </Link>
 
@@ -200,19 +199,18 @@ export default function Login() {
             Welcome back
           </h1>
           <p className="text-[14px] text-gray-400 mt-1 mb-8">
-            Sign in to continue your experience
+            Use your email or continue with Google.
           </p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="now-auth-form">
             {/* Email */}
             <div>
               <label htmlFor="login-email" className="block text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-1.5">
                 Email
               </label>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
-                style={{ borderColor: "#e4e4e7" }}
+                className="now-auth-field"
               >
                 <Mail size={15} className="text-gray-300 flex-shrink-0" />
                 <input
@@ -242,8 +240,7 @@ export default function Login() {
                 </button>
               </div>
               <div
-                className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition-all focus-within:border-now-accent"
-                style={{ borderColor: "#e4e4e7" }}
+                className="now-auth-field"
               >
                 <Lock size={15} className="text-gray-300 flex-shrink-0" />
                 <input
@@ -258,7 +255,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPass((p) => !p)} aria-label={showPass ? "Hide password" : "Show password"}
-                  className="text-gray-300 hover:text-gray-500 transition-colors"
+                  className="now-auth-field-action"
                 >
                   {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>

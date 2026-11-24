@@ -61,6 +61,11 @@ export default function OtpVerification() {
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   const handleChange = (value, index) => {
+    if (index === 0 && /^\d{6}$/.test(value)) {
+      setOtp(value.split(""));
+      inputsRef.current[5]?.focus();
+      return;
+    }
     if (!/^\d?$/.test(value)) return;
     const next = [...otp];
     next[index] = value;
@@ -118,7 +123,7 @@ export default function OtpVerification() {
     : "";
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: "var(--now-ui-font)" }}>
+    <div className="now-auth-page min-h-dvh flex" style={{ fontFamily: "var(--now-ui-font)" }}>
       <style>{`
 
         @keyframes scrollUp {
@@ -145,12 +150,11 @@ export default function OtpVerification() {
         }
         .success-pop { animation: successPop 0.45s cubic-bezier(.4,0,.2,1) both; }
 
-        .otp-input::placeholder { color: #d1d5db; }
       `}</style>
 
       {/* ── LEFT: poster wall ──────────────────────────── */}
       <div
-        className="hidden lg:flex flex-1 relative overflow-hidden"
+        className="now-auth-art hidden lg:flex flex-1 relative overflow-hidden"
         style={{ background: "#0d0d0d" }}
       >
         <div className="absolute inset-0 flex gap-3 px-3">
@@ -210,15 +214,14 @@ export default function OtpVerification() {
 
       {/* ── RIGHT: OTP form ────────────────────────────── */}
       <div
-        className="w-full lg:w-[480px] flex-shrink-0 flex flex-col justify-center px-6 sm:px-10 md:px-14 py-12"
-        style={{ background: "#fafafb" }}
+        className="now-auth-pane"
       >
-        <div className="fade-up w-full max-w-[360px] mx-auto">
+        <div className="now-auth-content">
 
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <img src={nowLogo} alt="NOW" className="now-brand-mark h-8 w-auto" />
-          </div>
+          <Link to="/" className="now-auth-brand" aria-label="NOW home">
+            <img src={nowLogo} alt="NOW" className="now-brand-mark h-7 w-auto" />
+          </Link>
 
           {/* ── Success state ── */}
           {verified ? (
@@ -254,29 +257,26 @@ export default function OtpVerification() {
               <p className="text-[14px] text-gray-400 mt-1 mb-2">
                 We sent a 6-digit code to
               </p>
-              <p className="text-[14px] font-semibold text-gray-700 mb-8 truncate">
+              <p className="text-sm font-semibold text-gray-700 mb-6 break-all">
                 {maskedEmail}
               </p>
 
               {/* OTP inputs */}
-              <div className="flex gap-2 mb-2 justify-center" onPaste={handlePaste}>
+              <div className="now-auth-code" role="group" aria-label="Six-digit verification code" onPaste={handlePaste}>
                 {otp.map((digit, i) => (
                   <input
                     key={i}
                     type="text"
                     inputMode="numeric"
-                    maxLength={1}
+                    aria-label={`Digit ${i + 1} of 6`}
+                    maxLength={i === 0 ? 6 : 1}
+                    autoComplete={i === 0 ? "one-time-code" : "off"}
                     value={digit}
-                    ref={(el) => (inputsRef.current[i] = el)}
+                    ref={(el) => { inputsRef.current[i] = el; }}
                     onChange={(e) => handleChange(e.target.value, i)}
                     onKeyDown={(e) => handleKeyDown(e, i)}
-                    className="otp-input text-center text-[20px] font-bold rounded-xl outline-none transition-all duration-150 bg-white border text-gray-900"
-                    style={{
-                      width: 52,
-                      height: 56,
-                      borderColor: digit ? "#106579" : "#e4e4e7",
-                      boxShadow: digit ? "0 0 0 3px rgba(16,101,121,0.1)" : "none",
-                    }}
+                    className="now-auth-digit"
+                    data-filled={Boolean(digit)}
                     placeholder="·"
                   />
                 ))}
@@ -284,11 +284,11 @@ export default function OtpVerification() {
 
               {/* Error */}
               {error && (
-                <p className="text-[13px] text-red-500 mb-4 mt-1">{error}</p>
+                <p className="text-[13px] text-red-700 mb-4 mt-2" role="alert">{error}</p>
               )}
 
               {/* Timer */}
-              <div className="flex items-center justify-between mb-6 mt-3">
+              <div className="now-auth-resend">
                 <span className="text-[13px] text-gray-400">
                   {timer > 0 ? (
                     <>Code expires in <span className="font-semibold text-gray-700">{formatTime(timer)}</span></>

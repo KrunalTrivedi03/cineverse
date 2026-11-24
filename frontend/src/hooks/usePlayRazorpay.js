@@ -41,7 +41,7 @@ export function usePlayRazorpay() {
         key:         keyId,
         amount,
         currency:    currency || "INR",
-        name:        "CineVerse Play",
+        name:        "NOW Play",
         description: activity && venue ? `${activity} — ${venue}` : "Play Slot Booking",
         order_id:    orderId,
 

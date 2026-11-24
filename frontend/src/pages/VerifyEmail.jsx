@@ -31,12 +31,12 @@ export default function VerifyEmail() {
   }, [token, navigate]);
 
   if (status === "verifying") {
-    return <StatusPanel icon={LoaderCircle} title="Verifying your email" busy><p>Please wait a moment.</p></StatusPanel>;
+    return <StatusPanel auth icon={LoaderCircle} title="Verifying your email" busy><p>Please wait a moment.</p></StatusPanel>;
   }
 
   if (status === "success") {
-    return <StatusPanel icon={CircleCheck} title="Email verified"><p>Taking you to sign in.</p></StatusPanel>;
+    return <StatusPanel auth icon={CircleCheck} title="Email verified"><p>Taking you to sign in.</p></StatusPanel>;
   }
 
-  return <StatusPanel icon={CircleAlert} title="Verification failed"><p>The link may have expired or is invalid.</p></StatusPanel>;
+  return <StatusPanel auth icon={CircleAlert} title="Verification failed"><p>The link may have expired or is invalid.</p></StatusPanel>;
 }

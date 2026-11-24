@@ -14,14 +14,14 @@ export default function BottomNav() {
   const isAuthenticated = !!localStorage.getItem("accessToken");
 
   return (
-    <nav aria-label="Quick navigation" className="now-mobile-nav fixed inset-x-0 mx-auto z-40 flex gap-1 p-1.5 lg:hidden">
+    <nav aria-label="Quick navigation" className="now-mobile-nav fixed inset-x-0 mx-auto z-40 flex lg:hidden">
       {ITEMS.filter((item) => !item.requiresAuth || isAuthenticated).map(({ label, icon, to, paths }) => {
         const Icon = icon;
         const active = paths.some((path) => pathname === path || (path !== "/" && pathname.startsWith(path + "/")));
         return (
           <Link key={to} to={to} aria-current={active ? "page" : undefined}>
-            <Icon size={18} aria-hidden="true" />
-            {label}
+            <span className="now-mobile-nav-icon"><Icon size={19} aria-hidden="true" /></span>
+            <span className="now-mobile-nav-label">{label}</span>
           </Link>
         );
       })}

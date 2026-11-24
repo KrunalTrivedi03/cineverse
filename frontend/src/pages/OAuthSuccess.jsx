@@ -74,7 +74,7 @@ export default function OAuthSuccess() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-6 py-10 relative overflow-hidden"
+      className="now-auth-oauth min-h-dvh flex items-center justify-center px-6 py-10 relative overflow-hidden"
       style={{
         fontFamily: "var(--now-ui-font)",
         background:

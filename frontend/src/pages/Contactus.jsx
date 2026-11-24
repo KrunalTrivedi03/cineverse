@@ -31,7 +31,8 @@ const CONTACT_INFO = [
   {
     icon: Mail,
     label: "Email Us",
-    lines: ["support@cineversecv.vercel.app", "We reply within 24 hours"],
+    href: "mailto:support@cineversecv.vercel.app",
+    lines: ["We reply within 24 hours"],
   },
   {
     icon: Clock,
@@ -121,12 +122,14 @@ export default function ContactUs() {
       {/* Contact info cards */}
       <section className="max-w-6xl mx-auto px-5 md:px-8 -mt-10 md:-mt-12 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {CONTACT_INFO.map(({ icon: Icon, label, lines }) => (
+          {CONTACT_INFO.map(({ icon: Icon, label, lines, href }) => (
             <div key={label} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ background: "rgba(16,101,121,0.08)" }}>
                 <Icon size={16} style={{ color: "#106579" }} />
               </div>
-              <p className="text-[13px] font-bold text-gray-900 mb-1">{label}</p>
+              {href ? (
+                <a href={href} className="mb-1 inline-block text-[13px] font-bold text-now-accent hover:underline">{label}</a>
+              ) : <p className="text-[13px] font-bold text-gray-900 mb-1">{label}</p>}
               {lines.map((l) => (
                 <p key={l} className="text-[11.5px] text-gray-500 leading-snug">
                   {l}

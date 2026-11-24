@@ -1,8 +1,8 @@
-﻿export default function StatusPanel({ icon, title, children, actions, busy = false }) {
+﻿export default function StatusPanel({ icon, title, children, actions, busy = false, auth = false }) {
   const Icon = icon;
   return (
-    <main className="grid min-h-dvh place-items-center bg-gray-50 p-4 sm:p-8">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white px-5 py-8 text-center shadow-sm sm:px-9 sm:py-11">
+    <main className={auth ? "now-auth-status" : "grid min-h-dvh place-items-center bg-gray-50 p-4 sm:p-8"}>
+      <div className={auth ? "now-auth-status-content" : "w-full max-w-md rounded-2xl border border-gray-200 bg-white px-5 py-8 text-center shadow-sm sm:px-9 sm:py-11"}>
         <div role="status" aria-busy={busy}>
           <span className="mx-auto mb-5 grid size-12 place-items-center rounded-xl bg-[#e8fbfc] text-[#106579]">
             <Icon size={23} aria-hidden="true" className={busy ? "animate-spin" : undefined} />

@@ -161,6 +161,7 @@ app.use("/api/offers",  offerRoutes);
 app.use("/api/contact", contactRoutes);
 
 app.get("/", (req, res) => res.send("NOW Backend Running..."));
+app.get("/api/platform/stats", require("./controllers/platformStatsController").getPlatformStats);
 app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
 
 const PORT = process.env.PORT || 5000;

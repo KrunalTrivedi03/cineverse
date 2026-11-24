@@ -19,7 +19,7 @@ function VenueCard({ venue, navigate }) {
   return (
     <button
       onClick={() => navigate(`/play/venues/${venue._id}`)}
-      className="text-left w-full bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
+      className="now-catalog-card text-left w-full bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
     >
       <div className="w-full aspect-[4/3] overflow-hidden" style={{ background: "#eee" }}>
@@ -30,7 +30,7 @@ function VenueCard({ venue, navigate }) {
         )}
       </div>
 
-      <div className="p-3.5">
+      <div className="now-catalog-body w-full p-3.5">
         <p className="text-[14.5px] font-bold text-gray-900 truncate">{venue.name}</p>
         <p className="text-[12px] text-gray-400 mt-0.5 truncate">
           {venue.distanceKm != null && `${venue.distanceKm.toFixed(1)} km · `}{venue.district?.name}

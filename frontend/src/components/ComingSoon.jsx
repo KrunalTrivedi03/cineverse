@@ -216,7 +216,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
   const daysLeft = daysUntil(movie.releaseDate);
 
   return (
-    <div className="now-media-card shrink-0 group snap-start">
+    <div className="now-catalog-card now-media-card shrink-0 group snap-start">
       {/* Poster */}
       <div
         className="relative rounded-2xl overflow-hidden bg-gray-200 shadow-sm cursor-pointer transition-shadow group-hover:shadow-lg"
@@ -272,7 +272,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
       </div>
 
       {/* Info */}
-      <div className="mt-2.5 px-0.5">
+      <div className="now-catalog-body mt-2.5 px-0.5">
         <h3
           className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors cursor-pointer"
           onClick={onView}
@@ -336,7 +336,7 @@ function MovieCard({ movie, onView, formatReleaseDate, getPosterUrl }) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-2 mt-3">
+        <div className="now-catalog-action flex items-center gap-2 mt-3">
           <button
             onClick={onView}
             className="flex-1 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"

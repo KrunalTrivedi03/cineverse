@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Check, X, Clapperboard } from "lucide-react";
+import { Check, X } from "lucide-react";
+import nowLogo from "../assets/now-logo-mark.png";
 import { showToast } from "../utils/toast";
 import api from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
@@ -127,16 +128,8 @@ export default function OAuthSuccess() {
         className={`os-card ${leaving ? "leave" : ""} relative w-full max-w-sm bg-white rounded-[28px] border border-gray-100 shadow-xl px-8 py-11 flex flex-col items-center text-center`}
         style={{ boxShadow: "0 24px 60px -20px rgba(17,17,17,0.16), 0 2px 10px rgba(17,17,17,0.04)" }}
       >
-        <div className="os-logo flex items-center gap-1.5 mb-9">
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: ACCENT }}
-          >
-            <Clapperboard size={13} className="text-white" />
-          </div>
-          <span className="text-[15px] font-extrabold tracking-tight text-gray-900">
-            Cine<span style={{ color: ACCENT }}>Verse</span>
-          </span>
+        <div className="os-logo mb-9">
+          <img src={nowLogo} className="now-brand-mark h-8 w-auto" alt="NOW" />
         </div>
 
         {/* ── Verifying ───────────────────────────────── */}

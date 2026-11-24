@@ -192,7 +192,7 @@ function MovieCard({ movie, isVoted, onVote }) {
   const badge = getBadge(movie);
 
   return (
-    <article className="now-media-card now-card flex-shrink-0 w-[200px] rounded-2xl p-1.5 group">
+    <article className="now-catalog-card now-media-card now-card flex-shrink-0 w-[200px] rounded-2xl p-1.5 group">
       <Link className="now-card-link" to={`/movie/${movie.id}`} aria-label={movie.title} />
       <div
         className="relative rounded-xl overflow-hidden bg-gray-100 shadow-sm"
@@ -267,7 +267,7 @@ function MovieCard({ movie, isVoted, onVote }) {
         </div>
       </div>
 
-      <div className="mt-2.5 px-0.5">
+      <div className="now-catalog-body mt-2.5 px-0.5">
         <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors">
           {movie.title}
         </h3>
@@ -296,7 +296,7 @@ function MovieCard({ movie, isVoted, onVote }) {
         {movie.status === "released" && (
           <button
             onClick={(e) => onVote(e, movie.id)} aria-pressed={isVoted}
-            className="relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+            className="now-catalog-action relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
               borderColor: isVoted
                 ? "rgba(16,101,121,0.5)"
@@ -322,7 +322,7 @@ function MovieCard({ movie, isVoted, onVote }) {
         {movie.status === "upcoming" && (
           <button
             onClick={(e) => onVote(e, movie.id)} aria-pressed={isVoted}
-            className="relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+            className="now-catalog-action relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
               borderColor: isVoted
                 ? "rgba(234,88,12,0.5)"
@@ -348,7 +348,7 @@ function MovieCard({ movie, isVoted, onVote }) {
         {movie.status === "streaming" && (
           <Link
             to={`/movie/${movie.id}`}
-            className="relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
+            className="now-catalog-action relative z-10 mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all border"
             style={{
               borderColor: "rgba(99,102,241,0.3)",
               color: "#6366f1",

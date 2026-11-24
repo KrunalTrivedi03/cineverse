@@ -35,7 +35,7 @@ function OfferCard({ offer }) {
   };
 
   return (
-    <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
+    <div className="now-catalog-card bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
       {/* Banner */}
       <div className="relative h-36 sm:h-40 overflow-hidden" style={{ background: themeGradient(offer.theme) }}>
         {offer.image && (
@@ -51,7 +51,7 @@ function OfferCard({ offer }) {
       </div>
 
       {/* Body */}
-      <div className="p-5 flex flex-col gap-3 flex-1">
+      <div className="now-catalog-body p-5 gap-3">
         {offer.description && <p className="text-[13px] text-gray-500 leading-relaxed">{offer.description}</p>}
 
         <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400 font-medium">
@@ -96,7 +96,7 @@ function OfferCard({ offer }) {
 
         <Link
           to={offer.applicableTo === "events" ? "/events" : "/"}
-          className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-bold pt-2"
+          className="now-catalog-action mt-auto inline-flex items-center gap-1.5 text-[13px] font-bold pt-2"
           style={{ color: "#106579" }}
         >
           {offer.ctaText || "Explore now"} <ArrowRight size={13} />

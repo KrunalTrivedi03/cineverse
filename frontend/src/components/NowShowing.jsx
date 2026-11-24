@@ -582,7 +582,7 @@ export default function NowShowingPage() {
 
 function MovieCard({ movie, isVoted, onVote, onClick }) {
   return (
-    <div className="cursor-pointer group" onClick={onClick}>
+    <div className="now-catalog-card cursor-pointer group" onClick={onClick}>
       <div className="relative rounded-2xl overflow-hidden bg-gray-200 shadow-sm" style={{ aspectRatio: "2/3" }}>
         <img src={IMG(movie.poster)} alt={movie.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -616,7 +616,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
         </div>
       </div>
 
-      <div className="mt-2.5 px-0.5">
+      <div className="now-catalog-body mt-2.5 px-0.5">
         <h3 className="text-[14px] font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-now-accent transition-colors">
           {movie.title}
         </h3>
@@ -630,7 +630,7 @@ function MovieCard({ movie, isVoted, onVote, onClick }) {
         )}
         <button
           onClick={(e) => onVote(e, movie._id)}
-          className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-semibold transition-all border"
+          className="now-catalog-action mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-semibold transition-all border"
           style={{
             borderColor: isVoted ? "rgba(16,101,121,0.5)"  : "rgba(16,101,121,0.25)",
             color:       isVoted ? "#fff"                  : "#106579",

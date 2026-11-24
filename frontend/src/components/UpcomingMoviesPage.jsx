@@ -522,7 +522,7 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="cursor-pointer"
+      className="now-catalog-card cursor-pointer"
     >
       {/* Poster */}
       <div
@@ -579,7 +579,7 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
       </div>
 
       {/* Info */}
-      <div className="mt-2 md:mt-2.5 pl-0.5">
+      <div className="now-catalog-body mt-2 md:mt-2.5 pl-0.5">
         <h3
           className="text-[12.5px] md:text-[13.5px] font-bold m-0 leading-tight overflow-hidden text-ellipsis whitespace-nowrap transition-colors duration-150"
           style={{ color: hovered ? "#106579" : "#111" }}
@@ -611,7 +611,7 @@ function MovieCard({ movie, isNotified, onNotify, onClick }) {
 
         <button
           onClick={(e) => onNotify(e, movie._id)}
-          className="mt-2 md:mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 md:py-2 rounded-xl text-[11px] md:text-[11.5px] font-bold cursor-pointer transition-all border"
+          className="now-catalog-action mt-2 md:mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 md:py-2 rounded-xl text-[11px] md:text-[11.5px] font-bold cursor-pointer transition-all border"
           style={{
             borderColor: isNotified ? "#106579" : "rgba(16,101,121,0.3)",
             background: isNotified ? "#106579" : "white",

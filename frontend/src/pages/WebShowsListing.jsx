@@ -37,7 +37,7 @@ function ShowCardSkeleton() {
 function ShowCard({ show, onOpen }) {
   return (
     <div
-      className="group relative flex-shrink-0 w-[150px] sm:w-[210px] rounded-xl overflow-hidden bg-gray-900 cursor-pointer transition-transform duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-lg"
+      className="now-catalog-card group relative flex-shrink-0 w-[150px] sm:w-[210px] rounded-xl overflow-hidden bg-gray-900 cursor-pointer transition-transform duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-lg"
       onClick={() => onOpen(show._id)}
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden">
@@ -87,7 +87,7 @@ function ShowCard({ show, onOpen }) {
         </div>
       </div>
 
-      <div className="p-2.5 bg-white">
+      <div className="now-catalog-body p-2.5 bg-white">
         <h3 className="text-[13px] sm:text-sm font-extrabold tracking-tight text-gray-900 truncate">
           {show.title}
         </h3>

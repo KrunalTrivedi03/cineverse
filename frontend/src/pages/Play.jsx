@@ -1,4 +1,5 @@
 import Dialog from "../components/Dialog";
+import BottomNav from "../components/BottomNav";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSportIcon } from "../utils/sportIcons";
@@ -104,6 +105,7 @@ export default function Play() {
     <div style={{ minHeight: "100vh", background: "#fafafb", fontFamily: "var(--now-ui-font)" }}>
 
       <Navbar />
+      <BottomNav />
 
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 40px" }}>
         {/* Header */}

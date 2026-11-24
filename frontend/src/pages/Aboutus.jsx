@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import api from "../api/axiosInstance";
 import Footer from "../components/Footer";
 import BottomNav from "../components/BottomNav";
 import {
@@ -52,15 +53,27 @@ const HIGHLIGHTS = [
 ];
 
 const STATS = [
-  { value: "50K+", label: "Tickets booked" },
-  { value: "120+", label: "Movies & events" },
-  { value: "15+", label: "Cities & counting" },
-  { value: "4.7★", label: "Average rating" },
+  ["bookings", "Confirmed bookings"],
+  ["movies", "Movies listed"],
+  ["events", "Upcoming & live events"],
+  ["playVenues", "Play venues"],
+  ["cities", "Cities"],
+  ["averageMovieRating", "Average movie rating"],
 ];
 
+const countFormatter = new Intl.NumberFormat("en-IN");
+const ratingFormatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 1 });
+
 export default function Aboutus() {
+  const [stats, setStats] = useState(null);
+  const [statsStatus, setStatsStatus] = useState("loading");
   useEffect(() => {
     window.scrollTo(0, 0);
+    const controller = new AbortController();
+    api.get("/platform/stats", { signal: controller.signal })
+      .then(({ data }) => { setStats(data); setStatsStatus("ready"); })
+      .catch(() => { if (!controller.signal.aborted) setStatsStatus("error"); });
+    return () => controller.abort();
   }, []);
 
   return (
@@ -96,17 +109,21 @@ export default function Aboutus() {
 
       {/* Stats strip */}
       <section className="max-w-6xl mx-auto px-5 md:px-8 -mt-10 md:-mt-12 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 md:p-7">
-          {STATS.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-[24px] md:text-[30px] font-black" style={{ color: "#106579", letterSpacing: "-0.02em" }}>
-                {s.value}
-              </p>
-              <p className="text-[12px] md:text-[13px] text-gray-500 font-medium mt-1">{s.label}</p>
-            </div>
-          ))}
+        <div className="now-platform-stats" aria-busy={statsStatus === "loading"}>
+          {STATS.map(([key, label]) => {
+            const value = stats?.[key];
+            const rating = key === "averageMovieRating";
+            return (
+              <div key={key} className="now-platform-stat">
+                <p>{Number.isFinite(value) ? (rating ? ratingFormatter.format(value) + " / 10" : countFormatter.format(value)) : "?"}</p>
+                <span>{label}</span>
+              </div>
+            );
+          })}
         </div>
       </section>
+
+      {statsStatus === "error" && <p className="mt-3 text-center text-sm text-gray-600" role="status">Platform totals are temporarily unavailable.</p>}
 
       {/* Overview */}
       <section className="max-w-5xl mx-auto px-5 md:px-8 pt-16 md:pt-20 pb-4">

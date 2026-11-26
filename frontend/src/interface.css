@@ -430,6 +430,7 @@
 .now-catalog-body > .now-catalog-action { margin-top: auto; min-height: 2.6rem; }
 
 .now-header-search { flex: 1 1 28rem; min-width: 0; max-width: 32rem; }
+.now-header .now-nav-search-mobile { display: none; }
 .now-global-search { position: relative; width: 100%; }
 .now-global-search-bar {
   display: grid;
@@ -529,11 +530,15 @@
   min-height: 0;
   max-height: min(65dvh, 33rem);
   overflow-y: auto;
+  scrollbar-width: none;
   overscroll-behavior: contain;
   border-radius: inherit;
   background: white;
   border: 1px solid #d8e9ec;
 }
+.now-global-search-panel-inner::-webkit-scrollbar { display: none; }
+.now-global-search-panel-inner:focus-visible { outline: 2px solid var(--now-reef-600); outline-offset: -2px; }
+.now-picker-body.now-global-search-body { overflow: visible; }
 .now-global-search-header { padding: .65rem .8rem; background: #f6fcfc; border-bottom: 1px solid #e4edf0; }
 .now-global-search-toolbar { display: flex; flex-wrap: wrap; gap: .4rem .65rem; align-items: center; }
 .now-search-sort { display: flex; gap: .4rem; align-items: center; font-size: .8rem; color: var(--color-gray-600); }
@@ -594,11 +599,50 @@ body:has(.now-header) .now-global-search-fallback { display: none; }
   .now-header-inner > .now-main-links { grid-area: links; justify-content: center; }
   .now-header-inner > .now-header-actions { grid-area: actions; }
   .now-header-inner > .now-header-search { grid-area: search; width: 100%; justify-self: center; }
+}
+@media (min-width: 640px) and (max-width: 1279px) {
   body:has(.now-header-search) .sticky[class*="top-[60px]"],
   body:has(.now-header-search) .sticky[class*="top-[76px]"] { top: 6.85rem; }
 }
 @media (max-width: 639px) {
-  .now-nav-location { padding-inline: .35rem; gap: .32rem; }
-  .now-global-search-panel-inner { max-height: min(60dvh, 29rem); }
+  .now-header-inner:has(.now-header-search) {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "brand actions";
+    gap: .5rem;
+    padding: .25rem clamp(.625rem, 3vw, 1rem);
+  }
+  .now-header .now-brand-mark { height: 1.5rem; }
+  .now-header-actions { justify-content: flex-end; gap: .25rem; }
+  .now-header-actions > .relative { flex-shrink: 0; }
+  .now-nav-location { flex: 0 1 auto; min-width: 0; padding-inline: .4rem; gap: .32rem; }
+  .now-nav-location > .now-nav-label { max-width: none; }
+  .now-nav-account, .now-nav-signin { padding-inline: .45rem; }
+  .now-header-search { display: none; }
+  .now-header .now-nav-search-mobile { display: inline-flex; padding-inline: 0; }
+  .now-dialog--search > .now-dialog-content {
+    height: min(78dvh, 36rem);
+    padding: .75rem clamp(.65rem, 4vw, 1rem);
+  }
+  .now-mobile-search-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: .55rem; }
+  .now-mobile-search-heading h2 { font-size: 1.2rem; font-weight: 750; }
+  .now-dialog--search .now-global-search { display: flex; flex: 1; flex-direction: column; gap: .45rem; min-height: 0; }
+  .now-dialog--search .now-global-search-bar { flex-shrink: 0; grid-template-columns: minmax(4.75rem, 30%) minmax(0, 1fr); }
+  .now-dialog--search .now-global-search-panel { position: static; flex: 1; min-height: 0; box-shadow: none; }
+  .now-dialog--search .now-global-search-panel-inner { max-height: none; }
+  .now-dialog--search[open] { animation: now-search-sheet-enter .22s ease-out both; }
   .now-global-search-input { padding-inline-start: .5rem; gap: .3rem; }
+
+  .now-mobile-nav { width: min(100% - 1rem, 27rem); border-radius: 1.2rem; }
+  .now-mobile-nav a { min-height: 2.85rem; gap: .12rem; }
+  .now-mobile-nav-icon { height: 1.25rem; }
+  .now-mobile-nav-icon svg { width: 1.125rem; height: 1.125rem; }
+  .now-mobile-nav-label { font-size: clamp(.625rem, 2.6vw, .69rem); }
+}
+
+@keyframes now-search-sheet-enter {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .now-dialog--search[open] { animation: none; }
 }

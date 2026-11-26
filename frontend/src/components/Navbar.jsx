@@ -8,12 +8,14 @@ import {
   Star,
   Tv,
   Clock,
+  Search,
 } from "lucide-react";
 import { Link, NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import CityPicker from "./CityPicker";
 import EntertainmentSearch from "./EntertainmentSearch";
 import api from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import { useGlobalSearch } from "../context/globalSearchContext";
 import { consumeCityPromptFlag } from "../utils/authSession";
 import nowLogo from "../assets/now-logo-mark.png";
 
@@ -35,6 +37,7 @@ export default function Navbar() {
   }
 
   const { pathname } = useLocation();
+  const { source, openSearch } = useGlobalSearch();
   const { logout: authLogout } = useAuth();
   const logout = () => {
     setProfileOpen(false);
@@ -148,6 +151,9 @@ export default function Navbar() {
           <div className="now-header-actions">
             <button type="button" className="now-nav-action now-nav-location" onClick={() => setCityModal(true)} aria-label={selectedCity ? "Change city: " + selectedCity : "Select city"} aria-haspopup="dialog">
               <MapPin size={18} aria-hidden="true" /><span className="now-nav-label" title={selectedCity || undefined}>{selectedCity || "Select city"}</span><ChevronDown size={13} aria-hidden="true" />
+            </button>
+            <button type="button" className="now-nav-action now-nav-search now-nav-search-mobile" aria-label="Search NOW" aria-haspopup="dialog" aria-expanded={source === "mobile"} onClick={() => openSearch("mobile")}>
+              <Search size={18} aria-hidden="true" />
             </button>
             {!token ? (
               <Link to="/login" className="now-nav-action now-nav-signin" aria-label="Sign in"><User size={17} aria-hidden="true" /><span>Sign in</span></Link>

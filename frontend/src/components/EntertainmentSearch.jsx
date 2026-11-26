@@ -118,7 +118,7 @@ export default function EntertainmentSearch({ source }) {
     function outside(event) {
       if (root.current?.contains(event.target)) return;
       setScopeOpen(false);
-      if (open) closeSearch();
+      if (open && source !== "mobile") closeSearch();
     }
     function escape(event) {
       if (event.key !== "Escape" || document.querySelector("dialog[open]")) return;
@@ -189,7 +189,7 @@ export default function EntertainmentSearch({ source }) {
         <div className="now-global-search-input">
           <Search size={18} aria-hidden="true" />
           <input ref={input} type="search" aria-label="Search NOW" aria-expanded={open} aria-controls={panelId}
-            placeholder="Search titles, people and venues" value={query} maxLength={100}
+            placeholder={source === "mobile" ? "Titles, people and venues" : "Search titles, people and venues"} value={query} maxLength={100}
             onFocus={() => { setScopeOpen(false); openSearch(source); }}
             onClick={() => openSearch(source)}
             onChange={(event) => { setQuery(event.target.value); openSearch(source); }} />
@@ -197,7 +197,7 @@ export default function EntertainmentSearch({ source }) {
         </div>
       </div>
       <div id={panelId} className="now-global-search-panel" data-open={open} inert={!open}>
-        <div className="now-global-search-panel-inner">
+        <div className="now-global-search-panel-inner" tabIndex={0} role="region" aria-label="Search results">
           <div className="now-global-search-header">
             <div className="now-global-search-toolbar">
               {FIELDS[scope].length > 0 && (

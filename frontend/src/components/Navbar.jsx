@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Search,
   User,
   LogOut,
   ChevronDown,
@@ -44,7 +43,6 @@ export default function Navbar() {
 
   const [cityModal, setCityModal] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const [cities, setCities] = useState([]);
   const [citiesLoading, setCitiesLoading] = useState(false);
@@ -88,14 +86,11 @@ export default function Navbar() {
   useEffect(() => {
     function onKeyDown(event) {
       if (event.key === "Escape") setProfileOpen(false);
-      if (!cityModal && !document.querySelector("dialog[open]") && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setSearchOpen(true);
-      }
+
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [cityModal]);
+  }, []);
 
   const handleCitySelect = (city) => {
     setSelectedCity(city.name);
@@ -149,25 +144,23 @@ export default function Navbar() {
             <NavLink to="/play">Play</NavLink>
           </div>
 
+          <div className="now-header-search"><EntertainmentSearch source="header" /></div>
           <div className="now-header-actions">
-            <button type="button" className="now-nav-action now-nav-search" onClick={() => setSearchOpen(true)} aria-label="Search" aria-haspopup="dialog">
-              <Search size={18} aria-hidden="true" /><span>Search movies and shows</span>
-            </button>
             <button type="button" className="now-nav-action now-nav-location" onClick={() => setCityModal(true)} aria-label={selectedCity ? "Change city: " + selectedCity : "Select city"} aria-haspopup="dialog">
-              <MapPin size={18} aria-hidden="true" /><span>{selectedCity || "Select city"}</span><ChevronDown size={13} aria-hidden="true" />
+              <MapPin size={18} aria-hidden="true" /><span className="now-nav-label" title={selectedCity || undefined}>{selectedCity || "Select city"}</span><ChevronDown size={13} aria-hidden="true" />
             </button>
             {!token ? (
               <Link to="/login" className="now-nav-action now-nav-signin" aria-label="Sign in"><User size={17} aria-hidden="true" /><span>Sign in</span></Link>
             ) : (
               <div className="relative" ref={profileRef}>
-                <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-label="Account" aria-expanded={profileOpen} className="now-nav-action now-nav-account">
+                <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-label={`Account: ${userInfo.username || "User"}`} aria-expanded={profileOpen} className="now-nav-action now-nav-account">
                   <span className="now-nav-initial">{(userInfo.username?.[0] || "U").toUpperCase()}</span>
-                  <span>{userInfo.username || "User"}</span>
+                  <span className="now-nav-label" title={userInfo.username}>{userInfo.username || "User"}</span>
                 </button>
                 {profileOpen && (
                   <div className="now-account-menu">
                     <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
-                      <p className="truncate font-semibold">{userInfo.username || "User"}</p>
+                      <p className="break-words font-semibold">{userInfo.username || "User"}</p>
                       <p className="truncate text-xs text-gray-500">{userInfo.email || ""}</p>
                     </div>
                     <div className="p-1.5">
@@ -183,7 +176,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {searchOpen && <EntertainmentSearch canSave={Boolean(token)} onClose={() => setSearchOpen(false)} />}
       {cityModal && (
         <CityPicker cities={cities} selectedCity={selectedCity} loading={citiesLoading} error={citiesError}
           onRetry={fetchCities} onSelect={handleCitySelect} onClose={() => setCityModal(false)} />

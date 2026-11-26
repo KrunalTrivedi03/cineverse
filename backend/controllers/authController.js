@@ -222,10 +222,14 @@ exports.login = async (req, res) => {
       });
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = typeof password === "string" && user.password && await bcrypt.compare(password, user.password);
 
     if (!match) return res.status(400).json({ message: "Invalid credentials" });
 
+    if (req.issueMobileSession) {
+      res.set("Cache-Control", "no-store");
+      return res.json(await require("../services/mobileSessions").issue(user));
+    }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 

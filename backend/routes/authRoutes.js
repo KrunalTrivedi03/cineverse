@@ -16,6 +16,13 @@ router.post("/resend-otp", resendOTP);
 // auto-logout on the frontend).
 router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
+const mobileSessions = require("../services/mobileSessions");
+const mobileGoogle = require("../controllers/mobileGoogleController");
+router.post("/mobile/login", (req, res, next) => { req.issueMobileSession = true; next(); }, login);
+router.post("/mobile/google", mobileGoogle.signIn);
+router.post("/mobile/google/link", require("../middleware/authMiddleware"), mobileGoogle.link);
+router.post("/mobile/refresh", mobileSessions.refresh);
+router.post("/mobile/logout", mobileSessions.logout);
 
 router.get( "/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 

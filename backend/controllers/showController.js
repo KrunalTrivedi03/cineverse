@@ -1,4 +1,5 @@
 const Show = require("../models/Show");
+const Movie = require("../models/Movie");
 const { cleanupCompletedShows } = require("../services/showAutomation");
 
 const populate = (q) => q.populate("movie").populate({ path: "theatre", populate: { path: "city" } });
@@ -6,6 +7,9 @@ const populate = (q) => q.populate("movie").populate({ path: "theatre", populate
 exports.createShow = async (req, res) => {
   try {
     const { movie, theatre, screen, showDate, showTimes, language } = req.body;
+    if (!await Movie.exists({ _id: movie, isDraft: { $ne: true } })) {
+      return res.status(400).json({ message: "Choose a published movie." });
+    }
 
     const existing = await Show.findOne({ movie, theatre, screen, showDate });
     if (existing) {
@@ -77,6 +81,9 @@ exports.getShowsByCity = async (req, res) => {
 
 exports.updateShow = async (req, res) => {
   try {
+    if (req.body.movie !== undefined && !await Movie.exists({ _id: req.body.movie, isDraft: { $ne: true } })) {
+      return res.status(400).json({ message: "Choose a published movie." });
+    }
     const show = await populate(
       Show.findByIdAndUpdate(
         req.params.id,

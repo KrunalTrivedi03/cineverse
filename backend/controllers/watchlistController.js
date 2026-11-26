@@ -1,7 +1,11 @@
 const Watchlist = require("../models/Watchlist");
+const Movie = require("../models/Movie");
 exports.addToWatchlist = async (req, res) => {
   try {
     const { movieId, status = "watching" } = req.body;
+    if (!await Movie.exists({ _id: movieId, isDraft: { $ne: true } })) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
 
     const exists = await Watchlist.findOne({
       user: req.user.id,

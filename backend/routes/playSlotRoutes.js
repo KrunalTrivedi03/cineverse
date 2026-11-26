@@ -5,7 +5,7 @@ const psc = require("../controllers/playSlotController");
 
 router.get("/availability/:venueId/:date", psc.getSlotAvailability);
 router.post("/lock", verifyToken, psc.lockSlots);
-router.delete("/lock", psc.unlockSlots);
+router.delete("/lock", verifyToken, psc.unlockSlots);
 
 /* Shared bookings list/detail (same URL shape as event-seats) */
 router.get("/bookings/admin", psc.getAllPlayBookings);

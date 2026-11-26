@@ -1,19 +1,20 @@
 const mongoose = require("mongoose");
 
 const CastSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String, trim: true, required() { return !this.ownerDocument().isDraft; } },
   role: String,
   image: String
 });
 
 const CrewSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String, trim: true, required() { return !this.ownerDocument().isDraft; } },
   position: String,
   image: String
 });
 
 const MovieSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String, trim: true, required() { return !this.isDraft; } },
+  isDraft: { type: Boolean, default: false },
   description: String,
   genre: String,
   releaseDate: Date,
@@ -48,10 +49,11 @@ const MovieSchema = new mongoose.Schema({
   formats: [String],
 
   poster: String,
+  banner: String,
   trailerLink: String,
 
   cast: [CastSchema],
   crew: [CrewSchema],
-}, { timestamps: true });
+}, { timestamps: true, optimisticConcurrency: true });
 
 module.exports = mongoose.model("Movie", MovieSchema);

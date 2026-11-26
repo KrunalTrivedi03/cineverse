@@ -1,191 +1,135 @@
 const Movie = require("../models/Movie");
 
-const syncMovieStatuses = async () => {
-  const now = new Date();
+const published = { isDraft: { $ne: true } };
+const scalarFields = [
+  "title", "description", "genre", "releaseDate", "rating", "trailerLink",
+  "language", "duration", "certificate", "votes", "status", "ottPlatform", "isInCinemas",
+];
+
+async function syncMovieStatuses() {
   await Movie.updateMany(
-    { status: "upcoming", releaseDate: { $lte: now } },
+    { ...published, status: "upcoming", releaseDate: { $lte: new Date() } },
     { $set: { status: "released", isInCinemas: true } }
   );
-};
+}
+
+function readPeople(req, field, roleKey, existing) {
+  const uploads = req.files?.[field + "Images"] || [];
+  return JSON.parse(req.body[field]).map((person, index) => {
+    // Older clients supplied a positional upload array. Current clients map sparse uploads explicitly.
+    const uploadIndex = Object.hasOwn(person, "uploadIndex") ? person.uploadIndex : index;
+    const saved = person._id ? existing.id(person._id) : null;
+    return {
+      ...(saved ? { _id: saved._id } : {}),
+      name: person.name,
+      [roleKey]: person[roleKey],
+      image: uploads[uploadIndex]?.path || saved?.image || person.image || null,
+    };
+  });
+}
+
+function applyMovieFields(movie, req) {
+  const body = req.body;
+  for (const field of scalarFields) {
+    if (body[field] !== undefined) movie[field] = body[field];
+  }
+  for (const field of ["cities", "formats", "languages"]) {
+    if (body[field] !== undefined) movie[field] = JSON.parse(body[field]);
+  }
+  if (movie.isNew && body.languages === undefined && body.language) movie.languages = [body.language];
+  for (const field of ["poster", "banner"]) {
+    if (req.files?.[field]?.[0]) movie[field] = req.files[field][0].path;
+  }
+  if (body.cast !== undefined) movie.cast = readPeople(req, "cast", "role", movie.cast);
+  if (body.crew !== undefined) movie.crew = readPeople(req, "crew", "position", movie.crew);
+}
+
+function handleWriteError(error, res) {
+  if (error.name === "VersionError") {
+    return res.status(409).json({ message: "This movie changed while you were editing it. Reload it and try again." });
+  }
+  const badInput = error instanceof SyntaxError || ["ValidationError", "CastError"].includes(error.name);
+  res.status(badInput ? 400 : 500).json({ message: error.message });
+}
 
 exports.createMovie = async (req, res) => {
   try {
-    const {title,description,genre,releaseDate,rating,trailerLink,language,languages,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
-
-    const movieData = {title,description,genre,releaseDate,rating,trailerLink,language,duration,certificate,votes,status,ottPlatform,isInCinemas,formats: formats ? JSON.parse(formats) : [],languages: languages ? JSON.parse(languages) : (language ? [language] : []),cities: cities ? JSON.parse(cities) : [],cast: [],crew: [] };
-
-    if (req.files?.poster) {
-      movieData.poster = req.files.poster[0].path;
-    }
-
-    if (cast) {
-      const castArray = JSON.parse(cast);
-
-      castArray.forEach((member, index) => {
-        movieData.cast.push({
-          name: member.name,
-          role: member.role,
-          image: req.files?.castImages?.[index]
-            ? req.files.castImages[index].path
-            : null,
-        });
-      });
-    }
-
-    if (crew) {
-      const crewArray = JSON.parse(crew);
-
-      crewArray.forEach((member, index) => {
-        movieData.crew.push({
-          name: member.name,
-          position: member.position,
-          image: req.files?.crewImages?.[index]
-            ? req.files.crewImages[index].path
-            : null,
-        });
-      });
-    }
-
-    const movie = await Movie.create(movieData);
-
-    res.status(201).json({
-      message: "Movie added successfully",
-      movie
-    });
-
+    const movie = new Movie({ isDraft: [true, "true"].includes(req.body.isDraft) });
+    applyMovieFields(movie, req);
+    await movie.save();
+    res.status(201).json({ message: movie.isDraft ? "Draft saved" : "Movie published", movie });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    handleWriteError(error, res);
   }
 };
-
 
 exports.updateMovie = async (req, res) => {
   try {
-
     const movie = await Movie.findById(req.params.id);
-
-    if (!movie)
-      return res.status(404).json({ message: "Movie not found" });
-
-    const {title,description,genre,releaseDate,rating,trailerLink,language,languages,duration,certificate,votes,status,ottPlatform,isInCinemas,formats,cast,crew,cities} = req.body;
-
-    if (title) movie.title = title;
-    if (description) movie.description = description;
-    if (genre) movie.genre = genre;
-    if (cities) movie.cities = JSON.parse(cities);
-    if (releaseDate) movie.releaseDate = releaseDate;
-    if (rating) movie.rating = rating;
-    if (trailerLink) movie.trailerLink = trailerLink;
-
-    if (language) movie.language = language;
-    if (languages) movie.languages = JSON.parse(languages);
-    if (duration) movie.duration = duration;
-    if (certificate) movie.certificate = certificate;
-    if (votes !== undefined) movie.votes = votes;
-    if (status) movie.status = status;
-    if (ottPlatform) movie.ottPlatform = ottPlatform;
-
-    if (typeof isInCinemas !== "undefined")
-      movie.isInCinemas = isInCinemas;
-
-    if (formats)
-      movie.formats = JSON.parse(formats);
-
-    if (req.files?.poster) {
-      movie.poster = `/uploads/${req.files.poster[0].filename}`;
+    if (!movie) return res.status(404).json({ message: "Movie not found" });
+    if ([true, "true"].includes(req.body.isDraft) && !movie.isDraft) {
+      return res.status(400).json({ message: "Published movies cannot be converted to drafts." });
     }
-
-    if (cast) {
-      const castArray = JSON.parse(cast);
-
-      movie.cast = castArray.map((member, index) => ({
-        name: member.name,
-        role: member.role,
-        image: req.files?.castImages?.[index]
-          ? `/uploads/${req.files.castImages[index].filename}`
-          : member.image || null
-      }));
-    }
-
-    if (crew) {
-      const crewArray = JSON.parse(crew);
-
-      movie.crew = crewArray.map((member, index) => ({
-        name: member.name,
-        position: member.position,
-        image: req.files?.crewImages?.[index]
-          ? `/uploads/${req.files.crewImages[index].filename}`
-          : member.image || null
-      }));
-    }
-
+    if ([false, "false"].includes(req.body.isDraft)) movie.isDraft = false;
+    applyMovieFields(movie, req);
     await movie.save();
-
-    res.json({
-      message: "Movie updated successfully",
-      movie
-    });
-
+    res.json({ message: movie.isDraft ? "Draft saved" : "Movie updated", movie });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    handleWriteError(error, res);
   }
 };
-
 
 exports.deleteMovie = async (req, res) => {
   try {
-
     const movie = await Movie.findByIdAndDelete(req.params.id);
-
-    if (!movie)
-      return res.status(404).json({ message: "Movie not found" });
-
+    if (!movie) return res.status(404).json({ message: "Movie not found" });
     res.json({ message: "Movie deleted successfully" });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
-exports.getMovies = async (req, res) => {
-  try {
-    await syncMovieStatuses();
-    const { city, status } = req.query;
-
-    let filter = {};
-    if (city) filter.cities = city;
-    if (status) filter.status = status;
-
-    const movies = await Movie.find(filter).sort({ createdAt: -1 });
-    res.json(movies);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.getMovie = async (req, res) => {
-  try {
-    await syncMovieStatuses();
-
-    const movie = await Movie.findById(req.params.id);
-
-    if (!movie)
-      return res.status(404).json({ message: "Movie not found" });
-
-    res.json(movie);
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+function listMovies(admin = false) {
+  return async (req, res) => {
+    try {
+      await syncMovieStatuses();
+      const { city, status } = req.query;
+      const filter = admin && req.query.published !== "true" ? {} : { ...published };
+      if (typeof city === "string" && city) filter.cities = city;
+      if (typeof status === "string" && status) filter.status = status;
+      res.json(await Movie.find(filter).sort({ createdAt: -1 }));
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
 }
+
+function readMovie(admin = false) {
+  return async (req, res) => {
+    try {
+      await syncMovieStatuses();
+      const movie = await Movie.findOne({ _id: req.params.id, ...(admin ? {} : published) });
+      if (!movie) return res.status(404).json({ message: "Movie not found" });
+      res.json(movie);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+}
+
+exports.getMovies = listMovies();
+exports.getMovie = readMovie();
+exports.getAdminMovies = listMovies(true);
+exports.getAdminMovie = readMovie(true);
 
 exports.voteMovie = async (req, res) => {
   try {
-    const movie = await Movie.findById(req.params.id);
+    const movie = await Movie.findOneAndUpdate(
+      { _id: req.params.id, ...published },
+      { $inc: { votes: 1 } },
+      { new: true }
+    );
     if (!movie) return res.status(404).json({ message: "Movie not found" });
-    movie.votes = (movie.votes || 0) + 1;
-    await movie.save();
     res.json({ message: "Vote added", votes: movie.votes });
   } catch (error) {
     res.status(500).json({ message: error.message });

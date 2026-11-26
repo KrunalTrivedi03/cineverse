@@ -11,6 +11,13 @@ module.exports = async function (req, res, next) {
 
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.mobileSessionId) {
+      const MobileSession = require("../models/MobileSession");
+      const session = await MobileSession.exists({
+        _id: decoded.mobileSessionId, user: decoded.id, expiresAt: { $gt: new Date() },
+      });
+      if (!session) return res.status(401).json({ message: "Session expired" });
+    }
 
     const user = await User.findById(decoded.id).populate({
       path: "role",
@@ -26,6 +33,7 @@ module.exports = async function (req, res, next) {
     }
 
     req.user = {
+      mobileSessionId: decoded.mobileSessionId,
       id:          user._id,
       role:        user.role.name        || "user",
       permissions: user.role.permissions?.map((p) => p.name) || [],

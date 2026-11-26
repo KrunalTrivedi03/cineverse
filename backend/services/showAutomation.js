@@ -53,7 +53,7 @@ const cleanupCompletedShows = async () => {
 const generateShowsForDate = async (dateObj) => {
   const targetDate = startOfDay(dateObj);
 
-  const movies = await Movie.find({ isInCinemas: true });
+  const movies = await Movie.find({ isInCinemas: true, isDraft: { $ne: true } });
   if (!movies.length) return;
 
   const theatres = await Theatre.find().populate("city");

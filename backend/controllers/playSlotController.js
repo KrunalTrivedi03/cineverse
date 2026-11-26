@@ -118,7 +118,8 @@ exports.lockSlots = async (req, res) => {
 
 exports.unlockSlots = async (req, res) => {
   try {
-    const { slotIds, userId } = req.body;
+    const { slotIds } = req.body;
+    const userId = req.user.id.toString();
     await PlaySlotLock.deleteMany({ slot: { $in: slotIds }, userId });
     res.json({ message: "Slots unlocked" });
   } catch (e) {

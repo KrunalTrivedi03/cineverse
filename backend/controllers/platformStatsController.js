@@ -14,11 +14,12 @@ exports.getPlatformStats = async (req, res, next) => {
         Booking.countDocuments(confirmed),
         EventBooking.countDocuments(confirmed),
         PlayBooking.countDocuments(confirmed),
-        Movie.countDocuments(),
+        Movie.countDocuments({ isDraft: { $ne: true } }),
         Event.countDocuments({ status: { $in: ["upcoming", "live"] } }),
         PlayVenue.countDocuments({ isActive: true }),
         City.countDocuments(),
         Movie.aggregate([
+          { $match: { isDraft: { $ne: true } } },
           { $match: { rating: { $type: "number", $gt: 0, $lte: 10 } } },
           { $group: { _id: null, average: { $avg: "$rating" } } },
         ]),

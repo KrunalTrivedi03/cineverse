@@ -1,11 +1,12 @@
 const express = require("express");
 const router  = express.Router();
 const esc = require("../controllers/eventSeatController");
+const auth = require("../middleware/authMiddleware");
 
 /* Seated events */
 router.get   ("/layout/:scheduleId/:slotId",  esc.getSeatLayout);
-router.post  ("/lock",                        esc.lockSeats);
-router.delete("/lock",                        esc.unlockSeats);
+router.post  ("/lock",                        auth, esc.lockSeats);
+router.delete("/lock",                        auth, esc.unlockSeats);
 
 /* General-admission events */
 router.get("/availability/:scheduleId/:slotId", esc.getTicketAvailability);

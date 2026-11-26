@@ -1,6 +1,8 @@
+const createOrderOnce = require("../services/createOrderOnce");
+const settlePayment = require("../services/settlePayment");
+const { validSignature, requireSignedWebhook } = require("../utils/razorpaySignatures");
 // controllers/paymentController.js  — with ticket email on confirmation
 const Razorpay    = require("razorpay");
-const crypto      = require("crypto");
 const Booking     = require("../models/Booking");
 const Show        = require("../models/Show");
 const Theatre     = require("../models/Theatre");
@@ -113,56 +115,60 @@ exports.createOrder = async (req, res) => {
     const walletBalance  = qp?.walletBalance  || 0;
     const walletEligible = walletBalance >= grandTotal;
 
-    const razorpayOrder = await getRazorpay().orders.create({
-      amount:   grandTotal * 100,
-      currency: "INR",
-      receipt:  `rcpt_${Date.now()}`,
-      notes:    { showId, slotId, userId, seats: seatIds.join(",") },
-    });
+    const create = async () => {
+      const razorpayOrder = await getRazorpay().orders.create({
+        amount:   grandTotal * 100,
+        currency: "INR",
+        receipt:  `rcpt_${Date.now()}`,
+        notes:    { showId, slotId, userId, seats: seatIds.join(",") },
+      });
 
-    const booking = await Booking.create({
-      user:    userId,
-      show:    showId,
-      slotId,
-      theatre: show.theatre,
-      screen:  show.screen,
-      showDate: show.showDate,
-      showTime: slot.time,
-      seats:   seatDocs,
-      totalAmount,
-      convenienceFee,
-      grandTotal,
-      appliedOffer,
-      paymentId: razorpayOrder.id,
-      status:  "pending",
-      movieTitle:  show.movie?.title  || "",
-      moviePoster: show.movie?.poster || null,
-      language:    language || show.language || show.movie?.language || "",
-    });
+      const booking = await Booking.create({
+        user:    userId,
+        show:    showId,
+        slotId,
+        theatre: show.theatre,
+        screen:  show.screen,
+        showDate: show.showDate,
+        showTime: slot.time,
+        seats:   seatDocs,
+        totalAmount,
+        convenienceFee,
+        grandTotal,
+        appliedOffer,
+        paymentId: razorpayOrder.id,
+        status:  "pending",
+        movieTitle:  show.movie?.title  || "",
+        moviePoster: show.movie?.poster || null,
+        language:    language || show.language || show.movie?.language || "",
+      });
 
-    res.json({
-      orderId:        razorpayOrder.id,
-      amount:         razorpayOrder.amount,
-      currency:       razorpayOrder.currency,
-      keyId:          process.env.RAZORPAY_KEY_ID,
-      bookingId:      booking._id,
-      bookingRef:     booking.bookingRef,
-      grandTotal,
-      convenienceFee,
-      totalAmount,
-      discountAmount,
-      appliedOffer,
-      seats:          seatDocs,
-      movie:          show.movie?.title,
-      showDate:       show.showDate,
-      showTime:       slot.time,
-      theatre:        theatre?.name,
-      screen:         show.screen,
-      wallet: {
-        balance:  walletBalance,
-        eligible: walletEligible,
-      },
-    });
+      return {
+        orderId:        razorpayOrder.id,
+        amount:         razorpayOrder.amount,
+        currency:       razorpayOrder.currency,
+        keyId:          process.env.RAZORPAY_KEY_ID,
+        bookingId:      booking._id,
+        bookingRef:     booking.bookingRef,
+        grandTotal,
+        convenienceFee,
+        totalAmount,
+        discountAmount,
+        appliedOffer,
+        seats:          seatDocs,
+        movie:          show.movie?.title,
+        showDate:       show.showDate,
+        showTime:       slot.time,
+        theatre:        theatre?.name,
+        screen:         show.screen,
+        wallet: {
+          balance:  walletBalance,
+          eligible: walletEligible,
+        },
+      };
+    };
+    const result = req.user.mobileSessionId ? await createOrderOnce(["movies", userId, showId, slotId, [...seatIds].sort()], create) : await create();
+    return res.json(result);
   } catch (e) {
     console.error("createOrder error:", e.message);
     res.status(e.status || 500).json({ message: e.message, expiredSeats: e.expiredSeats });
@@ -268,6 +274,20 @@ exports.walletPay = async (req, res) => {
 /* ─────────────────────────────────────────────────────────
    3. POST /api/payment/verify  (Razorpay callback)
 ───────────────────────────────────────────────────────── */
+async function confirmCapturedPayment(filter, paymentId) {
+  const booking = await settlePayment({
+    model: Booking, filter, fields: { paymentId, paymentMethod: "razorpay" }, payment: paymentId,
+    ledger: (booking) => ({ amount: booking.grandTotal, description: "Movie ticket (Razorpay)", bookingType: "movie", booking: booking._id }),
+    async fulfill(booking, session) {
+      await SeatLock.deleteMany({ showId: booking.show.toString(), slotId: booking.slotId, userId: booking.user }, { session });
+    },
+  });
+  if (!booking) return null;
+  const populated = await Booking.findById(booking._id).populate({ path: "show", populate: { path: "movie", select: "title" } }).populate("theatre", "name address");
+  dispatchTicketEmail(populated, booking.user, populated.show?.movie?.title || "Movie", populated.theatre?.name || "Theatre");
+  return populated;
+}
+
 exports.verifyPayment = async (req, res) => {
   try {
     const {
@@ -282,72 +302,29 @@ exports.verifyPayment = async (req, res) => {
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !bookingId)
       return res.status(400).json({ message: "Missing required payment fields" });
 
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest("hex");
+    if (!validSignature(process.env.RAZORPAY_KEY_SECRET, `${razorpay_order_id}|${razorpay_payment_id}`, razorpay_signature))
+      return res.status(400).json({ message: "Payment verification failed" });
 
-    if (expectedSignature !== razorpay_signature) {
-      const failedBooking = await Booking.findByIdAndUpdate(bookingId, { status: "cancelled" });
-      if (failedBooking) {
-        await Transaction.create({
-          user:        userId,
-          type:        "debit",
-          amount:      failedBooking.grandTotal,
-          description: `Ticket booking (Razorpay) — signature mismatch`,
-          source:      "card",
-          bookingType: "movie",
-          booking:     failedBooking._id,
-          gatewayRef:  razorpay_payment_id,
-          status:      "failed",
-        });
-      }
-      return res.status(400).json({ message: "Payment verification failed. Signature mismatch." });
-    }
-
-    const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    const booking = await Booking.findOne({ _id: bookingId, user: userId, $or: [{ paymentId: razorpay_order_id, status: "pending" }, { paymentId: razorpay_payment_id, status: "confirmed" }] });
+    if (!booking) return res.status(404).json({ message: "Matching booking not found" });
 
     if (booking.status === "confirmed") {
       return res.json({ message: "Booking already confirmed", bookingRef: booking.bookingRef, booking });
     }
 
-    booking.paymentId     = razorpay_payment_id;
-    booking.paymentMethod = "razorpay";
-    booking.status        = "confirmed";
-    await booking.save();
+    const gatewayPayment = await getRazorpay().payments.fetch(razorpay_payment_id);
+    if (gatewayPayment.order_id !== razorpay_order_id || gatewayPayment.currency !== "INR" ||
+        gatewayPayment.amount !== Math.round(booking.grandTotal * 100)) {
+      return res.status(409).json({ message: "Payment details do not match the booking" });
+    }
+    if (gatewayPayment.status !== "captured") {
+      return res.status(409).json({ message: "Payment is awaiting capture. Check the payment status again shortly." });
+    }
 
-    await SeatLock.deleteMany({ showId: booking.show.toString(), slotId: booking.slotId, userId });
-
-    await Transaction.create({
-      user:        userId,
-      type:        "debit",
-      amount:      booking.grandTotal,
-      description: `Ticket booking (Razorpay)`,
-      source:      "card",
-      bookingType: "movie",
-      booking:     booking._id,
-      gatewayRef:  razorpay_payment_id,
-      status:      "success",
-    });
-
-    const populated = await Booking.findById(booking._id)
-      .populate({ path: "show", populate: { path: "movie", select: "title" } })
-      .populate("theatre", "name address");
-
-    // ── Send ticket email (non-blocking) ──────────────────
-    dispatchTicketEmail(
-      populated,
-      userId,
-      populated.show?.movie?.title || "Movie",
-      populated.theatre?.name      || "Theatre",
-    );
-
-    res.json({
-      message:    "Payment successful! Booking confirmed.",
-      bookingRef: booking.bookingRef,
-      booking:    populated,
-    });
+    const confirmed = await confirmCapturedPayment({ _id: booking._id, user: userId, paymentId: razorpay_order_id }, razorpay_payment_id)
+      || await Booking.findOne({ _id: booking._id, user: userId, status: "confirmed", paymentId: razorpay_payment_id });
+    if (!confirmed) return res.status(409).json({ message: "Booking status changed. Check your booking history." });
+    return res.json({ message: "Payment verified", bookingRef: confirmed.bookingRef, booking: confirmed });
   } catch (e) {
     console.error("verifyPayment error:", e.message);
     res.status(500).json({ message: e.message });
@@ -359,81 +336,18 @@ exports.verifyPayment = async (req, res) => {
 ───────────────────────────────────────────────────────── */
 exports.handleWebhook = async (req, res) => {
   try {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    const receivedSig   = req.headers["x-razorpay-signature"];
-
-    if (webhookSecret && webhookSecret !== "skipping_for_now") {
-      const expectedSig = crypto
-        .createHmac("sha256", webhookSecret)
-        .update(JSON.stringify(req.body))
-        .digest("hex");
-
-      if (expectedSig !== receivedSig)
-        return res.status(400).json({ message: "Invalid webhook signature" });
+    if (!requireSignedWebhook(req, res)) return;
+    if (req.body.event === "payment.captured") {
+      const payment = req.body.payload?.payment?.entity;
+      if (!payment?.id || !payment.order_id || payment.currency !== "INR" || !Number.isInteger(payment.amount)) {
+        return res.status(400).json({ message: "Invalid payment details" });
+      }
+      await confirmCapturedPayment({ paymentId: payment.order_id, "grandTotal": payment.amount / 100 }, payment.id);
     }
-
-    const { event, payload } = req.body;
-
-    switch (event) {
-      case "payment.captured": {
-        const payment   = payload?.payment?.entity;
-        const orderId   = payment?.order_id;
-        const paymentId = payment?.id;
-        if (orderId) {
-          const booking = await Booking.findOne({ paymentId: orderId, status: "pending" });
-          if (booking) {
-            booking.paymentId = paymentId;
-            booking.status    = "confirmed";
-            await booking.save();
-          }
-        }
-        break;
-      }
-      case "payment.failed": {
-        const payment = payload?.payment?.entity;
-        const orderId = payment?.order_id;
-        if (orderId) {
-          const failedBooking = await Booking.findOneAndUpdate(
-            { paymentId: orderId, status: "pending" },
-            { status: "cancelled" },
-          );
-          if (failedBooking) {
-            await Transaction.create({
-              user:        failedBooking.user,
-              type:        "debit",
-              amount:      failedBooking.grandTotal,
-              description: `Ticket booking (Razorpay) — payment failed`,
-              source:      "card",
-              bookingType: "movie",
-              booking:     failedBooking._id,
-              gatewayRef:  payment?.id || "",
-              status:      "failed",
-            });
-          }
-        }
-        break;
-      }
-      case "order.paid": {
-        const order   = payload?.order?.entity;
-        const payment = payload?.payment?.entity;
-        if (order?.id) {
-          const booking = await Booking.findOne({ paymentId: order.id });
-          if (booking && booking.status !== "confirmed") {
-            booking.paymentId = payment?.id || order.id;
-            booking.status    = "confirmed";
-            await booking.save();
-          }
-        }
-        break;
-      }
-      default:
-        console.log(`Unhandled webhook event: ${event}`);
-    }
-
-    res.status(200).json({ received: true });
-  } catch (e) {
-    console.error("handleWebhook error:", e.message);
-    res.status(200).json({ received: true });
+    return res.json({ received: true });
+  } catch (error) {
+    console.error("Payment webhook failed:", error.message);
+    return res.status(500).json({ message: "Could not process payment webhook" });
   }
 };
 

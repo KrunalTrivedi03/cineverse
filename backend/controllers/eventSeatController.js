@@ -81,7 +81,8 @@ exports.getSeatLayout = async (req, res) => {
 
 exports.lockSeats = async (req, res) => {
   try {
-    const { scheduleId, slotId, seatIds, userId } = req.body;
+    const { scheduleId, slotId, seatIds } = req.body;
+    const userId = req.user.id.toString();
     if (!seatIds?.length) return res.status(400).json({ message: "No seats provided" });
     if (seatIds.length > 10) return res.status(400).json({ message: "Max 10 seats per booking" });
 
@@ -136,7 +137,8 @@ exports.lockSeats = async (req, res) => {
 
 exports.unlockSeats = async (req, res) => {
   try {
-    const { scheduleId, slotId, seatIds, userId } = req.body;
+    const { scheduleId, slotId, seatIds } = req.body;
+    const userId = req.user.id.toString();
     await EventSeatLock.deleteMany({ eventScheduleId: scheduleId, slotId, seatId: { $in: seatIds }, userId });
     res.json({ message: "Seats unlocked" });
   } catch (e) {

@@ -88,7 +88,7 @@ function resultStages(options, fields, filters, projection) {
 }
 
 function movies(options) {
-  const filters = [];
+  const filters = [{ isDraft: { $ne: true } }];
   filter(filters, ["cities"], options.location);
   filter(filters, ["genre"], options.genre);
   filter(filters, ["language", "languages"], options.language);

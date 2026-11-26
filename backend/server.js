@@ -67,7 +67,13 @@ const io = new Server(server, {
 require("./socket")(io);
 
 app.use(cors({ origin: (process.env.CLIENT_URL || "").replace(/\/$/, ""), credentials: true }));
-app.use(express.json());
+app.use(express.json({
+  verify(req, _res, buffer) {
+    if (/^\/api\/(?:payment|event-payment|play-payment)\/webhook\/?$/.test(req.originalUrl.split("?")[0])) {
+      req.razorpayRawBody = buffer;
+    }
+  },
+}));
 app.use(cookieParser());
 
 const session = require("express-session");
@@ -131,6 +137,14 @@ app.use("/api/roles",        roleRoutes);
 app.use("/api/permissions",  permissionRoutes);
 app.use("/api/admin/users",  adminUserRoutes);
 app.use("/api/users",        normalUsersRoutes);
+app.get("/api/tickets/:kind/:id", require("./middleware/authMiddleware"), require("./controllers/ticketController").getTicket);
+const verifyCustomer = require("./middleware/authMiddleware");
+const ownBookings = (handler) => (req, res) => {
+  req.params.userId = req.user.id.toString();
+  return handler(req, res);
+};
+app.get("/api/users/me/event-bookings", verifyCustomer, ownBookings(require("./controllers/eventSeatController").getUserBookings));
+app.get("/api/users/me/play-bookings", verifyCustomer, ownBookings(require("./controllers/playSlotController").getUserPlayBookings));
 app.use("/api/cities",       cityRoutes);
 app.use("/api/theatres",     theatreRoutes);
 app.use("/api/shows",        showRoutes);

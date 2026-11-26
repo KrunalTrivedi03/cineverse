@@ -79,7 +79,8 @@ exports.getSeatLayout = async (req, res) => {
 
 exports.lockSeats = async (req, res) => {
   try {
-    const { showId, slotId, seatIds, userId } = req.body;
+    const { showId, slotId, seatIds } = req.body;
+    const userId = req.user.id.toString();
     if (!seatIds?.length) return res.status(400).json({ message: "No seats provided" });
     if (seatIds.length > 10) return res.status(400).json({ message: "Max 10 seats per booking" });
 
@@ -134,7 +135,8 @@ exports.lockSeats = async (req, res) => {
 
 exports.unlockSeats = async (req, res) => {
   try {
-    const { showId, slotId, seatIds, userId } = req.body;
+    const { showId, slotId, seatIds } = req.body;
+    const userId = req.user.id.toString();
     await SeatLock.deleteMany({ showId, slotId, seatId: { $in: seatIds }, userId });
     res.json({ message: "Seats unlocked" });
   } catch (e) {
@@ -142,78 +144,17 @@ exports.unlockSeats = async (req, res) => {
   }
 };
 
-exports.confirmBooking = async (req, res) => {
+exports.confirmBooking = async (req, res, next) => {
   try {
-    const { showId, slotId, seatIds, userId, paymentId } = req.body;
-
-    const show = await Show.findById(showId).populate("movie");
-    if (!show) return res.status(404).json({ message: "Show not found" });
-
-    const slot = show.showTimes?.id
-      ? show.showTimes.id(slotId)
-      : show.showTimes?.find((t) => t._id.toString() === slotId);
-    if (!slot) return res.status(404).json({ message: "Slot not found" });
-
-    const now   = new Date();
-    const locks = await SeatLock.find({
-      showId, slotId,
-      seatId:    { $in: seatIds },
-      userId,
-      expiresAt: { $gt: now },
-    });
-
-    if (locks.length !== seatIds.length) {
-      return res.status(409).json({
-        message: "Some seat locks have expired. Please restart your seat selection.",
-      });
+    const { showId, slotId, paymentId } = req.body;
+    if (!showId || !slotId || typeof paymentId !== "string" || !paymentId) {
+      return res.status(400).json({ message: "Verified payment details are required" });
     }
-
-    const theatre   = await Theatre.findById(show.theatre);
-    const screenDoc = theatre?.screens.find((s) => s.name === show.screen);
-    const layout    = screenDoc?.seatLayout || [];
-    const rowMap    = {};
-    layout.forEach((r) => { rowMap[r.row] = r; });
-
-    const seatDocs = seatIds.map((seatId) => {
-      const row      = seatId.replace(/\d+/g, "");
-      const col      = parseInt(seatId.replace(/\D+/g, ""), 10);
-      const category = rowMap[row]?.category || "Classic";
-      const priceAdd = CATEGORY_PRICE_ADD[category] || 0;
-      return { seatId, row, col, category, price: slot.price + priceAdd };
-    });
-
-    const totalAmount    = seatDocs.reduce((s, d) => s + d.price, 0);
-    const convenienceFee = Math.round(totalAmount * 0.02);
-    const grandTotal     = totalAmount + convenienceFee;
-
-    const booking = await Booking.create({
-      user:    userId,
-      show:    showId,
-      slotId,
-      theatre: show.theatre,
-      screen:  show.screen,
-      showDate: show.showDate,
-      showTime: slot.time,
-      seats:   seatDocs,
-      totalAmount,
-      convenienceFee,
-      grandTotal,
-      paymentId: paymentId || "",
-      status:    "confirmed",
-      movieTitle:  show.movie?.title  || "",
-      moviePoster: show.movie?.poster || null,
-    });
-
-    await SeatLock.deleteMany({ showId, slotId, userId });
-
-    res.json({
-      message:    "Booking confirmed!",
-      bookingRef: booking.bookingRef,
-      booking,
-    });
-  } catch (e) {
-    console.error("confirmBooking error:", e.message);
-    res.status(500).json({ message: e.message });
+    const booking = await Booking.findOne({ show: showId, slotId, paymentId, user: req.user.id, status: "confirmed" });
+    if (!booking) return res.status(409).json({ message: "Complete payment verification before confirming a booking" });
+    return res.json({ message: "Booking confirmed", bookingRef: booking.bookingRef, booking });
+  } catch (error) {
+    return next(error);
   }
 };
 

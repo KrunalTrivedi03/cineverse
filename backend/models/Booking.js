@@ -51,4 +51,8 @@ BookingSchema.pre("save", function () {
   }
 });
 
+BookingSchema.index({ show: 1, slotId: 1, "seats.seatId": 1 }, {
+  unique: true, partialFilterExpression: { status: "confirmed", "seats.seatId": { $exists: true } },
+});
+
 module.exports = mongoose.model("Booking", BookingSchema);

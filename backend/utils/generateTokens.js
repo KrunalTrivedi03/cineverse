@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 
-exports.generateAccessToken = (user) => {
+exports.generateAccessToken = (user, sessionId) => {
   return jwt.sign(
-    { id: user._id, role: user.role },
+    { id: user._id, role: sessionId ? user.role?._id || user.role : user.role, ...(sessionId && { mobileSessionId: sessionId }) },
     process.env.JWT_SECRET,
     { expiresIn: "15m" }
   );

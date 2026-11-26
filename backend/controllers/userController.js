@@ -154,6 +154,7 @@ exports.changePassword = async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    if (!user.password) return res.status(400).json({ message: "This account signs in through Google" });
     const match = await bcrypt.compare(currentPassword, user.password);
     if (!match)
       return res.status(400).json({ message: "Current password is incorrect" });
@@ -161,6 +162,7 @@ exports.changePassword = async (req, res) => {
     user.password     = await bcrypt.hash(newPassword, 10);
     user.refreshToken = null;
     await user.save();
+    await require("../models/MobileSession").deleteMany({ user: user._id });
 
     res.json({ message: "Password changed successfully. Please log in again." });
   } catch (err) {

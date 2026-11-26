@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import Dialog from "./Dialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
@@ -11,7 +12,6 @@ import {
 } from "lucide-react";
 import OfferBadge from "./OfferBadge";
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
@@ -623,7 +623,7 @@ function MovieDetail({ movie }) {
         {/* Backdrop banner */}
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: "4/3", background: "#1c1c1c" }}>
           <img
-            src={IMG(movie.poster)}
+            src={IMG(movie.banner || movie.poster)}
             alt={movie.title}
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
@@ -720,7 +720,7 @@ function MovieDetail({ movie }) {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url(${IMG(movie.poster)})`,
+            backgroundImage: `url("${IMG(movie.banner || movie.poster)}")`,
             backgroundSize: "cover",
             backgroundPosition: "center 15%",
             filter: "brightness(0.22) saturate(1.4)",
@@ -1047,6 +1047,8 @@ function CastSlider({ data }) {
             >
               <img
                 src={IMG(item.image)}
+                loading="lazy"
+                onError={(event) => { event.currentTarget.hidden = true; }}
                 alt={item.name}
                 className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
               />
@@ -1059,7 +1061,7 @@ function CastSlider({ data }) {
                 className="mt-0.5 text-[10px] md:text-[11px] font-medium italic line-clamp-1 leading-snug"
                 style={{ color: "#8a3a3e" }}
               >
-                as {item.role}
+                as {item.role.replace(/^as\s+/i, "")}
               </p>
             )}
           </div>
@@ -1129,6 +1131,8 @@ function CrewCard({ item }) {
       <div className="relative overflow-hidden bg-gray-100" style={{ aspectRatio: "1/1" }}>
         <img
           src={IMG(item.image)}
+          loading="lazy"
+          onError={(event) => { event.currentTarget.hidden = true; }}
           alt={item.name}
           className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
         />

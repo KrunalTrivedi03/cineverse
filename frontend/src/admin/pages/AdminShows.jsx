@@ -439,7 +439,7 @@ export default function AdminShows() {
       setLoading(true);
       const [sRes, mRes, tRes] = await Promise.all([
         axiosAdmin.get("/shows"),
-        axiosAdmin.get("/admin/movies"),
+        axiosAdmin.get("/admin/movies", { params: { published: true } }),
         axiosAdmin.get("/theatres"),
       ]);
       setShows(sRes.data);

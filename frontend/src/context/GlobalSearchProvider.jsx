@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { matchPath, useLocation } from "react-router-dom";
 import EntertainmentSearch from "../components/EntertainmentSearch";
 import Dialog from "../components/Dialog";
 import { SearchContext } from "./globalSearchContext";
@@ -8,10 +8,12 @@ import { SearchContext } from "./globalSearchContext";
 export function GlobalSearchProvider({ children }) {
   const [scope, setScope] = useState("all");
   const [activeSearch, setActiveSearch] = useState(null);
-  const { key } = useLocation();
-  const source = activeSearch?.key === key ? activeSearch.source : null;
+  const { key, pathname } = useLocation();
+  const isAdminRoute = Boolean(matchPath("/admin/*", pathname));
+  const source = !isAdminRoute && activeSearch?.key === key ? activeSearch.source : null;
 
   useEffect(() => {
+    if (isAdminRoute) return;
     const mobileViewport = window.matchMedia("(max-width: 639px)");
     function closeMobileSearch(event) {
       if (!event.matches) setActiveSearch((current) => current?.source === "mobile" ? null : current);
@@ -35,7 +37,7 @@ export function GlobalSearchProvider({ children }) {
       window.removeEventListener("keydown", onKeyDown);
       mobileViewport.removeEventListener("change", closeMobileSearch);
     };
-  }, [key]);
+  }, [key, isAdminRoute]);
 
   const closeSearch = () => setActiveSearch(null);
 
@@ -48,9 +50,11 @@ export function GlobalSearchProvider({ children }) {
       closeSearch,
     }}>
       {children}
-      <button type="button" className="now-global-search-fallback" aria-label="Open Search NOW" aria-expanded={source === "fallback"} onClick={() => setActiveSearch({ key, source: "fallback" })}>
-        <Search size={19} aria-hidden="true" />
-      </button>
+      {!isAdminRoute && (
+        <button type="button" className="now-global-search-fallback" aria-label="Open Search NOW" aria-expanded={source === "fallback"} onClick={() => setActiveSearch({ key, source: "fallback" })}>
+          <Search size={19} aria-hidden="true" />
+        </button>
+      )}
       {source === "fallback" && <div className="now-global-search-fallback-panel"><EntertainmentSearch source="fallback" /></div>}
       {source === "mobile" && (
         <Dialog label="Search NOW" variant="search" onDismiss={closeSearch}>

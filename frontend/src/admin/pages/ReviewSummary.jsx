@@ -1,3 +1,4 @@
+import { movieImage } from "../../utils/movieImage";
 import { useEffect, useState } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import { useParams, useNavigate } from "react-router-dom";
@@ -31,7 +32,7 @@ const getYoutubeId = (url) => {
 
 /* ── Status Badge ────────────────────────────────────── */
 const STATUS_STYLES = {
-  upcoming:  { bg: "rgba(99,102,241,0.08)",  color: "#6366f1", border: "rgba(99,102,241,0.2)"  },
+  upcoming:  { bg: "rgba(16,101,121,0.08)",  color: "#106579", border: "rgba(16,101,121,0.2)"  },
   released:  { bg: "rgba(16,185,129,0.08)",  color: "#059669", border: "rgba(16,185,129,0.2)"  },
   streaming: { bg: "rgba(245,158,11,0.08)",  color: "#b45309", border: "rgba(245,158,11,0.2)"  },
 };
@@ -151,9 +152,9 @@ function ReleaseInfoCard({ movie }) {
                   key={city}
                   className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold border"
                   style={{
-                    background: "rgba(99,102,241,0.08)",
-                    color: "#6366f1",
-                    borderColor: "rgba(99,102,241,0.2)",
+                    background: "rgba(16,101,121,0.08)",
+                    color: "#106579",
+                    borderColor: "rgba(16,101,121,0.2)",
                   }}
                 >
                   {city}
@@ -167,8 +168,8 @@ function ReleaseInfoCard({ movie }) {
   );
 }
 
-function PersonCard({ person, subtitle, baseUrl }) {
-  const imgSrc   = person.image ? `${baseUrl}${person.image}` : null;
+function PersonCard({ person, subtitle }) {
+  const imgSrc   = movieImage(person.image);
   const initials = person.name?.slice(0, 2).toUpperCase() || "?";
 
   return (
@@ -186,7 +187,7 @@ function PersonCard({ person, subtitle, baseUrl }) {
             </span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent hover:brightness-95 transition-colors" />
       </div>
       <div className="px-3 py-3">
         <p className="text-[13px] font-semibold text-gray-900 truncate">{person.name}</p>
@@ -279,7 +280,6 @@ export default function ReviewSummary() {
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
 
-  const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const loadMovie = async () => {
@@ -311,7 +311,7 @@ export default function ReviewSummary() {
           </button>
           <div>
             <h1 className="text-[22px] font-bold text-gray-900 tracking-tight leading-tight">
-              {movie.title}
+              {movie.title || "Untitled draft"}
             </h1>
             <p className="text-[13px] text-gray-400 mt-0.5">Movie review & details</p>
           </div>
@@ -329,11 +329,11 @@ export default function ReviewSummary() {
               <h3 className="text-[15px] font-bold text-gray-900">Movie Details</h3>
             </div>
 
-            <div className="p-6 flex gap-6">
+            <div className="flex flex-wrap gap-6 p-6 sm:flex-nowrap">
               {/* Poster */}
               <div className="w-36 h-52 rounded-xl overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-gray-50 flex items-center justify-center">
                 {movie.poster ? (
-                  <img src={`${BASE_URL}${movie.poster}`} alt={movie.title}
+                  <img src={movieImage(movie.poster)} alt={movie.title || "Untitled draft"}
                     className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center gap-1 text-gray-300">
@@ -345,7 +345,8 @@ export default function ReviewSummary() {
 
               {/* Info */}
               <div className="flex-1 min-w-0 space-y-3 pt-1">
-                <h2 className="text-[20px] font-bold text-gray-900 leading-tight">{movie.title}</h2>
+                <h2 className="text-[20px] font-bold text-gray-900 leading-tight">{movie.title || "Untitled draft"}</h2>
+                <span className="text-xs font-semibold text-[#106579]">{movie.isDraft ? "Draft" : "Published"}</span>
                 <p className="text-[13px] text-gray-500 leading-relaxed line-clamp-4">
                   {movie.description || <span className="italic text-gray-300">No description provided.</span>}
                 </p>
@@ -354,7 +355,7 @@ export default function ReviewSummary() {
                 <div className="flex flex-wrap gap-2 pt-1">
                   {movie.genre && (
                     <InfoPill icon={Tag}
-                      bg="rgba(99,102,241,0.08)" color="#6366f1" border="rgba(99,102,241,0.2)">
+                      bg="rgba(16,101,121,0.08)" color="#106579" border="rgba(16,101,121,0.2)">
                       {movie.genre}
                     </InfoPill>
                   )}
@@ -401,7 +402,7 @@ export default function ReviewSummary() {
                 ) : (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     {movie.cast.map((c, i) => (
-                      <PersonCard key={i} person={c} subtitle={c.role} baseUrl={BASE_URL} />
+                      <PersonCard key={i} person={c} subtitle={c.role} />
                     ))}
                   </div>
                 )}
@@ -421,7 +422,7 @@ export default function ReviewSummary() {
                 ) : (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     {movie.crew.map((c, i) => (
-                      <PersonCard key={i} person={c} subtitle={c.position} baseUrl={BASE_URL} />
+                      <PersonCard key={i} person={c} subtitle={c.position} />
                     ))}
                   </div>
                 )}
@@ -470,7 +471,7 @@ export default function ReviewSummary() {
           <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-3 bg-gray-900">
-              <span className="text-[13px] font-semibold text-white">{movie.title} — Trailer</span>
+              <span className="text-[13px] font-semibold text-white">{movie.title || "Untitled draft"} — Trailer</span>
               <button onClick={() => setShowTrailer(false)}
                 className="text-gray-400 hover:text-white text-xl leading-none">×</button>
             </div>

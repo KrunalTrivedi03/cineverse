@@ -1,10 +1,10 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { CheckCircle2, MapPin, Calendar, Clock, Home, Ticket } from "lucide-react";
 import BottomNav from "./BottomNav";
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const fmt12 = (t) => {
   if (!t) return "";

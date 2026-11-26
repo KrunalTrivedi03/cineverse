@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../../utils/movieImage";
 import DeleteDialog from "../../components/DeleteDialog";
 import { showToast } from "../../utils/toast";
 import { useState, useEffect } from "react";
@@ -17,13 +18,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const getMovieStatusDisplay = (movie) => {
   if (movie.status === "upcoming")
     return { label: "Upcoming", cls: "bg-orange-50 text-orange-500 border-orange-100" };
   if (movie.status === "streaming")
-    return { label: "Streaming", cls: "bg-indigo-50 text-indigo-600 border-indigo-100" };
+    return { label: "Streaming", cls: "bg-cyan-50 text-[#106579] border-cyan-100" };
   // status === "released"
   return movie.isInCinemas
     ? { label: "In Cinemas", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" }
@@ -53,12 +53,12 @@ export default function Movies() {
   useEffect(() => { fetchMovies(); }, []);
 
   const filtered = movies
-    .filter((m) => m.title.toLowerCase().includes(search.toLowerCase()))
+    .filter((m) => (m.title || "Untitled draft").toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === "newest") return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       if (sortBy === "oldest") return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
       if (sortBy === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
-      if (sortBy === "title")  return a.title.localeCompare(b.title);
+      if (sortBy === "title")  return (a.title || "").localeCompare(b.title || "");
       return 0;
     });
 
@@ -74,8 +74,9 @@ export default function Movies() {
   }
 };
 
-  const released  = movies.filter((m) => m.status === "released" && m.isInCinemas).length;
-  const upcoming  = movies.filter((m) => m.status === "upcoming").length;
+  const released  = movies.filter((m) => !m.isDraft && m.status === "released" && m.isInCinemas).length;
+  const upcoming  = movies.filter((m) => !m.isDraft && m.status === "upcoming").length;
+  const published = movies.filter((movie) => !movie.isDraft);
 
   return (
     <AdminLayout>
@@ -100,12 +101,12 @@ export default function Movies() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { label: "Total Movies",   value: movies.length,  color: "#6366f1", bg: "rgba(99,102,241,0.08)"  },
+            { label: "Total Movies",   value: movies.length,  color: "#106579", bg: "rgba(16,101,121,0.08)"  },
             { label: "In Cinemas",     value: released,        color: "#10b981", bg: "rgba(16,185,129,0.08)" },
             { label: "Upcoming",       value: upcoming,        color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
             { label: "Avg Rating",
-              value: movies.length
-                ? (movies.reduce((s, m) => s + (parseFloat(m.rating) || 0), 0) / movies.length).toFixed(1)
+              value: published.length
+                ? (published.reduce((s, m) => s + (parseFloat(m.rating) || 0), 0) / published.length).toFixed(1)
                 : "—",
               color: "#106579", bg: "rgba(16,101,121,0.08)" },
           ].map((s) => (
@@ -222,7 +223,7 @@ export default function Movies() {
                             {movie.poster ? (
                               <img
                                 src={IMG(movie.poster)}
-                                alt={movie.title}
+                                alt={movie.title || "Untitled draft"}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
@@ -245,7 +246,7 @@ export default function Movies() {
                       {/* Genre */}
                       <td className="py-4 px-4">
                         {movie.genre ? (
-                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 whitespace-nowrap">
+                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-cyan-50 text-[#106579] border border-cyan-100 whitespace-nowrap">
                             {movie.genre}
                           </span>
                         ) : (
@@ -267,9 +268,12 @@ export default function Movies() {
 
                       {/* Status */}
                       <td className="py-4 px-4">
-                        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${s.cls}`}>
-                          {s.label}
-                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${movie.isDraft ? "border-amber-200 bg-amber-50 text-amber-800" : "border-cyan-200 bg-cyan-50 text-[#125467]"}`}>
+                            {movie.isDraft ? "Draft" : "Published"}
+                          </span>
+                          {!movie.isDraft && <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${s.cls}`}>{s.label}</span>}
+                        </div>
                       </td>
 
                       {/* Actions */}
@@ -293,7 +297,7 @@ export default function Movies() {
                             <Lock size={15} />
                           </ActionBtn>
                           <ActionBtn
-                            onClick={() => setDeleteTarget({ id: movie._id, title: movie.title })}
+                            onClick={() => setDeleteTarget({ id: movie._id, title: movie.title || "Untitled draft" })}
                             color="red"
                             title="Delete"
                           >

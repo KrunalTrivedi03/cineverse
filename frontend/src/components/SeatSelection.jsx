@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -31,7 +32,6 @@ import {
 } from "lucide-react";
 import OfferCouponBox from "./OfferCouponBox";
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 const BASE = import.meta.env.VITE_API_URL;
 const LOCK_SECONDS = 5 * 60;
 const MAX_SEATS = 10;

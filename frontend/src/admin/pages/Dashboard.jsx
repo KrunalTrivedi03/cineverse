@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../../utils/movieImage";
 import { useState, useEffect } from "react";
 import AdminLayout from "../layout/AdminLayout";
 import axiosAdmin from "../../api/axiosAdmin";
@@ -14,7 +15,6 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const isReleased = (dateStr) => {
   if (!dateStr) return null;
@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      axiosAdmin.get("/admin/movies").catch(() => ({ data: [] })),
+      axiosAdmin.get("/admin/movies", { params: { published: true } }).catch(() => ({ data: [] })),
       axiosAdmin.get("/admin/users").catch(() => ({ data: [] })),
     ]).then(([movRes, usrRes]) => {
       setMovies(movRes.data || []);

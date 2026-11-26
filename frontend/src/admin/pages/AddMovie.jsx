@@ -1,3 +1,5 @@
+import MovieCitySelect from "../components/MovieCitySelect";
+import { createMovieFormData } from "../components/movieFormData";
 import { useState } from "react";
 import axiosAdmin from "../../api/axiosAdmin";
 import AdminLayout from "../layout/AdminLayout";
@@ -107,7 +109,7 @@ function SectionCard({ title, icon: Icon, children }) {
   );
 }
 
-function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLast = false, onSubmit }) {
+function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLast = false, onSubmit, saving }) {
   return (
     <div className="flex items-center justify-between pt-2">
       {!isFirst ? (
@@ -123,20 +125,17 @@ function NavButtons({ onBack, onNext, nextLabel = "Next", isFirst = false, isLas
       {isLast ? (
         <button
           onClick={onSubmit}
-          className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
+          disabled={saving}
+          className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:brightness-90 hover:shadow-md disabled:opacity-50"
           style={{ background: "#106579" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
         >
-          <CheckCircle2 size={16} /> Save Movie
+          <CheckCircle2 size={16} /> Publish Movie
         </button>
       ) : (
         <button
           onClick={onNext}
-          className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
+          className="flex items-center gap-2 px-7 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all shadow-sm hover:brightness-90 hover:shadow-md disabled:opacity-50"
           style={{ background: "#106579" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#d94040")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#106579")}
         >
           {nextLabel} <ArrowRight size={16} />
         </button>
@@ -199,7 +198,7 @@ function PersonCard({ person, index, onUpdate, onRemove, onImage, roleLabel }) {
 
       <button
         onClick={() => onRemove(index)}
-        className="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+        className="w-8 h-8 rounded-lg flex items-center justify-center hover:brightness-95 transition-colors flex-shrink-0"
         style={{ background: "rgba(220,38,38,0.08)", color: "#dc2626" }}
         onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(220,38,38,0.15)")}
         onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(220,38,38,0.08)")}
@@ -212,7 +211,7 @@ function PersonCard({ person, index, onUpdate, onRemove, onImage, roleLabel }) {
 
 /* ── Status Badge ────────────────────────────────────── */
 const STATUS_STYLES = {
-  upcoming:  { bg: "rgba(99,102,241,0.08)",  color: "#6366f1", border: "rgba(99,102,241,0.2)"  },
+  upcoming:  { bg: "rgba(16,101,121,0.08)",  color: "#106579", border: "rgba(16,101,121,0.2)"  },
   released:  { bg: "rgba(16,185,129,0.08)",  color: "#059669", border: "rgba(16,185,129,0.2)"  },
   streaming: { bg: "rgba(245,158,11,0.08)",  color: "#b45309", border: "rgba(245,158,11,0.2)"  },
 };
@@ -256,6 +255,8 @@ export default function AddMovie() {
   });
 
   const [posterPreview, setPosterPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   /* ── helpers ── */
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
@@ -298,35 +299,27 @@ export default function AddMovie() {
     return match ? match[1] : "";
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (saveDraft = false) => {
+    if (saving) return;
+    if (!saveDraft && !form.title.trim()) {
+      toast.error("Enter a movie title before publishing.");
+      setStep(1);
+      return;
+    }
+    if (!saveDraft && [...form.cast, ...form.crew].some((person) => !person.name.trim())) {
+      toast.error("Enter a name for each cast and crew member.");
+      return;
+    }
+    setSaving(true);
     try {
-      const data = new FormData();
-      data.append("title",       form.title);
-      data.append("description", form.description);
-      data.append("genre",       form.genre);
-      data.append("rating",      form.rating);
-      data.append("releaseDate", form.releaseDate);
-      data.append("trailerLink", form.trailerLink);
-      data.append("language",    form.language);
-      data.append("duration",    form.duration);
-      data.append("certificate", form.certificate);
-      data.append("status",      form.status);
-      data.append("ottPlatform", form.ottPlatform);
-      data.append("isInCinemas", form.isInCinemas);
-      data.append("formats",     JSON.stringify(form.formats));
-      data.append("cities", JSON.stringify(form.cities));
-      if (form.poster) data.append("poster", form.poster);
-      data.append("cast",  JSON.stringify(form.cast.map((c) => ({ name: c.name, role: c.role }))));
-      form.cast.forEach((c) => { if (c.image) data.append("castImages", c.image); });
-      data.append("crew",  JSON.stringify(form.crew.map((c) => ({ name: c.name, position: c.position }))));
-      form.crew.forEach((c) => { if (c.image) data.append("crewImages", c.image); });
-
-      await axiosAdmin.post("/admin/movies", data, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.success("Movie added successfully!");
+      const data = createMovieFormData(form, saveDraft);
+      await axiosAdmin.post("/admin/movies", data);
+      toast.success(saveDraft ? "Draft saved!" : "Movie published!");
       window.location.href = "/admin/movies";
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to add movie");
+      toast.error(err.response?.data?.message || "Unable to save the movie.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -344,10 +337,14 @@ export default function AddMovie() {
           <p className="text-[13px] text-gray-400 mt-0.5">
             Fill in the details across all steps and submit
           </p>
+          <button type="button" disabled={saving} onClick={() => handleSubmit(true)}
+            className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-[#125467] hover:bg-cyan-100 disabled:opacity-50">
+            Save as Draft
+          </button>
         </div>
 
         {/* ── Step Indicator ── */}
-        <div className="flex items-center gap-0 mb-8 bg-white border border-gray-100 rounded-2xl shadow-sm p-2 w-fit">
+        <div className="flex flex-wrap items-center gap-0 mb-8 bg-white border border-gray-100 rounded-2xl shadow-sm p-2 w-fit">
           {STEPS.map((s, idx) => {
             const Icon = s.icon;
             const isActive = step === s.id;
@@ -507,6 +504,17 @@ export default function AddMovie() {
                 </div>
               </InputField>
 
+              <InputField icon={Film} label="Banner (optional)">
+                <input type="file" accept="image/*" aria-label="Movie banner" className="block w-full text-sm text-slate-700 file:me-3 file:rounded-lg file:border-0 file:bg-cyan-50 file:px-3 file:py-2 file:font-semibold file:text-[#125467]"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    set("banner", file);
+                    setBannerPreview(URL.createObjectURL(file));
+                  }} />
+                {bannerPreview && <img src={bannerPreview} alt="Banner preview" className="mt-3 aspect-video w-full max-w-sm rounded-xl object-cover" />}
+              </InputField>
+
               <NavButtons
                 isFirst
                 onNext={() => setStep(2)}
@@ -615,7 +623,7 @@ export default function AddMovie() {
                 <button
                   type="button"
                   onClick={() => set("isInCinemas", !form.isInCinemas)}
-                  className="relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0"
+                  className="relative w-11 h-6 rounded-full transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#106579] flex-shrink-0"
                   style={{
                     background: form.isInCinemas ? "#106579" : "#d1d5db",
                   }}
@@ -651,67 +659,7 @@ export default function AddMovie() {
               </InputField>
 
               <InputField icon={MapPin} label="Available Cities">
-                {/* Tag chips */}
-                {form.cities.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {form.cities.map((city, i) => (
-                      <span
-                        key={i}
-                        className="flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-lg border"
-                        style={{
-                          background: "rgba(16,101,121,0.08)",
-                          color: "#106579",
-                          borderColor: "rgba(16,101,121,0.25)",
-                        }}
-                      >
-                        {city}
-                        <button
-                          type="button"
-                          onClick={() =>
-                            set(
-                              "cities",
-                              form.cities.filter((_, idx) => idx !== i),
-                            )
-                          }
-                          className="hover:opacity-70 transition-opacity leading-none"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <StyledInput
-                  placeholder='Type a city and press Enter or ","'
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === ",") {
-                      e.preventDefault();
-                      const val = e.target.value.trim().replace(/,$/, "");
-                      if (val && !form.cities.includes(val)) {
-                        set("cities", [...form.cities, val]);
-                      }
-                      e.target.value = "";
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const val = e.target.value.trim().replace(/,$/, "");
-                    if (val && !form.cities.includes(val)) {
-                      set("cities", [...form.cities, val]);
-                      e.target.value = "";
-                    }
-                  }}
-                />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  Press{" "}
-                  <kbd className="px-1 py-0.5 rounded bg-gray-100 text-gray-500 text-[10px]">
-                    Enter
-                  </kbd>{" "}
-                  or{" "}
-                  <kbd className="px-1 py-0.5 rounded bg-gray-100 text-gray-500 text-[10px]">
-                    ,
-                  </kbd>{" "}
-                  after each city
-                </p>
+                <MovieCitySelect value={form.cities} onChange={(cities) => set("cities", cities)} />
               </InputField>
 
               <NavButtons
@@ -853,9 +801,9 @@ export default function AddMovie() {
                       <span
                         className="text-[11px] font-semibold px-3 py-1 rounded-full border"
                         style={{
-                          background: "rgba(99,102,241,0.08)",
-                          color: "#6366f1",
-                          borderColor: "rgba(99,102,241,0.2)",
+                          background: "rgba(16,101,121,0.08)",
+                          color: "#106579",
+                          borderColor: "rgba(16,101,121,0.2)",
                         }}
                       >
                         {form.genre}
@@ -1094,7 +1042,8 @@ export default function AddMovie() {
             <NavButtons
               onBack={() => setStep(4)}
               isLast
-              onSubmit={handleSubmit}
+              onSubmit={() => handleSubmit()}
+              saving={saving}
             />
           </div>
         )}

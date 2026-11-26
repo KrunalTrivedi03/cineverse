@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import DiscoveryHeading from "../components/DiscoveryHeading";
@@ -26,7 +27,6 @@ const CATEGORIES = [
   { label: "Play", note: "Book a venue", to: "/play", icon: Trophy },
 ];
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const isLatestMovie = (m) =>
   m.status === "streaming" || (m.status === "released" && m.isInCinemas);

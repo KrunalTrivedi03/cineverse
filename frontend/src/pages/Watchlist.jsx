@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import { useState, useEffect } from "react";
 import {
   Heart,
@@ -13,8 +14,6 @@ import api from "../api/axiosInstance";
 import Navbar from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
 
-const IMG = (path) =>
-  path?.startsWith("http") ? path : `${import.meta.env.VITE_API_URL}${path}`;
 
 const TABS = [
   { id: "all",       label: "All" },

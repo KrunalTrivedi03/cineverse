@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -22,7 +23,6 @@ import {
   savePendingBooking,
 } from "../utils/authSession";
 
-const IMG = (path) => (!path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`);
 const BASE = import.meta.env.VITE_API_URL;
 const ACCENT = "#106579";
 

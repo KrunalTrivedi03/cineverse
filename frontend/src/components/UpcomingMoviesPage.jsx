@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import Dialog from "./Dialog";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -10,8 +11,6 @@ import {
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 
-const IMG = (path) =>
-  !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 const formatVotes = (votes = 0) => {
   if (votes >= 1_000_000) return (votes / 1_000_000).toFixed(1) + "M";

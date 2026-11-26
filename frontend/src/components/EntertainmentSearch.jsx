@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ArrowUpRight, Compass, Film, Loader2, Search, SlidersHorizontal, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../api/axiosInstance";
+import { movieImage } from "../utils/movieImage";
 import { IMG } from "../utils/eventHelpers";
 import { useGlobalSearch } from "../context/globalSearchContext";
 import SearchScope, { SEARCH_SCOPES } from "./SearchScope";
@@ -44,7 +45,7 @@ function Result({ result, onClose }) {
       <Link className="now-global-result" to={target} onClick={onClose}>
         <span className="now-search-poster">
           <Film size={17} aria-hidden="true" />
-          {result.image && <img src={IMG(result.image)} alt="" loading="lazy" onError={(event) => { event.currentTarget.hidden = true; }} />}
+          {result.image && <img src={result.kind === "movie" ? movieImage(result.image) : IMG(result.image)} alt="" loading="lazy" onError={(event) => { event.currentTarget.hidden = true; }} />}
         </span>
         <span className="now-search-result-copy"><strong>{result.title}</strong><span>{details.join(" · ")}</span></span>
         <ArrowUpRight size={17} aria-hidden="true" />

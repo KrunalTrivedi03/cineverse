@@ -1,3 +1,4 @@
+import { movieImage as IMG } from "../utils/movieImage";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
@@ -8,7 +9,6 @@ import {
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 
-const IMG = (path) => !path ? null : path.startsWith("http") ? path : `https://res.cloudinary.com/duhc0vvqz/image/upload${path}`;
 
 /* ── Local date key ─────────────────────────────────── */
 const localDateKey = (d) => {
